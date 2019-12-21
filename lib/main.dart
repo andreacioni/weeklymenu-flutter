@@ -23,6 +23,8 @@ class WMHomePage extends StatefulWidget {
 }
 
 class _WMHomePageState extends State<WMHomePage> {
+  final _pageController = new PageController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +39,7 @@ class _WMHomePageState extends State<WMHomePage> {
           Container(
             padding: EdgeInsets.all(10),
             child: PageView(
+              controller: _pageController,
               children: <Widget>[
                 MenuPage("Mon. 7 Dec."),
                 MenuPage("Today"),
