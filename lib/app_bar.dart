@@ -4,24 +4,22 @@ class WMAppBar extends AppBar {
   static const _title = const Text(
     'Weekly Menu',
     style: TextStyle(
-        fontSize: 20.0,
+        fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
         fontFamily: 'Arial'),
   );
 
   WMAppBar()
       : super(
           centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 0.0,
+          elevation: 5.0,
           title: FlatButton(
             child: _title,
             onPressed: () => {},
           ),
           leading: const IconButton(
             icon: Icon(
-              Icons.more_horiz,
+              Icons.menu,
               size: 30.0,
               color: Colors.black,
             ),
