@@ -23,20 +23,6 @@ class MealHead extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
-          Row(
-            children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.add),
-                tooltip: "Add recipe",
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.delete_outline),
-                tooltip: "Delete meal",
-                onPressed: () {},
-              )
-            ],
-          ),
         ],
       ),
     );

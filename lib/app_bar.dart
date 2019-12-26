@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
+import 'dto/recipe.dart';
+
 class WMAppBar extends AppBar {
   static const _title = const Text(
     'Weekly Menu',
     style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Arial'),
+        fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Arial'),
   );
 
-  WMAppBar()
-      : super(
+  final bool _selectionMode;
+  final String day;
+  final List<Recipe> selectedRecipes;
+
+  WMAppBar(this._selectionMode, {this.day, this.selectedRecipes})
+      : assert(_selectionMode ? day != null && selectedRecipes != null : true), //TODO improve
+        super(
           centerTitle: true,
           elevation: 5.0,
           title: FlatButton(

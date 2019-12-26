@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:weekly_menu_app/dto/meal.dart';
+import 'package:weekly_menu_app/dto/menu.dart';
+import 'package:weekly_menu_app/dto/recipe.dart';
+import 'package:weekly_menu_app/recipe_title.dart';
 
 import './app_bar.dart';
 import './page.dart';
@@ -41,30 +45,57 @@ class WMHomePage extends StatefulWidget {
 
 class _WMHomePageState extends State<WMHomePage> {
   final _pageController = new PageController();
+  bool _selectionMode = false;
+  String _day = "";
+  List<Recipe> _selectedRecipes = List();
+
+  List<Menu> _menus = [
+    
+      Menu(
+        day: "Today",
+        meals: {
+          "Lunch": [
+          Recipe(
+            name: "Insalata Andrea",
+          ),
+          Recipe(
+            name: "Pane & Olio",
+          )
+        ],
+        }),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: WMAppBar(),
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 4.0,
-        icon: const Icon(Icons.calendar_today),
-        label: const Text('TODAY'),
-        onPressed: () {},
-      ),
+      appBar: WMAppBar(_selectionMode,
+          day: _day, selectedRecipes: _selectedRecipes),
+      floatingActionButton: !_selectionMode
+          ? FloatingActionButton.extended(
+              elevation: 4.0,
+              icon: const Icon(Icons.add),
+              label: const Text('ADD'),
+              onPressed: () {},
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         child: new Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.delete_outline),
-              onPressed: () {},
+            Row(
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: !_selectionMode ? () {} : null,
+                ),
+                Text(_day),
+              ],
             ),
             IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {},
+              icon: Icon(Icons.more_vert),
+              onPressed: !_selectionMode ? () {} : null,
             )
           ],
         ),
@@ -80,11 +111,7 @@ class _WMHomePageState extends State<WMHomePage> {
             padding: EdgeInsets.all(10),
             child: PageView(
               controller: _pageController,
-              children: <Widget>[
-                MenuPage("Mon. 7 Dec."),
-                MenuPage("Today"),
-                MenuPage("Mon. 9 Dec.")
-              ],
+              children: _menus.map((v) => MenuPage(v.)).toList(),
             ),
           )
         ],
