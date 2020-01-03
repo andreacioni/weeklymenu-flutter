@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:weekly_menu_app/dto/meal.dart';
-import 'package:weekly_menu_app/dto/menu.dart';
-import 'package:weekly_menu_app/dto/recipe.dart';
-import 'package:weekly_menu_app/recipe_title.dart';
+import 'package:weekly_menu_app/widgets/meal_dropdown.dart';
+import './models/menu.dart';
+import './models/recipe.dart';
 
-import './app_bar.dart';
+import './widgets/app_bar.dart';
 import './page.dart';
 
 void main() => runApp(WMApp());
@@ -46,24 +45,71 @@ class WMHomePage extends StatefulWidget {
 class _WMHomePageState extends State<WMHomePage> {
   final _pageController = new PageController();
   bool _selectionMode = false;
-  String _day = "";
+  String _day;
+  int _pageIndex;
   List<Recipe> _selectedRecipes = List();
 
   List<Menu> _menus = [
-    
-      Menu(
-        day: "Today",
-        meals: {
-          "Lunch": [
-          Recipe(
-            name: "Insalata Andrea",
-          ),
-          Recipe(
-            name: "Pane & Olio",
-          )
-        ],
-        }),
+    Menu(
+      day: "Today",
+      meals: {
+        "Lunch": [
+        Recipe(
+          name: "Insalata Andrea",
+        ),
+        Recipe(
+          name: "Pane & Olio",
+        ),
+        Recipe(
+          name: "Vellutata di ceci",
+        )
+      ],
+      "Dinner": [
+        Recipe(
+          name: "Pizza",
+        ),
+        Recipe(
+          name: "Pizza Cotto & Funghi",
+        ),
+      ],
+      }
+    ),
+    Menu(
+      day: "Tomorrow",
+      meals: {
+        "Lunch": [
+        Recipe(
+          name: "Insalata Andrea",
+        ),
+        Recipe(
+          name: "Pane & Olio",
+        )
+      ],
+      }
+    ),
   ];
+
+  _WMHomePageState() {
+    _pageIndex = 0;
+    _day = _menus[_pageIndex.truncate()].day;
+  }
+
+  void _setDayNameInBottomAppBar(int pageIndex) {
+    setState(() {
+      _pageIndex = pageIndex;
+      _day = _menus[pageIndex].day;
+    });
+  }
+
+  void _addNewRecipeOnCurrentDay(int pageIndex, String meal, Recipe recipe) {
+    setState(() {
+      _menus[pageIndex].meals[meal].add(recipe);
+    });
+  }
+
+  void _openAddRecipeModal(ctx) {
+    showModalBottomSheet(context: ctx, builder: (bCtx) => MealDropdown(),);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +121,7 @@ class _WMHomePageState extends State<WMHomePage> {
               elevation: 4.0,
               icon: const Icon(Icons.add),
               label: const Text('ADD'),
-              onPressed: () {},
+              onPressed: () {_openAddRecipeModal(context);},
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -111,7 +157,8 @@ class _WMHomePageState extends State<WMHomePage> {
             padding: EdgeInsets.all(10),
             child: PageView(
               controller: _pageController,
-              children: _menus.map((v) => MenuPage(v.)).toList(),
+              children: _menus.map((v) => MenuPage(v.meals)).toList(),
+              onPageChanged: _setDayNameInBottomAppBar,
             ),
           )
         ],

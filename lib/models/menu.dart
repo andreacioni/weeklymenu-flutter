@@ -1,5 +1,3 @@
-import 'package:weekly_menu_app/dto/meal.dart';
-
 import 'recipe.dart';
 
 class Menu {

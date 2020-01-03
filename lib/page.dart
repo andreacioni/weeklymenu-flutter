@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:weekly_menu_app/meal_head.dart';
+import 'package:weekly_menu_app/models/recipe.dart';
 import 'package:weekly_menu_app/recipe_title.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
 class MenuPage extends StatelessWidget {
-  final String _title;
+  final Map<String, List<Recipe>> _meals;
 
-  MenuPage(this._title);
+  MenuPage(this._meals);
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +22,10 @@ class MenuPage extends StatelessWidget {
             elevation: 1,
             child: ListView(
               padding: EdgeInsets.all(10),
-              children: <Widget>[
-                StickyHeader(
-                  header: MealHead("Lunch"),
-                  content: RecipeTile(),
-                ),
-                StickyHeader(
-                  header: MealHead("Dinner"),
-                  content: RecipeTile(),
-                ),
-              ],
+              children: _meals.entries.map((meal) => StickyHeader(
+                  header: MealHead(meal.key),
+                  content: RecipeTile(meal.value),
+                )).toList(),
             ),
           ),
         ),
