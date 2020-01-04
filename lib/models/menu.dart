@@ -1,8 +1,9 @@
 import 'recipe.dart';
+import 'meals.dart';
 
 class Menu {
   String day;
-  Map<String, List<Recipe>> meals;
+  Map<Meal, List<Recipe>> meals;
 
   Menu({this.day, this.meals});
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:weekly_menu_app/widgets/meal_dropdown.dart';
+import './widgets/recipe_selection_text_field.dart';
 import './models/menu.dart';
 import './models/recipe.dart';
+import './models/meals.dart';
 
 import './widgets/app_bar.dart';
 import './page.dart';
@@ -53,7 +55,7 @@ class _WMHomePageState extends State<WMHomePage> {
     Menu(
       day: "Today",
       meals: {
-        "Lunch": [
+        Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
         ),
@@ -64,7 +66,7 @@ class _WMHomePageState extends State<WMHomePage> {
           name: "Vellutata di ceci",
         )
       ],
-      "Dinner": [
+      Meal.Dinner: [
         Recipe(
           name: "Pizza",
         ),
@@ -77,7 +79,7 @@ class _WMHomePageState extends State<WMHomePage> {
     Menu(
       day: "Tomorrow",
       meals: {
-        "Lunch": [
+        Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
         ),
@@ -108,7 +110,14 @@ class _WMHomePageState extends State<WMHomePage> {
   }
 
   void _openAddRecipeModal(ctx) {
-    showModalBottomSheet(context: ctx, builder: (bCtx) => MealDropdown(),);
+    showModalBottomSheet(context: ctx, builder: (bCtx) => Padding(padding: EdgeInsets.all(10), child: Row(children: <Widget>[
+      MealDropdown(),
+      RecipeSelectionTextField(),
+    ],)),);
+  }
+
+  void _openDatePickerModal(ctx) {
+    showDatePicker(context: ctx, initialDate: DateTime.now(), firstDate: DateTime.now().subtract(Duration(days: 3600)), lastDate: DateTime.now().add((Duration(days: 3600))));
   }
 
   @override
@@ -134,9 +143,9 @@ class _WMHomePageState extends State<WMHomePage> {
               children: <Widget>[
                 IconButton(
                   icon: Icon(Icons.calendar_today),
-                  onPressed: !_selectionMode ? () {} : null,
+                  onPressed: !_selectionMode ? () => _openDatePickerModal(context) : null,
                 ),
-                Text(_day),
+                GestureDetector(child: Text(_day), onTap: !_selectionMode ? () => _openDatePickerModal(context) : null,),
               ],
             ),
             IconButton(
