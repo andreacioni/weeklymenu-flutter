@@ -19,8 +19,8 @@ class WMApp extends StatelessWidget {
       theme: ThemeData(
         // Define the default brightness and colors.
         brightness: Brightness.light,
-        primaryColor: Colors.yellow,
-        accentColor: Colors.yellowAccent,
+        primaryColor: Colors.amber,
+        accentColor: Colors.amber,
 
         // Define the default font family.
         fontFamily: 'Aerial',
@@ -52,10 +52,8 @@ class _WMHomePageState extends State<WMHomePage> {
   List<Recipe> _selectedRecipes = List();
 
   List<Menu> _menus = [
-    Menu(
-      day: "Today",
-      meals: {
-        Meal.Lunch: [
+    Menu(day: "Today", meals: {
+      Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
         ),
@@ -74,12 +72,9 @@ class _WMHomePageState extends State<WMHomePage> {
           name: "Pizza Cotto & Funghi",
         ),
       ],
-      }
-    ),
-    Menu(
-      day: "Tomorrow",
-      meals: {
-        Meal.Lunch: [
+    }),
+    Menu(day: "Tomorrow", meals: {
+      Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
         ),
@@ -87,8 +82,7 @@ class _WMHomePageState extends State<WMHomePage> {
           name: "Pane & Olio",
         )
       ],
-      }
-    ),
+    }),
   ];
 
   _WMHomePageState() {
@@ -110,14 +104,47 @@ class _WMHomePageState extends State<WMHomePage> {
   }
 
   void _openAddRecipeModal(ctx) {
-    showModalBottomSheet(context: ctx, builder: (bCtx) => Padding(padding: EdgeInsets.all(10), child: Row(children: <Widget>[
-      MealDropdown(),
-      RecipeSelectionTextField(),
-    ],)),);
+    showModalBottomSheet(
+      context: ctx,
+      builder: (bCtx) => Padding(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  MealDropdown(),
+                  RecipeSelectionTextField(menuListToRecipeList()),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  FlatButton(
+                    child: Text("CANCEL"),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  FlatButton(
+                    child: Text("CREATE"),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ],
+          )),
+    );
   }
 
   void _openDatePickerModal(ctx) {
-    showDatePicker(context: ctx, initialDate: DateTime.now(), firstDate: DateTime.now().subtract(Duration(days: 3600)), lastDate: DateTime.now().add((Duration(days: 3600))));
+    showDatePicker(
+        context: ctx,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(Duration(days: 3600)),
+        lastDate: DateTime.now().add((Duration(days: 3600))));
+  }
+
+  List<String> menuListToRecipeList() {
+    return ["Pici aglio e olio", "Spaghetti alla matriciana", "Uovo sodo"];
   }
 
   @override
@@ -130,7 +157,9 @@ class _WMHomePageState extends State<WMHomePage> {
               elevation: 4.0,
               icon: const Icon(Icons.add),
               label: const Text('ADD'),
-              onPressed: () {_openAddRecipeModal(context);},
+              onPressed: () {
+                _openAddRecipeModal(context);
+              },
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -143,9 +172,16 @@ class _WMHomePageState extends State<WMHomePage> {
               children: <Widget>[
                 IconButton(
                   icon: Icon(Icons.calendar_today),
-                  onPressed: !_selectionMode ? () => _openDatePickerModal(context) : null,
+                  onPressed: !_selectionMode
+                      ? () => _openDatePickerModal(context)
+                      : null,
                 ),
-                GestureDetector(child: Text(_day), onTap: !_selectionMode ? () => _openDatePickerModal(context) : null,),
+                GestureDetector(
+                  child: Text(_day),
+                  onTap: !_selectionMode
+                      ? () => _openDatePickerModal(context)
+                      : null,
+                ),
               ],
             ),
             IconButton(

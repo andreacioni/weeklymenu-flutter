@@ -22,7 +22,7 @@ class _MealDropdownState extends State<MealDropdown> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text("Meal "),
+        Text("Meal", style: TextStyle(fontSize: 18),),
         DropdownButton<Meal>(
           value: _dropdownValue,
           items: Meal.values.map((meal) => _createDropDownItem(meal)).toList(),
