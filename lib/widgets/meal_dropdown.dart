@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/meals.dart';
 
 class MealDropdown extends StatefulWidget {
+
+  MealDropdown();
+
   @override
   _MealDropdownState createState() => _MealDropdownState();
 }

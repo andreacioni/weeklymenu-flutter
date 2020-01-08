@@ -2,30 +2,38 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-class RecipeSelectionTextField extends StatelessWidget {
+class RecipeSelectionTextField extends StatefulWidget {
   final List<String> _availableRecipes;
-  final TextEditingController _typeAheadController =
-      new TextEditingController();
 
   RecipeSelectionTextField(this._availableRecipes);
 
   @override
+  _RecipeSelectionTextFieldState createState() =>
+      _RecipeSelectionTextFieldState();
+}
+
+class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
+  final TextEditingController _typeAheadController =
+      new TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text(
-          "Recipe",
-          style: TextStyle(fontSize: 18),
-        ),
-        SizedBox(
-          width: 200,
+        Expanded(
           child: TypeAheadField(
             direction: AxisDirection.up,
-            textFieldConfiguration:
-                TextFieldConfiguration(controller: _typeAheadController),
+            textFieldConfiguration: TextFieldConfiguration(
+              controller: _typeAheadController,
+              decoration: InputDecoration(
+                  hintText: "Recipe",
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {},
+                  )),
+            ),
             suggestionsCallback: (pattern) async {
-              return _availableRecipes
+              return widget._availableRecipes
                   .where((r) => r.toLowerCase().contains(pattern.toLowerCase()))
                   .toList();
             },

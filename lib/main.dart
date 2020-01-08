@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:weekly_menu_app/widgets/meal_dropdown.dart';
-import './widgets/recipe_selection_text_field.dart';
 import './models/menu.dart';
 import './models/recipe.dart';
 import './models/meals.dart';
+import './widgets/add_recipe_to_meno_modal.dart';
 
 import './widgets/app_bar.dart';
 import './page.dart';
@@ -50,6 +49,7 @@ class _WMHomePageState extends State<WMHomePage> {
   String _day;
   int _pageIndex;
   List<Recipe> _selectedRecipes = List();
+  Meal _selectedMeal = Meal.Breakfast;
 
   List<Menu> _menus = [
     Menu(day: "Today", meals: {
@@ -103,35 +103,17 @@ class _WMHomePageState extends State<WMHomePage> {
     });
   }
 
+  void _updateSelectedMeal(Meal meal) {
+    _selectedMeal = meal;
+  }
+
   void _openAddRecipeModal(ctx) {
     showModalBottomSheet(
       context: ctx,
       builder: (bCtx) => Padding(
-          padding: EdgeInsets.all(15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  MealDropdown(),
-                  RecipeSelectionTextField(menuListToRecipeList()),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  FlatButton(
-                    child: Text("CANCEL"),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  FlatButton(
-                    child: Text("CREATE"),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ],
-          )),
+        padding: EdgeInsets.all(15),
+        child: AddRecipeToMenuModal(),
+      ),
     );
   }
 
@@ -141,10 +123,6 @@ class _WMHomePageState extends State<WMHomePage> {
         initialDate: DateTime.now(),
         firstDate: DateTime.now().subtract(Duration(days: 3600)),
         lastDate: DateTime.now().add((Duration(days: 3600))));
-  }
-
-  List<String> menuListToRecipeList() {
-    return ["Pici aglio e olio", "Spaghetti alla matriciana", "Uovo sodo"];
   }
 
   @override
