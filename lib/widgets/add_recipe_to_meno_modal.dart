@@ -25,7 +25,7 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
         Column(
           children: <Widget>[
             MealDropdown(),
-            RecipeSelectionTextField(menuListToRecipeList()),
+            RecipeSelectionTextField(menuListToRecipeList(), () {}),
             
           ],
         ),
@@ -38,7 +38,7 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             FlatButton(
-              child: Text("ADD"),
+              child: Text("FINISH"),
               onPressed: !_almostOneRecipeSelected ? null : () {},
             ),
           ],
