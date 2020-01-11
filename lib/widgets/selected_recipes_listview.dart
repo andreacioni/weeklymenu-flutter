@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
 class SelectedRecipesListView extends StatefulWidget {
+  final Function onRecipeRemoved;
+  final List<String> _recipesList;
+
+  SelectedRecipesListView(this._recipesList, {this.onRecipeRemoved});
+
   @override
   _SelectedRecipesListViewState createState() =>
       _SelectedRecipesListViewState();
 }
 
 class _SelectedRecipesListViewState extends State<SelectedRecipesListView> {
-  List<String> _selectedRecipesList = ["AGGGG"];
 
   void addSelectedRecipe(String recipe) {
     setState(() {
-      _selectedRecipesList.add(recipe);
+      widget._recipesList.add(recipe);
     });
   }
 
@@ -19,13 +23,17 @@ class _SelectedRecipesListViewState extends State<SelectedRecipesListView> {
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView(
-        children: _selectedRecipesList
+        children: widget._recipesList
             .map(
               (recipe) => ListTile(
                 title: Text(recipe),
                 trailing: IconButton(
                   icon: Icon(Icons.delete),
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      widget._recipesList.removeWhere((r) => r == recipe);
+                    });
+                  },
                 ),
               ),
             )

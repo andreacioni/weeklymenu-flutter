@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class RecipeSelectionTextField extends StatefulWidget {
-  final List<String> _availableRecipes;
-  final Function _selectedRecipesCallback;
+  final List<String> _availableRecipes = ["Pici aglio e olio", "Spaghetti alla matriciana", "Uovo sodo"];
+  final Function onRecipeSelected;
 
-  RecipeSelectionTextField(
-      this._availableRecipes, this._selectedRecipesCallback);
+  RecipeSelectionTextField({this.onRecipeSelected});
 
   @override
   _RecipeSelectionTextFieldState createState() =>
@@ -77,7 +76,7 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
                     onPressed: () {
                       _typeAheadController.clear();
                       clearTrailingTextFieldButton();
-                      widget._selectedRecipesCallback(suggestion);
+                      widget.onRecipeSelected(suggestion);
                     },
                   );
                 });

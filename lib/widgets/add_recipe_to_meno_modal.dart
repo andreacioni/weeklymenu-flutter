@@ -11,11 +11,7 @@ class AddRecipeToMenuModal extends StatefulWidget {
 
 class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
 
-  bool _almostOneRecipeSelected = false;
-
-  List<String> menuListToRecipeList() {
-    return ["Pici aglio e olio", "Spaghetti alla matriciana", "Uovo sodo"];
-  }
+  List<String> _selectedRecipes = [];
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +21,18 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
         Column(
           children: <Widget>[
             MealDropdown(),
-            RecipeSelectionTextField(menuListToRecipeList(), () {}),
-            
+            RecipeSelectionTextField(
+              onRecipeSelected: (r) {
+                setState(() {
+                  _selectedRecipes.add(r);
+                });
+              }),
           ],
         ),
-        SelectedRecipesListView(),
+        SelectedRecipesListView(
+          _selectedRecipes,
+          onRecipeRemoved: () {}
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
@@ -39,7 +42,7 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
             ),
             FlatButton(
               child: Text("FINISH"),
-              onPressed: !_almostOneRecipeSelected ? null : () {},
+              onPressed: _selectedRecipes.isEmpty ? null : () {},
             ),
           ],
         ),
