@@ -5,6 +5,10 @@ import './recipe_selection_text_field.dart';
 import './selected_recipes_listview.dart';
 
 class AddRecipeToMenuModal extends StatefulWidget {
+  final Function(List<String>) onSelectionEnd;
+
+  AddRecipeToMenuModal({this.onSelectionEnd}) : assert (onSelectionEnd != null);
+
   @override
   _AddRecipeToMenuModalState createState() => _AddRecipeToMenuModalState();
 }
@@ -47,7 +51,10 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
             ),
             FlatButton(
               child: Text("FINISH"),
-              onPressed: _selectedRecipes.isEmpty ? null : () {},
+              onPressed: _selectedRecipes.isEmpty ? null : () {
+                widget.onSelectionEnd(_selectedRecipes);
+                Navigator.of(context).pop();
+              } ,
             ),
           ],
         ),

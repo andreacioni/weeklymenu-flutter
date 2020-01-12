@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import './models/menu.dart';
 import './models/recipe.dart';
 import './models/meals.dart';
-import './widgets/add_recipe_to_meno_modal.dart';
+import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 
-import './widgets/app_bar.dart';
-import './page.dart';
+import './widgets/app_bar/app_bar.dart';
+import './widgets/menu_page/page.dart';
 
 void main() => runApp(WMApp());
 
@@ -110,9 +110,9 @@ class _WMHomePageState extends State<WMHomePage> {
   void _openAddRecipeModal(ctx) {
     showModalBottomSheet(
       context: ctx,
-      builder: (bCtx) => Padding(
+      builder: (_) => Padding(
         padding: EdgeInsets.all(15),
-        child: AddRecipeToMenuModal(),
+        child: AddRecipeToMenuModal(onSelectionEnd: (_) {},),
       ),
     );
   }

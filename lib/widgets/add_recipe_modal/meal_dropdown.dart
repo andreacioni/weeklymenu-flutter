@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/meals.dart';
+import '../../models/meals.dart';
 
 class MealDropdown extends StatefulWidget {
 

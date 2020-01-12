@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/recipe.dart';
+import '../../models/recipe.dart';
 
 class WMAppBar extends AppBar {
   static const _title = const Text(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:weekly_menu_app/meal_head.dart';
-import 'package:weekly_menu_app/models/meals.dart';
-import 'package:weekly_menu_app/models/recipe.dart';
-import 'package:weekly_menu_app/recipe_title.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+
+import './meal_head.dart';
+import '../../models/meals.dart';
+import '../../models/recipe.dart';
+import './recipe_title.dart';
 
 class MenuPage extends StatelessWidget {
   final Map<Meal, List<Recipe>> _meals;
