@@ -22,16 +22,21 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
           children: <Widget>[
             MealDropdown(),
             RecipeSelectionTextField(
-              onRecipeSelected: (r) {
+              _selectedRecipes,
+              onRecipeSelected: (recipe) {
                 setState(() {
-                  _selectedRecipes.add(r);
+                  _selectedRecipes.add(recipe);
                 });
               }),
           ],
         ),
         SelectedRecipesListView(
           _selectedRecipes,
-          onRecipeRemoved: () {}
+          onRecipeRemoved: (recipe) {
+            setState(() {
+              _selectedRecipes.removeWhere((r) => r == recipe);
+            });
+          }
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,

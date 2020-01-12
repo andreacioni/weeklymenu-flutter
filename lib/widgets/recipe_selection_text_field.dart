@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class RecipeSelectionTextField extends StatefulWidget {
-  final List<String> _availableRecipes = ["Pici aglio e olio", "Spaghetti alla matriciana", "Uovo sodo"];
+  final List<String> _availableRecipes = [
+    "Pici aglio e olio",
+    "Spaghetti alla matriciana",
+    "Uovo sodo"
+  ];
   final Function onRecipeSelected;
+  final List<String> _alreadySelectedRecipes;
 
-  RecipeSelectionTextField({this.onRecipeSelected});
+  RecipeSelectionTextField(this._alreadySelectedRecipes,
+      {this.onRecipeSelected});
 
   @override
   _RecipeSelectionTextFieldState createState() =>
@@ -27,6 +33,9 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
             r.toLowerCase().trim().contains(pattern.trim().toLowerCase()))
         .toList();
 
+    //Remove recipes already selected
+    suggestions.removeWhere((r) => widget._alreadySelectedRecipes.contains(r));
+
     if (pattern.trim() != "") {
       suggestions.add(addNewRecipeSuggestion);
     }
@@ -38,6 +47,17 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
     setState(() {
       trailingTextFieldButton = null;
     });
+  }
+
+  Widget buildAddRecipeIconButton(String suggestion) {
+    return IconButton(
+      icon: Icon(Icons.add),
+      onPressed: () {
+        _typeAheadController.clear();
+        clearTrailingTextFieldButton();
+        widget.onRecipeSelected(suggestion);
+      },
+    );
   }
 
   @override
@@ -61,9 +81,12 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
             },
             itemBuilder: (context, suggestion) {
               return ListTile(
-                leading: Icon(Icons.shopping_cart),
+                trailing: Icon(Icons.shop),
                 title: Text(suggestion),
               );
+            },
+            noItemsFoundBuilder: (_) {
+              return Text("Type a new recipe name");
             },
             onSuggestionSelected: (suggestion) {
               if (suggestion == addNewRecipeSuggestion) {
@@ -71,14 +94,8 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
               } else {
                 this._typeAheadController.text = suggestion;
                 setState(() {
-                  trailingTextFieldButton = IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      _typeAheadController.clear();
-                      clearTrailingTextFieldButton();
-                      widget.onRecipeSelected(suggestion);
-                    },
-                  );
+                  trailingTextFieldButton =
+                      buildAddRecipeIconButton(suggestion);
                 });
               }
             },

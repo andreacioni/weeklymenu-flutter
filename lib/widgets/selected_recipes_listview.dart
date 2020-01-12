@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SelectedRecipesListView extends StatefulWidget {
-  final Function onRecipeRemoved;
+  final Function(String) onRecipeRemoved;
   final List<String> _recipesList;
 
   SelectedRecipesListView(this._recipesList, {this.onRecipeRemoved});
@@ -33,6 +33,7 @@ class _SelectedRecipesListViewState extends State<SelectedRecipesListView> {
                     setState(() {
                       widget._recipesList.removeWhere((r) => r == recipe);
                     });
+                    widget.onRecipeRemoved(recipe);
                   },
                 ),
               ),
