@@ -2,7 +2,7 @@ import 'recipe.dart';
 import 'meals.dart';
 
 class Menu {
-  String day;
+  DateTime day;
   Map<Meal, List<Recipe>> meals;
 
   Menu({this.day, this.meals});

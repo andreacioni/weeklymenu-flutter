@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import './globals/constants.dart';
 import './models/menu.dart';
 import './models/recipe.dart';
 import './models/meals.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
-
 import './widgets/app_bar/app_bar.dart';
 import './widgets/menu_page/page.dart';
 
@@ -46,13 +48,13 @@ class WMHomePage extends StatefulWidget {
 class _WMHomePageState extends State<WMHomePage> {
   final _pageController = new PageController();
   bool _selectionMode = false;
-  String _day;
+  DateTime _day;
   int _pageIndex;
   List<Recipe> _selectedRecipes = List();
   Meal _selectedMeal = Meal.Breakfast;
 
   List<Menu> _menus = [
-    Menu(day: "Today", meals: {
+    Menu(day: DateTime.now(), meals: {
       Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
@@ -73,7 +75,7 @@ class _WMHomePageState extends State<WMHomePage> {
         ),
       ],
     }),
-    Menu(day: "Tomorrow", meals: {
+    Menu(day: DateTime.now().add(Duration(days: 1)), meals: {
       Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
@@ -92,8 +94,8 @@ class _WMHomePageState extends State<WMHomePage> {
 
   void _setDayNameInBottomAppBar(int pageIndex) {
     setState(() {
-      _pageIndex = pageIndex;
-      _day = _menus[pageIndex].day;
+      _pageIndex = pageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate();
+      _day = _menus[_pageIndex].day;
     });
   }
 
@@ -112,17 +114,28 @@ class _WMHomePageState extends State<WMHomePage> {
       context: ctx,
       builder: (_) => Padding(
         padding: EdgeInsets.all(15),
-        child: AddRecipeToMenuModal(onSelectionEnd: (_) {},),
+        child: AddRecipeToMenuModal(
+          onSelectionEnd: (_) {},
+        ),
       ),
     );
   }
 
-  void _openDatePickerModal(ctx) {
-    showDatePicker(
-        context: ctx,
-        initialDate: DateTime.now(),
-        firstDate: DateTime.now().subtract(Duration(days: 3600)),
-        lastDate: DateTime.now().add((Duration(days: 3600))));
+  void _selectDate(ctx) {
+    Future<DateTime> picked = showDatePicker(
+      context: ctx,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now()
+          .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
+      lastDate: DateTime.now()
+          .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
+    ).then(onValue);
+
+    if(picked. == null) return;
+
+    setState(() {
+      _day = picked;
+    });
   }
 
   @override
@@ -150,15 +163,12 @@ class _WMHomePageState extends State<WMHomePage> {
               children: <Widget>[
                 IconButton(
                   icon: Icon(Icons.calendar_today),
-                  onPressed: !_selectionMode
-                      ? () => _openDatePickerModal(context)
-                      : null,
+                  onPressed:
+                      !_selectionMode ? () => _selectDate(context) : null,
                 ),
                 GestureDetector(
-                  child: Text(_day),
-                  onTap: !_selectionMode
-                      ? () => _openDatePickerModal(context)
-                      : null,
+                  child: Text(DateFormat.MMMEd().format(_day)),
+                  onTap: !_selectionMode ? () => _selectDate(context) : null,
                 ),
               ],
             ),
@@ -178,10 +188,15 @@ class _WMHomePageState extends State<WMHomePage> {
           ),
           Container(
             padding: EdgeInsets.all(10),
-            child: PageView(
-              controller: _pageController,
-              children: _menus.map((v) => MenuPage(v.meals)).toList(),
+            child: PageView.builder(
+              itemBuilder: (ctx, index) {
+                return MenuPage(
+                    _menus[index - (PAGEVIEW_LIMIT_DAYS / 2).truncate()].meals);
+              },
               onPageChanged: _setDayNameInBottomAppBar,
+              controller: PageController(
+                initialPage: (PAGEVIEW_LIMIT_DAYS / 2).truncate(),
+              ),
             ),
           )
         ],

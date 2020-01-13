@@ -10,7 +10,7 @@ class WMAppBar extends AppBar {
   );
 
   final bool _selectionMode;
-  final String day;
+  final DateTime day;
   final List<Recipe> selectedRecipes;
 
   WMAppBar(this._selectionMode, {this.day, this.selectedRecipes})

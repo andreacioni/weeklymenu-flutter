@@ -1,0 +1,1 @@
+final PAGEVIEW_LIMIT_DAYS = 365 * 2;
