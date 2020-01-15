@@ -46,15 +46,21 @@ class WMHomePage extends StatefulWidget {
 }
 
 class _WMHomePageState extends State<WMHomePage> {
-  final _pageController = new PageController();
+  PageController _pageController;
   bool _selectionMode = false;
   DateTime _day;
-  int _pageIndex;
   List<Recipe> _selectedRecipes = List();
   Meal _selectedMeal = Meal.Breakfast;
 
   List<Menu> _menus = [
-    Menu(day: DateTime.now(), meals: {
+    Menu(day: DateTime(2020,01,14), meals: {
+      Meal.Lunch: [
+        Recipe(
+          name: "Insalata Andrea",
+        ),
+      ],
+    }),
+    Menu(day: DateTime(2020,01,15), meals: {
       Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
@@ -75,7 +81,7 @@ class _WMHomePageState extends State<WMHomePage> {
         ),
       ],
     }),
-    Menu(day: DateTime.now().add(Duration(days: 1)), meals: {
+    Menu(day: DateTime(2020,01,16), meals: {
       Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
@@ -88,14 +94,18 @@ class _WMHomePageState extends State<WMHomePage> {
   ];
 
   _WMHomePageState() {
-    _pageIndex = 0;
-    _day = _menus[_pageIndex.truncate()].day;
+    var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
+    _pageController = new PageController(initialPage: pageIndex);
+    
+    var now = DateTime.now();
+    _day = DateTime(now.year, now.month, now.day);
   }
 
-  void _setDayNameInBottomAppBar(int pageIndex) {
+  void _setDayNameInBottomAppBar(int newPageIndex) {
+    print("page changed to ${newPageIndex}" );
     setState(() {
-      _pageIndex = pageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate();
-      _day = _menus[_pageIndex].day;
+      var now = DateTime.now();
+      _day = DateTime(now.year, now.month, now.day).add(Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
     });
   }
 
@@ -121,20 +131,26 @@ class _WMHomePageState extends State<WMHomePage> {
     );
   }
 
-  void _selectDate(ctx) {
-    Future<DateTime> picked = showDatePicker(
+  void _selectDate(ctx) async {
+    showDatePicker(
       context: ctx,
-      initialDate: DateTime.now(),
+      initialDate: _day,
       firstDate: DateTime.now()
           .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
       lastDate: DateTime.now()
           .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
-    ).then(onValue);
-
-    if(picked. == null) return;
-
-    setState(() {
-      _day = picked;
+    ).then((selectedDate) {
+      setState(() {
+        int oldPageIndex = _pageController.page.truncate();
+        if (selectedDate.compareTo(_day) != 0) {
+          print("jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
+          int newPageIndex =
+              oldPageIndex + selectedDate.difference(_day).inDays;
+          print("jumping to page: ${newPageIndex}");
+          _pageController.jumpToPage(newPageIndex);
+        }
+      });
+      return selectedDate;
     });
   }
 
@@ -191,12 +207,10 @@ class _WMHomePageState extends State<WMHomePage> {
             child: PageView.builder(
               itemBuilder: (ctx, index) {
                 return MenuPage(
-                    _menus[index - (PAGEVIEW_LIMIT_DAYS / 2).truncate()].meals);
+                    _menus[(index - (PAGEVIEW_LIMIT_DAYS / 2).truncate())%3].meals);
               },
               onPageChanged: _setDayNameInBottomAppBar,
-              controller: PageController(
-                initialPage: (PAGEVIEW_LIMIT_DAYS / 2).truncate(),
-              ),
+              controller: _pageController,
             ),
           )
         ],
