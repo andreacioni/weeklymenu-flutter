@@ -14,7 +14,7 @@ class RecipeTile extends StatelessWidget {
     return Column(
       children: _recipes.map((recipe) => Card(
           child: ListTile(
-            leading: Hero(tag: 'recipe', child: FlutterLogo(size: 72.0)),
+            leading: Hero(tag: recipe.name, child: FlutterLogo(size: 72.0)),
             title: Text(recipe.name),
             subtitle:
                 Text('A sufficiently long subtitle warrants three lines.'),

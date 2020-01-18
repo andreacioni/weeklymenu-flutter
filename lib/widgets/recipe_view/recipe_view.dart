@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../models/recipe.dart';
 
+import './recipe_app_bar.dart';
+import './editable_text_field.dart';
+
 class RecipeView extends StatefulWidget {
   final Recipe _recipe;
 
@@ -12,32 +15,31 @@ class RecipeView extends StatefulWidget {
 }
 
 class _RecipeViewState extends State<RecipeView> {
-
-  bool _editDisabled = true;
-
-  void _swapEditDisabled() {
-    setState(() {
-                _editDisabled = !_editDisabled;
-              });
-  }
+  bool _editEnabled = false;
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverAppBar(
-          expandedHeight: 150.0,
-          flexibleSpace: FlexibleSpaceBar(
-            title: Text(widget._recipe.name),
-            background: Hero(tag: 'recipe', child: FlutterLogo(size: 72.0)),
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: <Widget>[
+          RecipeAppBar(
+            widget._recipe,
+            editModeEnabled: _editEnabled,
+            onRecipeEditEnabled: (editEnabled) => setState(() {
+              _editEnabled = editEnabled;
+            }),
           ),
-          actions: <Widget>[
-            if(_editDisabled) IconButton(icon: Icon(Icons.edit), onPressed: () => _swapEditDisabled(),),
-            if(!_editDisabled) IconButton(icon: Icon(Icons.check), onPressed: () => _swapEditDisabled(),)
-          ],
-        ),
-        
-      ],
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Column(
+                children: <Widget>[
+                  Text("abc"),
+                ],
+              )
+            ]),
+          )
+        ],
+      ),
     );
   }
 }
