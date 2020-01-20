@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:expandable/expandable.dart';
+import 'package:grouped_buttons/grouped_buttons.dart';
 
 import '../../models/recipe.dart';
 
+import './expandable_widget.dart';
 import './recipe_app_bar.dart';
 import './editable_text_field.dart';
 
@@ -31,13 +34,16 @@ class _RecipeViewState extends State<RecipeView> {
           ),
           SliverList(
             delegate: SliverChildListDelegate([
-              Column(
-                children: <Widget>[
-                  Text("abc"),
-                ],
-              )
+              SizedBox(
+                height: 5,
+              ),
+              EditableTextField(
+                "A delicious salad",
+                _editEnabled,
+                hintText: "Description",
+              ),
             ]),
-          )
+          ),
         ],
       ),
     );

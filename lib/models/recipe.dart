@@ -2,15 +2,20 @@ import './ingredient.dart';
 
 class Recipe {
   String id;
+  
   String name;
   String description;
-  String note;
+  int rating;
   List<int> availabilityMonths;
-  List<Ingredient> ingredients;
+  
   int servs;
   int estimatedCookingTime;
   int estimatedPreparationTime;
-  int rating;
+
+  List<Ingredient> ingredients;
+
+  String note;
+  
   String recipeUrl;
   List<String> tags;
 
