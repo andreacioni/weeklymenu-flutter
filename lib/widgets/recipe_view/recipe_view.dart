@@ -38,10 +38,45 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                "A delicious salad",
-                _editEnabled,
+                widget._recipe.description,
+                editEnabled: _editEnabled,
                 hintText: "Description",
               ),
+              SizedBox(
+                height: 5,
+              ),
+            ]),
+          ),
+          SliverGrid.count(
+            crossAxisCount: 3,
+            children: <Widget>[
+              EditableTextField(
+                "2",
+                editEnabled: _editEnabled,
+                icon: Icon(Icons.people),
+                hintText: "Servs",
+              ),
+              EditableTextField(
+                "12 min",
+                editEnabled: _editEnabled,
+                icon: Icon(Icons.timer),
+              ),
+              EditableTextField(
+                "3/5",
+                editEnabled: _editEnabled,
+                icon: Icon(Icons.star),
+              ),
+            ],
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Text("Ingredients"),
+              ...widget._recipe.ingredients
+                  .map((ing) => ListTile(
+                        title: Text(ing.name),
+                      ))
+                  .toList(),
+              EditableTextField("", editEnabled: _editEnabled, hintText: "Notes"),
             ]),
           ),
         ],

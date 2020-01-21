@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
 
 import './globals/constants.dart';
 import './models/menu.dart';
@@ -57,6 +58,12 @@ class _WMHomePageState extends State<WMHomePage> {
       Meal.Lunch: [
         Recipe(
           name: "Insalata Andrea",
+          description: "A delicious salad",
+          ingredients: [
+            Ingredient(name: "Insalata"),
+            Ingredient(name: "Pomodori"),
+            Ingredient(name: "Tonno")
+          ]
         ),
       ],
     }),

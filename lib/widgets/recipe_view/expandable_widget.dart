@@ -10,7 +10,7 @@ class ExpandableWidget extends StatefulWidget {
 class _ExpandableWidgetState extends State<ExpandableWidget> {
   @override
   Widget build(BuildContext context) {
-     return ExpandablePanel(
+    return ExpandablePanel(
        header: Text("Lorem ipsum",
         style: Theme.of(context).textTheme.body2,
       ),
