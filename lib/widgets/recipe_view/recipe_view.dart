@@ -76,7 +76,8 @@ class _RecipeViewState extends State<RecipeView> {
                         title: Text(ing.name),
                       ))
                   .toList(),
-              EditableTextField("", editEnabled: _editEnabled, hintText: "Notes"),
+              Text("Notes"),
+              EditableTextField("", editEnabled: _editEnabled, hintText: "Add note...", maxLines: 1000,),
             ]),
           ),
         ],
