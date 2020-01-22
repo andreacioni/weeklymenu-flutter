@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 class EditableTextField extends StatefulWidget {
   final String _text;
   final bool editEnabled;
+  final Widget prefix;
   final String hintText;
   final int minLines;
   final int maxLines;
   final Widget icon; 
 
-  EditableTextField(this._text, {this.editEnabled = false, this.hintText = "", this.minLines = 1, this.maxLines = 1, this.icon = null});
+  EditableTextField(this._text, {this.editEnabled = false, this.prefix, this.hintText = "", this.minLines = 1, this.maxLines = 1, this.icon = null});
 
   @override
   _EditableTextFieldState createState() => _EditableTextFieldState();
@@ -29,6 +30,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
         border: InputBorder.none,
         contentPadding: EdgeInsets.all(9),
         hintText: widget.hintText,
+        prefix: widget.prefix,
       ),
       maxLines: widget.maxLines,
       minLines: widget.minLines,

@@ -13,6 +13,7 @@ class RecipeAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 150.0,
+      pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(_recipe.name),
         background:

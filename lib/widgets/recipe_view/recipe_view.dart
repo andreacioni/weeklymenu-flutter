@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:expandable/expandable.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
+import 'package:flutter_tags/tag.dart';
 
 import '../../models/recipe.dart';
 
@@ -45,31 +46,30 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-            ]),
-          ),
-          SliverGrid.count(
-            crossAxisCount: 3,
-            children: <Widget>[
-              EditableTextField(
-                "2",
-                editEnabled: _editEnabled,
-                icon: Icon(Icons.people),
-                hintText: "Servs",
+              Text("Information"),
+              Padding(
+                padding: EdgeInsets.only(left: 10, right: 10),
+                              child: Column(
+                  children: <Widget>[
+                    EditableTextField(
+                      "2",
+                      editEnabled: _editEnabled,
+                      icon: Icon(Icons.people),
+                      hintText: "Servs",
+                    ),
+                    EditableTextField(
+                      "12 min",
+                      editEnabled: _editEnabled,
+                      icon: Icon(Icons.timer),
+                    ),
+                    EditableTextField(
+                      "3/5",
+                      editEnabled: _editEnabled,
+                      icon: Icon(Icons.attach_money),
+                    ),
+                  ],
+                ),
               ),
-              EditableTextField(
-                "12 min",
-                editEnabled: _editEnabled,
-                icon: Icon(Icons.timer),
-              ),
-              EditableTextField(
-                "3/5",
-                editEnabled: _editEnabled,
-                icon: Icon(Icons.star),
-              ),
-            ],
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate([
               Text("Ingredients"),
               ...widget._recipe.ingredients
                   .map((ing) => ListTile(
@@ -77,7 +77,14 @@ class _RecipeViewState extends State<RecipeView> {
                       ))
                   .toList(),
               Text("Notes"),
-              EditableTextField("", editEnabled: _editEnabled, hintText: "Add note...", maxLines: 1000,),
+              EditableTextField(
+                "",
+                editEnabled: _editEnabled,
+                hintText: "Add note...",
+                maxLines: 1000,
+              ),
+              Text("Tags"),
+              Tags(itemBuilder: (index) => ItemTags(image: ItemTagsImage(child: Icon(Icons.local_offer,color: Colors.white,)), title: "ABC ${index}", index: index, textScaleFactor: 1.5,) ,itemCount: 4,)
             ]),
           ),
         ],
