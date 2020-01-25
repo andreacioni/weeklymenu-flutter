@@ -9,7 +9,7 @@ class EditableTextField extends StatefulWidget {
   final int maxLines;
   final Widget icon; 
 
-  EditableTextField(this._text, {this.editEnabled = false, this.prefix, this.hintText = "", this.minLines = 1, this.maxLines = 1, this.icon = null});
+  EditableTextField(this._text, {this.editEnabled = false, this.prefix, this.hintText = "", this.minLines = 1, this.maxLines = 1, this.icon, });
 
   @override
   _EditableTextFieldState createState() => _EditableTextFieldState();

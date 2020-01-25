@@ -6,14 +6,16 @@ class Recipe {
   String name;
   String description;
   int rating;
+  int cost;
   List<int> availabilityMonths;
   
   int servs;
   int estimatedCookingTime;
   int estimatedPreparationTime;
 
-  List<Ingredient> ingredients;
+  List<RecipeIngredient> ingredients;
 
+  String preparation;
   String note;
   
   String recipeUrl;
@@ -21,5 +23,5 @@ class Recipe {
 
   String owner;
 
-  Recipe({this.name, this.description, this.ingredients});
+  Recipe({this.name, this.description, this.ingredients, this.tags});
 }

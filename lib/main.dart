@@ -60,9 +60,14 @@ class _WMHomePageState extends State<WMHomePage> {
           name: "Insalata Andrea",
           description: "A delicious salad",
           ingredients: [
-            Ingredient(name: "Insalata"),
-            Ingredient(name: "Pomodori"),
-            Ingredient(name: "Tonno")
+            RecipeIngredient(name: "Insalata", quantity: 50, unitOfMeasure: "pcs"),
+            RecipeIngredient(name: "Pomodori", quantity: 1, unitOfMeasure: "pcs"),
+            RecipeIngredient(name: "Tonno", quantity: 50, unitOfMeasure: "gr")
+          ],
+          tags: [
+            "Vegetarian",
+            "Healty",
+            "Fast"
           ]
         ),
       ],
