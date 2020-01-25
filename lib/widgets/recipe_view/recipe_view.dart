@@ -46,58 +46,82 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Text("Information"),
+              Text(
+                "Information",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               Card(
                 child: Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 10,
-                    height: 100,
-                    child: Row(
-                      children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            EditableTextField(
-                              "2",
-                              editEnabled: _editEnabled,
-                              icon: Icon(Icons.people),
-                              hintText: "Servs",
-                              maxLines: 1,
-                              minLines: 1,
-                            ),
-                            EditableTextField(
-                              "12 min",
-                              editEnabled: _editEnabled,
-                              icon: Icon(Icons.timer),
-                              maxLines: 1,
-                              minLines: 1,
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: <Widget>[
-                            EditableTextField(
-                              "3/5",
-                              editEnabled: _editEnabled,
-                              icon: Icon(Icons.attach_money),
-                              maxLines: 1,
-                              minLines: 1,
-                            ),
-                            EditableTextField(
-                              "3/5",
-                              editEnabled: _editEnabled,
-                              icon: Icon(Icons.attach_money),
-                              maxLines: 1,
-                              minLines: 1,
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                  child: Column(
+                    children: <Widget>[
+                      EditableTextField(
+                        "2",
+                        prefixText: "Servs",
+                        textAlign: TextAlign.end,
+                        editEnabled: _editEnabled,
+                        icon: Icon(Icons.people),
+                        hintText: "Servs",
+                        maxLines: 1,
+                        minLines: 1,
+                      ),
+                      EditableTextField(
+                        "12 min",
+                        prefixText: "Preparation time",
+                        textAlign: TextAlign.end,
+                        editEnabled: _editEnabled,
+                        icon: Icon(Icons.timer),
+                        maxLines: 1,
+                        minLines: 1,
+                      ),
+                      EditableTextField(
+                        "12 min",
+                        prefixText: "Cooking time",
+                        textAlign: TextAlign.end,
+                        editEnabled: _editEnabled,
+                        icon: Icon(Icons.timelapse),
+                        maxLines: 1,
+                        minLines: 1,
+                      ),
+                      EditableTextField(
+                        "3/5",
+                        prefixText: "Cost",
+                        textAlign: TextAlign.end,
+                        editEnabled: _editEnabled,
+                        icon: Icon(Icons.attach_money),
+                        maxLines: 1,
+                        minLines: 1,
+                      ),
+                      EditableTextField(
+                        "1/5",
+                        prefixText: "Rating",
+                        textAlign: TextAlign.end,
+                        editEnabled: _editEnabled,
+                        icon: Icon(Icons.favorite),
+                        maxLines: 1,
+                        minLines: 1,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Text("Ingredients"),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                "Ingredients",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               ...widget._recipe.ingredients
                   .map(
                     (ing) => Card(
@@ -130,21 +154,54 @@ class _RecipeViewState extends State<RecipeView> {
                     ),
                   )
                   .toList(),
-              Text("Prepation"),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                "Prepation",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               EditableTextField(
                 "",
                 editEnabled: _editEnabled,
                 hintText: "Add preparation steps...",
                 maxLines: 1000,
               ),
-              Text("Notes"),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                "Notes",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               EditableTextField(
                 "",
                 editEnabled: _editEnabled,
                 hintText: "Add note...",
                 maxLines: 1000,
               ),
-              Text("Tags"),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                "Tags",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               Tags(
                 itemBuilder: (index) => ItemTags(
                   image: ItemTagsImage(
@@ -160,7 +217,10 @@ class _RecipeViewState extends State<RecipeView> {
                   textScaleFactor: 1.5,
                 ),
                 itemCount: widget._recipe.tags.length,
-              )
+              ),
+              SizedBox(
+                height: 5,
+              ),
             ]),
           ),
         ],

@@ -7,9 +7,21 @@ class EditableTextField extends StatefulWidget {
   final String hintText;
   final int minLines;
   final int maxLines;
-  final Widget icon; 
+  final Widget icon;
+  final String prefixText;
+  final TextAlign textAlign;
 
-  EditableTextField(this._text, {this.editEnabled = false, this.prefix, this.hintText = "", this.minLines = 1, this.maxLines = 1, this.icon, });
+  EditableTextField(
+    this._text, {
+    this.editEnabled = false,
+    this.prefix,
+    this.hintText = "",
+    this.minLines = 1,
+    this.maxLines = 1,
+    this.icon,
+    this.prefixText,
+    this.textAlign = TextAlign.start,
+  });
 
   @override
   _EditableTextFieldState createState() => _EditableTextFieldState();
@@ -31,7 +43,10 @@ class _EditableTextFieldState extends State<EditableTextField> {
         contentPadding: EdgeInsets.all(9),
         hintText: widget.hintText,
         prefix: widget.prefix,
+        prefixText: widget.prefixText,
+
       ),
+      textAlign: widget.textAlign,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
     );
