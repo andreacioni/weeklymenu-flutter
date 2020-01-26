@@ -17,7 +17,7 @@ class RecipeAppBar extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         title: Text(_recipe.name),
         background:
-            Hero(tag: _recipe.name, child: FlutterLogo(size: 72.0)),
+            Hero(tag: _recipe.name, child: Image.asset("assets/images/salad.jpg", fit: BoxFit.fitWidth,)),
       ),
       actions: <Widget>[
         if (!editModeEnabled)

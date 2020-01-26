@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:expandable/expandable.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:flutter_tags/tag.dart';
+import 'package:dotted_border/dotted_border.dart';
 
 import '../../models/recipe.dart';
 import './expandable_widget.dart';
@@ -154,6 +155,28 @@ class _RecipeViewState extends State<RecipeView> {
                     ),
                   )
                   .toList(),
+              if (_editEnabled)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DottedBorder(
+                    child: Center(
+                        child: const Text(
+                      "+ ADD RECIPE",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    )),
+                    strokeWidth: 5,
+                    dashPattern: [4, 10],
+                    color: Colors.grey,
+                    padding: EdgeInsets.all(10),
+                    borderType: BorderType.RRect,
+                    radius: Radius.circular(9),
+                    strokeCap: StrokeCap.round,
+                  ),
+                ),
               SizedBox(
                 height: 5,
               ),
