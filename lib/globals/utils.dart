@@ -12,5 +12,5 @@ Color getColorForString(String str) {
    ];
 
 
-  return initialLetterToColorMap[Random().nextInt(initialLetterToColorMap.length)];
+  return initialLetterToColorMap[str.codeUnitAt(0) % initialLetterToColorMap.length];
 }

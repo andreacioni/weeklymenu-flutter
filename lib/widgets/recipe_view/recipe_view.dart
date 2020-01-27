@@ -132,25 +132,40 @@ class _RecipeViewState extends State<RecipeView> {
                           child: Image.asset("assets/icons/supermarket.png"),
                         ),
                         title: Text(ing.name),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              ing.quantity.toStringAsFixed(0),
-                              style: TextStyle(
-                                fontSize: 27,
-                                color: Colors.grey,
+                        trailing: _editEnabled
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () {},
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {},
+                                    color: Colors.red,
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    ing.quantity.toStringAsFixed(0),
+                                    style: TextStyle(
+                                      fontSize: 27,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Text(
+                                    ing.unitOfMeasure,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              ing.unitOfMeasure,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   )
@@ -158,23 +173,26 @@ class _RecipeViewState extends State<RecipeView> {
               if (_editEnabled)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: DottedBorder(
-                    child: Center(
-                        child: const Text(
-                      "+ ADD RECIPE",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    )),
-                    strokeWidth: 5,
-                    dashPattern: [4, 10],
-                    color: Colors.grey,
-                    padding: EdgeInsets.all(10),
-                    borderType: BorderType.RRect,
-                    radius: Radius.circular(9),
-                    strokeCap: StrokeCap.round,
+                  child: InkWell(
+                    onTap: () {},
+                    child: DottedBorder(
+                      child: Center(
+                          child: const Text(
+                        "+ ADD RECIPE",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey),
+                      )),
+                      strokeWidth: 5,
+                      dashPattern: [4, 10],
+                      color: Colors.grey,
+                      padding: EdgeInsets.all(10),
+                      borderType: BorderType.RRect,
+                      radius: Radius.circular(9),
+                      strokeCap: StrokeCap.round,
+                    ),
                   ),
                 ),
               SizedBox(
@@ -234,9 +252,10 @@ class _RecipeViewState extends State<RecipeView> {
                     ),
                   ),
                   title: widget._recipe.tags[index],
-                  color: getColorForString(widget._recipe.tags[index]),
+                  activeColor: getColorForString(widget._recipe.tags[index]),
                   combine: ItemTagsCombine.withTextAfter,
                   index: index,
+                  pressEnabled: false,
                   textScaleFactor: 1.5,
                 ),
                 itemCount: widget._recipe.tags.length,

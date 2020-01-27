@@ -64,6 +64,7 @@ class _WMHomePageState extends State<WMHomePage> {
             RecipeIngredient(name: "Pomodori", quantity: 1, unitOfMeasure: "pcs"),
             RecipeIngredient(name: "Tonno", quantity: 50, unitOfMeasure: "gr")
           ],
+          imgUrl: "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
           tags: [
             "Vegetarian",
             "Healty",

@@ -18,10 +18,11 @@ class Recipe {
   String preparation;
   String note;
   
+  String imgUrl;
   String recipeUrl;
   List<String> tags;
 
   String owner;
 
-  Recipe({this.name, this.description, this.ingredients, this.tags});
+  Recipe({this.name, this.description, this.ingredients, this.imgUrl, this.tags});
 }

@@ -12,7 +12,7 @@ class RecipeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 150.0,
+      expandedHeight: 200.0,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(_recipe.name),
