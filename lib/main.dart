@@ -59,6 +59,9 @@ class _WMHomePageState extends State<WMHomePage> {
         Recipe(
           name: "Insalata Andrea",
           description: "A delicious salad",
+          servs: 2,
+          estimatedCookingTime: 0,
+          estimatedPreparationTime: 10,
           ingredients: [
             RecipeIngredient(name: "Insalata", quantity: 50, unitOfMeasure: "pcs"),
             RecipeIngredient(name: "Pomodori", quantity: 1, unitOfMeasure: "pcs"),

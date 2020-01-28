@@ -24,5 +24,5 @@ class Recipe {
 
   String owner;
 
-  Recipe({this.name, this.description, this.ingredients, this.imgUrl, this.tags});
+  Recipe({this.name, this.description, this.ingredients, this.servs, this.estimatedPreparationTime, this.estimatedCookingTime, this.imgUrl, this.tags});
 }
