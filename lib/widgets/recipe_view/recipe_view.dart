@@ -3,8 +3,9 @@ import 'package:expandable/expandable.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:flutter_tags/tag.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:spinner_input/spinner_input.dart';
+import 'package:weekly_menu_app/widgets/recipe_view/recipe_information_tiles.dart';
 
+import '../../widgets/recipe_view/recipe_ingredient_list_tile.dart';
 import '../../models/recipe.dart';
 import './expandable_widget.dart';
 import './recipe_app_bar.dart';
@@ -61,88 +62,7 @@ class _RecipeViewState extends State<RecipeView> {
               Card(
                 child: Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Text("Servs"),
-                        leading: Icon(Icons.people),
-                        trailing: _editEnabled
-                            ? SpinnerInput(
-                                spinnerValue: widget._recipe.servs.toDouble(),
-                                disabledPopup: true,
-                                onChange: (newValue) {},
-                              )
-                            : Text(
-                                "${widget._recipe.servs} min",
-                                style: TextStyle(fontSize: 18),
-                              ),
-                      ),
-                      ListTile(
-                        title: Text("Preparation time"),
-                        leading: Icon(Icons.timer),
-                        trailing: Text(
-                          "${widget._recipe.estimatedPreparationTime} min",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                      ListTile(
-                        title: Text("Cooking time"),
-                        leading: Icon(Icons.timelapse),
-                        trailing: Text(
-                          "${widget._recipe.estimatedCookingTime} min",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                      ListTile(
-                        title: Text("Affinity"),
-                        leading: Icon(Icons.favorite),
-                        trailing: SizedBox(
-                          width: 200,
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                              ),
-                              Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                              ),
-                              Icon(
-                                Icons.favorite,
-                                color: Colors.grey.withOpacity(0.3),
-                              ),
-                            ],
-                            mainAxisAlignment: MainAxisAlignment.end,
-                          ),
-                        ),
-                      ),
-                      ListTile(
-                        title: Text("Cost"),
-                        leading: Icon(Icons.attach_money),
-                        trailing: SizedBox(
-                          width: 200,
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.attach_money,
-                                color: Colors.green,
-                              ),
-                              Icon(
-                                Icons.attach_money,
-                                color: Colors.grey.withOpacity(0.5),
-                              ),
-                              Icon(
-                                Icons.attach_money,
-                                color: Colors.grey.withOpacity(0.5),
-                              ),
-                            ],
-                            mainAxisAlignment: MainAxisAlignment.end,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: RecipeInformationTiles(widget._recipe, editEnabled: _editEnabled),
                 ),
               ),
               SizedBox(
@@ -159,43 +79,16 @@ class _RecipeViewState extends State<RecipeView> {
               ),
               ...widget._recipe.ingredients
                   .map(
-                    (ing) => Dismissible(
-                      key: UniqueKey(),
-                      child: Card(
-                        child: ListTile(
-                          leading: Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Image.asset("assets/icons/supermarket.png"),
+                    (recipeIng) => _editEnabled
+                        ? Dismissible(
+                            key: UniqueKey(),
+                            child: RecipeIngredientListTile(
+                              recipeIng,
+                              editEnabled: _editEnabled,
+                            ))
+                        : RecipeIngredientListTile(
+                            recipeIng,
                           ),
-                          title: Text(ing.name),
-                          trailing: _editEnabled
-                              ? IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () {},
-                                )
-                              : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      ing.quantity.toStringAsFixed(0),
-                                      style: TextStyle(
-                                        fontSize: 27,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    Text(
-                                      ing.unitOfMeasure,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
                   )
                   .toList(),
               if (_editEnabled)

@@ -60,6 +60,8 @@ class _WMHomePageState extends State<WMHomePage> {
           name: "Insalata Andrea",
           description: "A delicious salad",
           servs: 2,
+          rating: 2,
+          cost: 1,
           estimatedCookingTime: 0,
           estimatedPreparationTime: 10,
           ingredients: [

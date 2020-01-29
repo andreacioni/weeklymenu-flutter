@@ -15,9 +15,16 @@ class RecipeAppBar extends StatelessWidget {
       expandedHeight: 200.0,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(_recipe.name),
-        background:
-            Hero(tag: _recipe.name, child: Image.asset("assets/images/salad.jpg", fit: BoxFit.fitWidth,)),
+        title: Text(
+          _recipe.name,
+        ),
+        background: Hero(
+          tag: _recipe.name,
+          child: Image.network(
+            _recipe.imgUrl,
+            fit: BoxFit.fitWidth,
+          ),
+        ),
       ),
       actions: <Widget>[
         if (!editModeEnabled)
