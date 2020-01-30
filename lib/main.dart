@@ -9,6 +9,7 @@ import './models/meals.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 import './widgets/app_bar/app_bar.dart';
 import './widgets/menu_page/page.dart';
+import './dummy_data.dart';
 
 void main() => runApp(WMApp());
 
@@ -53,64 +54,6 @@ class _WMHomePageState extends State<WMHomePage> {
   List<Recipe> _selectedRecipes = List();
   Meal _selectedMeal = Meal.Breakfast;
 
-  List<Menu> _menus = [
-    Menu(day: DateTime(2020,01,14), meals: {
-      Meal.Lunch: [
-        Recipe(
-          name: "Insalata Andrea",
-          description: "A delicious salad",
-          servs: 2,
-          rating: 2,
-          cost: 1,
-          estimatedCookingTime: 0,
-          estimatedPreparationTime: 10,
-          ingredients: [
-            RecipeIngredient(name: "Insalata", quantity: 50, unitOfMeasure: "pcs"),
-            RecipeIngredient(name: "Pomodori", quantity: 1, unitOfMeasure: "pcs"),
-            RecipeIngredient(name: "Tonno", quantity: 50, unitOfMeasure: "gr")
-          ],
-          imgUrl: "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
-          tags: [
-            "Vegetarian",
-            "Healty",
-            "Fast"
-          ]
-        ),
-      ],
-    }),
-    Menu(day: DateTime(2020,01,15), meals: {
-      Meal.Lunch: [
-        Recipe(
-          name: "Insalata Andrea",
-        ),
-        Recipe(
-          name: "Pane & Olio",
-        ),
-        Recipe(
-          name: "Vellutata di ceci",
-        )
-      ],
-      Meal.Dinner: [
-        Recipe(
-          name: "Pizza",
-        ),
-        Recipe(
-          name: "Pizza Cotto & Funghi",
-        ),
-      ],
-    }),
-    Menu(day: DateTime(2020,01,16), meals: {
-      Meal.Lunch: [
-        Recipe(
-          name: "Insalata Andrea",
-        ),
-        Recipe(
-          name: "Pane & Olio",
-        )
-      ],
-    }),
-  ];
-
   _WMHomePageState() {
     var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
     _pageController = new PageController(initialPage: pageIndex);
@@ -129,7 +72,7 @@ class _WMHomePageState extends State<WMHomePage> {
 
   void _addNewRecipeOnCurrentDay(int pageIndex, String meal, Recipe recipe) {
     setState(() {
-      _menus[pageIndex].meals[meal].add(recipe);
+      DUMMY_MENUS[pageIndex].meals[meal].add(recipe);
     });
   }
 
@@ -225,7 +168,7 @@ class _WMHomePageState extends State<WMHomePage> {
             child: PageView.builder(
               itemBuilder: (ctx, index) {
                 return MenuPage(
-                    _menus[(index - (PAGEVIEW_LIMIT_DAYS / 2).truncate())%3].meals);
+                    DUMMY_MENUS[(index - (PAGEVIEW_LIMIT_DAYS / 2).truncate())%3].meals);
               },
               onPageChanged: _setDayNameInBottomAppBar,
               controller: _pageController,
