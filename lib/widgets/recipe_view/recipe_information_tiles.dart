@@ -51,56 +51,88 @@ class RecipeInformationTiles extends StatelessWidget {
             style: TextStyle(fontSize: 18),
           ),
         ),
-        RecipeInformationThreeLevelSelect(
+        RecipeInformationLevelSelect(
           "Affinity",
           Icons.favorite,
           _recipe.rating,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.3),
           activeColor: Colors.red,
+          onLevelUpdate: (newLevel) {
+            _recipe.rating = newLevel;
+          },
         ),
-        RecipeInformationThreeLevelSelect(
+        RecipeInformationLevelSelect(
           "Cost",
           Icons.attach_money,
           _recipe.cost,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.5),
           activeColor: Colors.green,
+          onLevelUpdate: (newLevel) {
+            _recipe.cost = newLevel; 
+          },
         ),
       ],
     );
   }
 }
 
-class RecipeInformationThreeLevelSelect extends StatelessWidget {
+class RecipeInformationLevelSelect extends StatefulWidget {
   static const LEVELS = 3;
 
+  final int _initialLevel;
   final String _label;
   final IconData _icon;
-  final int _level;
   final bool editEnabled;
   final Color activeColor;
   final Color inactiveColor;
+  final Function(int) onLevelUpdate;
 
-  RecipeInformationThreeLevelSelect(this._label, this._icon, this._level,
+  RecipeInformationLevelSelect(this._label, this._icon, this._initialLevel,
       {this.editEnabled = false,
       this.activeColor = Colors.black,
-      this.inactiveColor = Colors.grey});
+      this.inactiveColor = Colors.grey,
+      @required this.onLevelUpdate});
+
+  @override
+  _RecipeInformationLevelSelectState createState() => _RecipeInformationLevelSelectState(_initialLevel);
+}
+
+class _RecipeInformationLevelSelectState extends State<RecipeInformationLevelSelect> {
+  int _level;
+
+  _RecipeInformationLevelSelectState(this._level);
+
+    Widget generateIcon(int index) => Icon(
+        widget._icon,
+        color: index < _level ? widget.activeColor : widget.inactiveColor,
+      );
+
+  void updateLevel(int newLevel) {
+    setState(() {
+      _level = newLevel;
+      widget.onLevelUpdate(newLevel);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(_label),
-      leading: Icon(_icon),
+      title: Text(widget._label),
+      leading: Icon(widget._icon),
       trailing: SizedBox(
         width: 200,
         child: Row(
           children: List.generate(
-            LEVELS,
-            (index) => Icon(
-              _icon,
-              color: index < _level ? activeColor : inactiveColor,
-            ),
+            RecipeInformationLevelSelect.LEVELS,
+            (index) => !widget.editEnabled
+                ? generateIcon(index)
+                : IconButton(
+                    icon: generateIcon(index),
+                    onPressed: () => updateLevel(index+1),
+                    alignment: Alignment.centerRight,
+                  ),
           ),
           mainAxisAlignment: MainAxisAlignment.end,
         ),
