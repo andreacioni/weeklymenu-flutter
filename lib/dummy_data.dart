@@ -22,6 +22,10 @@ Recipe insalataAndrea = Recipe(
         tags: ["Vegetarian", "Healty", "Fast"],
       );
 
+Recipe paneeOlio = Recipe(
+        name: "Pane & Olio",
+      );
+
 List<Menu> DUMMY_MENUS = [
   Menu(day: DateTime(2020, 01, 14), meals: {
     Meal.Lunch: [
@@ -31,9 +35,7 @@ List<Menu> DUMMY_MENUS = [
   Menu(day: DateTime(2020, 01, 15), meals: {
     Meal.Lunch: [
       insalataAndrea,
-      Recipe(
-        name: "Pane & Olio",
-      ),
+      paneeOlio,
       Recipe(
         name: "Vellutata di ceci",
       )
@@ -50,9 +52,7 @@ List<Menu> DUMMY_MENUS = [
   Menu(day: DateTime(2020, 01, 16), meals: {
     Meal.Lunch: [
       insalataAndrea,
-      Recipe(
-        name: "Pane & Olio",
-      )
+      paneeOlio
     ],
   }),
 ];

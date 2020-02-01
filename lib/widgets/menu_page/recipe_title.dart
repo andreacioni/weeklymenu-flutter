@@ -8,31 +8,40 @@ class RecipeTile extends StatelessWidget {
 
   RecipeTile(this._recipes);
 
+  Widget _createCardForRecipe(BuildContext context, Recipe recipe) {
+    final heroTagValue = UniqueKey();
+    return Card(
+      child: ListTile(
+        leading: Hero(
+          tag: heroTagValue,
+          child: recipe.imgUrl != null
+              ? CircleAvatar(
+                  backgroundImage: NetworkImage(recipe.imgUrl),
+                  radius: 30,
+                )
+              : Image.asset(
+                  "assets/icons/book.png",
+                  scale: 0.5,
+                ),
+        ),
+        title: Text(recipe.name),
+        subtitle: Text('A sufficiently long subtitle warrants three lines.'),
+        trailing: Icon(Icons.more_vert),
+        isThreeLine: true,
+        onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (ctx) => RecipeView(recipe, heroTagValue))),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: _recipes
           .map(
-            (recipe) => Card(
-              child: ListTile(
-                leading: Hero(
-                  tag: recipe.name,
-                  child: recipe.imgUrl != null
-                      ? CircleAvatar(
-                          backgroundImage: NetworkImage(recipe.imgUrl),
-                          radius: 30,
-                        )
-                      : Image.asset("assets/icons/book.png", scale: 0.5,),
-                ),
-                title: Text(recipe.name),
-                subtitle:
-                    Text('A sufficiently long subtitle warrants three lines.'),
-                trailing: Icon(Icons.more_vert),
-                isThreeLine: true,
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (ctx) => RecipeView(recipe))),
-              ),
-            ),
+            (recipe) => _createCardForRecipe(context, recipe),
           )
           .toList(),
     );

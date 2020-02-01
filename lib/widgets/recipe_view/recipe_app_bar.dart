@@ -5,26 +5,28 @@ import '../../models/recipe.dart';
 class RecipeAppBar extends StatelessWidget {
   final editModeEnabled;
   final Recipe _recipe;
+  final Object _heroTag;
   final Function(bool) onRecipeEditEnabled;
 
-  RecipeAppBar(this._recipe, {this.editModeEnabled, this.onRecipeEditEnabled});
+  RecipeAppBar(this._recipe, this._heroTag,
+      {this.editModeEnabled, this.onRecipeEditEnabled});
 
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 200.0,
+      expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           _recipe.name,
         ),
-        background: Hero(
-          tag: _recipe.name,
-          child: Image.network(
-            _recipe.imgUrl,
-            fit: BoxFit.fitWidth,
-          ),
-        ),
+        background: _recipe.imgUrl != null ? Hero(
+          tag: _heroTag,
+          child:Image.network(
+                  _recipe.imgUrl,
+                  fit: BoxFit.fitWidth,
+                ),
+        ) : null,
       ),
       actions: <Widget>[
         if (!editModeEnabled)

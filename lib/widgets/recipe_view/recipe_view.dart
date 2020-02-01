@@ -14,8 +14,9 @@ import '../../globals/utils.dart';
 
 class RecipeView extends StatefulWidget {
   final Recipe _recipe;
+  final Object _heroTag;
 
-  RecipeView(this._recipe);
+  RecipeView(this._recipe, this._heroTag);
 
   @override
   _RecipeViewState createState() => _RecipeViewState();
@@ -32,6 +33,7 @@ class _RecipeViewState extends State<RecipeView> {
         slivers: <Widget>[
           RecipeAppBar(
             widget._recipe,
+            widget._heroTag,
             editModeEnabled: _editEnabled,
             onRecipeEditEnabled: (editEnabled) => setState(() {
               _editEnabled = editEnabled;
@@ -69,7 +71,7 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               Text(
-                "Ingredients",
+                "Ingredients...",
                 style: TextStyle(
                   fontSize: 18,
                 ),
@@ -77,6 +79,13 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
+              if(widget._recipe.ingredients.isEmpty) 
+              EditableTextField(
+                "",
+                editEnabled: _editEnabled,
+                hintText: "No ingredients",
+              ),
+              if(!widget._recipe.ingredients.isEmpty)
               ...widget._recipe.ingredients
                   .map(
                     (recipeIng) => _editEnabled

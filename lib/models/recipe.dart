@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import './ingredient.dart';
 
 class Recipe {
@@ -25,5 +27,5 @@ class Recipe {
 
   String owner;
 
-  Recipe({this.name, this.description, this.ingredients, this.difficulty = 0, this.rating = 0, this.cost = 0, this.servs, this.estimatedPreparationTime, this.estimatedCookingTime, this.imgUrl, this.tags});
+  Recipe({@required this.id, this.name, this.description, this.ingredients = const [], this.difficulty = 0, this.rating = 0, this.cost = 0, this.servs = 0, this.estimatedPreparationTime = 0, this.estimatedCookingTime = 0, this.imgUrl, this.tags = const []});
 }
