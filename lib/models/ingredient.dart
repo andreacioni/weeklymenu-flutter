@@ -1,12 +1,12 @@
 class RecipeIngredient extends Ingredient {
-  final double quantity;
-  final String unitOfMeasure;
+  double quantity;
+  String unitOfMeasure;
 
   RecipeIngredient({name, this.quantity, this.unitOfMeasure}) : super(name: name);
 }
 
 class Ingredient {
-  final String name;
+  String name;
 
   Ingredient({this.name});
 }

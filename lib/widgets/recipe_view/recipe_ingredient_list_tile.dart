@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
+import './recipe_ingredient_update_modal.dart';
+import '../../models/ingredient.dart';
 
-class RecipeIngredientListTile extends StatelessWidget {
+class RecipeIngredientListTile extends StatefulWidget {
   final RecipeIngredient _recipeIngredient;
   final bool editEnabled;
 
   RecipeIngredientListTile(this._recipeIngredient, {this.editEnabled = false});
+
+  @override
+  _RecipeIngredientListTileState createState() =>
+      _RecipeIngredientListTileState();
+}
+
+class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
+  void _openRecipeIngredientUpdateModal() {
+    showDialog(
+        context: context, builder: (bContext) => RecipeIngredientUpdateModal(widget._recipeIngredient));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,17 +27,17 @@ class RecipeIngredientListTile extends StatelessWidget {
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(_recipeIngredient.name),
-        trailing: editEnabled
+        title: Text(widget._recipeIngredient.name),
+        trailing: widget.editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
-                onPressed: () {},
+                onPressed: _openRecipeIngredientUpdateModal,
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    _recipeIngredient.quantity.toStringAsFixed(0),
+                    widget._recipeIngredient.quantity.toStringAsFixed(0),
                     style: TextStyle(
                       fontSize: 27,
                       fontWeight: FontWeight.bold,
@@ -33,7 +45,7 @@ class RecipeIngredientListTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    _recipeIngredient.unitOfMeasure,
+                    widget._recipeIngredient.unitOfMeasure,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
