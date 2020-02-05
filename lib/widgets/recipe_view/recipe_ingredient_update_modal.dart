@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:spinner_input/spinner_input.dart';
+import 'package:weekly_menu_app/models/unit_of_measure.dart';
 
 import '../../models/ingredient.dart';
+import '../../models/unit_of_measure.dart';
+import '../../dummy_data.dart';
 
 class RecipeIngredientUpdateModal extends StatefulWidget {
   final RecipeIngredient _recipeIngredient;
@@ -16,6 +18,15 @@ class RecipeIngredientUpdateModal extends StatefulWidget {
 
 class _RecipeIngredientUpdateModalState
     extends State<RecipeIngredientUpdateModal> {
+  UnitOfMeasure _dropdownValue;
+
+  DropdownMenuItem<UnitOfMeasure> _createDropDownItem(UnitOfMeasure uom) {
+    return DropdownMenuItem<UnitOfMeasure>(
+      child: Text(uom.name),
+      value: uom,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
@@ -40,24 +51,16 @@ class _RecipeIngredientUpdateModalState
               SizedBox(
                 width: 10,
               ),
-              DropdownButton<String>(
-                value: "Easy",
-                //icon: Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: Colors.black, fontSize: 18),
-                onChanged: (String newValue) {
-                  //setState(() {
-                  //dropdownValue = newValue;
-                  //});
+              DropdownButton<UnitOfMeasure>(
+                value: widget._recipeIngredient.unitOfMeasure,
+                items: unitsOfMeasure
+                    .map((uom) => _createDropDownItem(uom))
+                    .toList(),
+                onChanged: (s) {
+                  setState(() {
+                    _dropdownValue = s;
+                  });
                 },
-                items: <String>['Easy', 'Two', 'Free', 'Four']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
               ),
             ],
           ),

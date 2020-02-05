@@ -45,7 +45,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
                     ),
                   ),
                   Text(
-                    widget._recipeIngredient.unitOfMeasure,
+                    widget._recipeIngredient.unitOfMeasure.toString(),
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,

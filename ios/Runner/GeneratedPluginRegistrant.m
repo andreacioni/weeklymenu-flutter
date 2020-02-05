@@ -4,16 +4,16 @@
 
 #import "GeneratedPluginRegistrant.h"
 
-#if __has_include(<flutter_keyboard_visibility/KeyboardVisibilityPlugin.h>)
-#import <flutter_keyboard_visibility/KeyboardVisibilityPlugin.h>
+#if __has_include(<searchable_dropdown/SearchableDropdownPlugin.h>)
+#import <searchable_dropdown/SearchableDropdownPlugin.h>
 #else
-@import flutter_keyboard_visibility;
+@import searchable_dropdown;
 #endif
 
 @implementation GeneratedPluginRegistrant
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
-  [FLTKeyboardVisibilityPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTKeyboardVisibilityPlugin"]];
+  [SearchableDropdownPlugin registerWithRegistrar:[registry registrarForPlugin:@"SearchableDropdownPlugin"]];
 }
 
 @end

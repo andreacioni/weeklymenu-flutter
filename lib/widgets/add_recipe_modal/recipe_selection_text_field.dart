@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:searchable_dropdown/searchable_dropdown.dart';
 
-import 'package:flutter_typeahead/flutter_typeahead.dart';
+import '../../models/recipe.dart';
 
 class RecipeSelectionTextField extends StatefulWidget {
-  final List<String> _availableRecipes = [
-    "Pici aglio e olio",
-    "Spaghetti alla matriciana",
-    "Uovo sodo"
-  ];
-  final Function onRecipeSelected;
-  final List<String> _alreadySelectedRecipes;
+  final Function onSelected;
+  final List<Recipe> _suggestions;
+  final String hintText;
+  final Widget Function(BuildContext) noItemsFountBuilder;
+  final bool getImmediateSuggestions;
+  final AxisDirection suggestionDirection;
 
-  RecipeSelectionTextField(this._alreadySelectedRecipes,
-      {this.onRecipeSelected});
+  RecipeSelectionTextField(this._suggestions,
+      {@required this.onSelected,
+      this.hintText,
+      this.noItemsFountBuilder,
+      this.getImmediateSuggestions = false,
+      this.suggestionDirection = AxisDirection.down});
 
   @override
   _RecipeSelectionTextFieldState createState() =>
@@ -20,24 +24,21 @@ class RecipeSelectionTextField extends StatefulWidget {
 }
 
 class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
-  final TextEditingController _typeAheadController =
-      new TextEditingController();
+  Recipe selectedValue;
 
   Widget trailingTextFieldButton = null;
 
-  String get addNewRecipeSuggestion => "Add ${_typeAheadController.text} ...";
+  //String get addNewRecipeSuggestion => "Add ${_typeAheadController.text} ...";
 
   List<String> getRecipesSuggestion(String pattern) {
-    var suggestions = widget._availableRecipes
+    List<String> suggestions = widget._suggestions
+        .map((r) => r.toString())
         .where((r) =>
             r.toLowerCase().trim().contains(pattern.trim().toLowerCase()))
         .toList();
 
-    //Remove recipes already selected
-    suggestions.removeWhere((r) => widget._alreadySelectedRecipes.contains(r));
-
     if (pattern.trim() != "") {
-      suggestions.add(addNewRecipeSuggestion);
+      //suggestions.add(addNewRecipeSuggestion);
     }
 
     return suggestions.reversed.toList();
@@ -53,55 +54,33 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
     return IconButton(
       icon: Icon(Icons.add),
       onPressed: () {
-        _typeAheadController.clear();
         clearTrailingTextFieldButton();
-        widget.onRecipeSelected(suggestion);
+        widget.onSelected(suggestion);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: TypeAheadField(
-            direction: AxisDirection.up,
-            getImmediateSuggestions: true,
-            textFieldConfiguration: TextFieldConfiguration(
-              controller: _typeAheadController,
-              decoration: InputDecoration(
-                hintText: "Recipe",
-                suffixIcon: trailingTextFieldButton,
-              ),
-              onChanged: (_) => clearTrailingTextFieldButton(),
-            ),
-            suggestionsCallback: (pattern) async {
-              return getRecipesSuggestion(pattern);
-            },
-            itemBuilder: (context, suggestion) {
-              return ListTile(
-                trailing: Icon(Icons.shop),
-                title: Text(suggestion),
-              );
-            },
-            noItemsFoundBuilder: (_) {
-              return Text("Type a new recipe name");
-            },
-            onSuggestionSelected: (suggestion) {
-              if (suggestion == addNewRecipeSuggestion) {
-                print("Add recipe!");
-              } else {
-                this._typeAheadController.text = suggestion;
-                setState(() {
-                  trailingTextFieldButton =
-                      buildAddRecipeIconButton(suggestion);
-                });
-              }
-            },
-          ),
-        ),
-      ],
-    );
+    var items = List.from(widget._suggestions.map((v) => DropdownMenuItem<Recipe>(child: Text(v.name), value: v,)).toList().add(DropdownMenuItem<Recipe>(child: Text("Add recipe"), value: Recipe(id: "NONE"),)));
+    return SearchableDropdown<Recipe>(
+     items: items,
+     value: selectedValue,
+     hint: new Text(
+       widget.hintText
+     ),
+     searchHint: new Text(
+       'Create or select a recipe',
+       style: new TextStyle(
+           fontSize: 20
+       ),
+     ),
+     onChanged: (value) {
+       setState(() {
+         selectedValue = value;
+       });
+     },
+     isCaseSensitiveSearch: false,
+   );
   }
 }

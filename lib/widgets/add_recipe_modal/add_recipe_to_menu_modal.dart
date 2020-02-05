@@ -3,22 +3,26 @@ import 'package:flutter/material.dart';
 import './meal_dropdown.dart';
 import './recipe_selection_text_field.dart';
 import './selected_recipes_listview.dart';
+import '../../dummy_data.dart';
+import '../../models/recipe.dart';
 
 class AddRecipeToMenuModal extends StatefulWidget {
-  final Function(List<String>) onSelectionEnd;
+  final Function(List<Recipe>) onSelectionEnd;
 
-  AddRecipeToMenuModal({this.onSelectionEnd}) : assert (onSelectionEnd != null);
+  AddRecipeToMenuModal({this.onSelectionEnd}) : assert(onSelectionEnd != null);
 
   @override
   _AddRecipeToMenuModalState createState() => _AddRecipeToMenuModalState();
 }
 
 class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
-
-  List<String> _selectedRecipes = [];
+  List<Recipe> _selectedRecipes = [];
 
   @override
   Widget build(BuildContext context) {
+    List<Recipe> suggestibleRecipes = List.from(availableRecipes);
+    suggestibleRecipes.removeWhere((r) => _selectedRecipes.contains(r));
+    
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -26,12 +30,19 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
           children: <Widget>[
             MealDropdown(),
             RecipeSelectionTextField(
-              _selectedRecipes,
-              onRecipeSelected: (recipe) {
+              suggestibleRecipes,
+              onSelected: (recipe) {
                 setState(() {
                   _selectedRecipes.add(recipe);
                 });
-              }),
+              },
+              hintText: "Recipes",
+              noItemsFountBuilder: (_) {
+                return Text("Type a new recipe name");
+              },
+              getImmediateSuggestions: true,
+              suggestionDirection: AxisDirection.up,
+            ),
           ],
         ),
         SelectedRecipesListView(
@@ -40,7 +51,7 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
             setState(() {
               _selectedRecipes.removeWhere((r) => r == recipe);
             });
-          }
+          },
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -51,10 +62,12 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
             ),
             FlatButton(
               child: Text("FINISH"),
-              onPressed: _selectedRecipes.isEmpty ? null : () {
-                widget.onSelectionEnd(_selectedRecipes);
-                Navigator.of(context).pop();
-              } ,
+              onPressed: _selectedRecipes.isEmpty
+                  ? null
+                  : () {
+                      widget.onSelectionEnd(_selectedRecipes);
+                      Navigator.of(context).pop();
+                    },
             ),
           ],
         ),

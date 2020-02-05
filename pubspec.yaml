@@ -22,7 +22,7 @@ dependencies:
   
   sticky_headers: ^0.1.8
 
-  flutter_typeahead: ^1.7.0
+  #flutter_typeahead: ^1.7.0
 
   flutter_tags: "^0.4.5"
 
@@ -36,6 +36,9 @@ dependencies:
 
   spinner_input: ^0.1.2
 
+  #find_dropdown: ^0.1.7+1
+
+  searchable_dropdown: ^1.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -87,3 +90,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family:  CustomIcons
+      fonts:
+        - asset: assets/fonts/CustomIcons.ttf

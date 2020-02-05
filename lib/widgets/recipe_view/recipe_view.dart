@@ -3,11 +3,11 @@ import 'package:expandable/expandable.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:flutter_tags/tag.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:weekly_menu_app/widgets/recipe_view/recipe_information_tiles.dart';
 
+import './add_ingredient_modal/add_ingredient_modal.dart';
+import '../recipe_view/recipe_information_tiles.dart';
 import '../../widgets/recipe_view/recipe_ingredient_list_tile.dart';
 import '../../models/recipe.dart';
-import './expandable_widget.dart';
 import './recipe_app_bar.dart';
 import './editable_text_field.dart';
 import '../../globals/utils.dart';
@@ -71,7 +71,7 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               Text(
-                "Ingredients...",
+                "Ingredients",
                 style: TextStyle(
                   fontSize: 18,
                 ),
@@ -104,11 +104,11 @@ class _RecipeViewState extends State<RecipeView> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () => showDialog(context: context, builder: (_) => AddIngredientModal()),
                     child: DottedBorder(
                       child: Center(
                           child: const Text(
-                        "+ ADD RECIPE",
+                        "+ ADD INGREDIENT",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                             fontSize: 20,
