@@ -1,7 +1,7 @@
 package io.flutter.plugins;
 
 import io.flutter.plugin.common.PluginRegistry;
-import com.bobbystenly.searchable_dropdown.SearchableDropdownPlugin;
+import com.flutter.keyboardvisibility.KeyboardVisibilityPlugin;
 
 /**
  * Generated file. Do not edit.
@@ -11,7 +11,7 @@ public final class GeneratedPluginRegistrant {
     if (alreadyRegisteredWith(registry)) {
       return;
     }
-    SearchableDropdownPlugin.registerWith(registry.registrarFor("com.bobbystenly.searchable_dropdown.SearchableDropdownPlugin"));
+    KeyboardVisibilityPlugin.registerWith(registry.registrarFor("com.flutter.keyboardvisibility.KeyboardVisibilityPlugin"));
   }
 
   private static boolean alreadyRegisteredWith(PluginRegistry registry) {

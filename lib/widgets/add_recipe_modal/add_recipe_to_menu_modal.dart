@@ -31,17 +31,11 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
             MealDropdown(),
             RecipeSelectionTextField(
               suggestibleRecipes,
-              onSelected: (recipe) {
+              onRecipeSelected: (recipe) {
                 setState(() {
                   _selectedRecipes.add(recipe);
                 });
               },
-              hintText: "Recipes",
-              noItemsFountBuilder: (_) {
-                return Text("Type a new recipe name");
-              },
-              getImmediateSuggestions: true,
-              suggestionDirection: AxisDirection.up,
             ),
           ],
         ),

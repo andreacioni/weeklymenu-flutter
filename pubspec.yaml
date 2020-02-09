@@ -38,7 +38,12 @@ dependencies:
 
   #find_dropdown: ^0.1.7+1
 
-  searchable_dropdown: ^1.1.0
+  flutter_typeahead: ^1.8.0
+
+  #Dependencies needed for flutter_typeahead
+  flutter_keyboard_visibility: ^0.7.0
+
+  autocomplete_textfield: ^1.7.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
