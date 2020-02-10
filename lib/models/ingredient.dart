@@ -4,11 +4,12 @@ class RecipeIngredient extends Ingredient {
   double quantity;
   UnitOfMeasure unitOfMeasure;
 
-  RecipeIngredient({name, this.quantity, this.unitOfMeasure}) : super(name: name);
+  RecipeIngredient({id, name, this.quantity, this.unitOfMeasure}) : super(id: id, name: name);
 }
 
 class Ingredient {
+  String id;
   String name;
 
-  Ingredient({this.name});
+  Ingredient({this.id, this.name});
 }

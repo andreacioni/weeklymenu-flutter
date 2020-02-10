@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:spinner_input/spinner_input.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
 
+import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
 import '../../../dummy_data.dart';
 import '../../../models/unit_of_measure.dart';
@@ -13,6 +15,7 @@ class AddIngredientModal extends StatefulWidget {
 }
 
 class _AddIngredientModalState extends State<AddIngredientModal> {
+  Ingredient selectedIngredient;
   UnitOfMeasure _dropdownValue;
   double _spinnerValue = 0;
   bool _isFreezed = false;
@@ -33,7 +36,14 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
           margin: EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: <Widget>[
-              //RecipeSelectionTextField([], onSelected: () {}),
+              IngredientSelectionTextField(
+                DUMMY_INGREDIENTS,
+                onIngredientSelected: (ingredient) {
+                  setState(() {
+                    selectedIngredient = ingredient;
+                  });
+                },
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -99,7 +109,7 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   FlatButton(
-                    child: Text("ADD"),
+                    child: Text(selectedIngredient != null && selectedIngredient.id == 'NONE' ? "CREATE & ADD" : "ADD"),
                     textColor: Theme.of(context).primaryColor,
                     onPressed: () {},
                   ),

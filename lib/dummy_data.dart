@@ -5,6 +5,19 @@ import './models/menu.dart';
 import './models/meals.dart';
 import './models/ingredient.dart';
 
+var ingInsalata = RecipeIngredient(
+    name: "Insalata", quantity: 50, unitOfMeasure: unitsOfMeasure[0]);
+var ingPomodori = RecipeIngredient(
+    name: "Pomodori", quantity: 1, unitOfMeasure: unitsOfMeasure[0]);
+var ingTonno = RecipeIngredient(
+    name: "Tonno", quantity: 50, unitOfMeasure: unitsOfMeasure[2]);
+
+List<Ingredient> DUMMY_INGREDIENTS = <Ingredient>[
+  ingInsalata,
+  ingPomodori,
+  ingTonno,
+];
+
 Recipe insalataAndrea = Recipe(
   id: "adfie82bfiui",
   name: "Insalata Andrea",
@@ -14,14 +27,7 @@ Recipe insalataAndrea = Recipe(
   cost: 1,
   estimatedCookingTime: 0,
   estimatedPreparationTime: 10,
-  ingredients: [
-    RecipeIngredient(
-        name: "Insalata", quantity: 50, unitOfMeasure: unitsOfMeasure[0]),
-    RecipeIngredient(
-        name: "Pomodori", quantity: 1, unitOfMeasure: unitsOfMeasure[0]),
-    RecipeIngredient(
-        name: "Tonno", quantity: 50, unitOfMeasure: unitsOfMeasure[2])
-  ],
+  ingredients: [],
   imgUrl:
       "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
   tags: ["Vegetarian", "Healty", "Fast"],
@@ -32,10 +38,7 @@ Recipe paneeOlio = Recipe(
   name: "Pane & Olio",
 );
 
-final List<Recipe> availableRecipes = [
-  insalataAndrea,
-  paneeOlio
-];
+final List<Recipe> DUMMY_RECIPES = [insalataAndrea, paneeOlio];
 
 final List<UnitOfMeasure> unitsOfMeasure = [
   UnitOfMeasure("1", "pcs"),
