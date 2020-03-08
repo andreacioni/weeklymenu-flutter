@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
+
 import 'recipe.dart';
 import 'meals.dart';
 
 class Menu {
+  final String id;
   DateTime day;
-  Map<Meal, List<Recipe>> meals;
+  Meal meal;
+  List<Recipe> recipes;
 
-  Menu({this.day, this.meals});
+  Menu({@required this.id, this.day, this.meal, this.recipes});
 }
