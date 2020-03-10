@@ -36,7 +36,7 @@ Recipe _pizzaCottoEFunghi = Recipe(
   name: "Pizza Cotto & Funghi",
 );
 
-class RecipesProviders with ChangeNotifier {
+class RecipesProvider with ChangeNotifier {
   List<Recipe> _recipes = [_insalataAndrea, _paneeOlio];
 
   List<Recipe> get getRecipes => [..._recipes];

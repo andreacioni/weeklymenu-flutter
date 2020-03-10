@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import 'package:provider/provider.dart';
 
 import './meal_head.dart';
 import '../../models/meals.dart';
 import '../../models/recipe.dart';
 import './recipe_title.dart';
+import '../../providers/menus_provider.dart';
 
 class MenuPage extends StatelessWidget {
-  final Map<Meal, List<Recipe>> _meals;
-
-  MenuPage(this._meals);
+  final DateTime _day;
+  
+  MenuPage(this._day);
 
   @override
   Widget build(BuildContext context) {
+    var _meals = Provider.of<MenusProvider>(context).groupByMeal(_day);
     return Column(
       children: <Widget>[
         Expanded(

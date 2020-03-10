@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
+import 'package:provider/provider.dart';
 
 import './globals/constants.dart';
 import './models/menu.dart';
+import './models/ingredient.dart';
 import './models/recipe.dart';
 import './models/meals.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 import './widgets/app_bar/app_bar.dart';
 import './widgets/menu_page/page.dart';
-import './dummy_data.dart';
+import 'providers/menus_provider.dart';
 
 void main() => runApp(WMApp());
 
@@ -18,7 +19,10 @@ class WMApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Weekly Menu',
-      home: WMHomePage(),
+      home: ChangeNotifierProvider.value(
+        value: MenusProvider(),
+        child: WMHomePage(),
+      ),
       theme: ThemeData(
         // Define the default brightness and colors.
         brightness: Brightness.light,
@@ -57,22 +61,23 @@ class _WMHomePageState extends State<WMHomePage> {
   _WMHomePageState() {
     var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
     _pageController = new PageController(initialPage: pageIndex);
-    
+
     var now = DateTime.now();
     _day = DateTime(now.year, now.month, now.day);
   }
 
   void _setDayNameInBottomAppBar(int newPageIndex) {
-    print("page changed to ${newPageIndex}" );
+    print("page changed to ${newPageIndex}");
     setState(() {
       var now = DateTime.now();
-      _day = DateTime(now.year, now.month, now.day).add(Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
+      _day = DateTime(now.year, now.month, now.day).add(
+          Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
     });
   }
 
-  void _addNewRecipeOnCurrentDay(int pageIndex, String meal, Recipe recipe) {
+  void _addNewRecipeOnCurrentDay(Meal meal, Recipe recipe) {
     setState(() {
-      DUMMY_MENUS[pageIndex].meals[meal].add(recipe);
+      Provider.of<MenusProvider>(context).addRecipe(recipe, _day, meal);
     });
   }
 
@@ -104,7 +109,8 @@ class _WMHomePageState extends State<WMHomePage> {
       setState(() {
         int oldPageIndex = _pageController.page.truncate();
         if (selectedDate.compareTo(_day) != 0) {
-          print("jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
+          print(
+              "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
           int newPageIndex =
               oldPageIndex + selectedDate.difference(_day).inDays;
           print("jumping to page: ${newPageIndex}");
@@ -167,8 +173,10 @@ class _WMHomePageState extends State<WMHomePage> {
             padding: EdgeInsets.all(10),
             child: PageView.builder(
               itemBuilder: (ctx, index) {
-                return MenuPage(
-                    DUMMY_MENUS[(index - (PAGEVIEW_LIMIT_DAYS / 2).truncate())%3].meals);
+                /*return MenuPage(DUMMY_MENUS[
+                        (index - (PAGEVIEW_LIMIT_DAYS / 2).truncate()) % 3]
+                    .meals);*/
+                return MenuPage(_day);
               },
               onPageChanged: _setDayNameInBottomAppBar,
               controller: _pageController,

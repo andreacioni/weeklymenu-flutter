@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import './meal_dropdown.dart';
 import './recipe_selection_text_field.dart';
 import './selected_recipes_listview.dart';
-import '../../dummy_data.dart';
 import '../../models/recipe.dart';
 
 class AddRecipeToMenuModal extends StatefulWidget {
