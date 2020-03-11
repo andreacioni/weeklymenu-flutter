@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:spinner_input/spinner_input.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
-import '../../../dummy_data.dart';
 import '../../../models/unit_of_measure.dart';
+import '../../../providers/recipes_provider.dart';
 
 import '../unit_of_measure_dropdown.dart';
 
@@ -37,7 +38,6 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
           child: Column(
             children: <Widget>[
               IngredientSelectionTextField(
-                DUMMY_INGREDIENTS,
                 onIngredientSelected: (ingredient) {
                   setState(() {
                     selectedIngredient = ingredient;

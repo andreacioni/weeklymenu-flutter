@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:provider/provider.dart';
 
+import '../../../providers/ingredients_provider.dart';
 import '../../../models/ingredient.dart';
 
 class IngredientSelectionTextField extends StatefulWidget {
   final Function onIngredientSelected;
-  final List<Ingredient> _availableIngredients;
 
-  IngredientSelectionTextField(this._availableIngredients,
-      {this.onIngredientSelected});
+  IngredientSelectionTextField({@required this.onIngredientSelected});
 
   @override
   _IngredientSelectionTextFieldState createState() =>
@@ -21,13 +21,18 @@ class _IngredientSelectionTextFieldState
       new TextEditingController();
 
   List<Ingredient> getIngredientsSuggestion(String pattern) {
-    var suggestions = widget._availableIngredients
+    final availableIngredients = Provider.of<IngredientsProvider>(
+      context,
+      listen: false,
+    ).getIngredients;
+
+    var suggestions = availableIngredients
         .where((r) =>
             r.name.toLowerCase().trim().contains(pattern.trim().toLowerCase()))
         .toList();
 
     if (pattern.trim() != "" &&
-        widget._availableIngredients.indexWhere((r) =>
+        availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
       suggestions.add(

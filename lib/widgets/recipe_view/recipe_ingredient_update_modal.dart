@@ -4,7 +4,6 @@ import 'package:weekly_menu_app/models/unit_of_measure.dart';
 
 import '../../models/ingredient.dart';
 import '../../models/unit_of_measure.dart';
-import '../../dummy_data.dart';
 
 class RecipeIngredientUpdateModal extends StatefulWidget {
   final RecipeIngredient _recipeIngredient;

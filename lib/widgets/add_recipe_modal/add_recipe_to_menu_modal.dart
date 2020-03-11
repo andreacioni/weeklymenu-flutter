@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import './meal_dropdown.dart';
 import './recipe_selection_text_field.dart';
 import './selected_recipes_listview.dart';
 import '../../models/recipe.dart';
+import '../../providers/recipes_provider.dart';
 
 class AddRecipeToMenuModal extends StatefulWidget {
   final Function(List<Recipe>) onSelectionEnd;
@@ -19,9 +21,11 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
 
   @override
   Widget build(BuildContext context) {
-    List<Recipe> suggestibleRecipes = List.from(DUMMY_RECIPES);
+    List<Recipe> suggestibleRecipes =
+        Provider.of<RecipesProvider>(context, listen: false).getRecipes;
+
     suggestibleRecipes.removeWhere((r) => _selectedRecipes.contains(r));
-    
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
