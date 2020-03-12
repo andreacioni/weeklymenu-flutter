@@ -12,6 +12,7 @@ import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 import './widgets/app_bar/app_bar.dart';
 import './widgets/menu_page/page.dart';
 import 'providers/menus_provider.dart';
+import 'providers/ingredients_provider.dart';
 
 void main() => runApp(WMApp());
 
@@ -22,6 +23,7 @@ class WMApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: MenusProvider()),
         ChangeNotifierProvider.value(value: RecipesProvider()),
+        ChangeNotifierProvider.value(value: IngredientsProvider()),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

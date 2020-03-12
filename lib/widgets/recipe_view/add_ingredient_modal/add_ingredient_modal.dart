@@ -111,7 +111,7 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
                   FlatButton(
                     child: Text(selectedIngredient != null && selectedIngredient.id == 'NONE' ? "CREATE & ADD" : "ADD"),
                     textColor: Theme.of(context).primaryColor,
-                    onPressed: () {},
+                    onPressed: selectedIngredient == null ? null : () {},
                   ),
                 ],
               )

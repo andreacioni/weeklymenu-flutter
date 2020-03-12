@@ -79,13 +79,13 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              if(widget._recipe.ingredients.isEmpty) 
+              if(widget._recipe.ingredients.isEmpty && !_editEnabled) 
               EditableTextField(
                 "",
-                editEnabled: _editEnabled,
+                editEnabled: false,
                 hintText: "No ingredients",
               ),
-              if(!widget._recipe.ingredients.isEmpty)
+              if(widget._recipe.ingredients.isNotEmpty)
               ...widget._recipe.ingredients
                   .map(
                     (recipeIng) => _editEnabled
@@ -138,10 +138,11 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                "",
+                widget._recipe.preparation,
                 editEnabled: _editEnabled,
                 hintText: "Add preparation steps...",
                 maxLines: 1000,
+                onChanged: (text) => widget._recipe.preparation = text,
               ),
               SizedBox(
                 height: 5,
@@ -156,10 +157,11 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                "",
+                widget._recipe.note,
                 editEnabled: _editEnabled,
                 hintText: "Add note...",
                 maxLines: 1000,
+                onChanged: (text) => widget._recipe.note = text,
               ),
               SizedBox(
                 height: 5,
