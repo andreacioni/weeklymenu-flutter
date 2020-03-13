@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:spinner_input/spinner_input.dart';
-import 'package:weekly_menu_app/models/unit_of_measure.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/ingredient.dart';
 import '../../models/unit_of_measure.dart';
+
+import '../../providers/ingredients_provider.dart';
 
 class RecipeIngredientUpdateModal extends StatefulWidget {
   final RecipeIngredient _recipeIngredient;
@@ -17,19 +19,23 @@ class RecipeIngredientUpdateModal extends StatefulWidget {
 
 class _RecipeIngredientUpdateModalState
     extends State<RecipeIngredientUpdateModal> {
-  UnitOfMeasure _dropdownValue;
+  String _uomDropdownValue;
 
-  DropdownMenuItem<UnitOfMeasure> _createDropDownItem(UnitOfMeasure uom) {
-    return DropdownMenuItem<UnitOfMeasure>(
-      child: Text(uom.name),
+  DropdownMenuItem<String> _createDropDownItem(String uom) {
+    return DropdownMenuItem<String>(
+      child: Text(uom),
       value: uom,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    Ingredient ingredient =
+        Provider.of<IngredientsProvider>(context, listen: false)
+            .getById(widget._recipeIngredient.ingredientId);
+
     return SimpleDialog(
-      title: Text(widget._recipeIngredient.name),
+      title: Text(ingredient.name),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       children: <Widget>[
         Center(
@@ -50,14 +56,14 @@ class _RecipeIngredientUpdateModalState
               SizedBox(
                 width: 10,
               ),
-              DropdownButton<UnitOfMeasure>(
+              DropdownButton<String>(
                 value: widget._recipeIngredient.unitOfMeasure,
-                items: unitsOfMeasure
+                items: UnitOfMeasures
                     .map((uom) => _createDropDownItem(uom))
                     .toList(),
                 onChanged: (s) {
                   setState(() {
-                    _dropdownValue = s;
+                    _uomDropdownValue = s;
                   });
                 },
               ),

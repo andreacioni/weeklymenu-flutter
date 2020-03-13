@@ -1,17 +1,19 @@
-const List<UnitOfMeasure> unitsOfMeasure = [
-  UnitOfMeasure("1", "pcs"),
-  UnitOfMeasure("2", "gr"),
-  UnitOfMeasure("3", "cl"),
-];
+enum UnitOfMeasure {
+  PIECES,
 
-class UnitOfMeasure {
-  final String id;
-  final String name;
+  LITERS,
+  CENTILITERS,
+  MILLILITERS,
 
-  const UnitOfMeasure(this.id, this.name);
-
-  @override
-  String toString() {
-    return name;
-  }
+  GRAMS
 }
+
+const Map<UnitOfMeasure, String> UnitOfMeasures = const {
+  UnitOfMeasure.PIECES: 'pcs',
+
+  UnitOfMeasure.LITERS: 'l',
+  UnitOfMeasure.CENTILITERS: 'cl',
+  UnitOfMeasure.MILLILITERS: 'ml',
+
+  UnitOfMeasure.GRAMS: 'gr'
+};

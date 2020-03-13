@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import './recipe_ingredient_update_modal.dart';
 import '../../models/ingredient.dart';
+import '../../providers/ingredients_provider.dart';
 
 class RecipeIngredientListTile extends StatefulWidget {
   final RecipeIngredient _recipeIngredient;
@@ -16,18 +19,23 @@ class RecipeIngredientListTile extends StatefulWidget {
 class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
   void _openRecipeIngredientUpdateModal() {
     showDialog(
-        context: context, builder: (bContext) => RecipeIngredientUpdateModal(widget._recipeIngredient));
+        context: context,
+        builder: (bContext) =>
+            RecipeIngredientUpdateModal(widget._recipeIngredient));
   }
 
   @override
   Widget build(BuildContext context) {
+    Ingredient ingredient =
+        Provider.of<IngredientsProvider>(context, listen: false)
+            .getById(widget._recipeIngredient.ingredientId);
     return Card(
       child: ListTile(
         leading: Padding(
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(widget._recipeIngredient.name),
+        title: Text(ingredient.name),
         trailing: widget.editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),

@@ -3,6 +3,7 @@ import 'package:expandable/expandable.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:flutter_tags/tag.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
 
 import './add_ingredient_modal/add_ingredient_modal.dart';
 import '../recipe_view/recipe_information_tiles.dart';
@@ -64,7 +65,8 @@ class _RecipeViewState extends State<RecipeView> {
               Card(
                 child: Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child: RecipeInformationTiles(widget._recipe, editEnabled: _editEnabled),
+                  child: RecipeInformationTiles(widget._recipe,
+                      editEnabled: _editEnabled),
                 ),
               ),
               SizedBox(
@@ -79,32 +81,42 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              if(widget._recipe.ingredients.isEmpty && !_editEnabled) 
-              EditableTextField(
-                "",
-                editEnabled: false,
-                hintText: "No ingredients",
-              ),
-              if(widget._recipe.ingredients.isNotEmpty)
-              ...widget._recipe.ingredients
-                  .map(
-                    (recipeIng) => _editEnabled
-                        ? Dismissible(
-                            key: UniqueKey(),
-                            child: RecipeIngredientListTile(
+              if (widget._recipe.ingredients.isEmpty && !_editEnabled)
+                EditableTextField(
+                  "",
+                  editEnabled: false,
+                  hintText: "No ingredients",
+                ),
+              if (widget._recipe.ingredients.isNotEmpty)
+                ...widget._recipe.ingredients
+                    .map(
+                      (recipeIng) => _editEnabled
+                          ? Dismissible(
+                              key: UniqueKey(),
+                              child: RecipeIngredientListTile(
+                                recipeIng,
+                                editEnabled: _editEnabled,
+                              ))
+                          : RecipeIngredientListTile(
                               recipeIng,
-                              editEnabled: _editEnabled,
-                            ))
-                        : RecipeIngredientListTile(
-                            recipeIng,
-                          ),
-                  )
-                  .toList(),
+                            ),
+                    )
+                    .toList(),
               if (_editEnabled)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
-                    onTap: () => showDialog(context: context, builder: (_) => AddIngredientModal()),
+                    onTap: () => showDialog<RecipeIngredient>(
+                        context: context,
+                        builder: (_) => AddIngredientModal()).then((recipiIng) {
+                      if (recipiIng != null && recipiIng.ingredientId != null) {
+                        if (recipiIng.ingredientId == 'NONE') {
+                          print('Create new recipe');
+                        }
+
+                        print('Create new recipe and ingredient');
+                      }
+                    }),
                     child: DottedBorder(
                       child: Center(
                           child: const Text(

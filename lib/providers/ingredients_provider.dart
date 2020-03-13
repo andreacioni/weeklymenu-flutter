@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/ingredient.dart';
-import '../models/unit_of_measure.dart';
 
-  RecipeIngredient _ingInsalata = RecipeIngredient(
+  Ingredient _ingInsalata = Ingredient(
       id: 'iau4dcr',
-      name: "Insalata",
-      quantity: 50,
-      unitOfMeasure: unitsOfMeasure[0]);
-  RecipeIngredient _ingPomodori = RecipeIngredient(
+      name: "Insalata",);
+  Ingredient _ingPomodori = Ingredient(
       id: 'nc94nc',
-      name: "Pomodori",
-      quantity: 1,
-      unitOfMeasure: unitsOfMeasure[0]);
-  RecipeIngredient _ingTonno = RecipeIngredient(
+      name: "Pomodori",);
+  Ingredient _ingTonno = Ingredient(
       id: 'ks92ej',
-      name: "Tonno",
-      quantity: 50,
-      unitOfMeasure: unitsOfMeasure[2]);
+      name: "Tonno",);
 
   List<Ingredient> _ingredients = <Ingredient>[
     _ingInsalata,
@@ -31,4 +25,13 @@ class IngredientsProvider with ChangeNotifier {
 
   Ingredient getById(String id) =>
       _ingredients.firstWhere((ing) => ing.id == id);
+
+  Ingredient addIngredient(Ingredient ingredient) {
+    if(ingredient.id == null || ingredient.id == 'NONE') {
+      ingredient.id = Uuid().v4();
+    }
+
+    _ingredients.add(ingredient);
+    notifyListeners();
+  }
 }

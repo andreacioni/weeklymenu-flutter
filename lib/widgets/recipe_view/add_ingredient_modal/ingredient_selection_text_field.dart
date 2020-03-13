@@ -81,15 +81,15 @@ class _IngredientSelectionTextFieldState
             },
             onSuggestionSelected: (selectedIngredient) {
               if (selectedIngredient.id == 'NONE') {
-                print('Add Ingredient: ${selectedIngredient.name}');
                 selectedIngredient.name = RegExp(r"^Add (.*) \.\.\.")
                     .firstMatch(selectedIngredient.name)
                     .group(1);
+                print('Add Ingredient: ${selectedIngredient.name}');
               } else {
                 this._typeAheadController.text = selectedIngredient.name;
-
-                widget.onIngredientSelected(selectedIngredient);
               }
+
+              widget.onIngredientSelected(selectedIngredient);
             },
           ),
         ),

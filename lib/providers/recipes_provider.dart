@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/ingredient.dart';
 
 import '../models/recipe.dart';
 
@@ -11,7 +12,11 @@ Recipe _insalataAndrea = Recipe(
   cost: 1,
   estimatedCookingTime: 0,
   estimatedPreparationTime: 10,
-  ingredients: [],
+  ingredients: [
+    RecipeIngredient(recipeIngredient: "ks92ej", quantity: 2, unitOfMeasure: "pcs"),
+    RecipeIngredient(recipeIngredient: "nc94nc", quantity: 1, unitOfMeasure: "L"),
+    RecipeIngredient(recipeIngredient: "iau4dcr", quantity: 200, unitOfMeasure: "gr"),
+  ],
   imgUrl:
       "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
   tags: ["Vegetarian", "Healty", "Fast"],

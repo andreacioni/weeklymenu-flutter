@@ -5,10 +5,7 @@ import 'package:weekly_menu_app/models/ingredient.dart';
 
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
-import '../../../models/unit_of_measure.dart';
-import '../../../providers/recipes_provider.dart';
-
-import '../unit_of_measure_dropdown.dart';
+import '../../../providers/ingredients_provider.dart';
 
 class AddIngredientModal extends StatefulWidget {
   @override
@@ -16,14 +13,21 @@ class AddIngredientModal extends StatefulWidget {
 }
 
 class _AddIngredientModalState extends State<AddIngredientModal> {
-  Ingredient selectedIngredient;
-  UnitOfMeasure _dropdownValue;
-  double _spinnerValue = 0;
+  Ingredient _selectedIngredient;
+  String _uomDropdownValue;
+  double _quantitySpinnerValue = 0;
   bool _isFreezed = false;
 
-  DropdownMenuItem<UnitOfMeasure> _createDropDownItem(UnitOfMeasure uom) {
-    return DropdownMenuItem<UnitOfMeasure>(
-      child: Text(uom.name),
+  void _createNewRecipeIngredient() {
+    Provider.of<IngredientsProvider>(context).addIngredient(_selectedIngredient);
+    RecipeIngredient recipeIngredient = RecipeIngredient(recipeIngredient: _selectedIngredient.id, quantity: _quantitySpinnerValue, unitOfMeasure: _uomDropdownValue, freezed: _isFreezed);
+    Navigator.of(context).pop(recipeIngredient);
+  }
+  
+
+  DropdownMenuItem<String> _createDropDownItem(String uom) {
+    return DropdownMenuItem<String>(
+      child: Text(uom),
       value: uom,
     );
   }
@@ -40,7 +44,7 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
               IngredientSelectionTextField(
                 onIngredientSelected: (ingredient) {
                   setState(() {
-                    selectedIngredient = ingredient;
+                    _selectedIngredient = ingredient;
                   });
                 },
               ),
@@ -48,25 +52,25 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   SpinnerInput(
-                    spinnerValue: _spinnerValue,
+                    spinnerValue: _quantitySpinnerValue,
                     fractionDigits: 0,
                     minValue: 0,
                     maxValue: 9999,
                     step: 1,
                     onChange: (newValue) {
                       setState(() {
-                        _spinnerValue = newValue;
+                        _quantitySpinnerValue = newValue;
                       });
                     },
                   ),
-                  DropdownButton<UnitOfMeasure>(
-                    value: _dropdownValue,
+                  DropdownButton<String>(
+                    value: _uomDropdownValue,
                     items: unitsOfMeasure
                         .map((uom) => _createDropDownItem(uom))
                         .toList(),
                     onChanged: (s) {
                       setState(() {
-                        _dropdownValue = s;
+                        _uomDropdownValue = s;
                       });
                     },
                   ),
@@ -109,9 +113,9 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   FlatButton(
-                    child: Text(selectedIngredient != null && selectedIngredient.id == 'NONE' ? "CREATE & ADD" : "ADD"),
+                    child: Text(_selectedIngredient != null && _selectedIngredient.id == 'NONE' ? "CREATE & ADD" : "ADD"),
                     textColor: Theme.of(context).primaryColor,
-                    onPressed: selectedIngredient == null ? null : () {},
+                    onPressed: _selectedIngredient == null ? null : _createNewRecipeIngredient,
                   ),
                 ],
               )

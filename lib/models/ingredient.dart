@@ -1,10 +1,12 @@
-import './unit_of_measure.dart';
+import 'package:flutter/foundation.dart';
 
-class RecipeIngredient extends Ingredient {
+class RecipeIngredient {
+  String ingredientId;
   double quantity;
-  UnitOfMeasure unitOfMeasure;
+  String unitOfMeasure;
+  bool freezed;
 
-  RecipeIngredient({id, name, this.quantity, this.unitOfMeasure}) : super(id: id, name: name);
+  RecipeIngredient({@required recipeIngredient, name, this.quantity, this.unitOfMeasure, this.freezed});
 }
 
 class Ingredient {

@@ -13,12 +13,12 @@ class UnitsOfMeasureDropdown extends StatefulWidget {
 
 class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
   
-  UnitOfMeasure _dropdownValue;
+  UnitOfMeasure _uomDropdownValue;
   double _spinnerValue = 0;
 
   DropdownMenuItem<UnitOfMeasure> _createDropDownItem(UnitOfMeasure uom) {
     return DropdownMenuItem<UnitOfMeasure>(
-      child: Text(uom.name), 
+      child: Text(UnitOfMeasures[uom]), 
       value: uom,
       );
   }
@@ -39,11 +39,11 @@ class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
             },
           ),
         DropdownButton<UnitOfMeasure>(
-          value: _dropdownValue,
-          items: unitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
+          value: _uomDropdownValue,
+          items: UnitOfMeasures.map((uom) => _createDropDownItem(uom)).toList(),
           onChanged: (s) {
             setState(() {
-              _dropdownValue = s;
+              _uomDropdownValue = s;
             });
           },
         ),
