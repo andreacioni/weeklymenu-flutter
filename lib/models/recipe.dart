@@ -9,7 +9,7 @@ class Recipe {
   String description;
   int rating;
   int cost;
-  int difficulty;
+  String difficulty;
   List<int> availabilityMonths;
   
   int servs;
@@ -27,7 +27,7 @@ class Recipe {
 
   String owner;
 
-  Recipe({@required this.id, this.name, this.description, this.ingredients = const [], this.difficulty = 0, this.rating = 0, this.cost = 0, this.servs = 0, this.estimatedPreparationTime = 0, this.estimatedCookingTime = 0, this.imgUrl, this.tags = const []});
+  Recipe({@required this.id, this.name, this.description, this.ingredients = const [], this.difficulty, this.rating = 0, this.cost = 0, this.servs = 0, this.estimatedPreparationTime = 0, this.estimatedCookingTime = 0, this.imgUrl, this.tags = const []});
 
   @override
   String toString() => name;

@@ -58,7 +58,7 @@ class _RecipeIngredientUpdateModalState
               ),
               DropdownButton<String>(
                 value: widget._recipeIngredient.unitOfMeasure,
-                items: UnitOfMeasures
+                items: UnitsOfMeasure
                     .map((uom) => _createDropDownItem(uom))
                     .toList(),
                 onChanged: (s) {

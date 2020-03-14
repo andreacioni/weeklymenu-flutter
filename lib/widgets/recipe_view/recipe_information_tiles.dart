@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:spinner_input/spinner_input.dart';
 
+import '../../models/ingredient.dart';
+import '../../providers/recipes_provider.dart';
 import '../../models/recipe.dart';
 
 class RecipeInformationTiles extends StatelessWidget {
@@ -10,7 +13,7 @@ class RecipeInformationTiles extends StatelessWidget {
   RecipeInformationTiles(this._recipe, {this.editEnabled});
 
   Widget _buildSpinner(double val, String suffix,
-      {double minValue = 0.0, double step = 1.0}) {
+      {Function(double) onChange, double minValue = 0.0, double step = 1.0}) {
     return editEnabled
         ? SpinnerInput(
             spinnerValue: val,
@@ -18,7 +21,7 @@ class RecipeInformationTiles extends StatelessWidget {
             disabledPopup: true,
             minValue: minValue,
             step: step,
-            onChange: (newValue) {},
+            onChange: onChange,
           )
         : Text(
             "${val.toInt()} $suffix",
@@ -26,24 +29,23 @@ class RecipeInformationTiles extends StatelessWidget {
           );
   }
 
-  Widget _buildDifficultyDropdown() {
+  Widget _buildDifficultyDropdown(BuildContext context, Recipe recipe) {
     return !editEnabled
         ? Text(
-            "Easy",
-            style: TextStyle(fontSize: 18),
+            recipe.difficulty == null ? '-' : recipe.difficulty,
+            style: const TextStyle(fontSize: 18),
           )
         : DropdownButton<String>(
-            value: "Easy",
-            //icon: Icon(Icons.arrow_downward),
+            value: recipe.difficulty,
+            hint: const Text('Choose'),
             iconSize: 24,
             elevation: 16,
-            style: TextStyle(color: Colors.black, fontSize: 18),
+            style: const TextStyle(color: Colors.black, fontSize: 18),
             onChanged: (String newValue) {
-              //setState(() {
-              //dropdownValue = newValue;
-              //});
+              Provider.of<RecipesProvider>(context, listen: false)
+                  .updateDifficulty(recipe.id, newValue);
             },
-            items: <String>['Easy', 'Two', 'Free', 'Four']
+            items: <String>['Easy', 'Intermediate', 'Hard']
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -64,6 +66,9 @@ class RecipeInformationTiles extends StatelessWidget {
             _recipe.servs.toDouble(),
             "ppl",
             minValue: 1,
+            onChange: (newValue) {
+              Provider.of<RecipesProvider>(context, listen: false).updateServs(_recipe.id, newValue.truncate());
+            }
           ),
         ),
         ListTile(
@@ -72,6 +77,9 @@ class RecipeInformationTiles extends StatelessWidget {
           trailing: _buildSpinner(
             _recipe.estimatedPreparationTime.toDouble(),
             "min",
+            onChange: (newValue) {
+              Provider.of<RecipesProvider>(context, listen: false).updatePreparationTime(_recipe.id, newValue.truncate());
+            }
           ),
         ),
         ListTile(
@@ -80,12 +88,15 @@ class RecipeInformationTiles extends StatelessWidget {
           trailing: _buildSpinner(
             _recipe.estimatedCookingTime.toDouble(),
             "min",
+            onChange: (newValue) {
+              Provider.of<RecipesProvider>(context, listen: false).updateCookingTime(_recipe.id, newValue.truncate());
+            }
           ),
         ),
         ListTile(
           title: Text("Difficulty"),
           leading: Icon(Icons.work),
-          trailing: _buildDifficultyDropdown(),
+          trailing: _buildDifficultyDropdown(context, _recipe),
         ),
         RecipeInformationLevelSelect(
           "Affinity",

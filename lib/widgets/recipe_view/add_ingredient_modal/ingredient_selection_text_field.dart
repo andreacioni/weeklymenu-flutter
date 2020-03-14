@@ -36,7 +36,7 @@ class _IngredientSelectionTextFieldState
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
       suggestions.add(
-          Ingredient(id: 'NONE', name: "Add ${_typeAheadController.text} ..."));
+          Ingredient(name: "Add ${_typeAheadController.text} ..."));
     }
 
     return suggestions;
@@ -80,7 +80,7 @@ class _IngredientSelectionTextFieldState
               );
             },
             onSuggestionSelected: (selectedIngredient) {
-              if (selectedIngredient.id == 'NONE') {
+              if (selectedIngredient.id == null) {
                 selectedIngredient.name = RegExp(r"^Add (.*) \.\.\.")
                     .firstMatch(selectedIngredient.name)
                     .group(1);

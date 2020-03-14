@@ -13,12 +13,12 @@ class UnitsOfMeasureDropdown extends StatefulWidget {
 
 class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
   
-  UnitOfMeasure _uomDropdownValue;
+  String _uomDropdownValue;
   double _spinnerValue = 0;
 
-  DropdownMenuItem<UnitOfMeasure> _createDropDownItem(UnitOfMeasure uom) {
-    return DropdownMenuItem<UnitOfMeasure>(
-      child: Text(UnitOfMeasures[uom]), 
+  DropdownMenuItem<String> _createDropDownItem(String uom) {
+    return DropdownMenuItem<String>(
+      child: Text(uom), 
       value: uom,
       );
   }
@@ -38,9 +38,9 @@ class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
               _spinnerValue = newValue;
             },
           ),
-        DropdownButton<UnitOfMeasure>(
+        DropdownButton<String>(
           value: _uomDropdownValue,
-          items: UnitOfMeasures.map((uom) => _createDropDownItem(uom)).toList(),
+          items: UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
           onChanged: (s) {
             setState(() {
               _uomDropdownValue = s;

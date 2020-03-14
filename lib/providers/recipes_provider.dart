@@ -13,9 +13,9 @@ Recipe _insalataAndrea = Recipe(
   estimatedCookingTime: 0,
   estimatedPreparationTime: 10,
   ingredients: [
-    RecipeIngredient(recipeIngredient: "ks92ej", quantity: 2, unitOfMeasure: "pcs"),
-    RecipeIngredient(recipeIngredient: "nc94nc", quantity: 1, unitOfMeasure: "L"),
-    RecipeIngredient(recipeIngredient: "iau4dcr", quantity: 200, unitOfMeasure: "gr"),
+    RecipeIngredient(ingredientId: "ks92ej", quantity: 2, unitOfMeasure: "pcs"),
+    RecipeIngredient(ingredientId: "nc94nc", quantity: 1, unitOfMeasure: "L"),
+    RecipeIngredient(ingredientId: "iau4dcr", quantity: 200, unitOfMeasure: "gr"),
   ],
   imgUrl:
       "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
@@ -46,5 +46,62 @@ class RecipesProvider with ChangeNotifier {
 
   List<Recipe> get getRecipes => [..._recipes];
 
-  Recipe getById(String id) => _recipes.firstWhere((ing) => ing.id == id);
+  Recipe getById(String id) => _recipes.firstWhere((ing) => ing.id == id, orElse: () => null);
+
+  void updateDifficulty(String id, String difficulty) {
+    Recipe recipe = getById(id);
+
+    if(recipe != null) {
+      recipe.difficulty = difficulty;
+      notifyListeners();
+    }
+  }
+
+  void updateServs(String id, int servs) {
+    Recipe recipe = getById(id);
+
+    if(recipe != null) {
+      recipe.servs = servs;
+      notifyListeners();
+    }
+  }
+  
+  void updatePreparationTime(String id, int estimatedPreparationTime) {
+    Recipe recipe = getById(id);
+
+    if(recipe != null) {
+      recipe.estimatedPreparationTime = estimatedPreparationTime;
+      notifyListeners();
+    }
+  }
+
+  void updateCookingTime(String id, int estimatedCookingTime) {
+    Recipe recipe = getById(id);
+
+    if(recipe != null) {
+      recipe.estimatedCookingTime = estimatedCookingTime;
+      notifyListeners();
+    }
+  }
+
+  void addRecipeIngredient(String id, RecipeIngredient recipeIngredient) {
+    Recipe recipe = getById(id);
+
+    if(recipe != null) {
+      if(recipe.ingredients == null) {
+        recipe.ingredients = [recipeIngredient];
+      } else {
+        recipe.ingredients.add(recipeIngredient);
+      }
+      notifyListeners();
+    }
+  }
+  
+  void deleteRecipeIngredient(String id, String recipeIngredientId) {
+    Recipe recipe = _recipes.firstWhere((recipe) => recipe.id == id, orElse: () => null);
+    if(recipe != null && recipe.ingredients != null) {
+      recipe.ingredients.removeWhere((recipeIngredient) => recipeIngredient.ingredientId == recipeIngredientId);
+      notifyListeners();
+    }
+  }
 }

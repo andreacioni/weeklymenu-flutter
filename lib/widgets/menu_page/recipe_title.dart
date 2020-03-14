@@ -31,7 +31,7 @@ class RecipeTile extends StatelessWidget {
         onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (ctx) => RecipeView(recipe, heroTagValue))),
+                builder: (ctx) => RecipeView(recipe.id, heroTagValue))),
       ),
     );
   }

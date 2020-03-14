@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spinner_input/spinner_input.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
 
+import '../../../models/ingredient.dart';
+import '../../../models/unit_of_measure.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
 import '../../../providers/ingredients_provider.dart';
@@ -19,8 +20,8 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
   bool _isFreezed = false;
 
   void _createNewRecipeIngredient() {
-    Provider.of<IngredientsProvider>(context).addIngredient(_selectedIngredient);
-    RecipeIngredient recipeIngredient = RecipeIngredient(recipeIngredient: _selectedIngredient.id, quantity: _quantitySpinnerValue, unitOfMeasure: _uomDropdownValue, freezed: _isFreezed);
+    Provider.of<IngredientsProvider>(context, listen: false).addIngredient(_selectedIngredient);
+    RecipeIngredient recipeIngredient = RecipeIngredient(ingredientId: _selectedIngredient.id, quantity: _quantitySpinnerValue, unitOfMeasure: _uomDropdownValue, freezed: _isFreezed);
     Navigator.of(context).pop(recipeIngredient);
   }
   
@@ -65,7 +66,8 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
                   ),
                   DropdownButton<String>(
                     value: _uomDropdownValue,
-                    items: unitsOfMeasure
+                    hint: Text('Unit of Measure'),
+                    items: UnitsOfMeasure
                         .map((uom) => _createDropDownItem(uom))
                         .toList(),
                     onChanged: (s) {
@@ -113,7 +115,7 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   FlatButton(
-                    child: Text(_selectedIngredient != null && _selectedIngredient.id == 'NONE' ? "CREATE & ADD" : "ADD"),
+                    child: Text(_selectedIngredient != null && _selectedIngredient.id == null ? "CREATE & ADD" : "ADD"),
                     textColor: Theme.of(context).primaryColor,
                     onPressed: _selectedIngredient == null ? null : _createNewRecipeIngredient,
                   ),

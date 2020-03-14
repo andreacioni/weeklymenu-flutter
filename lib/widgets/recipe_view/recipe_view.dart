@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:expandable/expandable.dart';
-import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:flutter_tags/tag.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/recipes_provider.dart';
+import '../../models/ingredient.dart';
 import './add_ingredient_modal/add_ingredient_modal.dart';
 import '../recipe_view/recipe_information_tiles.dart';
 import '../../widgets/recipe_view/recipe_ingredient_list_tile.dart';
@@ -14,10 +14,10 @@ import './editable_text_field.dart';
 import '../../globals/utils.dart';
 
 class RecipeView extends StatefulWidget {
-  final Recipe _recipe;
+  final String _recipeId;
   final Object _heroTag;
 
-  RecipeView(this._recipe, this._heroTag);
+  RecipeView(this._recipeId, this._heroTag);
 
   @override
   _RecipeViewState createState() => _RecipeViewState();
@@ -29,11 +29,13 @@ class _RecipeViewState extends State<RecipeView> {
 
   @override
   Widget build(BuildContext context) {
+    Recipe recipe =
+        Provider.of<RecipesProvider>(context).getById(widget._recipeId);
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
           RecipeAppBar(
-            widget._recipe,
+            recipe,
             widget._heroTag,
             editModeEnabled: _editEnabled,
             onRecipeEditEnabled: (editEnabled) => setState(() {
@@ -46,7 +48,7 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                widget._recipe.description,
+                recipe.description,
                 editEnabled: _editEnabled,
                 hintText: "Description",
               ),
@@ -65,8 +67,8 @@ class _RecipeViewState extends State<RecipeView> {
               Card(
                 child: Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child: RecipeInformationTiles(widget._recipe,
-                      editEnabled: _editEnabled),
+                  child:
+                      RecipeInformationTiles(recipe, editEnabled: _editEnabled),
                 ),
               ),
               SizedBox(
@@ -81,22 +83,48 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              if (widget._recipe.ingredients.isEmpty && !_editEnabled)
+              if (recipe.ingredients.isEmpty && !_editEnabled)
                 EditableTextField(
                   "",
                   editEnabled: false,
                   hintText: "No ingredients",
                 ),
-              if (widget._recipe.ingredients.isNotEmpty)
-                ...widget._recipe.ingredients
+              if (recipe.ingredients.isNotEmpty)
+                ...recipe.ingredients
                     .map(
                       (recipeIng) => _editEnabled
                           ? Dismissible(
                               key: UniqueKey(),
+                              direction: DismissDirection.endToStart,
+                              background: Container(
+                                color: Colors.red,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 25.0),
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
                               child: RecipeIngredientListTile(
                                 recipeIng,
                                 editEnabled: _editEnabled,
-                              ))
+                              ),
+                              onDismissed: (_) {
+                                Provider.of<RecipesProvider>(context,
+                                        listen: false)
+                                    .deleteRecipeIngredient(
+                                        recipe.id, recipeIng.ingredientId);
+                              },
+                            )
                           : RecipeIngredientListTile(
                               recipeIng,
                             ),
@@ -108,13 +136,10 @@ class _RecipeViewState extends State<RecipeView> {
                   child: InkWell(
                     onTap: () => showDialog<RecipeIngredient>(
                         context: context,
-                        builder: (_) => AddIngredientModal()).then((recipiIng) {
-                      if (recipiIng != null && recipiIng.ingredientId != null) {
-                        if (recipiIng.ingredientId == 'NONE') {
-                          print('Create new recipe');
-                        }
-
-                        print('Create new recipe and ingredient');
+                        builder: (_) => AddIngredientModal()).then((recipeIng) {
+                      if (recipeIng != null) {
+                        Provider.of<RecipesProvider>(context, listen: false)
+                            .addRecipeIngredient(recipe.id, recipeIng);
                       }
                     }),
                     child: DottedBorder(
@@ -150,11 +175,11 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                widget._recipe.preparation,
+                recipe.preparation,
                 editEnabled: _editEnabled,
                 hintText: "Add preparation steps...",
                 maxLines: 1000,
-                onChanged: (text) => widget._recipe.preparation = text,
+                onChanged: (text) => recipe.preparation = text,
               ),
               SizedBox(
                 height: 5,
@@ -169,11 +194,11 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                widget._recipe.note,
+                recipe.note,
                 editEnabled: _editEnabled,
                 hintText: "Add note...",
                 maxLines: 1000,
-                onChanged: (text) => widget._recipe.note = text,
+                onChanged: (text) => recipe.note = text,
               ),
               SizedBox(
                 height: 5,
@@ -195,14 +220,14 @@ class _RecipeViewState extends State<RecipeView> {
                       color: Colors.white,
                     ),
                   ),
-                  title: widget._recipe.tags[index],
-                  activeColor: getColorForString(widget._recipe.tags[index]),
+                  title: recipe.tags[index],
+                  activeColor: getColorForString(recipe.tags[index]),
                   combine: ItemTagsCombine.withTextAfter,
                   index: index,
                   pressEnabled: false,
                   textScaleFactor: 1.5,
                 ),
-                itemCount: widget._recipe.tags.length,
+                itemCount: recipe.tags.length,
               ),
               SizedBox(
                 height: 5,
