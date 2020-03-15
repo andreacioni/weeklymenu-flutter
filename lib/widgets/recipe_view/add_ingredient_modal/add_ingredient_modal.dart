@@ -20,7 +20,9 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
   bool _isFreezed = false;
 
   void _createNewRecipeIngredient() {
-    Provider.of<IngredientsProvider>(context, listen: false).addIngredient(_selectedIngredient);
+    if (_selectedIngredient.id == null) {
+      Provider.of<IngredientsProvider>(context, listen: false).addIngredient(_selectedIngredient);
+    }
     RecipeIngredient recipeIngredient = RecipeIngredient(ingredientId: _selectedIngredient.id, quantity: _quantitySpinnerValue, unitOfMeasure: _uomDropdownValue, freezed: _isFreezed);
     Navigator.of(context).pop(recipeIngredient);
   }

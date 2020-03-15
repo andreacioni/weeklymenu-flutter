@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import './ingredient.dart';
 
-class Recipe {
+class Recipe with ChangeNotifier {
   String id;
   
   String name;
@@ -28,6 +28,42 @@ class Recipe {
   String owner;
 
   Recipe({@required this.id, this.name, this.description, this.ingredients = const [], this.difficulty, this.rating = 0, this.cost = 0, this.servs = 0, this.estimatedPreparationTime = 0, this.estimatedCookingTime = 0, this.imgUrl, this.tags = const []});
+
+  void updateDifficulty(String id, String difficulty) {
+    this.difficulty = difficulty;
+    notifyListeners();
+  }
+
+  void updateServs(int servs) {
+    this.servs = servs;
+    notifyListeners();
+  }
+
+  void updatePreparationTime(int estimatedPreparationTime) {
+    this.estimatedPreparationTime = estimatedPreparationTime;
+    notifyListeners();
+  }
+
+  void updateCookingTime(int estimatedCookingTime) {
+    this.estimatedCookingTime = estimatedCookingTime;
+    notifyListeners();
+  }
+
+  void addRecipeIngredient(RecipeIngredient recipeIngredient) {
+    if(ingredients == null) {
+      ingredients = [recipeIngredient];
+    } else {
+      ingredients.add(recipeIngredient);
+    }
+      notifyListeners();
+  }
+  
+  void deleteRecipeIngredient(String recipeIngredientId) {
+    if(ingredients != null && ingredients.isNotEmpty) {
+      ingredients.removeWhere((recipeIngredient) => recipeIngredient.ingredientId == recipeIngredientId);
+      notifyListeners();
+    }
+  }
 
   @override
   String toString() => name;

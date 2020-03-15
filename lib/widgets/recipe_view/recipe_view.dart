@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/tag.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/recipes_provider.dart';
-import '../../models/ingredient.dart';
-import './add_ingredient_modal/add_ingredient_modal.dart';
+import './add_ingredient_button.dart';
+import './recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import '../recipe_view/recipe_information_tiles.dart';
-import '../../widgets/recipe_view/recipe_ingredient_list_tile.dart';
 import '../../models/recipe.dart';
 import './recipe_app_bar.dart';
 import './editable_text_field.dart';
@@ -29,8 +27,7 @@ class _RecipeViewState extends State<RecipeView> {
 
   @override
   Widget build(BuildContext context) {
-    Recipe recipe =
-        Provider.of<RecipesProvider>(context).getById(widget._recipeId);
+    final Recipe recipe = Provider.of<Recipe>(context);
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -67,8 +64,7 @@ class _RecipeViewState extends State<RecipeView> {
               Card(
                 child: Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child:
-                      RecipeInformationTiles(recipe, editEnabled: _editEnabled),
+                  child: RecipeInformationTiles(recipe, editEnabled: _editEnabled),
                 ),
               ),
               SizedBox(
@@ -91,76 +87,13 @@ class _RecipeViewState extends State<RecipeView> {
                 ),
               if (recipe.ingredients.isNotEmpty)
                 ...recipe.ingredients
-                    .map(
-                      (recipeIng) => _editEnabled
-                          ? Dismissible(
-                              key: UniqueKey(),
-                              direction: DismissDirection.endToStart,
-                              background: Container(
-                                color: Colors.red,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 25.0),
-                                      child: Icon(
-                                        Icons.delete,
-                                        color: Colors.white,
-                                        size: 30,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              child: RecipeIngredientListTile(
-                                recipeIng,
-                                editEnabled: _editEnabled,
-                              ),
-                              onDismissed: (_) {
-                                Provider.of<RecipesProvider>(context,
-                                        listen: false)
-                                    .deleteRecipeIngredient(
-                                        recipe.id, recipeIng.ingredientId);
-                              },
-                            )
-                          : RecipeIngredientListTile(
-                              recipeIng,
-                            ),
-                    )
+                    .map((recipeIng) => DismissibleRecipeIngredient(recipeIng,
+                        editEnabled: _editEnabled))
                     .toList(),
               if (_editEnabled)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    onTap: () => showDialog<RecipeIngredient>(
-                        context: context,
-                        builder: (_) => AddIngredientModal()).then((recipeIng) {
-                      if (recipeIng != null) {
-                        Provider.of<RecipesProvider>(context, listen: false)
-                            .addRecipeIngredient(recipe.id, recipeIng);
-                      }
-                    }),
-                    child: DottedBorder(
-                      child: Center(
-                          child: const Text(
-                        "+ ADD INGREDIENT",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey),
-                      )),
-                      strokeWidth: 5,
-                      dashPattern: [4, 10],
-                      color: Colors.grey,
-                      padding: EdgeInsets.all(10),
-                      borderType: BorderType.RRect,
-                      radius: Radius.circular(9),
-                      strokeCap: StrokeCap.round,
-                    ),
-                  ),
+                  child: AddIngredientButton(),
                 ),
               SizedBox(
                 height: 5,

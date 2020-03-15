@@ -29,21 +29,21 @@ class RecipeInformationTiles extends StatelessWidget {
           );
   }
 
-  Widget _buildDifficultyDropdown(BuildContext context, Recipe recipe) {
+  Widget _buildDifficultyDropdown(BuildContext context) {
     return !editEnabled
         ? Text(
-            recipe.difficulty == null ? '-' : recipe.difficulty,
+            _recipe.difficulty == null ? '-' : _recipe.difficulty,
             style: const TextStyle(fontSize: 18),
           )
         : DropdownButton<String>(
-            value: recipe.difficulty,
+            value: _recipe.difficulty,
             hint: const Text('Choose'),
             iconSize: 24,
             elevation: 16,
             style: const TextStyle(color: Colors.black, fontSize: 18),
             onChanged: (String newValue) {
-              Provider.of<RecipesProvider>(context, listen: false)
-                  .updateDifficulty(recipe.id, newValue);
+              Provider.of<Recipe>(context, listen: false)
+                  .updateDifficulty(_recipe.id, newValue);
             },
             items: <String>['Easy', 'Intermediate', 'Hard']
                 .map<DropdownMenuItem<String>>((String value) {
@@ -67,7 +67,7 @@ class RecipeInformationTiles extends StatelessWidget {
             "ppl",
             minValue: 1,
             onChange: (newValue) {
-              Provider.of<RecipesProvider>(context, listen: false).updateServs(_recipe.id, newValue.truncate());
+              Provider.of<Recipe>(context, listen: false).updateServs(newValue.truncate());
             }
           ),
         ),
@@ -78,7 +78,7 @@ class RecipeInformationTiles extends StatelessWidget {
             _recipe.estimatedPreparationTime.toDouble(),
             "min",
             onChange: (newValue) {
-              Provider.of<RecipesProvider>(context, listen: false).updatePreparationTime(_recipe.id, newValue.truncate());
+              Provider.of<Recipe>(context, listen: false).updatePreparationTime(newValue.truncate());
             }
           ),
         ),
@@ -89,14 +89,14 @@ class RecipeInformationTiles extends StatelessWidget {
             _recipe.estimatedCookingTime.toDouble(),
             "min",
             onChange: (newValue) {
-              Provider.of<RecipesProvider>(context, listen: false).updateCookingTime(_recipe.id, newValue.truncate());
+              Provider.of<Recipe>(context, listen: false).updateCookingTime(newValue.truncate());
             }
           ),
         ),
         ListTile(
           title: Text("Difficulty"),
           leading: Icon(Icons.work),
-          trailing: _buildDifficultyDropdown(context, _recipe),
+          trailing: _buildDifficultyDropdown(context),
         ),
         RecipeInformationLevelSelect(
           "Affinity",
@@ -143,15 +143,15 @@ class RecipeInformationLevelSelect extends StatefulWidget {
       @required this.onLevelUpdate});
 
   @override
-  _RecipeInformationLevelSelectState createState() =>
-      _RecipeInformationLevelSelectState(_initialLevel);
+  recipeInformationLevelSelectState createState() =>
+      recipeInformationLevelSelectState(_initialLevel);
 }
 
-class _RecipeInformationLevelSelectState
+class recipeInformationLevelSelectState
     extends State<RecipeInformationLevelSelect> {
   int _level;
 
-  _RecipeInformationLevelSelectState(this._level);
+  recipeInformationLevelSelectState(this._level);
 
   Widget generateIcon(int index) => Icon(
         widget._icon,

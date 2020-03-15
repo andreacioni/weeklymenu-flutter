@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../recipe_view/recipe_view.dart';
 
 import '../../models/recipe.dart';
@@ -29,9 +30,14 @@ class RecipeTile extends StatelessWidget {
         trailing: Icon(Icons.more_vert),
         isThreeLine: true,
         onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => RecipeView(recipe.id, heroTagValue))),
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => ChangeNotifierProvider.value(
+              value: recipe,
+              child: RecipeView(recipe.id, heroTagValue),
+            ),
+          ),
+        ),
       ),
     );
   }
