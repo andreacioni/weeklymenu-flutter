@@ -15,7 +15,8 @@ Recipe _insalataAndrea = Recipe(
   ingredients: [
     RecipeIngredient(ingredientId: "ks92ej", quantity: 2, unitOfMeasure: "pcs"),
     RecipeIngredient(ingredientId: "nc94nc", quantity: 1, unitOfMeasure: "L"),
-    RecipeIngredient(ingredientId: "iau4dcr", quantity: 200, unitOfMeasure: "gr"),
+    RecipeIngredient(
+        ingredientId: "iau4dcr", quantity: 200, unitOfMeasure: "gr"),
   ],
   imgUrl:
       "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
@@ -46,5 +47,17 @@ class RecipesProvider with ChangeNotifier {
 
   List<Recipe> get getRecipes => [..._recipes];
 
-  Recipe getById(String id) => _recipes.firstWhere((ing) => ing.id == id, orElse: () => null);
+  List<String> get getAllRecipeTags {
+    List<String> tags = [];
+    _recipes.forEach((recipe) {
+      if (recipe.tags != null) {
+        tags.addAll(recipe.tags);
+      }
+    });
+
+    return tags;
+  }
+
+  Recipe getById(String id) =>
+      _recipes.firstWhere((ing) => ing.id == id, orElse: () => null);
 }

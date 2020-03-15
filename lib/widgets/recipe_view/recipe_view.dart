@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tags/tag.dart';
+import 'package:flutter_tags/flutter_tags.dart';
+import 'package:flutter_tags/flutter_tags.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/recipes_provider.dart';
@@ -8,6 +9,7 @@ import './recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import '../recipe_view/recipe_information_tiles.dart';
 import '../../models/recipe.dart';
 import './recipe_app_bar.dart';
+import './recipe_tags.dart';
 import './editable_text_field.dart';
 import '../../globals/utils.dart';
 
@@ -64,7 +66,8 @@ class _RecipeViewState extends State<RecipeView> {
               Card(
                 child: Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child: RecipeInformationTiles(recipe, editEnabled: _editEnabled),
+                  child:
+                      RecipeInformationTiles(recipe, editEnabled: _editEnabled),
                 ),
               ),
               SizedBox(
@@ -145,22 +148,9 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Tags(
-                itemBuilder: (index) => ItemTags(
-                  image: ItemTagsImage(
-                    child: Icon(
-                      Icons.local_offer,
-                      color: Colors.white,
-                    ),
-                  ),
-                  title: recipe.tags[index],
-                  activeColor: getColorForString(recipe.tags[index]),
-                  combine: ItemTagsCombine.withTextAfter,
-                  index: index,
-                  pressEnabled: false,
-                  textScaleFactor: 1.5,
-                ),
-                itemCount: recipe.tags.length,
+              RecipeTags(
+                recipe: recipe,
+                editEnabled: _editEnabled,
               ),
               SizedBox(
                 height: 5,

@@ -24,7 +24,7 @@ dependencies:
 
   #flutter_typeahead: ^1.7.0
 
-  flutter_tags: "^0.4.5"
+  flutter_tags: ^0.4.8
 
   intl: ^0.16.1
 

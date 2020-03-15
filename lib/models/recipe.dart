@@ -4,14 +4,14 @@ import './ingredient.dart';
 
 class Recipe with ChangeNotifier {
   String id;
-  
+
   String name;
   String description;
   int rating;
   int cost;
   String difficulty;
   List<int> availabilityMonths;
-  
+
   int servs;
   int estimatedCookingTime;
   int estimatedPreparationTime;
@@ -20,14 +20,26 @@ class Recipe with ChangeNotifier {
 
   String preparation;
   String note;
-  
+
   String imgUrl;
   String recipeUrl;
   List<String> tags;
 
   String owner;
 
-  Recipe({@required this.id, this.name, this.description, this.ingredients = const [], this.difficulty, this.rating = 0, this.cost = 0, this.servs = 0, this.estimatedPreparationTime = 0, this.estimatedCookingTime = 0, this.imgUrl, this.tags = const []});
+  Recipe(
+      {@required this.id,
+      this.name,
+      this.description,
+      this.ingredients = const [],
+      this.difficulty,
+      this.rating = 0,
+      this.cost = 0,
+      this.servs = 0,
+      this.estimatedPreparationTime = 0,
+      this.estimatedCookingTime = 0,
+      this.imgUrl,
+      this.tags = const []});
 
   void updateDifficulty(String id, String difficulty) {
     this.difficulty = difficulty;
@@ -50,17 +62,34 @@ class Recipe with ChangeNotifier {
   }
 
   void addRecipeIngredient(RecipeIngredient recipeIngredient) {
-    if(ingredients == null) {
+    if (ingredients == null) {
       ingredients = [recipeIngredient];
     } else {
       ingredients.add(recipeIngredient);
     }
-      notifyListeners();
+    notifyListeners();
   }
-  
+
   void deleteRecipeIngredient(String recipeIngredientId) {
-    if(ingredients != null && ingredients.isNotEmpty) {
-      ingredients.removeWhere((recipeIngredient) => recipeIngredient.ingredientId == recipeIngredientId);
+    if (ingredients != null && ingredients.isNotEmpty) {
+      ingredients.removeWhere((recipeIngredient) =>
+          recipeIngredient.ingredientId == recipeIngredientId);
+      notifyListeners();
+    }
+  }
+
+  void addTag(String newTag) {
+    if (tags == null) {
+      tags = [newTag];
+    } else {
+      tags.add(newTag);
+    }
+    notifyListeners();
+  }
+
+  void removeTag(String tagToRemove) {
+    if (tags != null) {
+      tags.removeWhere((tag) => tag == tagToRemove);
       notifyListeners();
     }
   }
@@ -68,8 +97,7 @@ class Recipe with ChangeNotifier {
   @override
   String toString() => name;
   @override
-  bool operator == (o) => o is Recipe && o.id == this.id;
+  bool operator ==(o) => o is Recipe && o.id == this.id;
   @override
   int get hashCode => id.hashCode;
 }
-

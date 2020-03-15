@@ -1,6 +1,3 @@
-import 'package:flutter/foundation.dart';
-
-import 'recipe.dart';
 import 'meals.dart';
 
 class Menu {
@@ -9,5 +6,5 @@ class Menu {
   Meal meal;
   List<String> recipes;
 
-  Menu({@required this.id, this.day, this.meal, this.recipes});
+  Menu({this.id, this.day, this.meal, this.recipes});
 }
