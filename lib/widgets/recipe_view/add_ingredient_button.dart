@@ -3,7 +3,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/ingredient.dart';
-import './add_ingredient_modal/add_ingredient_modal.dart';
+import './recipe_ingredient_modal/recipe_ingredient_modal.dart';
 
 import '../../models/recipe.dart';
 import '../../providers/recipes_provider.dart';
@@ -18,7 +18,7 @@ class AddIngredientButton extends StatelessWidget {
     return InkWell(
       onTap: () => showDialog<RecipeIngredient>(
               context: context,
-              builder: (_) => AddIngredientModal())
+              builder: (_) => RecipeIngredientModal())
           .then((recipeIng) {
         if (recipeIng != null) {
           Provider.of<Recipe>(context, listen: false)

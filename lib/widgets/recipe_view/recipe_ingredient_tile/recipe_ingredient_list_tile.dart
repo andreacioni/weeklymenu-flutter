@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../recipe_ingredient_update_modal.dart';
+import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
 import '../../../providers/ingredients_provider.dart';
 
@@ -18,10 +18,7 @@ class RecipeIngredientListTile extends StatefulWidget {
 
 class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
   void _openRecipeIngredientUpdateModal() {
-    showDialog(
-        context: context,
-        builder: (bContext) =>
-            RecipeIngredientUpdateModal(widget._recipeIngredient));
+    showDialog(context: context, builder: (bContext) => RecipeIngredientModal());
   }
 
   @override

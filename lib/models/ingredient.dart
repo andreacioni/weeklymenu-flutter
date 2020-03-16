@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-class RecipeIngredient {
+class RecipeIngredient with ChangeNotifier {
   String ingredientId;
   double quantity;
   String unitOfMeasure;
@@ -9,7 +8,7 @@ class RecipeIngredient {
   RecipeIngredient({@required this.ingredientId, name, this.quantity, this.unitOfMeasure, this.freezed});
 }
 
-class Ingredient {
+class Ingredient with ChangeNotifier {
   String id;
   String name;
 
