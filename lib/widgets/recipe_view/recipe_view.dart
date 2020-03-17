@@ -90,7 +90,7 @@ class _RecipeViewState extends State<RecipeView> {
                 ),
               if (recipe.ingredients.isNotEmpty)
                 ...recipe.ingredients
-                    .map((recipeIng) => DismissibleRecipeIngredient(recipeIng,
+                    .map((recipeIng) => DismissibleRecipeIngredientTile(recipe.id,
                         editEnabled: _editEnabled))
                     .toList(),
               if (_editEnabled)

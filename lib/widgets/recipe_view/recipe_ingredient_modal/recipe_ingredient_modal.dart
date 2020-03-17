@@ -22,14 +22,13 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   @override
   void initState() {
     try {
-      _recipeIngredient = Provider.of<RecipeIngredient>(context, listen: false);
-      _selectedIngredient = Provider.of()
-    } catch (_) {
+      _recipeIngredient = Provider.of<RecipeIngredient>(context);
       _updateMode = true;
-    } 
+    } catch (e) {
+      _recipeIngredient = RecipeIngredient(ingredientId: null);
+    }
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +39,9 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
           margin: EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: <Widget>[
-              buildIngredientSelectionTextField(),
-              buildQuantityAndUomRow(),
-              buildFreezedRow(),
+              _buildIngredientSelectionTextField(),
+              _buildQuantityAndUomRow(),
+              _buildFreezedRow(),
               SizedBox(
                 height: 10,
               ),
@@ -54,7 +53,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
                     textColor: Theme.of(context).primaryColor,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  buildDoneButton(context),
+                  _buildDoneButton(context),
                 ],
               )
             ],
@@ -69,12 +68,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
       Provider.of<IngredientsProvider>(context, listen: false)
           .addIngredient(_selectedIngredient);
     }
-    RecipeIngredient recipeIngredient = RecipeIngredient(
-        ingredientId: _selectedIngredient.id,
-        quantity: _quantitySpinnerValue,
-        unitOfMeasure: _uomDropdownValue,
-        freezed: _isFreezed);
-    Navigator.of(context).pop(recipeIngredient);
+    Navigator.of(context).pop(_recipeIngredient);
   }
 
   DropdownMenuItem<String> _createDropDownItem(String uom) {
@@ -84,11 +78,11 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     );
   }
 
-  IngredientSelectionTextField buildIngredientSelectionTextField() {
+  IngredientSelectionTextField _buildIngredientSelectionTextField() {
     Ingredient ingredient =
         Provider.of<IngredientsProvider>(context, listen: false)
-            .getById(widget.recipeIngredient.ingredientId);
-    return widget.recipeIngredient == null
+            .getById(_recipeIngredient.ingredientId);
+    return _recipeIngredient == null
         ? IngredientSelectionTextField(
             onIngredientSelected: (ingredient) {
               setState(() {
@@ -99,7 +93,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
         : Text(ingredient.name);
   }
 
-  Widget buildFreezedRow() {
+  Widget _buildFreezedRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -123,7 +117,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     );
   }
 
-  Widget buildQuantityAndUomRow() {
+  Widget _buildQuantityAndUomRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -145,8 +139,8 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     );
   }
 
-  Widget buildDoneButton(BuildContext context) {
-    if (widget.recipeIngredient == null) {
+  Widget _buildDoneButton(BuildContext context) {
+    if (_updateMode == false) {
       return FlatButton(
         child: Text(
             _selectedIngredient != null && _selectedIngredient.id == null

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
+import '../../../models/recipe.dart';
 import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientListTile extends StatefulWidget {

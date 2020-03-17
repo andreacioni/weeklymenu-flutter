@@ -101,3 +101,12 @@ class Recipe with ChangeNotifier {
   @override
   int get hashCode => id.hashCode;
 }
+
+class RecipeIngredient with ChangeNotifier {
+  String ingredientId;
+  double quantity;
+  String unitOfMeasure;
+  bool freezed;
+  
+  RecipeIngredient({@required this.ingredientId, name, this.quantity, this.unitOfMeasure, this.freezed, this.parentRecipe});
+}

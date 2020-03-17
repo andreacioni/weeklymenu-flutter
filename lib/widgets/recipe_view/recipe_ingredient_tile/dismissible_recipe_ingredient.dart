@@ -5,11 +5,12 @@ import './recipe_ingredient_list_tile.dart';
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
 
-class DismissibleRecipeIngredient extends StatelessWidget {
+class DismissibleRecipeIngredientTile extends StatelessWidget {
+  final String recipeId;
   final RecipeIngredient recipeIngredient;
   final bool editEnabled;
 
-  DismissibleRecipeIngredient(this.recipeIngredient, {this.editEnabled});
+  DismissibleRecipeIngredientTile(this.recipeId, this.recipeIngredient, {this.editEnabled});
 
   @override
   Widget build(BuildContext context) {
