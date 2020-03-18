@@ -6,14 +6,13 @@ import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
 
 class DismissibleRecipeIngredientTile extends StatelessWidget {
-  final String recipeId;
-  final RecipeIngredient recipeIngredient;
   final bool editEnabled;
 
-  DismissibleRecipeIngredientTile(this.recipeId, this.recipeIngredient, {this.editEnabled});
+  DismissibleRecipeIngredientTile(this.editEnabled);
 
   @override
   Widget build(BuildContext context) {
+    RecipeIngredient recipeIngredient = Provider.of<RecipeIngredient>(context);
     return editEnabled
         ? Dismissible(
             key: Key(recipeIngredient.ingredientId),

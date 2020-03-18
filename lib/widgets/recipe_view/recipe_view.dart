@@ -90,13 +90,15 @@ class _RecipeViewState extends State<RecipeView> {
                 ),
               if (recipe.ingredients.isNotEmpty)
                 ...recipe.ingredients
-                    .map((recipeIng) => DismissibleRecipeIngredientTile(recipe.id,
-                        editEnabled: _editEnabled))
+                    .map((recipeIng) => ChangeNotifierProvider.value(
+                          value: recipeIng,
+                          child: DismissibleRecipeIngredientTile(_editEnabled),
+                        ))
                     .toList(),
               if (_editEnabled)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: AddIngredientButton(),
+                  child: AddIngredientButton(recipe),
                 ),
               SizedBox(
                 height: 5,

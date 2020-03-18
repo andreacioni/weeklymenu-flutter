@@ -9,20 +9,19 @@ import '../../models/recipe.dart';
 import '../../providers/recipes_provider.dart';
 
 class AddIngredientButton extends StatelessWidget {
-  const AddIngredientButton({
-    Key key,
-  }) : super(key: key);
+  final Recipe recipe;
+
+  const AddIngredientButton(this.recipe);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => showDialog<RecipeIngredient>(
               context: context,
-              builder: (_) => RecipeIngredientModal())
+              builder: (_) => RecipeIngredientModal(recipe.id))
           .then((recipeIng) {
         if (recipeIng != null) {
-          Provider.of<Recipe>(context, listen: false)
-              .addRecipeIngredient(recipeIng);
+          recipe.addRecipeIngredient(recipeIng);
         }
       }),
       child: DottedBorder(

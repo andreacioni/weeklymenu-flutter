@@ -18,10 +18,6 @@ class RecipeIngredientListTile extends StatefulWidget {
 }
 
 class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
-  void _openRecipeIngredientUpdateModal() {
-    showDialog(context: context, builder: (bContext) => RecipeIngredientModal());
-  }
-
   @override
   Widget build(BuildContext context) {
     Ingredient ingredient =
@@ -61,5 +57,10 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
               ),
       ),
     );
+  }
+
+  void _openRecipeIngredientUpdateModal() {
+    showDialog(
+        context: context, builder: (bContext) => RecipeIngredientModal(widget._recipeIngredient.parentRecipeId));
   }
 }

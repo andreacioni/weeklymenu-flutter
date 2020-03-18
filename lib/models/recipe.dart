@@ -103,10 +103,18 @@ class Recipe with ChangeNotifier {
 }
 
 class RecipeIngredient with ChangeNotifier {
+  String parentRecipeId;
   String ingredientId;
   double quantity;
   String unitOfMeasure;
   bool freezed;
   
-  RecipeIngredient({@required this.ingredientId, name, this.quantity, this.unitOfMeasure, this.freezed, this.parentRecipe});
+  RecipeIngredient({@required this.parentRecipeId, @required this.ingredientId, this.quantity, this.unitOfMeasure, this.freezed});
+
+  @override
+  String toString() => parentRecipeId + ingredientId;
+  @override
+  bool operator ==(o) => o is RecipeIngredient && o.ingredientId == this.ingredientId && o.parentRecipeId == this.parentRecipeId;
+  @override
+  int get hashCode => parentRecipeId.hashCode^ingredientId.hashCode;
 }

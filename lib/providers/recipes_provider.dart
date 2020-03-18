@@ -13,10 +13,21 @@ Recipe _insalataAndrea = Recipe(
   estimatedCookingTime: 0,
   estimatedPreparationTime: 10,
   ingredients: [
-    RecipeIngredient(ingredientId: "ks92ej", quantity: 2, unitOfMeasure: "pcs"),
-    RecipeIngredient(ingredientId: "nc94nc", quantity: 1, unitOfMeasure: "L"),
     RecipeIngredient(
-        ingredientId: "iau4dcr", quantity: 200, unitOfMeasure: "gr"),
+        parentRecipeId: "adfie82bfiui",
+        ingredientId: "ks92ej",
+        quantity: 2,
+        unitOfMeasure: "pcs"),
+    RecipeIngredient(
+        parentRecipeId: "adfie82bfiui",
+        ingredientId: "nc94nc",
+        quantity: 1,
+        unitOfMeasure: "L"),
+    RecipeIngredient(
+        parentRecipeId: "adfie82bfiui",
+        ingredientId: "iau4dcr",
+        quantity: 200,
+        unitOfMeasure: "gr"),
   ],
   imgUrl:
       "https://www.cucchiaio.it/content/cucchiaio/it/ricette/2018/08/insalata-con-uova-pane-e-mandorle/jcr:content/header-par/image-single.img10.jpg/1533489383063.jpg",
