@@ -109,7 +109,7 @@ class RecipeIngredient with ChangeNotifier {
   String unitOfMeasure;
   bool freezed;
   
-  RecipeIngredient({@required this.parentRecipeId, @required this.ingredientId, this.quantity, this.unitOfMeasure, this.freezed});
+  RecipeIngredient({@required this.parentRecipeId, @required this.ingredientId, this.quantity = 0, this.unitOfMeasure, this.freezed = false});
 
   @override
   String toString() => parentRecipeId + ingredientId;

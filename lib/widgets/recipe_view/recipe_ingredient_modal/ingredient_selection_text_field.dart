@@ -7,8 +7,10 @@ import '../../../models/ingredient.dart';
 
 class IngredientSelectionTextField extends StatefulWidget {
   final Function onIngredientSelected;
+  final Ingredient value;
+  final bool enabled;
 
-  IngredientSelectionTextField({@required this.onIngredientSelected});
+  IngredientSelectionTextField({@required this.onIngredientSelected, this.value, this.enabled = true});
 
   @override
   _IngredientSelectionTextFieldState createState() =>
@@ -20,49 +22,23 @@ class _IngredientSelectionTextFieldState
   final TextEditingController _typeAheadController =
       new TextEditingController();
 
-  List<Ingredient> getIngredientsSuggestion(String pattern) {
-    final availableIngredients = Provider.of<IngredientsProvider>(
-      context,
-      listen: false,
-    ).getIngredients;
-
-    var suggestions = availableIngredients
-        .where((r) =>
-            r.name.toLowerCase().trim().contains(pattern.trim().toLowerCase()))
-        .toList();
-
-    if (pattern.trim() != "" &&
-        availableIngredients.indexWhere((r) =>
-                r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
-            -1) {
-      suggestions.add(
-          Ingredient(name: "Add ${_typeAheadController.text} ..."));
-    }
-
-    return suggestions;
-  }
-
-  Widget buildAddIngredientIconButton(Ingredient selectedIngredient) {
-    return IconButton(
-      icon: Icon(Icons.add),
-      onPressed: () {
-        _typeAheadController.clear();
-        widget.onIngredientSelected(selectedIngredient);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    if(widget.value != null) {
+      _typeAheadController.text = widget.value.name;
+    } 
+    
     return Row(
       children: <Widget>[
         Expanded(
           child: TypeAheadField<Ingredient>(
             direction: AxisDirection.down,
             textFieldConfiguration: TextFieldConfiguration(
+              enabled: widget.enabled,
               controller: _typeAheadController,
               decoration: InputDecoration(
                 hintText: "Ingredient",
+                enabled: widget.enabled,
               ),
             ),
             suggestionsCallback: (pattern) async {
@@ -70,7 +46,7 @@ class _IngredientSelectionTextFieldState
             },
             itemBuilder: (context, ingredient) {
               return ListTile(
-                trailing: Icon(Icons.call_made),
+                trailing: Icon(ingredient.id == null ? Icons.add : Icons.call_made),
                 title: Text(ingredient.name),
               );
             },
@@ -94,6 +70,37 @@ class _IngredientSelectionTextFieldState
           ),
         ),
       ],
+    );
+  }
+
+  List<Ingredient> getIngredientsSuggestion(String pattern) {
+    final availableIngredients = Provider.of<IngredientsProvider>(
+      context,
+      listen: false,
+    ).getIngredients;
+
+    var suggestions = availableIngredients
+        .where((r) =>
+            r.name.toLowerCase().trim().contains(pattern.trim().toLowerCase()))
+        .toList();
+
+    if (pattern.trim() != "" &&
+        availableIngredients.indexWhere((r) =>
+                r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
+            -1) {
+      suggestions.add(Ingredient(name: "Add ${_typeAheadController.text} ..."));
+    }
+
+    return suggestions;
+  }
+
+  Widget buildAddIngredientIconButton(Ingredient selectedIngredient) {
+    return IconButton(
+      icon: Icon(Icons.add),
+      onPressed: () {
+        _typeAheadController.clear();
+        widget.onIngredientSelected(selectedIngredient);
+      },
     );
   }
 }

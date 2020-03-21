@@ -20,12 +20,35 @@ class RecipeIngredientModal extends StatefulWidget {
 }
 
 class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
-  bool _updateMode = false;
   Ingredient _selectedIngredient;
+  double _quantity = 0;
+  String _unitOfMeasure;
+  bool _isFreezed = false;
+
+  bool _updateMode;
+
+  @override
+  void initState() {
+    if (widget.recipeIngredient == null) {
+      _updateMode = false;
+    } else {
+      _updateMode = true;
+
+      Ingredient ingredient =
+          Provider.of<IngredientsProvider>(context, listen: false)
+              .getById(widget.recipeIngredient.ingredientId);
+
+      _selectedIngredient = ingredient;
+      _quantity = widget.recipeIngredient.quantity;
+      _isFreezed = widget.recipeIngredient.freezed;
+      _unitOfMeasure = widget.recipeIngredient.unitOfMeasure;
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    RecipeIngredient recipeIngredient = _getOrSetRecipeIngredient();
     return SimpleDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       children: <Widget>[
@@ -33,9 +56,9 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
           margin: EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: <Widget>[
-              _buildIngredientSelectionTextField(recipeIngredient),
-              _buildQuantityAndUomRow(recipeIngredient),
-              _buildFreezedRow(recipeIngredient),
+              _buildIngredientSelectionTextField(),
+              _buildQuantityAndUomRow(),
+              _buildFreezedRow(),
               SizedBox(
                 height: 10,
               ),
@@ -47,7 +70,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
                     textColor: Theme.of(context).primaryColor,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  _buildDoneButton(context, recipeIngredient),
+                  _buildDoneButton(context),
                 ],
               )
             ],
@@ -57,28 +80,32 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     );
   }
 
-  RecipeIngredient _getOrSetRecipeIngredient() {
-    RecipeIngredient recipeIngredient = widget.recipeIngredient;
-
-    if (recipeIngredient == null) {
-      recipeIngredient = RecipeIngredient(
-        parentRecipeId: null,
-        ingredientId: widget.recipeId,
-        freezed: false,
-        quantity: 0,
-        unitOfMeasure: null,
-      );
-    }
-
-    return recipeIngredient;
-  }
-
-  void _createNewRecipeIngredient(RecipeIngredient recipeIngredient) {
+  void _createNewRecipeIngredient() {
     if (_selectedIngredient.id == null) {
       Provider.of<IngredientsProvider>(context, listen: false)
           .addIngredient(_selectedIngredient);
     }
-    Navigator.of(context).pop(recipeIngredient);
+    Navigator.of(context).pop(
+      RecipeIngredient(
+        parentRecipeId: widget.recipeId,
+        ingredientId: _selectedIngredient.id,
+        freezed: _isFreezed,
+        quantity: _quantity,
+        unitOfMeasure: _unitOfMeasure,
+      ),
+    );
+  }
+
+  void _updateRecipeIngredient() {
+    Navigator.of(context).pop(
+      RecipeIngredient(
+        parentRecipeId: widget.recipeId,
+        ingredientId: _selectedIngredient.id,
+        freezed: _isFreezed,
+        quantity: _quantity,
+        unitOfMeasure: _unitOfMeasure,
+      ),
+    );
   }
 
   DropdownMenuItem<String> _createDropDownItem(String uom) {
@@ -88,22 +115,16 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     );
   }
 
-  IngredientSelectionTextField _buildIngredientSelectionTextField(RecipeIngredient recipeIngredient ) {
-    Ingredient ingredient =
-        Provider.of<IngredientsProvider>(context, listen: false)
-            .getById(recipeIngredient.ingredientId);
-    return recipeIngredient == null
-        ? IngredientSelectionTextField(
-            onIngredientSelected: (ingredient) {
-              setState(() {
-                _selectedIngredient = ingredient;
-              });
-            },
-          )
-        : Text(ingredient.name);
+  Widget _buildIngredientSelectionTextField() {
+    return IngredientSelectionTextField(
+      value: _selectedIngredient,
+      enabled: _selectedIngredient == null,
+      onIngredientSelected: (ingredient) =>
+          setState(() => _selectedIngredient = ingredient),
+    );
   }
 
-  Widget _buildFreezedRow(RecipeIngredient recipeIngredient) {
+  Widget _buildFreezedRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -121,35 +142,38 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
           ],
         ),
         Switch(
-            value: recipeIngredient.freezed,
-            onChanged: (newValue) => recipeIngredient.freezed == false)
+          value: _isFreezed,
+          onChanged: (newValue) => setState(() => _isFreezed = newValue),
+        ),
       ],
     );
   }
 
-  Widget _buildQuantityAndUomRow(RecipeIngredient recipeIngredient ) {
+  Widget _buildQuantityAndUomRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         SpinnerInput(
-          spinnerValue: recipeIngredient.quantity,
+          spinnerValue: _quantity,
           fractionDigits: 0,
           minValue: 0,
           maxValue: 9999,
           step: 1,
-          onChange: (newValue) => recipeIngredient.quantity = newValue,
+          onChange: (newValue) => setState(() => _quantity = newValue),
         ),
         DropdownButton<String>(
-          value: recipeIngredient.unitOfMeasure,
+          value: _unitOfMeasure,
           hint: Text('Unit of Measure'),
           items: UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
-          onChanged: (newValue) => recipeIngredient.unitOfMeasure = newValue,
+          onChanged: (newValue) => setState(
+            () => _unitOfMeasure = newValue,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildDoneButton(BuildContext context, RecipeIngredient recipeIngredient) {
+  Widget _buildDoneButton(BuildContext context) {
     if (_updateMode == false) {
       return FlatButton(
         child: Text(
@@ -157,14 +181,15 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
                 ? "CREATE & ADD"
                 : "ADD"),
         textColor: Theme.of(context).primaryColor,
-        onPressed:
-            _selectedIngredient == null ? null : () => _createNewRecipeIngredient(recipeIngredient),
+        onPressed: _selectedIngredient == null
+            ? null
+            : _createNewRecipeIngredient,
       );
     } else {
       return FlatButton(
         child: Text("DONE"),
         textColor: Theme.of(context).primaryColor,
-        onPressed: null,
+        onPressed: _updateRecipeIngredient,
       );
     }
   }

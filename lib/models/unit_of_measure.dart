@@ -1,6 +1,6 @@
 const List<String> UnitsOfMeasure = const [
   'pcs',
-  'l',
+  'L',
   'cl',
   'ml',
   'gr'

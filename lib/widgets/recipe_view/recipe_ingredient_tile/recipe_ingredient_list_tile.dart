@@ -60,7 +60,16 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
   }
 
   void _openRecipeIngredientUpdateModal() {
-    showDialog(
-        context: context, builder: (bContext) => RecipeIngredientModal(widget._recipeIngredient.parentRecipeId));
+    showDialog<RecipeIngredient>(
+      context: context,
+      builder: (bContext) => RecipeIngredientModal(
+        widget._recipeIngredient.parentRecipeId,
+        recipeIngredient: widget._recipeIngredient,
+      ),
+    ).then((updatedRecipeIng) {
+      widget._recipeIngredient.quantity = updatedRecipeIng.quantity;
+      widget._recipeIngredient.unitOfMeasure = updatedRecipeIng.unitOfMeasure;
+      widget._recipeIngredient.freezed = updatedRecipeIng.freezed;
+    });
   }
 }
