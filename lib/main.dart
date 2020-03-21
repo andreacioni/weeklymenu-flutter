@@ -7,7 +7,7 @@ import './globals/constants.dart';
 import './models/menu.dart';
 import './models/ingredient.dart';
 import './models/recipe.dart';
-import './models/meals.dart';
+import './models/enums/meals.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 import './widgets/app_bar/app_bar.dart';
 import './widgets/menu_page/page.dart';

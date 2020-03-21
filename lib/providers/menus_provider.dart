@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/menu.dart';
-import '../models/meals.dart';
+import '../models/enums/meals.dart';
 import '../models/recipe.dart';
 
 import './recipes_provider.dart';

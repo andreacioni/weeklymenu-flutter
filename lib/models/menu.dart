@@ -1,4 +1,4 @@
-import 'meals.dart';
+import './enums/meals.dart';
 
 class Menu {
   final String id;

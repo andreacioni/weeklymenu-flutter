@@ -4,7 +4,7 @@ import 'package:spinner_input/spinner_input.dart';
 
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
-import '../../../models/unit_of_measure.dart';
+import '../../../models/enums/unit_of_measure.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
 import '../../../providers/ingredients_provider.dart';

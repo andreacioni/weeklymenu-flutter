@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spinner_input/spinner_input.dart';
 
-import '../../models/unit_of_measure.dart';
+import '../../models/enums/unit_of_measure.dart';
 
 class UnitsOfMeasureDropdown extends StatefulWidget {
 

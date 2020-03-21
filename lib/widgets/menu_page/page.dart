@@ -3,7 +3,7 @@ import 'package:sticky_headers/sticky_headers.dart';
 import 'package:provider/provider.dart';
 
 import './meal_head.dart';
-import '../../models/meals.dart';
+import '../../models/enums/meals.dart';
 import '../../models/recipe.dart';
 import './recipe_title.dart';
 import '../../providers/menus_provider.dart';
