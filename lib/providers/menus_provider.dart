@@ -4,46 +4,31 @@ import '../models/menu.dart';
 import '../models/enums/meals.dart';
 import '../models/recipe.dart';
 
-import './recipes_provider.dart';
-
-List<Menu> _menus = [
-  Menu(
-      day: DateTime(2020, 03, 11),
-      meal: Meal.Lunch,
-      recipes: ["adfie82bfiui", "fno2ecb22o"]),
-  Menu(
-    day: DateTime(2020, 01, 15),
-    meal: Meal.Lunch,
-    recipes: [
-      "adfie82bfiui",
-      "fno2ecb22o",
-    ],
-  ),
-  Menu(
-    day: DateTime(2020, 01, 15),
-    meal: Meal.Dinner,
-    recipes: [
-      "adfie82bfiui",
-      "fno2ecb22o",
-    ],
-  ),
-  Menu(
-    day: DateTime(2020, 01, 16),
-    meal: Meal.Lunch,
-    recipes: ["adfie82bfiui", "fno2ecb22o"],
-  ),
-];
+import '../datasource/network.dart';
 
 class MenusProvider with ChangeNotifier {
-  List<Menu> get getMenus => [..._menus];
+  final NetworkDatasource _restApi = NetworkDatasource();
 
-  Map<Meal, List<String>> groupByMeal(DateTime day) {
-    var dailyMenus = _menus.where((menu) => menu.day == day);
+  Map<DateTime, List<Menu>> _dayToMenus = {};
+
+  Future<void> fetchDailyMenu(DateTime day) async {
+    //TODO handle pagination
+    int pageIdx = 1;
+    final jsonPage = await _restApi.getMenusByDay(day, page: pageIdx);
+    _dayToMenus[day] = jsonPage['results']
+        .map((jsonMenu) => Menu.fromJSON(jsonMenu))
+        .toList()
+        .cast<Menu>();
+  }
+
+  Map<Meal, List<String>> getDailyMenuByMeal(DateTime day) {
     Map<Meal, List<String>> recipeByMeal = {};
 
     Meal.values.forEach((meal) {
-      final Menu menuMeal = dailyMenus.firstWhere((menu) => menu.meal == meal,
-          orElse: () => null);
+      final Menu menuMeal = _dayToMenus[day] != null
+          ? _dayToMenus[day]
+              .firstWhere((menu) => menu.meal == meal, orElse: () => null)
+          : [];
       if (menuMeal != null) {
         recipeByMeal[meal] = menuMeal.recipes;
       }
@@ -52,12 +37,12 @@ class MenusProvider with ChangeNotifier {
     return recipeByMeal;
   }
 
-  Menu getById(String id) => _menus.firstWhere((menu) => menu.id == id);
+  Menu getByDateAndMeal(DateTime dateTime, Meal meal) {
+    return _dayToMenus[dateTime].firstWhere((menu) => menu.meal == meal);
+  }
 
-  Menu getByDateAndMeal(DateTime dateTime, Meal meal) =>
-      _menus.firstWhere((menu) => menu.day == dateTime && menu.meal == meal);
-
-  void addRecipe(Recipe recipe, DateTime dateTime, Meal meal) {
+  Future<void> addRecipeToMenu(
+      Recipe recipe, DateTime dateTime, Meal meal) async {
     if (recipe == null || dateTime == null || meal == null) {
       print('can\'t add null recipe');
     }
@@ -65,16 +50,39 @@ class MenusProvider with ChangeNotifier {
     Menu menu = getByDateAndMeal(dateTime, meal);
 
     if (menu == null) {
-      menu = Menu(
-        day: dateTime,
+      await _restApi.createMenu(Menu(
+        date: dateTime,
         meal: meal,
         recipes: [recipe.id],
-      );
+      ).toJSON());
     } else {
+      await _restApi.addRecipeToMenu(menu.id, recipe.id);
+
+      if (menu.recipes == null) {
+        menu.recipes = [recipe.id];
+      }
       menu.recipes.add(recipe.id);
     }
 
-    _menus.add(menu);
     notifyListeners();
+  }
+
+  Future<Menu> addMenu(Menu menu) async {
+    try {
+      var resp = await _restApi.createMenu(menu.toJSON());
+      menu.id = resp['_id'];
+
+      if (_dayToMenus[menu.date] == null) {
+        _dayToMenus[menu.date] = [menu];
+      } else {
+        _dayToMenus[menu.date].add(menu);
+      }
+
+      notifyListeners();
+    } catch (e) {
+      throw e;
+    }
+
+    return menu;
   }
 }

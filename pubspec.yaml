@@ -20,34 +20,20 @@ dependencies:
   flutter:
     sdk: flutter
   
+  dio: ^3.0.9
   sticky_headers: ^0.1.8
-
-  #flutter_typeahead: ^1.7.0
-
   flutter_tags: ^0.4.8
-
   intl: ^0.16.1
-
   expandable: ^2.2.3
-
   grouped_buttons: ^1.0.4
-
   dotted_border: ^1.0.4
-
   spinner_input: ^0.1.2
-
-  #find_dropdown: ^0.1.7+1
-
   flutter_typeahead: ^1.8.0
-
-  #Dependencies needed for flutter_typeahead
   flutter_keyboard_visibility: ^0.7.0
-
   autocomplete_textfield: ^1.7.3
-
   provider: ^4.0.4
-
   uuid: ^2.0.4
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -56,6 +42,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  retrofit_generator: any
+  build_runner: any
 
 
 # For information on the generic Dart part of this file, see the

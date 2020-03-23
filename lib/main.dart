@@ -62,7 +62,6 @@ class _WMHomePageState extends State<WMHomePage> {
   bool _selectionMode = false;
   DateTime _day;
   List<Recipe> _selectedRecipes = List();
-  Meal _selectedMeal = Meal.Breakfast;
 
   _WMHomePageState() {
     var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
@@ -73,22 +72,12 @@ class _WMHomePageState extends State<WMHomePage> {
   }
 
   void _setDayNameInBottomAppBar(int newPageIndex) {
-    print("page changed to ${newPageIndex}");
+    print("page changed to $newPageIndex");
     setState(() {
       var now = DateTime.now();
       _day = DateTime(now.year, now.month, now.day).add(
           Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
     });
-  }
-
-  void _addNewRecipeOnCurrentDay(Meal meal, Recipe recipe) {
-    setState(() {
-      Provider.of<MenusProvider>(context).addRecipe(recipe, _day, meal);
-    });
-  }
-
-  void _updateSelectedMeal(Meal meal) {
-    _selectedMeal = meal;
   }
 
   void _openAddRecipeModal(ctx) {
@@ -119,7 +108,7 @@ class _WMHomePageState extends State<WMHomePage> {
               "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
           int newPageIndex =
               oldPageIndex + selectedDate.difference(_day).inDays;
-          print("jumping to page: ${newPageIndex}");
+          print("jumping to page: $newPageIndex");
           _pageController.jumpToPage(newPageIndex);
         }
       });
@@ -179,9 +168,6 @@ class _WMHomePageState extends State<WMHomePage> {
             padding: EdgeInsets.all(10),
             child: PageView.builder(
               itemBuilder: (ctx, index) {
-                /*return MenuPage(DUMMY_MENUS[
-                        (index - (PAGEVIEW_LIMIT_DAYS / 2).truncate()) % 3]
-                    .meals);*/
                 return MenuPage(_day);
               },
               onPageChanged: _setDayNameInBottomAppBar,
