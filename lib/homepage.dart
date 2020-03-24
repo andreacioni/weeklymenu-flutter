@@ -11,7 +11,7 @@ import './providers/ingredients_provider.dart';
 import './providers/recipes_provider.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  HomePage();
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -26,22 +26,23 @@ class _HomePageState extends State<HomePage> {
   bool _ingredientLoaded = false;
   bool _recipesLoaded = false;
 
-  _HomePageState() {
+  _HomePageState();
+
+  @override
+  void initState() {
     var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
     _pageController = new PageController(initialPage: pageIndex);
 
     var now = DateTime.now();
     _day = DateTime(now.year, now.month, now.day);
-  }
 
-  @override
-  void initState() {
     Provider.of<IngredientsProvider>(context, listen: false)
         .fetchIngredients()
         .then((_) => setState(() => _ingredientLoaded = true));
     Provider.of<RecipesProvider>(context, listen: false)
         .fetchRecipes()
         .then((_) => setState(() => _recipesLoaded = true));
+
     super.initState();
   }
 
@@ -61,31 +62,7 @@ class _HomePageState extends State<HomePage> {
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        child: new Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed:
-                      !_selectionMode ? () => _selectDate(context) : null,
-                ),
-                GestureDetector(
-                  child: Text(DateFormat.MMMEd().format(_day)),
-                  onTap: !_selectionMode ? () => _selectDate(context) : null,
-                ),
-              ],
-            ),
-            IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: !_selectionMode ? () {} : null,
-            )
-          ],
-        ),
-      ),
+      bottomNavigationBar: _buildBottomAppBar(context),
       body: (!_recipesLoaded || !_ingredientLoaded)
           ? Center(
               child: CircularProgressIndicator(),
@@ -100,15 +77,40 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   padding: EdgeInsets.all(10),
                   child: PageView.builder(
-                    itemBuilder: (ctx, index) {
-                      return MenuPage(_day);
-                    },
+                    itemBuilder: (ctx, index) => MenuPage(_day),
                     onPageChanged: _setDayNameInBottomAppBar,
                     controller: _pageController,
                   ),
                 )
               ],
             ),
+    );
+  }
+
+  BottomAppBar _buildBottomAppBar(BuildContext context) {
+    return BottomAppBar(
+      child: new Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: !_selectionMode ? () => _selectDate(context) : null,
+              ),
+              GestureDetector(
+                child: Text(DateFormat.MMMEd().format(_day)),
+                onTap: !_selectionMode ? () => _selectDate(context) : null,
+              ),
+            ],
+          ),
+          IconButton(
+            icon: Icon(Icons.more_vert),
+            onPressed: !_selectionMode ? () {} : null,
+          )
+        ],
+      ),
     );
   }
 

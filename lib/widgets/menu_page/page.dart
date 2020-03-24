@@ -23,11 +23,9 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   void initState() {
-    Provider.of<MenusProvider>(context, listen: false).fetchDailyMenu(widget._day).then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    Provider.of<MenusProvider>(context, listen: false)
+        .fetchDailyMenu(widget._day)
+        .then((_) => setState(() => _isLoading = false));
     super.initState();
   }
 
@@ -48,7 +46,9 @@ class _MenuPageState extends State<MenuPage> {
                   elevation: 1,
                   child: ListView(
                     padding: EdgeInsets.all(10),
-                    children: Provider.of<MenusProvider>(context).getDailyMenuByMeal(widget._day).entries
+                    children: Provider.of<MenusProvider>(context)
+                        .getDailyMenuByMeal(widget._day)
+                        .entries
                         .map((meal) => StickyHeader(
                               header: MealHead(meal.key.value),
                               content: RecipeTile(meal.value
