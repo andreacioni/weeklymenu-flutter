@@ -13,8 +13,7 @@ class MenusProvider with ChangeNotifier {
 
   Future<void> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
-    int pageIdx = 1;
-    final jsonPage = await _restApi.getMenusByDay(day, page: pageIdx);
+    final jsonPage = await _restApi.getMenusByDay(day);
     _dayToMenus[day] = jsonPage['results']
         .map((jsonMenu) => Menu.fromJSON(jsonMenu))
         .toList()
@@ -28,7 +27,7 @@ class MenusProvider with ChangeNotifier {
       final Menu menuMeal = _dayToMenus[day] != null
           ? _dayToMenus[day]
               .firstWhere((menu) => menu.meal == meal, orElse: () => null)
-          : [];
+          : null;
       if (menuMeal != null) {
         recipeByMeal[meal] = menuMeal.recipes;
       }

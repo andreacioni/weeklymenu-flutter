@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 import './ingredient.dart';
@@ -40,6 +42,14 @@ class Recipe with ChangeNotifier {
       this.estimatedCookingTime = 0,
       this.imgUrl,
       this.tags = const []});
+
+  factory Recipe.fromJSON(Map<String, dynamic> jsonMap) {
+    return Recipe(
+      id: jsonMap['_id'],
+      name: jsonMap['name'],
+      description: jsonMap['description']
+    );
+  }
 
   void updateDifficulty(String id, String difficulty) {
     this.difficulty = difficulty;

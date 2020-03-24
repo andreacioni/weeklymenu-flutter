@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/recipe.dart';
 
-class WMAppBar extends AppBar {
+class MenuAppBar extends AppBar {
   static const _title = const Text(
     'Weekly Menu',
     style: TextStyle(
@@ -13,7 +13,7 @@ class WMAppBar extends AppBar {
   final DateTime day;
   final List<Recipe> selectedRecipes;
 
-  WMAppBar(this._selectionMode, {this.day, this.selectedRecipes})
+  MenuAppBar(this._selectionMode, {this.day, this.selectedRecipes})
       : assert(_selectionMode ? day != null && selectedRecipes != null : true), //TODO improve
         super(
           centerTitle: true,

@@ -12,10 +12,16 @@ class NetworkDatasource {
     'Authorization': TOKEN,
   };
 
+  static final BASE_PARAMS = {
+    'per_page': 1000, //TODO handle pagination
+  };
+
   final Dio _dio = Dio(BaseOptions(
-      baseUrl: BASE_URL,
-      contentType: 'application/json',
-      headers: BASE_HEADERS));
+    baseUrl: BASE_URL,
+    contentType: 'application/json',
+    headers: BASE_HEADERS,
+    queryParameters: BASE_PARAMS,
+  ));
 
   static final NetworkDatasource _singleton = new NetworkDatasource._internal();
 
@@ -25,10 +31,8 @@ class NetworkDatasource {
 
   NetworkDatasource._internal();
 
-  Future<Map<String, dynamic>> getMenusByDay(DateTime day, {int page = 1, int perPage = 10}) async {
+  Future<Map<String, dynamic>> getMenusByDay(DateTime day) async {
     var resp = await _dio.get('$BASE_URL/menus', queryParameters: {
-      'page': page,
-      'per_page': perPage,
       'day': '${day.year}-${day.month}-${day.day}'
     });
 
@@ -48,6 +52,22 @@ class NetworkDatasource {
     var resp = await _dio.post(
       '$BASE_URL/menus',
       data: menu,
+    );
+
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> getIngredients() async {
+    var resp = await _dio.get(
+      '$BASE_URL/ingredients',
+    );
+
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> getRecipes() async {
+    var resp = await _dio.get(
+      '$BASE_URL/recipes',
     );
 
     return resp.data;

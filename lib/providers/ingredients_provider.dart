@@ -1,29 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
-Ingredient _ingInsalata = Ingredient(
-  id: 'iau4dcr',
-  name: "Insalata",
-);
-Ingredient _ingPomodori = Ingredient(
-  id: 'nc94nc',
-  name: "Pomodori",
-);
-Ingredient _ingTonno = Ingredient(
-  id: 'ks92ej',
-  name: "Tonno",
-);
-
-List<Ingredient> _ingredients = <Ingredient>[
-  _ingInsalata,
-  _ingPomodori,
-  _ingTonno,
-];
-
 class IngredientsProvider with ChangeNotifier {
+  final NetworkDatasource _restApi = NetworkDatasource();
+
+  List<Ingredient> _ingredients = [];
+
   List<Ingredient> get getIngredients => [..._ingredients];
+
+  Future<void> fetchIngredients() async {
+    //TODO handle pagination
+    final jsonPage = await _restApi.getIngredients();
+    _ingredients = jsonPage['results']
+        .map((jsonMenu) => Ingredient.fromJSON(jsonMenu))
+        .toList()
+        .cast<Ingredient>();
+  }
 
   Ingredient getById(String id) =>
       _ingredients.firstWhere((ing) => ing.id == id, orElse: () => null);
