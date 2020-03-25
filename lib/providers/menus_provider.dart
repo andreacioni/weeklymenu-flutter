@@ -7,7 +7,7 @@ import '../models/recipe.dart';
 import '../datasource/network.dart';
 
 class MenusProvider with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource();
+  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
   Map<DateTime, List<Menu>> _dayToMenus = {};
 

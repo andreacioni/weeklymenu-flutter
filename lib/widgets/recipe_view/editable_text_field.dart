@@ -11,6 +11,7 @@ class EditableTextField extends StatefulWidget {
   final String prefixText;
   final TextAlign textAlign;
   final Function(String) onChanged;
+  final Function(String) onSubmitted;
 
   EditableTextField(
     this._text, {
@@ -23,6 +24,7 @@ class EditableTextField extends StatefulWidget {
     this.prefixText,
     this.textAlign = TextAlign.start,
     this.onChanged,
+    this.onSubmitted,
   });
 
   @override
@@ -51,7 +53,8 @@ class _EditableTextFieldState extends State<EditableTextField> {
       textAlign: widget.textAlign,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
-      onChanged: widget.onChanged,   
+      onChanged: widget.onChanged,  
+      onSubmitted: widget.onSubmitted, 
       );
   }
 }

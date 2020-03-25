@@ -37,9 +37,7 @@ class _RecipeViewState extends State<RecipeView> {
             recipe,
             widget._heroTag,
             editModeEnabled: _editEnabled,
-            onRecipeEditEnabled: (editEnabled) => setState(() {
-              _editEnabled = editEnabled;
-            }),
+            onRecipeEditEnabled: (editEnabled) => setState(() => _editEnabled = editEnabled),
           ),
           SliverList(
             delegate: SliverChildListDelegate([
@@ -50,6 +48,8 @@ class _RecipeViewState extends State<RecipeView> {
                 recipe.description,
                 editEnabled: _editEnabled,
                 hintText: "Description",
+                onSubmitted: (newDescription) => recipe.updateDescription(newDescription),
+                
               ),
               SizedBox(
                 height: 5,

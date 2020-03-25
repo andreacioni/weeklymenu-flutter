@@ -25,7 +25,7 @@ class NetworkDatasource {
 
   static final NetworkDatasource _singleton = new NetworkDatasource._internal();
 
-  factory NetworkDatasource() {
+  factory NetworkDatasource.getInstance() {
     return _singleton;
   }
 
@@ -68,6 +68,15 @@ class NetworkDatasource {
   Future<Map<String, dynamic>> getRecipes() async {
     var resp = await _dio.get(
       '$BASE_URL/recipes',
+    );
+
+    return resp.data;
+  }
+
+  Future<void> patchRecipe(String recipeId, Map<String, dynamic> jsonMap) async {
+    var resp = await _dio.patch(
+      '$BASE_URL/recipes/$recipeId',
+      data: jsonMap
     );
 
     return resp.data;

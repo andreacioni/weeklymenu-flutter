@@ -5,7 +5,7 @@ import '../datasource/network.dart';
 import '../models/recipe.dart';
 
 class RecipesProvider with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource();
+  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
   List<Recipe> _recipes = [];
 

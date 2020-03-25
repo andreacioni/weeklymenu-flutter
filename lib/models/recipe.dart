@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import './ingredient.dart';
+import '../datasource/network.dart';
 
 class Recipe with ChangeNotifier {
+  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
+
   String id;
 
   String name;
@@ -47,28 +50,79 @@ class Recipe with ChangeNotifier {
     return Recipe(
       id: jsonMap['_id'],
       name: jsonMap['name'],
-      description: jsonMap['description']
+      description: jsonMap['description'],
+      servs: jsonMap['servs'],
+      rating: jsonMap['rating'],
+      cost: jsonMap['cost'],
+      difficulty: jsonMap['difficulty'],
+      estimatedCookingTime: jsonMap['estimatedCookingTime'],
+      estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
     );
   }
 
-  void updateDifficulty(String id, String difficulty) {
-    this.difficulty = difficulty;
+  void updateDifficulty(String newValue) {
+    final oldValue = difficulty;
+    difficulty = newValue;
     notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'difficulty' : newValue});
+    } catch (error) {
+      difficulty = oldValue;
+      notifyListeners();
+    }
   }
 
-  void updateServs(int servs) {
-    this.servs = servs;
+  void updatePreparationTime(int newValue) {
+    final oldValue = estimatedPreparationTime;
+    estimatedPreparationTime = newValue;
     notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'estimatedCookingTime' : newValue});
+    } catch (error) {
+      estimatedPreparationTime = oldValue;
+      notifyListeners();
+    }
   }
 
-  void updatePreparationTime(int estimatedPreparationTime) {
-    this.estimatedPreparationTime = estimatedPreparationTime;
+  void updateCookingTime(int newValue) {
+    final oldValue = estimatedCookingTime;
+    estimatedCookingTime = newValue;
     notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'estimatedCookingTime' : newValue});
+    } catch (error) {
+      estimatedCookingTime = oldValue;
+      notifyListeners();
+    }
   }
 
-  void updateCookingTime(int estimatedCookingTime) {
-    this.estimatedCookingTime = estimatedCookingTime;
+  void updateRating(int newValue) {
+    final oldValue = rating;
+    rating = newValue;
     notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'rating' : newValue});
+    } catch (error) {
+      rating = oldValue;
+      notifyListeners();
+    }
+  }
+
+  void updateCost(int newValue) {
+    final oldValue = cost;
+    cost = newValue;
+    notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'cost' : newValue});
+    } catch (error) {
+      cost = oldValue;
+      notifyListeners();
+    }
   }
 
   void addRecipeIngredient(RecipeIngredient recipeIngredient) {
@@ -100,6 +154,32 @@ class Recipe with ChangeNotifier {
   void removeTag(String tagToRemove) {
     if (tags != null) {
       tags.removeWhere((tag) => tag == tagToRemove);
+      notifyListeners();
+    }
+  }
+
+  void updateDescription(String newValue) {
+    final oldValue = description;
+    description = newValue;
+    notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'description' : newValue});
+    } catch (error) {
+      description = oldValue;
+      notifyListeners();
+    }
+  }
+
+  void updateServs(int newValue) {
+    final oldValue = servs;
+    servs = newValue;
+    notifyListeners();
+    
+    try {
+      _restApi.patchRecipe(id, {'servs' : newValue});
+    } catch (error) {
+      servs = oldValue;
       notifyListeners();
     }
   }
