@@ -8,10 +8,9 @@ import '../../globals/utils.dart';
 
 class RecipeTags extends StatelessWidget {
   const RecipeTags({
-    Key key,
     @required this.recipe,
     @required this.editEnabled,
-  }) : super(key: key);
+  });
 
   final Recipe recipe;
   final bool editEnabled;

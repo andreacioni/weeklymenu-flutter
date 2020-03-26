@@ -18,7 +18,7 @@ class AddIngredientButton extends StatelessWidget {
     return InkWell(
       onTap: () => showDialog<RecipeIngredient>(
               context: context,
-              builder: (_) => RecipeIngredientModal(recipe.id))
+              builder: (_) => RecipeIngredientModal())
           .then((recipeIng) {
         if (recipeIng != null) {
           recipe.addRecipeIngredient(recipeIng);

@@ -31,9 +31,9 @@ class NetworkDatasource {
 
   NetworkDatasource._internal();
 
-  Future<Map<String, dynamic>> getMenusByDay(DateTime day) async {
+  Future<Map<String, dynamic>> getMenusByDay(String day) async {
     var resp = await _dio.get('$BASE_URL/menus', queryParameters: {
-      'day': '${day.year}-${day.month}-${day.day}'
+      'day': day
     });
 
     return resp.data;
@@ -77,6 +77,29 @@ class NetworkDatasource {
     var resp = await _dio.patch(
       '$BASE_URL/recipes/$recipeId',
       data: jsonMap
+    );
+
+    return resp.data;
+  }
+
+  Future<void> addRecipeIngredient(String recipeId, Map<String, dynamic> jsonMap) async {
+    var resp;
+    try {
+      resp = await _dio.post(
+        '$BASE_URL/recipes/$recipeId/ingredients',
+        data: jsonMap
+      );
+    } on DioError catch(e) {
+      print(e.response);
+      throw e;
+    }
+
+    return resp.data;
+  }
+
+    Future<void> removeRecipeIngredient(String recipeId, String ingredientId) async {
+    var resp = await _dio.delete(
+      '$BASE_URL/recipes/$recipeId/ingredients/$ingredientId',
     );
 
     return resp.data;

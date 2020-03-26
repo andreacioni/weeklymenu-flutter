@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/menu.dart';
 import '../models/enums/meals.dart';
@@ -8,12 +9,13 @@ import '../datasource/network.dart';
 
 class MenusProvider with ChangeNotifier {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
+  static final _dateParser = DateFormat('y-MM-dd');
 
   Map<DateTime, List<Menu>> _dayToMenus = {};
 
   Future<void> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
-    final jsonPage = await _restApi.getMenusByDay(day);
+    final jsonPage = await _restApi.getMenusByDay(_dateParser.format(day));
     _dayToMenus[day] = jsonPage['results']
         .map((jsonMenu) => Menu.fromJSON(jsonMenu))
         .toList()

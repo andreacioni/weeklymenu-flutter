@@ -36,7 +36,7 @@ class Recipe with ChangeNotifier {
       {@required this.id,
       this.name,
       this.description,
-      this.ingredients = const [],
+      this.ingredients,
       this.difficulty,
       this.rating = 0,
       this.cost = 0,
@@ -44,7 +44,10 @@ class Recipe with ChangeNotifier {
       this.estimatedPreparationTime = 0,
       this.estimatedCookingTime = 0,
       this.imgUrl,
-      this.tags = const []});
+      this.tags}) {
+    this.ingredients = [];
+    this.tags = [];
+  }
 
   factory Recipe.fromJSON(Map<String, dynamic> jsonMap) {
     return Recipe(
@@ -57,6 +60,7 @@ class Recipe with ChangeNotifier {
       difficulty: jsonMap['difficulty'],
       estimatedCookingTime: jsonMap['estimatedCookingTime'],
       estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
+      ingredients: jsonMap['ingredients'] != null ? jsonMap['ingredients'].map((recipeIngredientMap) => RecipeIngredient.fromJSON(recipeIngredientMap)).toList() : []
     );
   }
 
@@ -64,9 +68,9 @@ class Recipe with ChangeNotifier {
     final oldValue = difficulty;
     difficulty = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'difficulty' : newValue});
+      _restApi.patchRecipe(id, {'difficulty': newValue});
     } catch (error) {
       difficulty = oldValue;
       notifyListeners();
@@ -77,9 +81,9 @@ class Recipe with ChangeNotifier {
     final oldValue = estimatedPreparationTime;
     estimatedPreparationTime = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'estimatedCookingTime' : newValue});
+      _restApi.patchRecipe(id, {'estimatedCookingTime': newValue});
     } catch (error) {
       estimatedPreparationTime = oldValue;
       notifyListeners();
@@ -90,9 +94,9 @@ class Recipe with ChangeNotifier {
     final oldValue = estimatedCookingTime;
     estimatedCookingTime = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'estimatedCookingTime' : newValue});
+      _restApi.patchRecipe(id, {'estimatedCookingTime': newValue});
     } catch (error) {
       estimatedCookingTime = oldValue;
       notifyListeners();
@@ -103,9 +107,9 @@ class Recipe with ChangeNotifier {
     final oldValue = rating;
     rating = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'rating' : newValue});
+      _restApi.patchRecipe(id, {'rating': newValue});
     } catch (error) {
       rating = oldValue;
       notifyListeners();
@@ -116,9 +120,9 @@ class Recipe with ChangeNotifier {
     final oldValue = cost;
     cost = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'cost' : newValue});
+      _restApi.patchRecipe(id, {'cost': newValue});
     } catch (error) {
       cost = oldValue;
       notifyListeners();
@@ -126,12 +130,21 @@ class Recipe with ChangeNotifier {
   }
 
   void addRecipeIngredient(RecipeIngredient recipeIngredient) {
+    final oldValue = ingredients;
+
     if (ingredients == null) {
       ingredients = [recipeIngredient];
     } else {
       ingredients.add(recipeIngredient);
     }
     notifyListeners();
+
+    try {
+      _restApi.addRecipeIngredient(id, recipeIngredient.toJSON());
+    } catch (error) {
+      ingredients = oldValue;
+      notifyListeners();
+    }
   }
 
   void deleteRecipeIngredient(String recipeIngredientId) {
@@ -143,17 +156,33 @@ class Recipe with ChangeNotifier {
   }
 
   void addTag(String newTag) {
+    final oldValue = tags;
     if (tags == null) {
       tags = [newTag];
     } else {
       tags.add(newTag);
     }
     notifyListeners();
+
+    try {
+      _restApi.patchRecipe(id, {'tags': tags});
+    } catch (error) {
+      tags = oldValue;
+      notifyListeners();
+    }
   }
 
   void removeTag(String tagToRemove) {
+    final oldValue = tags;
     if (tags != null) {
       tags.removeWhere((tag) => tag == tagToRemove);
+      notifyListeners();
+    }
+
+    try {
+      _restApi.patchRecipe(id, {'tags': tags});
+    } catch (error) {
+      tags = oldValue;
       notifyListeners();
     }
   }
@@ -162,9 +191,9 @@ class Recipe with ChangeNotifier {
     final oldValue = description;
     description = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'description' : newValue});
+      _restApi.patchRecipe(id, {'description': newValue});
     } catch (error) {
       description = oldValue;
       notifyListeners();
@@ -175,9 +204,9 @@ class Recipe with ChangeNotifier {
     final oldValue = servs;
     servs = newValue;
     notifyListeners();
-    
+
     try {
-      _restApi.patchRecipe(id, {'servs' : newValue});
+      _restApi.patchRecipe(id, {'servs': newValue});
     } catch (error) {
       servs = oldValue;
       notifyListeners();
@@ -193,18 +222,38 @@ class Recipe with ChangeNotifier {
 }
 
 class RecipeIngredient with ChangeNotifier {
-  String parentRecipeId;
   String ingredientId;
   double quantity;
   String unitOfMeasure;
   bool freezed;
-  
-  RecipeIngredient({@required this.parentRecipeId, @required this.ingredientId, this.quantity = 0, this.unitOfMeasure, this.freezed = false});
+
+  RecipeIngredient(
+      {@required this.ingredientId,
+      this.quantity = 0,
+      this.unitOfMeasure,
+      this.freezed = false});
+
+  factory RecipeIngredient.fromJSON(Map<String, dynamic> jsonMap) {
+    return RecipeIngredient(
+      ingredientId: jsonMap['ingredient'],
+      quantity: jsonMap['quantity'],
+      unitOfMeasure: jsonMap['unitOfMeasure'],
+      freezed: jsonMap['freezed'],
+    );
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'quantity': quantity,
+      'unitOfMeasure': unitOfMeasure,
+      'ingredient': ingredientId,
+      'freezed': freezed,
+    };
+  }
 
   @override
-  String toString() => parentRecipeId + ingredientId;
+  bool operator ==(o) =>
+      o is RecipeIngredient && o.ingredientId == this.ingredientId;
   @override
-  bool operator ==(o) => o is RecipeIngredient && o.ingredientId == this.ingredientId && o.parentRecipeId == this.parentRecipeId;
-  @override
-  int get hashCode => parentRecipeId.hashCode^ingredientId.hashCode;
+  int get hashCode => ingredientId.hashCode;
 }
