@@ -29,7 +29,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(ingredient.name),
+        title: Text(ingredient.name == null ? '' : ingredient.name),
         trailing: widget.editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
@@ -39,7 +39,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    widget._recipeIngredient.quantity.toStringAsFixed(0),
+                    widget._recipeIngredient.quantity?.toStringAsFixed(0),
                     style: TextStyle(
                       fontSize: 27,
                       fontWeight: FontWeight.bold,
@@ -47,7 +47,9 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
                     ),
                   ),
                   Text(
-                    widget._recipeIngredient.unitOfMeasure.toString(),
+                    widget._recipeIngredient.unitOfMeasure == null
+                        ? '-'
+                        : widget._recipeIngredient.unitOfMeasure.toString(),
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,

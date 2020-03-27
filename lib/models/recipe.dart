@@ -44,10 +44,7 @@ class Recipe with ChangeNotifier {
       this.estimatedPreparationTime = 0,
       this.estimatedCookingTime = 0,
       this.imgUrl,
-      this.tags}) {
-    this.ingredients = [];
-    this.tags = [];
-  }
+      this.tags});
 
   factory Recipe.fromJSON(Map<String, dynamic> jsonMap) {
     return Recipe(
@@ -60,7 +57,7 @@ class Recipe with ChangeNotifier {
       difficulty: jsonMap['difficulty'],
       estimatedCookingTime: jsonMap['estimatedCookingTime'],
       estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
-      ingredients: jsonMap['ingredients'] != null ? jsonMap['ingredients'].map((recipeIngredientMap) => RecipeIngredient.fromJSON(recipeIngredientMap)).toList() : []
+      ingredients: jsonMap['ingredients'] != null ? jsonMap['ingredients'].map((recipeIngredientMap) => RecipeIngredient.fromJSON(recipeIngredientMap)).toList().cast<RecipeIngredient>() : []
     );
   }
 
@@ -231,7 +228,15 @@ class RecipeIngredient with ChangeNotifier {
       {@required this.ingredientId,
       this.quantity = 0,
       this.unitOfMeasure,
-      this.freezed = false});
+      this.freezed = false}) {
+        if(quantity == null) {
+          this.quantity = 0;
+        }
+
+        if(freezed == null) {
+          this.freezed = false;
+        }
+      }
 
   factory RecipeIngredient.fromJSON(Map<String, dynamic> jsonMap) {
     return RecipeIngredient(

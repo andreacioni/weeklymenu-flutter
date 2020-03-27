@@ -14,10 +14,9 @@ import './editable_text_field.dart';
 import '../../globals/utils.dart';
 
 class RecipeView extends StatefulWidget {
-  final String _recipeId;
   final Object _heroTag;
 
-  RecipeView(this._recipeId, this._heroTag);
+  RecipeView(this._heroTag);
 
   @override
   _RecipeViewState createState() => _RecipeViewState();

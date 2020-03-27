@@ -48,7 +48,7 @@ class RecipeTags extends StatelessWidget {
         pressEnabled: false,
         textScaleFactor: 1.5,
       ),
-      itemCount: recipe.tags.length,
+      itemCount: (recipe.tags == null) ? 0 : recipe.tags.length,
       horizontalScroll: true,
       verticalDirection: VerticalDirection.up,
       textField: editEnabled
