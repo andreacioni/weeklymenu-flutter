@@ -36,7 +36,7 @@ class _RecipeViewState extends State<RecipeView> {
             recipe,
             widget._heroTag,
             editModeEnabled: _editEnabled,
-            onRecipeEditEnabled: (editEnabled) => setState(() => _editEnabled = editEnabled),
+            onRecipeEditEnabled: (editEnabled) => _handleEditToggle(recipe, editEnabled)
           ),
           SliverList(
             delegate: SliverChildListDelegate([
@@ -116,7 +116,7 @@ class _RecipeViewState extends State<RecipeView> {
                 editEnabled: _editEnabled,
                 hintText: "Add preparation steps...",
                 maxLines: 1000,
-                onChanged: (text) => recipe.preparation = text,
+                onChanged: (text) => recipe.updatePreparation(text),
               ),
               SizedBox(
                 height: 5,
@@ -135,7 +135,7 @@ class _RecipeViewState extends State<RecipeView> {
                 editEnabled: _editEnabled,
                 hintText: "Add note...",
                 maxLines: 1000,
-                onChanged: (text) => recipe.note = text,
+                onChanged: (text) => recipe.updateNote(text),
               ),
               SizedBox(
                 height: 5,
@@ -161,5 +161,14 @@ class _RecipeViewState extends State<RecipeView> {
         ],
       ),
     );
+  }
+
+  void _handleEditToggle(Recipe recipe, bool editEnabled) {
+    if(!editEnabled && (recipe.isResourceEdited || (recipe.ingredients.indexWhere((recipeIng) => recipeIng.isResourceEdited) != -1))) {
+      //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
+      recipe.save();
+    }
+
+    setState(() => _editEnabled = editEnabled);
   }
 }

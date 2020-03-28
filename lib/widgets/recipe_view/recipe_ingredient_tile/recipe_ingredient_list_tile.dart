@@ -29,7 +29,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(ingredient.name == null ? '' : ingredient.name),
+        title: Text(ingredient.name == null ? 'awe' : ingredient.name),
         trailing: widget.editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
@@ -69,9 +69,9 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
         recipeIngredient: widget._recipeIngredient,
       ),
     ).then((updatedRecipeIng) {
-      widget._recipeIngredient.quantity = updatedRecipeIng.quantity;
-      widget._recipeIngredient.unitOfMeasure = updatedRecipeIng.unitOfMeasure;
-      widget._recipeIngredient.freezed = updatedRecipeIng.freezed;
+      widget._recipeIngredient.setQuantity(updatedRecipeIng.quantity);
+      widget._recipeIngredient.setUom(updatedRecipeIng.unitOfMeasure);
+      widget._recipeIngredient.setFreezed(updatedRecipeIng.freezed);
     });
   }
 }

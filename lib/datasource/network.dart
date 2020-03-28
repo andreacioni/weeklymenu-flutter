@@ -73,6 +73,7 @@ class NetworkDatasource {
 
   Future<void> patchRecipe(
       String recipeId, Map<String, dynamic> jsonMap) async {
+    jsonMap.remove('_id');
     var resp = await _dio.patch('$BASE_URL/recipes/$recipeId', data: jsonMap);
 
     return resp.data;

@@ -32,6 +32,8 @@ class Recipe with ChangeNotifier {
 
   String owner;
 
+  bool _edited = false;
+
   Recipe(
       {@required this.id,
       this.name,
@@ -63,94 +65,73 @@ class Recipe with ChangeNotifier {
                     jsonMap['_id'], recipeIngredientMap))
                 .toList()
                 .cast<RecipeIngredient>()
-            : []);
+            : [],
+        tags: jsonMap['tags'] != null ? jsonMap['tags'].cast<String>() : []);
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      '_id': id,
+      'name': name,
+      'description': description,
+      'servs': servs,
+      'rating': rating,
+      'cost': cost,
+      'difficulty': difficulty,
+      'estimatedCookingTime': estimatedCookingTime,
+      'estimatedPreparationTime': estimatedPreparationTime,
+      'ingredients': ingredients != null
+          ? ingredients
+              .map((recipeIngredient) => recipeIngredient.toJSON())
+              .toList()
+          : [],
+      'tags': tags
+    };
   }
 
   void updateDifficulty(String newValue) {
-    final oldValue = difficulty;
+    _edited = true;
     difficulty = newValue;
     notifyListeners();
-
-    try {
-      _restApi.patchRecipe(id, {'difficulty': newValue});
-    } catch (error) {
-      difficulty = oldValue;
-      notifyListeners();
-    }
   }
 
   void updatePreparationTime(int newValue) {
-    final oldValue = estimatedPreparationTime;
+    _edited = true;
     estimatedPreparationTime = newValue;
     notifyListeners();
-
-    try {
-      _restApi.patchRecipe(id, {'estimatedCookingTime': newValue});
-    } catch (error) {
-      estimatedPreparationTime = oldValue;
-      notifyListeners();
-    }
   }
 
   void updateCookingTime(int newValue) {
-    final oldValue = estimatedCookingTime;
+    _edited = true;
     estimatedCookingTime = newValue;
     notifyListeners();
-
-    try {
-      _restApi.patchRecipe(id, {'estimatedCookingTime': newValue});
-    } catch (error) {
-      estimatedCookingTime = oldValue;
-      notifyListeners();
-    }
   }
 
   void updateRating(int newValue) {
-    final oldValue = rating;
+    _edited = true;
     rating = newValue;
     notifyListeners();
-
-    try {
-      _restApi.patchRecipe(id, {'rating': newValue});
-    } catch (error) {
-      rating = oldValue;
-      notifyListeners();
-    }
   }
 
   void updateCost(int newValue) {
-    final oldValue = cost;
+    _edited = true;
     cost = newValue;
     notifyListeners();
-
-    try {
-      _restApi.patchRecipe(id, {'cost': newValue});
-    } catch (error) {
-      cost = oldValue;
-      notifyListeners();
-    }
   }
 
   void addRecipeIngredient(RecipeIngredient recipeIngredient) {
-    final oldValue = ingredients;
-
+    _edited = true;
     if (ingredients == null) {
       ingredients = [recipeIngredient];
     } else {
       ingredients.add(recipeIngredient);
     }
     notifyListeners();
-
-    try {
-      _restApi.addRecipeIngredient(id, recipeIngredient.toJSON());
-    } catch (error) {
-      ingredients = oldValue;
-      notifyListeners();
-    }
   }
 
   void deleteRecipeIngredient(String recipeIngredientId) {
     if (ingredients != null && ingredients.isNotEmpty) {
+      _edited = true;
       ingredients.removeWhere((recipeIngredient) =>
           recipeIngredient.ingredientId == recipeIngredientId);
       notifyListeners();
@@ -158,61 +139,59 @@ class Recipe with ChangeNotifier {
   }
 
   void addTag(String newTag) {
-    final oldValue = tags;
+    _edited = true;
     if (tags == null) {
       tags = [newTag];
     } else {
       tags.add(newTag);
     }
     notifyListeners();
-
-    try {
-      _restApi.patchRecipe(id, {'tags': tags});
-    } catch (error) {
-      tags = oldValue;
-      notifyListeners();
-    }
   }
 
   void removeTag(String tagToRemove) {
-    final oldValue = tags;
+    _edited = true;
     if (tags != null) {
       tags.removeWhere((tag) => tag == tagToRemove);
-      notifyListeners();
-    }
-
-    try {
-      _restApi.patchRecipe(id, {'tags': tags});
-    } catch (error) {
-      tags = oldValue;
       notifyListeners();
     }
   }
 
   void updateDescription(String newValue) {
-    final oldValue = description;
+    _edited = true;
     description = newValue;
     notifyListeners();
+  }
 
-    try {
-      _restApi.patchRecipe(id, {'description': newValue});
-    } catch (error) {
-      description = oldValue;
-      notifyListeners();
-    }
+  void updateImgUrl(String newValue) {
+    _edited = true;
+    imgUrl = newValue;
+    notifyListeners();
+  }
+
+  void updatePreparation(String newValue) {
+    _edited = true;
+    preparation = newValue;
+    notifyListeners();
+  }
+
+  void updateNote(String newValue) {
+    _edited = true;
+    note = newValue;
+    notifyListeners();
   }
 
   void updateServs(int newValue) {
-    final oldValue = servs;
+    _edited = true;
     servs = newValue;
     notifyListeners();
+  }
 
-    try {
-      _restApi.patchRecipe(id, {'servs': newValue});
-    } catch (error) {
-      servs = oldValue;
-      notifyListeners();
-    }
+  bool get isResourceEdited => _edited;
+
+  Future<void> save() async {
+    await _restApi.patchRecipe(id, this.toJSON());
+    _edited = false;
+    ingredients.forEach((recipeIngredient) => recipeIngredient.save());
   }
 
   @override
@@ -224,17 +203,18 @@ class Recipe with ChangeNotifier {
 }
 
 class RecipeIngredient with ChangeNotifier {
+  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance(); 
-  
   String recipeId;
   String ingredientId;
   double quantity;
   String unitOfMeasure;
   bool freezed;
 
+  bool _edited = false;
+
   RecipeIngredient(
-      {@required recipeId,
+      {@required this.recipeId,
       @required this.ingredientId,
       this.quantity = 0,
       this.unitOfMeasure,
@@ -250,9 +230,9 @@ class RecipeIngredient with ChangeNotifier {
   }
 
   factory RecipeIngredient.fromJSON(
-      String recipeId, Map<String, dynamic> jsonMap) {
+      String recId, Map<String, dynamic> jsonMap) {
     return RecipeIngredient(
-      recipeId: recipeId,
+      recipeId: recId,
       ingredientId: jsonMap['ingredient'],
       quantity: jsonMap['quantity'],
       unitOfMeasure: jsonMap['unitOfMeasure'],
@@ -261,12 +241,42 @@ class RecipeIngredient with ChangeNotifier {
   }
 
   Map<String, dynamic> toJSON() {
-    return {
+    final jsonMap = {
       'quantity': quantity,
       'unitOfMeasure': unitOfMeasure,
       'ingredient': ingredientId,
       'freezed': freezed,
     };
+
+    jsonMap.removeWhere((_, v) => v == null);
+
+    return jsonMap;
+  }
+
+  void setQuantity(double newValue) {
+    _edited = true;
+    quantity = newValue;
+    notifyListeners();
+  }
+
+  void setUom(String newValue) {
+    _edited = true;
+    unitOfMeasure = newValue;
+    notifyListeners();
+  }
+
+  void setFreezed(bool newValue) {
+    _edited = true;
+    freezed = newValue;
+    notifyListeners();
+  }
+
+  bool get isResourceEdited => _edited;
+
+  Future<void> save() {
+    //No patch here (this is done by the recipe class)
+    _edited = false;
+    return Future.delayed(Duration.zero);
   }
 
   @override
