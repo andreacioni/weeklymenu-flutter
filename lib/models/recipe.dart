@@ -48,17 +48,22 @@ class Recipe with ChangeNotifier {
 
   factory Recipe.fromJSON(Map<String, dynamic> jsonMap) {
     return Recipe(
-      id: jsonMap['_id'],
-      name: jsonMap['name'],
-      description: jsonMap['description'],
-      servs: jsonMap['servs'],
-      rating: jsonMap['rating'],
-      cost: jsonMap['cost'],
-      difficulty: jsonMap['difficulty'],
-      estimatedCookingTime: jsonMap['estimatedCookingTime'],
-      estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
-      ingredients: jsonMap['ingredients'] != null ? jsonMap['ingredients'].map((recipeIngredientMap) => RecipeIngredient.fromJSON(recipeIngredientMap)).toList().cast<RecipeIngredient>() : []
-    );
+        id: jsonMap['_id'],
+        name: jsonMap['name'],
+        description: jsonMap['description'],
+        servs: jsonMap['servs'],
+        rating: jsonMap['rating'],
+        cost: jsonMap['cost'],
+        difficulty: jsonMap['difficulty'],
+        estimatedCookingTime: jsonMap['estimatedCookingTime'],
+        estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
+        ingredients: jsonMap['ingredients'] != null
+            ? jsonMap['ingredients']
+                .map((recipeIngredientMap) => RecipeIngredient.fromJSON(
+                    jsonMap['_id'], recipeIngredientMap))
+                .toList()
+                .cast<RecipeIngredient>()
+            : []);
   }
 
   void updateDifficulty(String newValue) {
@@ -219,27 +224,35 @@ class Recipe with ChangeNotifier {
 }
 
 class RecipeIngredient with ChangeNotifier {
+
+  final NetworkDatasource _restApi = NetworkDatasource.getInstance(); 
+  
+  String recipeId;
   String ingredientId;
   double quantity;
   String unitOfMeasure;
   bool freezed;
 
   RecipeIngredient(
-      {@required this.ingredientId,
+      {@required recipeId,
+      @required this.ingredientId,
       this.quantity = 0,
       this.unitOfMeasure,
-      this.freezed = false}) {
-        if(quantity == null) {
-          this.quantity = 0;
-        }
+      this.freezed = false})
+      : assert(recipeId != null) {
+    if (quantity == null) {
+      this.quantity = 0;
+    }
 
-        if(freezed == null) {
-          this.freezed = false;
-        }
-      }
+    if (freezed == null) {
+      this.freezed = false;
+    }
+  }
 
-  factory RecipeIngredient.fromJSON(Map<String, dynamic> jsonMap) {
+  factory RecipeIngredient.fromJSON(
+      String recipeId, Map<String, dynamic> jsonMap) {
     return RecipeIngredient(
+      recipeId: recipeId,
       ingredientId: jsonMap['ingredient'],
       quantity: jsonMap['quantity'],
       unitOfMeasure: jsonMap['unitOfMeasure'],

@@ -10,9 +10,10 @@ import '../../../presentation/custom_icons_icons.dart';
 import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientModal extends StatefulWidget {
+  final String recipeId;
   final RecipeIngredient recipeIngredient;
 
-  RecipeIngredientModal({this.recipeIngredient});
+  RecipeIngredientModal(this.recipeId, {this.recipeIngredient});
 
   @override
   _RecipeIngredientModalState createState() => _RecipeIngredientModalState();
@@ -86,6 +87,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     }
     Navigator.of(context).pop(
       RecipeIngredient(
+        recipeId: widget.recipeId,
         ingredientId: _selectedIngredient.id,
         freezed: _isFreezed,
         quantity: _quantity,
@@ -97,6 +99,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   void _updateRecipeIngredient() {
     Navigator.of(context).pop(
       RecipeIngredient(
+        recipeId: widget.recipeIngredient.recipeId,
         ingredientId: _selectedIngredient.id,
         freezed: _isFreezed,
         quantity: _quantity,

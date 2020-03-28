@@ -65,6 +65,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
     showDialog<RecipeIngredient>(
       context: context,
       builder: (bContext) => RecipeIngredientModal(
+        widget._recipeIngredient.recipeId,
         recipeIngredient: widget._recipeIngredient,
       ),
     ).then((updatedRecipeIng) {
