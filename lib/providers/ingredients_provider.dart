@@ -23,12 +23,13 @@ class IngredientsProvider with ChangeNotifier {
   Ingredient getById(String id) =>
       _ingredients.firstWhere((ing) => ing.id == id, orElse: () => null);
 
-  Ingredient addIngredient(Ingredient ingredient) {
-    if (ingredient.id == null || ingredient.id == 'NONE') {
-      ingredient.id = Uuid().v4();
-    }
-
-    _ingredients.add(ingredient);
+  Future<Ingredient> addIngredient(Ingredient ingredient) async {
+    var resp = await _restApi.createIngredient(ingredient.toJSON());
+    var newIngredient = Ingredient.fromJSON(resp);
+    
+    _ingredients.add(newIngredient);
     notifyListeners();
+
+    return newIngredient;
   }
 }

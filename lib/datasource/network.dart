@@ -111,4 +111,13 @@ class NetworkDatasource {
 
     return resp.data;
   }
+
+  Future<Map<String, dynamic>> createIngredient(Map<String, dynamic> ingredient) async {
+    var resp = await _dio.post(
+      '$BASE_URL/ingredients',
+      data: ingredient,
+    );
+
+    return resp.data;
+  }
 }

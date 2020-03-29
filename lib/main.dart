@@ -16,6 +16,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider.value(value: MenusProvider()),
         ChangeNotifierProvider.value(value: RecipesProvider()),
         ChangeNotifierProvider.value(value: IngredientsProvider()),
+        //Cart provider
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

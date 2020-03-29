@@ -57,7 +57,7 @@ class _IngredientSelectionTextFieldState
             },
             onSuggestionSelected: (selectedIngredient) {
               if (selectedIngredient.id == null) {
-                selectedIngredient.name = RegExp(r"^Add (.*) \.\.\.")
+                selectedIngredient.name = RegExp(r'^Add "(.*)" \.\.\.')
                     .firstMatch(selectedIngredient.name)
                     .group(1);
                 print('Add Ingredient: ${selectedIngredient.name}');
@@ -88,7 +88,7 @@ class _IngredientSelectionTextFieldState
         availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(Ingredient(name: "Add ${_typeAheadController.text} ..."));
+      suggestions.add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
     }
 
     return suggestions;

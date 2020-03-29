@@ -4,8 +4,11 @@ import 'package:provider/provider.dart';
 
 import './globals/constants.dart';
 import './models/recipe.dart';
+import './widgets/menu_page/screen.dart';
+import './widgets/recipes_screen/screen.dart';
+import './widgets/ingredients_screen/screen.dart';
+import './widgets/cart_screen/screen.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
-import './widgets/app_bar/app_bar.dart';
 import './widgets/menu_page/page.dart';
 import './providers/ingredients_provider.dart';
 import './providers/recipes_provider.dart';
@@ -18,23 +21,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  PageController _pageController;
-  bool _selectionMode = false;
   DateTime _day;
-  List<Recipe> _selectedRecipes = List();
 
   bool _ingredientLoaded = false;
   bool _recipesLoaded = false;
+
+  int _activeScreenIndex = 0;
 
   _HomePageState();
 
   @override
   void initState() {
-    var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
-    _pageController = new PageController(initialPage: pageIndex);
-
-    var now = DateTime.now();
-    _day = DateTime(now.year, now.month, now.day);
+    _day = DateTime.now();
 
     Provider.of<IngredientsProvider>(context, listen: false)
         .fetchIngredients()
@@ -48,78 +46,92 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: MenuAppBar(_selectionMode,
-          day: _day, selectedRecipes: _selectedRecipes),
-      floatingActionButton: !_selectionMode
-          ? FloatingActionButton.extended(
-              elevation: 4.0,
-              icon: const Icon(Icons.add),
-              label: const Text('ADD'),
-              onPressed: () {
-                _openAddRecipeModal(context);
-              },
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _buildBottomAppBar(context),
-      body: (!_recipesLoaded || !_ingredientLoaded)
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Stack(
-              children: <Widget>[
-                Container(
-                  color: Colors.white,
-                  height: double.infinity,
-                  width: double.infinity,
-                ),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  child: PageView.builder(
-                    itemBuilder: (ctx, index) => MenuPage(_day),
-                    onPageChanged: _setDayNameInBottomAppBar,
-                    controller: _pageController,
-                  ),
-                )
-              ],
-            ),
-    );
-  }
-
-  BottomAppBar _buildBottomAppBar(BuildContext context) {
-    return BottomAppBar(
-      child: new Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.calendar_today),
-                onPressed: !_selectionMode ? () => _selectDate(context) : null,
-              ),
-              GestureDetector(
-                child: Text(DateFormat.MMMEd().format(_day)),
-                onTap: !_selectionMode ? () => _selectDate(context) : null,
-              ),
-            ],
-          ),
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: !_selectionMode ? () {} : null,
-          )
-        ],
+    final List<Widget> _screens = [
+      MenuScreen(),
+      RecipesScreen(),
+      IngredientsScreen(),
+      CartScreen(),
+    ];
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: _buildBottomAppBar(context),
+        body: (!_recipesLoaded || !_ingredientLoaded)
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : _screens[_activeScreenIndex],
       ),
     );
   }
 
-  void _setDayNameInBottomAppBar(int newPageIndex) {
-    print("page changed to $newPageIndex");
+  AppBar _buildAppBar() {
+    return AppBar(
+      centerTitle: true,
+      elevation: 5.0,
+      title: _activeScreenIndex == 0
+          ? FlatButton(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.calendar_today),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(DateFormat.MMMEd().format(_day)),
+                ],
+              ),
+              onPressed: () => _openDatePicker(context),
+            )
+          : null,
+      leading: const IconButton(
+        icon: Icon(
+          Icons.menu,
+          size: 30.0,
+          color: Colors.black,
+        ),
+        onPressed: null,
+      ),
+      actions: const <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.add,
+            size: 30.0,
+            color: Colors.black,
+          ),
+          onPressed: null,
+        ),
+      ],
+    );
+  }
+
+  BottomNavigationBar _buildBottomAppBar(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: _activeScreenIndex,
+      onTap: _selectTab,
+      type: BottomNavigationBarType.fixed,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_view_day), title: Text('Menu')),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.receipt), title: Text('Recipes')),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.extension), title: Text('Ingredients')),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart), title: Text('Cart')),
+      ],
+    );
+  }
+
+  void _selectTab(int index) {
+    if (index == _activeScreenIndex) {
+      return;
+    }
+
     setState(() {
-      var now = DateTime.now();
-      _day = DateTime(now.year, now.month, now.day).add(
-          Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
+      _activeScreenIndex = index;
     });
   }
 
@@ -135,7 +147,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _selectDate(ctx) async {
+  void _openDatePicker(BuildContext ctx) {
     showDatePicker(
       context: ctx,
       initialDate: _day,
@@ -143,19 +155,14 @@ class _HomePageState extends State<HomePage> {
           .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
       lastDate: DateTime.now()
           .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
-    ).then((selectedDate) {
+    ).then(_setSelectedDayFromDatePicker);
+  }
+
+  void _setSelectedDayFromDatePicker(DateTime day) {
+    if (day != null) {
       setState(() {
-        int oldPageIndex = _pageController.page.truncate();
-        if (selectedDate.compareTo(_day) != 0) {
-          print(
-              "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
-          int newPageIndex =
-              oldPageIndex + selectedDate.difference(_day).inDays;
-          print("jumping to page: $newPageIndex");
-          _pageController.jumpToPage(newPageIndex);
-        }
+        _day = day;
       });
-      return selectedDate;
-    });
+    }
   }
 }

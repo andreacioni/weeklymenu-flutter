@@ -83,17 +83,19 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   void _createNewRecipeIngredient() {
     if (_selectedIngredient.id == null) {
       Provider.of<IngredientsProvider>(context, listen: false)
-          .addIngredient(_selectedIngredient);
+          .addIngredient(_selectedIngredient)
+          .then(
+            (createdIngredient) => Navigator.of(context).pop(
+              RecipeIngredient(
+                recipeId: widget.recipeId,
+                ingredientId: createdIngredient.id,
+                freezed: _isFreezed,
+                quantity: _quantity,
+                unitOfMeasure: _unitOfMeasure,
+              ),
+            ),
+          );
     }
-    Navigator.of(context).pop(
-      RecipeIngredient(
-        recipeId: widget.recipeId,
-        ingredientId: _selectedIngredient.id,
-        freezed: _isFreezed,
-        quantity: _quantity,
-        unitOfMeasure: _unitOfMeasure,
-      ),
-    );
   }
 
   void _updateRecipeIngredient() {
@@ -181,9 +183,8 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
                 ? "CREATE & ADD"
                 : "ADD"),
         textColor: Theme.of(context).primaryColor,
-        onPressed: _selectedIngredient == null
-            ? null
-            : _createNewRecipeIngredient,
+        onPressed:
+            _selectedIngredient == null ? null : _createNewRecipeIngredient,
       );
     } else {
       return FlatButton(

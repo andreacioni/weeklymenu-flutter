@@ -16,6 +16,7 @@ class RecipeAppBar extends StatelessWidget {
     return SliverAppBar(
       expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
+      
       flexibleSpace: FlexibleSpaceBar(
         title: Container(
           color: Colors.black.withOpacity(0.4),

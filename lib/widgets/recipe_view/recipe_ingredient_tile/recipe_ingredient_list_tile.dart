@@ -29,7 +29,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(ingredient.name == null ? 'awe' : ingredient.name),
+        title: Text(ingredient.name == null ? '' : ingredient.name),
         trailing: widget.editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),

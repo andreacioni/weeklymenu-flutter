@@ -12,4 +12,10 @@ class Ingredient with ChangeNotifier {
       name: jsonMap['name'],
     );
   }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'name': name,
+    };
+  }
 }

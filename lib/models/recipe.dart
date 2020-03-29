@@ -57,6 +57,7 @@ class Recipe with ChangeNotifier {
         rating: jsonMap['rating'],
         cost: jsonMap['cost'],
         difficulty: jsonMap['difficulty'],
+        imgUrl: jsonMap['imgUrl'],
         estimatedCookingTime: jsonMap['estimatedCookingTime'],
         estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
         ingredients: jsonMap['ingredients'] != null
@@ -78,6 +79,7 @@ class Recipe with ChangeNotifier {
       'rating': rating,
       'cost': cost,
       'difficulty': difficulty,
+      'imgUrl': imgUrl,
       'estimatedCookingTime': estimatedCookingTime,
       'estimatedPreparationTime': estimatedPreparationTime,
       'ingredients': ingredients != null

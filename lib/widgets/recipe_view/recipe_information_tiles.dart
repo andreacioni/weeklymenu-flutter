@@ -136,18 +136,6 @@ class RecipeInformationLevelSelectState
 
   RecipeInformationLevelSelectState(this._level);
 
-  Widget generateIcon(int index) => Icon(
-        widget._icon,
-        color: (_level != null && index < _level) ? widget.activeColor : widget.inactiveColor,
-      );
-
-  void updateLevel(int newLevel) {
-    setState(() {
-      _level = newLevel;
-      widget.onLevelUpdate(newLevel);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -162,6 +150,7 @@ class RecipeInformationLevelSelectState
                 ? generateIcon(index)
                 : IconButton(
                     icon: generateIcon(index),
+                    padding: EdgeInsets.all(0),
                     onPressed: () => updateLevel(index + 1),
                     alignment: Alignment.centerRight,
                   ),
@@ -170,5 +159,24 @@ class RecipeInformationLevelSelectState
         ),
       ),
     );
+  }
+
+  Widget generateIcon(int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Icon(
+        widget._icon,
+        color: (_level != null && index < _level)
+            ? widget.activeColor
+            : widget.inactiveColor,
+      ),
+    );
+  }
+
+  void updateLevel(int newLevel) {
+    setState(() {
+      _level = newLevel;
+      widget.onLevelUpdate(newLevel);
+    });
   }
 }
