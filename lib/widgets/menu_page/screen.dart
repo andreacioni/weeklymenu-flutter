@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../globals/constants.dart';
+import '../app_bar.dart';
 import './page.dart';
 
 class MenuScreen extends StatefulWidget {
-  final Function(DateTime) onDateChanged;
-
-  const MenuScreen({this.onDateChanged});
+  const MenuScreen();
 
   @override
   _MenuScreenState createState() => _MenuScreenState();
@@ -29,23 +29,60 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: <Widget>[
-        Container(
-          color: Colors.white,
-          height: double.infinity,
-          width: double.infinity,
-        ),
-        Container(
-          padding: EdgeInsets.all(10),
-          child: PageView.builder(
-            itemBuilder: (ctx, index) => MenuPage(_day),
-            onPageChanged: _onPageChanged,
-            controller: _pageController,
+        _buildAppBar(),
+        Expanded(
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: PageView.builder(
+              itemBuilder: (ctx, index) => MenuPage(_day),
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+            ),
           ),
-        )
+        ),
       ],
     );
+  }
+
+  AppBar _buildAppBar() {
+    return BaseAppBar(
+      title: FlatButton(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.calendar_today),
+            SizedBox(
+              width: 5,
+            ),
+            Text(DateFormat.MMMEd().format(_day)),
+          ],
+        ),
+        onPressed: () => _openDatePicker(context),
+      ),
+      actions: const <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.add,
+            size: 30.0,
+            color: Colors.black,
+          ),
+          onPressed: null,
+        ),
+      ],
+    );
+  }
+
+  void _openDatePicker(BuildContext ctx) {
+    showDatePicker(
+      context: ctx,
+      initialDate: _day,
+      firstDate: DateTime.now()
+          .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
+      lastDate: DateTime.now()
+          .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
+    ).then(setNewDate);
   }
 
   void _onPageChanged(int newPageIndex) {
@@ -55,20 +92,19 @@ class _MenuScreenState extends State<MenuScreen> {
       _day = DateTime(now.year, now.month, now.day).add(
           Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
     });
-
-    widget.onDateChanged(_day);
   }
 
   void setNewDate(DateTime selectedDate) {
-    //setState(() {
-    int oldPageIndex = _pageController.page.truncate();
-    if (selectedDate.compareTo(_day) != 0) {
-      print(
-          "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
-      int newPageIndex = oldPageIndex + selectedDate.difference(_day).inDays;
-      print("jumping to page: $newPageIndex");
-      _pageController.jumpToPage(newPageIndex);
-    }
-    //});
+    setState(() {
+      int oldPageIndex = _pageController.page.truncate();
+      if (selectedDate.compareTo(_day) != 0) {
+        print(
+            "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
+        int newPageIndex = oldPageIndex + selectedDate.difference(_day).inDays;
+        print("jumping to page: $newPageIndex");
+        _pageController.jumpToPage(newPageIndex);
+      }
+      _day = selectedDate;
+    });
   }
 }

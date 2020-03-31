@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        appBar: _buildAppBar(),
+        //appBar: _buildAppBar(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: _buildBottomAppBar(context),
         body: (!_recipesLoaded || !_ingredientLoaded)
@@ -64,46 +64,6 @@ class _HomePageState extends State<HomePage> {
               )
             : _screens[_activeScreenIndex],
       ),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      centerTitle: true,
-      elevation: 5.0,
-      title: _activeScreenIndex == 0
-          ? FlatButton(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.calendar_today),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(DateFormat.MMMEd().format(_day)),
-                ],
-              ),
-              onPressed: () => _openDatePicker(context),
-            )
-          : null,
-      leading: const IconButton(
-        icon: Icon(
-          Icons.menu,
-          size: 30.0,
-          color: Colors.black,
-        ),
-        onPressed: null,
-      ),
-      actions: const <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.add,
-            size: 30.0,
-            color: Colors.black,
-          ),
-          onPressed: null,
-        ),
-      ],
     );
   }
 
@@ -145,24 +105,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  void _openDatePicker(BuildContext ctx) {
-    showDatePicker(
-      context: ctx,
-      initialDate: _day,
-      firstDate: DateTime.now()
-          .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
-      lastDate: DateTime.now()
-          .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
-    ).then(_setSelectedDayFromDatePicker);
-  }
-
-  void _setSelectedDayFromDatePicker(DateTime day) {
-    if (day != null) {
-      setState(() {
-        _day = day;
-      });
-    }
   }
 }
