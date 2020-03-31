@@ -49,21 +49,36 @@ class _MenuPageState extends State<MenuPage> {
                     children: Provider.of<MenusProvider>(context)
                         .getDailyMenuByMeal(widget._day)
                         .entries
-                        .map((meal) => StickyHeader(
-                              header: MealHead(meal.key.value),
-                              content: RecipeTile(meal.value
-                                  .map((recipeId) =>
-                                      Provider.of<RecipesProvider>(
-                                        context,
-                                        listen: false,
-                                      ).getById(recipeId))
-                                  .toList()),
-                            ))
+                        .map(_buildStickyHeaderFromMeal)
                         .toList(),
                   ),
                 ),
               ),
             ],
           );
+  }
+
+  Widget _buildStickyHeaderFromMeal(MapEntry<Meal, List<String>> mealEntry) {
+    return StickyHeader(
+      header: MealHead(mealEntry.key.value),
+      content: buildRecipeTilesColumn(mealEntry),
+    );
+  }
+
+  Widget buildRecipeTilesColumn(MapEntry<Meal, List<String>> mealEntry) {
+    final recipes = mealEntry.value
+        .map((recipeId) => Provider.of<RecipesProvider>(
+              context,
+              listen: false,
+            ).getById(recipeId))
+        .toList();
+
+    return Column(
+      children: recipes
+          .map(
+            (recipe) => RecipeTile(recipe),
+          )
+          .toList(),
+    );
   }
 }

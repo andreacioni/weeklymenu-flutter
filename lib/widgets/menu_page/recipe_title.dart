@@ -5,19 +5,20 @@ import '../recipe_view/recipe_view.dart';
 import '../../models/recipe.dart';
 
 class RecipeTile extends StatelessWidget {
-  final List<Recipe> _recipes;
+  final Recipe _recipe;
 
-  RecipeTile(this._recipes);
+  RecipeTile(this._recipe);
 
-  Widget _createCardForRecipe(BuildContext context, Recipe recipe) {
+  @override
+  Widget build(BuildContext context) {
     final heroTagValue = UniqueKey();
     return Card(
       child: ListTile(
         leading: Hero(
           tag: heroTagValue,
-          child: recipe.imgUrl != null
+          child: _recipe.imgUrl != null
               ? CircleAvatar(
-                  backgroundImage: NetworkImage(recipe.imgUrl),
+                  backgroundImage: NetworkImage(_recipe.imgUrl),
                   radius: 30,
                 )
               : Image.asset(
@@ -25,7 +26,7 @@ class RecipeTile extends StatelessWidget {
                   scale: 0.5,
                 ),
         ),
-        title: Text(recipe.name),
+        title: Text(_recipe.name),
         subtitle: Text('A sufficiently long subtitle warrants three lines.'),
         trailing: Icon(Icons.more_vert),
         isThreeLine: true,
@@ -33,23 +34,12 @@ class RecipeTile extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (ctx) => ChangeNotifierProvider.value(
-              value: recipe,
+              value: _recipe,
               child: RecipeView(heroTagValue),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: _recipes
-          .map(
-            (recipe) => _createCardForRecipe(context, recipe),
-          )
-          .toList(),
     );
   }
 }

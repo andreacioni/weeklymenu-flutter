@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/recipes_provider.dart';
 import '../app_bar.dart';
-class RecipesScreen extends StatelessWidget {
+import '../menu_page/recipe_title.dart';
 
+class RecipesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final recipes = Provider.of<RecipesProvider>(context).getRecipes;
     return Column(
       children: <Widget>[
         _buildAppBar(),
-        Center(
-          child: Text('Recipes!'),
+        Expanded(
+          child: ListView.builder(
+            itemBuilder: (_, index) => RecipeTile(recipes[index]),
+            itemCount: recipes.length,
+          ),
         ),
       ],
     );
