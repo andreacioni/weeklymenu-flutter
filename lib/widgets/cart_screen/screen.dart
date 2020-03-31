@@ -7,7 +7,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        _buildAppBar(),
+        _buildAppBar(context),
         Center(
           child: Text('Cart!'),
         ),
@@ -15,9 +15,17 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return BaseAppBar(
       title: Text('Cart'),
+      leading: IconButton(
+        icon: Icon(
+          Icons.menu,
+          size: 30.0,
+          color: Colors.black,
+        ),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+      ),
       actions: const <Widget>[
         IconButton(
           icon: Icon(

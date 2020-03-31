@@ -55,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        //appBar: _buildAppBar(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: _buildBottomAppBar(context),
         body: (!_recipesLoaded || !_ingredientLoaded)
@@ -63,6 +62,41 @@ class _HomePageState extends State<HomePage> {
                 child: CircularProgressIndicator(),
               )
             : _screens[_activeScreenIndex],
+        drawer: Drawer(
+          // Add a ListView to the drawer. This ensures the user can scroll
+          // through the options in the drawer if there isn't enough vertical
+          // space to fit everything.
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text('Drawer Header'),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              ListTile(
+                title: Text('Item 1'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Item 2'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -78,7 +112,7 @@ class _HomePageState extends State<HomePage> {
         BottomNavigationBarItem(
             icon: Icon(Icons.receipt), title: Text('Recipes')),
         BottomNavigationBarItem(
-            icon: Icon(Icons.extension), title: Text('Ingredients')),
+            icon: Icon(Icons.category), title: Text('Ingredients')),
         BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart), title: Text('Cart')),
       ],

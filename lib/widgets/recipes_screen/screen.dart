@@ -11,7 +11,7 @@ class RecipesScreen extends StatelessWidget {
     final recipes = Provider.of<RecipesProvider>(context).getRecipes;
     return Column(
       children: <Widget>[
-        _buildAppBar(),
+        _buildAppBar(context),
         Expanded(
           child: ListView.builder(
             itemBuilder: (_, index) => RecipeTile(recipes[index]),
@@ -22,9 +22,17 @@ class RecipesScreen extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return BaseAppBar(
       title: Text('Recipes'),
+      leading: IconButton(
+        icon: Icon(
+          Icons.menu,
+          size: 30.0,
+          color: Colors.black,
+        ),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+      ),
       actions: const <Widget>[
         IconButton(
           icon: Icon(

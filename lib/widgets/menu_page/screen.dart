@@ -31,7 +31,7 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        _buildAppBar(),
+        _buildAppBar(context),
         Expanded(
           child: Container(
             padding: EdgeInsets.all(10),
@@ -46,7 +46,7 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return BaseAppBar(
       title: FlatButton(
         child: Row(
@@ -60,6 +60,14 @@ class _MenuScreenState extends State<MenuScreen> {
           ],
         ),
         onPressed: () => _openDatePicker(context),
+      ),
+      leading: IconButton(
+        icon: Icon(
+          Icons.menu,
+          size: 30.0,
+          color: Colors.black,
+        ),
+        onPressed: () => Scaffold.of(context).openDrawer(),
       ),
       actions: const <Widget>[
         IconButton(
