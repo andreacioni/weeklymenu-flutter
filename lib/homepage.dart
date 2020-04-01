@@ -26,6 +26,12 @@ class _HomePageState extends State<HomePage> {
   bool _ingredientLoaded = false;
   bool _recipesLoaded = false;
 
+  final List<Widget> _screens = [
+      MenuScreen(),
+      RecipesScreen(),
+      //IngredientsScreen(),
+      CartScreen(),
+    ];
   int _activeScreenIndex = 0;
 
   _HomePageState();
@@ -46,12 +52,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _screens = [
-      MenuScreen(),
-      RecipesScreen(),
-      IngredientsScreen(),
-      CartScreen(),
-    ];
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -105,14 +105,14 @@ class _HomePageState extends State<HomePage> {
     return BottomNavigationBar(
       currentIndex: _activeScreenIndex,
       onTap: _selectTab,
-      type: BottomNavigationBarType.fixed,
+      //type: BottomNavigationBarType.fixed,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
             icon: Icon(Icons.calendar_view_day), title: Text('Menu')),
         BottomNavigationBarItem(
             icon: Icon(Icons.receipt), title: Text('Recipes')),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.category), title: Text('Ingredients')),
+        //BottomNavigationBarItem(
+        //    icon: Icon(Icons.category), title: Text('Ingredients')),
         BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart), title: Text('Cart')),
       ],
@@ -127,17 +127,5 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _activeScreenIndex = index;
     });
-  }
-
-  void _openAddRecipeModal(ctx) {
-    showModalBottomSheet(
-      context: ctx,
-      builder: (_) => Padding(
-        padding: EdgeInsets.all(15),
-        child: AddRecipeToMenuModal(
-          onSelectionEnd: (_) {},
-        ),
-      ),
-    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../globals/constants.dart';
+import '../add_recipe_modal/add_recipe_to_menu_modal.dart';
 import '../app_bar.dart';
 import './page.dart';
 
@@ -69,14 +70,14 @@ class _MenuScreenState extends State<MenuScreen> {
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
-      actions: const <Widget>[
+      actions: <Widget>[
         IconButton(
           icon: Icon(
             Icons.add,
             size: 30.0,
             color: Colors.black,
           ),
-          onPressed: null,
+          onPressed: () => _openAddRecipeModal(context),
         ),
       ],
     );
@@ -114,5 +115,17 @@ class _MenuScreenState extends State<MenuScreen> {
       }
       _day = selectedDate;
     });
+  }
+
+  void _openAddRecipeModal(ctx) {
+    showModalBottomSheet(
+      context: ctx,
+      builder: (_) => Padding(
+        padding: EdgeInsets.all(15),
+        child: AddRecipeToMenuModal(
+          onSelectionEnd: (_) {},
+        ),
+      ),
+    );
   }
 }

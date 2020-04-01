@@ -1,15 +1,37 @@
 import 'package:flutter/material.dart';
 
+import '../../presentation/custom_icons_icons.dart';
 import '../app_bar.dart';
-class CartScreen extends StatelessWidget {
 
+class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final _textColor = Colors.grey.shade300;
     return Column(
       children: <Widget>[
         _buildAppBar(context),
-        Center(
-          child: Text('Cart!'),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                CustomIcons.shopping_cart_with_check,
+                size: 150,
+                color: _textColor,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Your Cart Is Empty',
+                style: TextStyle(
+                  fontSize: 25,
+                  color: _textColor,
+                ),
+              )
+            ],
+          ),
         ),
       ],
     );
