@@ -26,4 +26,5 @@ class CustomIcons {
 
   static const IconData ac_unit = IconData(0xe800, fontFamily: _kFontFam);
   static const IconData shopping_cart_with_check = IconData(0xe801, fontFamily: _kFontFam);
+  static const IconData dinner = IconData(0xe802, fontFamily: _kFontFam);
 }

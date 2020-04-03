@@ -18,6 +18,8 @@ class IngredientsProvider with ChangeNotifier {
         .map((jsonMenu) => Ingredient.fromJSON(jsonMenu))
         .toList()
         .cast<Ingredient>();
+    
+    notifyListeners();
   }
 
   Ingredient getById(String id) =>

@@ -16,6 +16,8 @@ class RecipesProvider with ChangeNotifier {
         .map((jsonMenu) => Recipe.fromJSON(jsonMenu))
         .toList()
         .cast<Recipe>();
+
+    notifyListeners();
   }
 
   List<Recipe> get getRecipes => [..._recipes];

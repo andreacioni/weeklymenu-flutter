@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import './meal_head.dart';
 import '../../models/enums/meals.dart';
-import '../../models/recipe.dart';
+import '../../presentation/custom_icons_icons.dart';
 import './recipe_title.dart';
 import '../../providers/menus_provider.dart';
 import '../../providers/recipes_provider.dart';
@@ -35,27 +35,60 @@ class _MenuPageState extends State<MenuPage> {
         ? Center(
             child: CircularProgressIndicator(),
           )
-        : Column(
-            children: <Widget>[
-              Expanded(
-                child: Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 1,
-                  child: ListView(
+        : _buildPageBody(context);
+  }
+
+  Column _buildPageBody(BuildContext context) {
+    final _stickyHeaderMeal = Provider.of<MenusProvider>(context)
+        .getDailyMenuByMeal(widget._day)
+        .entries
+        .map(_buildStickyHeaderFromMeal)
+        .toList();
+
+    return Column(
+      children: <Widget>[
+        Expanded(
+          //child: Card(
+            //color: Colors.white,
+            //shape: RoundedRectangleBorder(
+            //  borderRadius: BorderRadius.circular(10),
+            //),
+            //elevation: 1,
+            child: _stickyHeaderMeal.isEmpty
+                ? _buildEmptyMealBackground()
+                : ListView(
                     padding: EdgeInsets.all(10),
-                    children: Provider.of<MenusProvider>(context)
-                        .getDailyMenuByMeal(widget._day)
-                        .entries
-                        .map(_buildStickyHeaderFromMeal)
-                        .toList(),
+                    children: _stickyHeaderMeal,
                   ),
-                ),
-              ),
-            ],
-          );
+         // ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyMealBackground() {
+    final _textColor = Colors.grey.shade300;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Icon(
+          CustomIcons.dinner,
+          size: 150,
+          color: _textColor,
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          'No menu for this day',
+          style: TextStyle(
+            fontSize: 25,
+            color: _textColor,
+          ),
+        )
+      ],
+    );
   }
 
   Widget _buildStickyHeaderFromMeal(MapEntry<Meal, List<String>> mealEntry) {

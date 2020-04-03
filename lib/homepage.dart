@@ -27,11 +27,11 @@ class _HomePageState extends State<HomePage> {
   bool _recipesLoaded = false;
 
   final List<Widget> _screens = [
-      MenuScreen(),
-      RecipesScreen(),
-      //IngredientsScreen(),
-      CartScreen(),
-    ];
+    MenuScreen(),
+    RecipesScreen(),
+    //IngredientsScreen(),
+    CartScreen(),
+  ];
   int _activeScreenIndex = 0;
 
   _HomePageState();
@@ -40,12 +40,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _day = DateTime.now();
 
-    Provider.of<IngredientsProvider>(context, listen: false)
-        .fetchIngredients()
-        .then((_) => setState(() => _ingredientLoaded = true));
-    Provider.of<RecipesProvider>(context, listen: false)
-        .fetchRecipes()
-        .then((_) => setState(() => _recipesLoaded = true));
+    _fetchAndSetData();
 
     super.initState();
   }
@@ -55,13 +50,21 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: FloatingActionButton(
+          onPressed: _hadleAddActionPasedOnScreen,
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: _buildBottomAppBar(context),
-        body: (!_recipesLoaded || !_ingredientLoaded)
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : _screens[_activeScreenIndex],
+        body: RefreshIndicator(
+          child: (!_recipesLoaded || !_ingredientLoaded)
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : _screens[_activeScreenIndex],
+          onRefresh: _fetchAndSetData,
+          displacement: 90,
+        ),
         drawer: Drawer(
           // Add a ListView to the drawer. This ensures the user can scroll
           // through the options in the drawer if there isn't enough vertical
@@ -99,6 +102,19 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _hadleAddActionPasedOnScreen() {
+    
+  }
+
+  Future<void> _fetchAndSetData() async {
+    await Provider.of<IngredientsProvider>(context, listen: false)
+        .fetchIngredients()
+        .then((_) => setState(() => _ingredientLoaded = true));
+    await Provider.of<RecipesProvider>(context, listen: false)
+        .fetchRecipes()
+        .then((_) => setState(() => _recipesLoaded = true));
   }
 
   BottomNavigationBar _buildBottomAppBar(BuildContext context) {
