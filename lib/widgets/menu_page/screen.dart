@@ -49,18 +49,24 @@ class _MenuScreenState extends State<MenuScreen> {
 
   AppBar _buildAppBar(BuildContext context) {
     return BaseAppBar(
-      title: FlatButton(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(Icons.calendar_today),
-            SizedBox(
-              width: 5,
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          FlatButton(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.calendar_today),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(DateFormat.MMMEd().format(_day)),
+              ],
             ),
-            Text(DateFormat.MMMEd().format(_day)),
-          ],
-        ),
-        onPressed: () => _openDatePicker(context),
+            onPressed: () => _openDatePicker(context),
+          ),
+        ],
       ),
       leading: IconButton(
         icon: Icon(
@@ -73,7 +79,7 @@ class _MenuScreenState extends State<MenuScreen> {
       actions: <Widget>[
         IconButton(
           icon: Icon(
-            Icons.add,
+            Icons.refresh,
             size: 30.0,
             color: Colors.black,
           ),
@@ -91,7 +97,7 @@ class _MenuScreenState extends State<MenuScreen> {
           .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
       lastDate: DateTime.now()
           .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
-    ).then(setNewDate);
+    ).then(_setNewDate);
   }
 
   void _onPageChanged(int newPageIndex) {
@@ -103,7 +109,7 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
-  void setNewDate(DateTime selectedDate) {
+  void _setNewDate(DateTime selectedDate) {
     setState(() {
       int oldPageIndex = _pageController.page.truncate();
       if (selectedDate.compareTo(_day) != 0) {

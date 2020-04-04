@@ -23,8 +23,10 @@ class CustomIcons {
   CustomIcons._();
 
   static const _kFontFam = 'CustomIcons';
+  static const _kFontPkg = null;
 
-  static const IconData ac_unit = IconData(0xe800, fontFamily: _kFontFam);
-  static const IconData shopping_cart_with_check = IconData(0xe801, fontFamily: _kFontFam);
-  static const IconData dinner = IconData(0xe802, fontFamily: _kFontFam);
+  static const IconData ac_unit = const IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData shopping_cart_with_check = const IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData dinner = const IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData not_found_lens = const IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

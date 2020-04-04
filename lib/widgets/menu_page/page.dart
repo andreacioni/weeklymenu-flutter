@@ -48,19 +48,19 @@ class _MenuPageState extends State<MenuPage> {
     return Column(
       children: <Widget>[
         Expanded(
-          //child: Card(
-            //color: Colors.white,
-            //shape: RoundedRectangleBorder(
-            //  borderRadius: BorderRadius.circular(10),
-            //),
-            //elevation: 1,
+          child: Card(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 1,
             child: _stickyHeaderMeal.isEmpty
                 ? _buildEmptyMealBackground()
                 : ListView(
                     padding: EdgeInsets.all(10),
                     children: _stickyHeaderMeal,
                   ),
-         // ),
+          ),
         ),
       ],
     );
@@ -80,11 +80,15 @@ class _MenuPageState extends State<MenuPage> {
         SizedBox(
           height: 10,
         ),
-        Text(
-          'No menu for this day',
-          style: TextStyle(
-            fontSize: 25,
-            color: _textColor,
+        Container(
+          width: double.infinity,
+          child: Text(
+            'No menu for this day',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 25,
+              color: _textColor,
+            ),
           ),
         )
       ],
