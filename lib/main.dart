@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import './providers/recipes_provider.dart';
 import './providers/menus_provider.dart';
 import './providers/ingredients_provider.dart';
+import './providers/shopping_list_provider.dart';
 import './homepage.dart';
 
 void main() => runApp(App());
@@ -16,8 +17,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider.value(value: MenusProvider()),
         ChangeNotifierProvider.value(value: RecipesProvider()),
         ChangeNotifierProvider.value(value: IngredientsProvider()),
-        //ChangeNotifierProvider.value(value: CartProvider()),
-        //Cart provider
+        ChangeNotifierProvider.value(value: ShoppingListProvider()),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

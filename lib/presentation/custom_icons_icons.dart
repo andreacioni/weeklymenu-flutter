@@ -16,6 +16,10 @@
 ///         Author:    Google
 ///         License:   Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
 ///         Homepage:  https://design.google.com/icons/
+/// * Elusive, Copyright (C) 2013 by Aristeides Stathopoulos
+///         Author:    Aristeides Stathopoulos
+///         License:   SIL (http://scripts.sil.org/OFL)
+///         Homepage:  http://aristeides.com/
 ///
 import 'package:flutter/widgets.dart';
 
@@ -29,4 +33,6 @@ class CustomIcons {
   static const IconData shopping_cart_with_check = const IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData dinner = const IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData not_found_lens = const IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData check = const IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData check_list = const IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

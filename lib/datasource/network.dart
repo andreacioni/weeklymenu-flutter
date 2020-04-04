@@ -63,6 +63,14 @@ class NetworkDatasource {
     return resp.data;
   }
 
+  Future<Map<String, dynamic>> getShoppingList() async {
+    var resp = await _dio.get(
+      '$BASE_URL/shopping-lists',
+    );
+
+    return resp.data;
+  }
+
   Future<Map<String, dynamic>> getRecipes() async {
     var resp = await _dio.get(
       '$BASE_URL/recipes',

@@ -7,7 +7,7 @@ import './models/recipe.dart';
 import './widgets/menu_page/screen.dart';
 import './widgets/recipes_screen/screen.dart';
 import './widgets/ingredients_screen/screen.dart';
-import './widgets/cart_screen/screen.dart';
+import './widgets/shopping_list_screen/screen.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 import './widgets/menu_page/page.dart';
 import './providers/ingredients_provider.dart';
@@ -80,7 +80,19 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ListTile(
-                title: Text('Item 1'),
+                leading: Icon(Icons.settings),
+                title: Text('Settings'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text('Info'),
                 onTap: () {
                   // Update the state of the app
                   // ...
@@ -89,7 +101,8 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                title: Text('Item 2'),
+                title: Text('v.1.0.0',
+                style: TextStyle(color: Colors.black38),),
                 onTap: () {
                   // Update the state of the app
                   // ...
@@ -126,11 +139,11 @@ class _HomePageState extends State<HomePage> {
         BottomNavigationBarItem(
             icon: Icon(Icons.calendar_view_day), title: Text('Menu')),
         BottomNavigationBarItem(
-            icon: Icon(Icons.receipt), title: Text('Recipes')),
+            icon: Icon(Icons.restaurant), title: Text('Recipes')),
         //BottomNavigationBarItem(
         //    icon: Icon(Icons.category), title: Text('Ingredients')),
         BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart), title: Text('Cart')),
+            icon: Icon(Icons.receipt), title: Text('Shop. List')),
       ],
     );
   }
