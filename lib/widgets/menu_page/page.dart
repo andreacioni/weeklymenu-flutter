@@ -83,7 +83,7 @@ class _MenuPageState extends State<MenuPage> {
         Container(
           width: double.infinity,
           child: Text(
-            'No menu for this day',
+            'No Menu Defined Here',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 25,

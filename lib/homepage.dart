@@ -11,6 +11,7 @@ import './widgets/shopping_list_screen/screen.dart';
 import './widgets/add_recipe_modal/add_recipe_to_menu_modal.dart';
 import './widgets/menu_page/page.dart';
 import './providers/ingredients_provider.dart';
+import './providers/shopping_list_provider.dart';
 import './providers/recipes_provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,12 +26,13 @@ class _HomePageState extends State<HomePage> {
 
   bool _ingredientLoaded = false;
   bool _recipesLoaded = false;
+  bool _shoppingListLoaded = false;
 
   final List<Widget> _screens = [
     MenuScreen(),
     RecipesScreen(),
     //IngredientsScreen(),
-    CartScreen(),
+    ShoppingListScreen(),
   ];
   int _activeScreenIndex = 0;
 
@@ -57,7 +59,7 @@ class _HomePageState extends State<HomePage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: _buildBottomAppBar(context),
         body: RefreshIndicator(
-          child: (!_recipesLoaded || !_ingredientLoaded)
+          child: (!_recipesLoaded || !_ingredientLoaded || !_shoppingListLoaded)
               ? Center(
                   child: CircularProgressIndicator(),
                 )
@@ -128,6 +130,9 @@ class _HomePageState extends State<HomePage> {
     await Provider.of<RecipesProvider>(context, listen: false)
         .fetchRecipes()
         .then((_) => setState(() => _recipesLoaded = true));
+    await Provider.of<ShoppingListProvider>(context, listen: false)
+        .fetchShoppingListItems()
+        .then((_) => setState(() => _shoppingListLoaded = true));
   }
 
   BottomNavigationBar _buildBottomAppBar(BuildContext context) {

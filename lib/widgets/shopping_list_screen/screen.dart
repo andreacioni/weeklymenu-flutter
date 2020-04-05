@@ -2,31 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../presentation/custom_icons_icons.dart';
-import '../../models/shopping_list_item.dart';
+import './shopping_list_tile.dart';
+import '../../models/shopping_list.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../app_bar.dart';
 
-class CartScreen extends StatefulWidget {
+class ShoppingListScreen extends StatefulWidget {
 
   @override
-  _CartScreenState createState() => _CartScreenState();
+  _ShoppingListScreenState createState() => _ShoppingListScreenState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class _ShoppingListScreenState extends State<ShoppingListScreen> {
+
+  bool _insertNewElementMode = false;
+
   @override
   Widget build(BuildContext context) {
     
     final List<ShoppingListItem> shopItems = Provider.of<ShoppingListProvider>(context).getShoppingItems;
+    ShoppingListItem newItem;
+
+    if(_insertNewElementMode){
+      //Creating a placeholder for the new item
+      newItem = ShoppingListItem();
+    }
+    
     return Column(
       children: <Widget>[
         _buildAppBar(context),
         if(shopItems.isEmpty)
         _buildNoElementsPage(),
+        if(shopItems.isNotEmpty && !_insertNewElementMode)
+        _buildShoppingListItemList(shopItems),
+        if(shopItems.isNotEmpty && _insertNewElementMode)
+        _buildShoppingListItemList([newItem, ...shopItems]),
       ],
     );
   }
 
-  Expanded _buildNoElementsPage() {
+  Widget _buildShoppingListItemList(List<ShoppingListItem> items) {
+    return ListView.builder(itemBuilder: (_, index) => ShoppingListItemTile(items[index]), itemCount: items.length);
+  }
+
+  Widget _buildNoElementsPage() {
     final _textColor = Colors.grey.shade300;
     return Expanded(
         child: Column(
@@ -64,7 +83,6 @@ class _CartScreenState extends State<CartScreen> {
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
-      actions: const <Widget>[],
     );
   }
 }

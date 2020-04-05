@@ -1,37 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 import '../datasource/network.dart';
-import '../models/shopping_list_item.dart';
+import '../models/shopping_list.dart';
 
 class ShoppingListProvider with ChangeNotifier {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
-  List<ShoppingListItem> _shoppingListItems = [];
+  ShoppingList _shoppingList;
 
-  List<ShoppingListItem> get getCartItems => [..._shoppingListItems];
+  List<ShoppingListItem> get getCartItems => [..._shoppingList.items];
 
   Future<void> fetchShoppingListItems() async {
     //TODO handle pagination
-    final jsonPage = await _restApi.getIngredients();
-    _shoppingListItems = jsonPage['results']
-        .map((jsonMenu) => ShoppingListItem.fromJSON(jsonMenu))
-        .toList()
-        .cast<ShoppingListItem>();
-
-        notifyListeners();
+    final jsonPage = await _restApi.getShoppingList();
+    _shoppingList = ShoppingList.fromJSON(jsonPage['results'][0]);
+  
+    notifyListeners();
   }
 
-  List<ShoppingListItem> get getShoppingItems => [..._shoppingListItems];
+  List<ShoppingListItem> get getShoppingItems => [..._shoppingList.items];
 
   ShoppingListItem getById(String itemId) =>
-      _shoppingListItems.firstWhere((ing) => ing.item == itemId, orElse: () => null);
+      _shoppingList.items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
 
-  Future<ShoppingListItem> addIngredient(ShoppingListItem shoppingListItem) async {
+  Future<ShoppingListItem> addShoppingListItem(String shopListId, ShoppingListItem shoppingListItem) async {
     var resp = await _restApi.createIngredient(shoppingListItem.toJSON());
-    var newShoppingListItem = ShoppingListItem.fromJSON(resp);
+    var newShoppingListItem = ShoppingListItem.fromJSON(shopListId, resp);
     
-    _shoppingListItems.add(newShoppingListItem);
+    _shoppingList.items.add(newShoppingListItem);
     notifyListeners();
 
     return newShoppingListItem;
