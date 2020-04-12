@@ -6,11 +6,13 @@ import '../../../providers/ingredients_provider.dart';
 import '../../../models/ingredient.dart';
 
 class IngredientSelectionTextField extends StatefulWidget {
-  final Function onIngredientSelected;
+  final Function(Ingredient) onIngredientSelected;
+  final Function(String) onSubmitted;
   final Ingredient value;
   final bool enabled;
+  final bool autofocus;
 
-  IngredientSelectionTextField({@required this.onIngredientSelected, this.value, this.enabled = true});
+  IngredientSelectionTextField({@required this.onIngredientSelected, this.onSubmitted, this.value, this.enabled = true, this.autofocus=false});
 
   @override
   _IngredientSelectionTextFieldState createState() =>
@@ -26,20 +28,25 @@ class _IngredientSelectionTextFieldState
   Widget build(BuildContext context) {
     if(widget.value != null) {
       _typeAheadController.text = widget.value.name;
-    } 
-    
+    }
+
     return Row(
       children: <Widget>[
         Expanded(
           child: TypeAheadField<Ingredient>(
             direction: AxisDirection.down,
             textFieldConfiguration: TextFieldConfiguration(
+              autofocus: widget.autofocus,
               enabled: widget.enabled,
               controller: _typeAheadController,
               decoration: InputDecoration(
                 hintText: "Ingredient",
                 enabled: widget.enabled,
+                border: InputBorder.none
               ),
+              onSubmitted: (text) {
+
+              }
             ),
             suggestionsCallback: (pattern) async {
               return getIngredientsSuggestion(pattern);
@@ -67,6 +74,7 @@ class _IngredientSelectionTextFieldState
 
               widget.onIngredientSelected(selectedIngredient);
             },
+
           ),
         ),
       ],

@@ -60,9 +60,7 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: _buildBottomAppBar(context),
         body: RefreshIndicator(
           child: (!_recipesLoaded || !_ingredientLoaded || !_shoppingListLoaded)
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? _buildCircularLoadingIndicator()
               : _screens[_activeScreenIndex],
           onRefresh: _fetchAndSetData,
           displacement: 90,
@@ -117,6 +115,12 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Center _buildCircularLoadingIndicator() {
+    return Center(
+                child: CircularProgressIndicator(),
+              );
   }
 
   void _hadleAddActionPasedOnScreen() {

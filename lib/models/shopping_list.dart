@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class ShoppingList with ChangeNotifier  {
   String id;
   List<ShoppingListItem> items;
@@ -38,19 +37,21 @@ class ShoppingList with ChangeNotifier  {
 
 class ShoppingListItem with ChangeNotifier  {
   String item;
-  String quantity;
+  int quantity;
   String unitOfMeasure;
   String supermarketSection;
   bool checked;
+  int listPosition;
 
-  ShoppingListItem({this.item, this.supermarketSection, this.checked});
+  ShoppingListItem({this.item, this.supermarketSection, this.checked, this.quantity, this.unitOfMeasure, this.listPosition});
 
 
   factory ShoppingListItem.fromJSON(String shopListId, Map<String, dynamic> jsonMap) {
     return ShoppingListItem(
       item: jsonMap['item'],
       supermarketSection: jsonMap['supermarketSection'],
-      checked: jsonMap['checked'],
+      checked: jsonMap['checked'] != null ? jsonMap['checked'] : false,
+      listPosition: jsonMap['listPosition'] != null ? jsonMap['listPosition'] : 0
     );
   }
 

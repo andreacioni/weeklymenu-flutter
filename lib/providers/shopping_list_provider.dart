@@ -24,12 +24,14 @@ class ShoppingListProvider with ChangeNotifier {
       _shoppingList.items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
 
   Future<ShoppingListItem> addShoppingListItem(String shopListId, ShoppingListItem shoppingListItem) async {
-    var resp = await _restApi.createIngredient(shoppingListItem.toJSON());
-    var newShoppingListItem = ShoppingListItem.fromJSON(shopListId, resp);
+    //var resp = await _restApi.createIngredient(shoppingListItem.toJSON());
+    //var newShoppingListItem = ShoppingListItem.fromJSON(shopListId, resp);
     
-    _shoppingList.items.add(newShoppingListItem);
+    //_shoppingList.items.add(newShoppingListItem);
+    _shoppingList.items.add(shoppingListItem);
     notifyListeners();
 
-    return newShoppingListItem;
+    //return newShoppingListItem;
+    return shoppingListItem;
   }
 }
