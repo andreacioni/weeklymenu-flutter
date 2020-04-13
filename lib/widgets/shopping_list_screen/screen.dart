@@ -14,16 +14,6 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  final List<ShoppingListItem> shopItems = <ShoppingListItem>[
-    ShoppingListItem(
-      item: '5e761b25189dd19a35cc0ae7',
-      checked: false,
-      quantity: 200,
-    ),
-    ShoppingListItem(
-        item: '5e761b2d86315b0cfabab843', checked: true, quantity: 10)
-  ];
-
   final FocusNode _focusNode = FocusNode();
 
   bool _newItemMode;
@@ -36,24 +26,24 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //final List<ShoppingListItem> shopItems =
-    //    Provider.of<ShoppingListProvider>(context).getShoppingItems;
+    final shoppingListProvider = Provider.of<ShoppingListProvider>(context);
 
-    final checkedItems = shopItems.where((item) => item.checked).toList();
-    final uncheckItems = shopItems.where((item) => !item.checked).toList();
+    final allItems = shoppingListProvider.getCartItems;
+    final checkedItems = shoppingListProvider.getCheckedItems;
+    final uncheckItems = shoppingListProvider.getUncheckedItems;
 
     return CustomScrollView(
       slivers: <Widget>[
         _buildAppBar(context),
-        if (shopItems.isEmpty)
-          _buildNoElementsPage(),
+        //if (allItems.isEmpty)
+        //  _buildNoElementsPage(),
         if (_newItemMode)
           _buildAddItem(),
         //_buildFloatingHeader('Unckecked'),
-        if (shopItems.isNotEmpty)
+        if (allItems.isNotEmpty)
           _buildUncheckedList(uncheckItems),
         //_buildFloatingHeader('Checked'),
-        if (shopItems.isNotEmpty)
+        if (allItems.isNotEmpty)
           _buildCheckedList(checkedItems),
       ],
     );
@@ -75,6 +65,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   });
                 }
               },
+              onShoppingItemSelected: (shopItem) {
+                setState(() {
+                  shopItem.checked = false;
+                });
+              },
             ),
           ),
           Divider()
@@ -91,6 +86,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           key: ValueKey(items[index].item),
           onCheckChange: (newValue) =>
               setState(() => items[index].checked = newValue),
+          onDismiss: (_) => _deleteElementFromList(items[index]),
         ),
         childCount: items.length,
       ),
@@ -105,6 +101,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 key: ValueKey(items[index].item),
                 onCheckChange: (newValue) =>
                     setState(() => items[index].checked = newValue),
+                onDismiss: (_) => _deleteElementFromList(items[index]),
               ),
           childCount: items.length),
     );
@@ -160,4 +157,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       ],
     );
   }
+
+  void _deleteElementFromList(ShoppingListItem item) {}
 }

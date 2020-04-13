@@ -7,12 +7,17 @@ import '../../models/ingredient.dart';
 import './item_suggestion_text_field.dart';
 
 class ShoppingListItemTile extends StatefulWidget {
+  final Key key;
   final ShoppingListItem shoppingListItem;
   final Function(bool) onCheckChange;
+  final Function(DismissDirection) onDismiss;
 
-  ShoppingListItemTile(this.shoppingListItem,
-      {Key key, this.onCheckChange})
-      : super(key: key);
+  ShoppingListItemTile(
+    this.shoppingListItem, {
+    this.key,
+    this.onCheckChange,
+    this.onDismiss,
+  }) : super(key: key);
 
   @override
   _ShoppingListItemTileState createState() => _ShoppingListItemTileState();
@@ -42,26 +47,31 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        ListTile(
-          leading: Icon(Icons.menu),
-          trailing: _editingMode == true
-              ? IconButton(icon: Icon(Icons.edit), onPressed: null)
-              : Checkbox(
-                  value: widget.shoppingListItem.checked,
-                  onChanged: onCheckChange,
-                ),
-          title: ItemSuggestionTextField(
-            value: _ingredient,
-            onSuggestionSelected: _onSuggestionSelected,
-            onSubmitted: _getOrCreateIngredientByName,
-            onTap: _onTap,
-            onFocusChanged: _onFocusChanged,
+    return Dismissible(
+      key: widget.key,
+      onDismissed: widget.onDismiss,
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.drag_handle),
+            trailing: _editingMode == true
+                ? IconButton(icon: Icon(Icons.edit), onPressed: null)
+                : Checkbox(
+                    value: widget.shoppingListItem.checked,
+                    onChanged: onCheckChange,
+                  ),
+            title: ItemSuggestionTextField(
+              value: _ingredient,
+              showShoppingItemSuggestions: false,
+              onIngredientSelected: _onIngredientSelected,
+              onSubmitted: _getOrCreateIngredientByName,
+              onTap: _onTap,
+              onFocusChanged: _onFocusChanged,
+            ),
           ),
-        ),
-        Divider()
-      ],
+          Divider()
+        ],
+      ),
     );
   }
 
@@ -79,7 +89,7 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
     });
   }
 
-  void _onSuggestionSelected(Ingredient newIngredient) {
+  void _onIngredientSelected(Ingredient newIngredient) {
     setState(() {
       _ingredient = newIngredient;
       _editingMode = false;
