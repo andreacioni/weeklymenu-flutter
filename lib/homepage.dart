@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        //appBar: AppBar(),
         floatingActionButton: FloatingActionButton(
           onPressed: _hadleAddActionPasedOnScreen,
           child: Icon(Icons.add),

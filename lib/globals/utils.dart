@@ -22,3 +22,9 @@ bool equalsIgnoreCase(String string1, String string2) {
 bool stringContains(String text, String pattern) {
   return text.toLowerCase().trim().contains(pattern.trim().toLowerCase());
 }
+
+void removeNullEntriesFromMap(Map map) {
+  if (map != null) {
+    map.removeWhere((k,v) => v == null);
+  }
+}

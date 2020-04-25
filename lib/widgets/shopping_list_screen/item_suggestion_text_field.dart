@@ -108,19 +108,26 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     List<dynamic> suggestions = [];
 
     if (widget.showShoppingItemSuggestions) {
-      final checkedItems = Provider.of<ShoppingListProvider>(
+      final shoppingList = Provider.of<ShoppingList>(
         context,
         listen: false,
-      ).getCheckedItems.where((item) {
+      );
+      final checkedItems = shoppingList.getCheckedItems.where((item) {
         var ing = ingredientProvider.getById(item.item);
         return ing != null ? stringContains(ing.name, pattern) : false;
       });
-      suggestions.addAll(checkedItems);
-    }
 
-    suggestions.addAll(availableIngredients
-        .where((ing) => stringContains(ing.name, pattern))
-        .toList());
+      suggestions.addAll(checkedItems);
+      suggestions.addAll(availableIngredients
+          .where((ing) =>
+              stringContains(ing.name, pattern) &&
+              shoppingList.containsItem(ing.id) == false)
+          .toList());
+    } else {
+      suggestions.addAll(availableIngredients
+          .where((ing) => stringContains(ing.name, pattern))
+          .toList());
+    }
 
     return suggestions;
   }

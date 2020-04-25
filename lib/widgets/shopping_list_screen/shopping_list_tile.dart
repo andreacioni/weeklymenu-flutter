@@ -65,11 +65,13 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
               showShoppingItemSuggestions: false,
               onIngredientSelected: _onIngredientSelected,
               onSubmitted: _getOrCreateIngredientByName,
-              onTap: _onTap,
+              //onTap: _onTap,
               onFocusChanged: _onFocusChanged,
             ),
           ),
-          Divider()
+          Divider(
+            height: 0,
+          )
         ],
       ),
     );
@@ -80,12 +82,16 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
       setState(() {
         _editingMode = false;
       });
+    } else {
+      setState(() {
+        _editingMode = true;
+      });
     }
   }
 
   void _onTap() {
     setState(() {
-      _editingMode = true;
+     _editingMode = true;
     });
   }
 

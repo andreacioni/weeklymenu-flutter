@@ -13,7 +13,7 @@ class RecipesProvider with ChangeNotifier {
     //TODO handle pagination
     final jsonPage = await _restApi.getRecipes();
     _recipes = jsonPage['results']
-        .map((jsonMenu) => Recipe.fromJSON(jsonMenu))
+        .map((jsonMenu) => Recipe.fromJson(jsonMenu))
         .toList()
         .cast<Recipe>();
 

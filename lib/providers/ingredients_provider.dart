@@ -15,7 +15,7 @@ class IngredientsProvider with ChangeNotifier {
     //TODO handle pagination
     final jsonPage = await _restApi.getIngredients();
     _ingredients = jsonPage['results']
-        .map((jsonMenu) => Ingredient.fromJSON(jsonMenu))
+        .map((jsonMenu) => Ingredient.fromJson(jsonMenu))
         .toList()
         .cast<Ingredient>();
     
@@ -27,7 +27,7 @@ class IngredientsProvider with ChangeNotifier {
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
     var resp = await _restApi.createIngredient(ingredient.toJSON());
-    var newIngredient = Ingredient.fromJSON(resp);
+    var newIngredient = Ingredient.fromJson(resp);
     
     _ingredients.add(newIngredient);
     notifyListeners();

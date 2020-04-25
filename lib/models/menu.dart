@@ -13,7 +13,7 @@ class Menu {
 
   Menu({this.id, this.date, this.meal, this.recipes});
 
-  factory Menu.fromJSON(Map<dynamic, dynamic> jsonMap) {
+  factory Menu.fromJson(Map<dynamic, dynamic> jsonMap) {
     return Menu(
       id: jsonMap['_id'],
       date: _dateParser.parse(jsonMap['date']),

@@ -17,7 +17,7 @@ class MenusProvider with ChangeNotifier {
     //TODO handle pagination
     final jsonPage = await _restApi.getMenusByDay(_dateParser.format(day));
     _dayToMenus[day] = jsonPage['results']
-        .map((jsonMenu) => Menu.fromJSON(jsonMenu))
+        .map((jsonMenu) => Menu.fromJson(jsonMenu))
         .toList()
         .cast<Menu>();
   }

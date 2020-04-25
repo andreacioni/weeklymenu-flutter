@@ -48,7 +48,7 @@ class Recipe with ChangeNotifier {
       this.imgUrl,
       this.tags});
 
-  factory Recipe.fromJSON(Map<String, dynamic> jsonMap) {
+  factory Recipe.fromJson(Map<String, dynamic> jsonMap) {
     return Recipe(
         id: jsonMap['_id'],
         name: jsonMap['name'],
@@ -62,7 +62,7 @@ class Recipe with ChangeNotifier {
         estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
         ingredients: jsonMap['ingredients'] != null
             ? jsonMap['ingredients']
-                .map((recipeIngredientMap) => RecipeIngredient.fromJSON(
+                .map((recipeIngredientMap) => RecipeIngredient.fromJson(
                     jsonMap['_id'], recipeIngredientMap))
                 .toList()
                 .cast<RecipeIngredient>()
@@ -231,7 +231,7 @@ class RecipeIngredient with ChangeNotifier {
     }
   }
 
-  factory RecipeIngredient.fromJSON(
+  factory RecipeIngredient.fromJson(
       String recId, Map<String, dynamic> jsonMap) {
     return RecipeIngredient(
       recipeId: recId,

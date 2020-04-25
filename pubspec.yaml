@@ -33,6 +33,7 @@ dependencies:
   autocomplete_textfield: ^1.7.3
   provider: ^4.0.4
   uuid: ^2.0.4
+  json_annotation: ^3.0.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -44,6 +45,7 @@ dev_dependencies:
     sdk: flutter
   retrofit_generator: any
   build_runner: any
+  json_serializable: ^3.3.0
 
 
 # For information on the generic Dart part of this file, see the

@@ -6,7 +6,7 @@ class Ingredient with ChangeNotifier {
 
   Ingredient({this.id, this.name});
 
-  factory Ingredient.fromJSON(Map<String, dynamic> jsonMap) {
+  factory Ingredient.fromJson(Map<String, dynamic> jsonMap) {
     return Ingredient(
       id: jsonMap['_id'],
       name: jsonMap['name'],
