@@ -81,6 +81,16 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ListTile(
+                leading: Icon(Icons.fastfood),
+                title: Text('Ingredients'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('Settings'),
                 onTap: () {

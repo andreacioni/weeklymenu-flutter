@@ -32,20 +32,17 @@ class ShoppingList with ChangeNotifier {
   ShoppingListItem getItemById(String itemId) =>
       items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
 
-  Future<ShoppingListItem> addShoppingListItem(
+  Future<void> addShoppingListItem(
       ShoppingListItem shoppingListItem) async {
-    var resp =
-        await _restApi.addShoppingListItem(id, shoppingListItem.toJSON());
-    var newShoppingListItem = ShoppingListItem.fromJson(resp);
-
-    items.add(newShoppingListItem);
+    items.add(shoppingListItem);
     notifyListeners();
-
-    return newShoppingListItem;
+    
+    _restApi.addShoppingListItem(id, shoppingListItem.toJSON());
   }
 
-  Future<void> removeItemFromList(ShoppingListItem item) async {
-    _restApi.deleteShoppingItemFromList(id, item.item);
+  Future<void> removeItemFromList(ShoppingListItem toBeRemoved) async {
+    items.removeWhere((item) => item.item == toBeRemoved.item);
+    _restApi.deleteShoppingItemFromList(id, toBeRemoved.item);
     notifyListeners();
   }
 
