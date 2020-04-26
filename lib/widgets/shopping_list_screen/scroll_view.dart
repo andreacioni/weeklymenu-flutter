@@ -109,6 +109,7 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
           delegate: SliverChildBuilderDelegate(
             (_, index) => ShoppingListItemTile(
               checkItems[index],
+              editable: false,
               key: ValueKey(checkItems[index].item),
               onCheckChange: (newValue) => shoppingList.setChecked(
                 checkItems[index],
@@ -131,6 +132,7 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
             (_, index) => ShoppingListItemTile(
                   uncheckItems[index],
                   key: ValueKey(uncheckItems[index].item),
+                  editable: false,
                   onCheckChange: (newValue) => shoppingList.setChecked(
                     uncheckItems[index],
                     newValue,

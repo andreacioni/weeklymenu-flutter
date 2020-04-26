@@ -19,6 +19,7 @@ class ItemSuggestionTextField extends StatefulWidget {
   final void Function(dynamic) onSubmitted;
   final Function onTap;
   final Function(bool) onFocusChanged;
+  final bool enabled;
 
   ItemSuggestionTextField({
     this.value,
@@ -31,6 +32,7 @@ class ItemSuggestionTextField extends StatefulWidget {
     this.hintText,
     this.focusNode,
     this.autofocus = false,
+    this.enabled = true,
   });
 
   @override
@@ -62,6 +64,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     return TypeAheadField<dynamic>(
       textFieldConfiguration: TextFieldConfiguration(
         controller: textEditingController,
+        enabled: widget.enabled,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: widget.hintText,

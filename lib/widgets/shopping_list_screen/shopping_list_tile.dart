@@ -11,12 +11,14 @@ class ShoppingListItemTile extends StatefulWidget {
   final ShoppingListItem shoppingListItem;
   final Function(bool) onCheckChange;
   final Function(DismissDirection) onDismiss;
+  final bool editable;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
     this.key,
     this.onCheckChange,
     this.onDismiss,
+    this.editable = true,
   }) : super(key: key);
 
   @override
@@ -62,6 +64,7 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
                   ),
             title: ItemSuggestionTextField(
               value: _ingredient,
+              enabled: widget.editable,
               showShoppingItemSuggestions: false,
               onIngredientSelected: _onIngredientSelected,
               onSubmitted: _getOrCreateIngredientByName,
