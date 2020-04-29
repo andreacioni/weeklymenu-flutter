@@ -12,8 +12,6 @@ class ShoppingListScrollView extends StatefulWidget {
 }
 
 class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
-  final FocusNode _focusNode = FocusNode();
-
   bool _newItemMode;
   bool _expandChecked;
 
@@ -30,20 +28,32 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
 
     final allItems = shoppingList.getAllItems;
 
-    return CustomScrollView(
-      slivers: <Widget>[
-        _buildAppBar(context),
-        //if (allItems.isEmpty)
-        //  _buildNoElementsPage(),
-        if (_newItemMode)
-          _buildAddItem(shoppingList),
-        //_buildFloatingHeader('Unckecked'),
-        if (allItems.isNotEmpty)
-          ..._buildUncheckedList(shoppingList),
-        //_buildFloatingHeader('Checked'),
-        if (allItems.isNotEmpty)
-          ..._buildCheckedList(shoppingList),
-      ],
+    return Scaffold(
+      floatingActionButton: _newItemMode
+          ? null
+          : FloatingActionButton(
+              onPressed: _newItemMode == false
+                  ? () => setState(() {
+                        _newItemMode = true;
+                      })
+                  : null,
+              child: Icon(Icons.add),
+            ),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          _buildAppBar(context),
+          //if (allItems.isEmpty)
+          //  _buildNoElementsPage(),
+          if (_newItemMode)
+            _buildAddItem(shoppingList),
+          //_buildFloatingHeader('Unckecked'),
+          if (allItems.isNotEmpty)
+            ..._buildUncheckedList(shoppingList),
+          //_buildFloatingHeader('Checked'),
+          if (allItems.isNotEmpty)
+            ..._buildCheckedList(shoppingList),
+        ],
+      ),
     );
   }
 
@@ -184,20 +194,11 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: _newItemMode == false
-              ? () => setState(() {
-                    _newItemMode = true;
-                  })
-              : null,
-        )
-      ],
     );
   }
 
-  void _createShopItemForIngredient(ShoppingList shoppingList,Ingredient ing) {
-    shoppingList.addShoppingListItem(ShoppingListItem(item: ing.id, checked: false));
+  void _createShopItemForIngredient(ShoppingList shoppingList, Ingredient ing) {
+    shoppingList
+        .addShoppingListItem(ShoppingListItem(item: ing.id, checked: false));
   }
 }
