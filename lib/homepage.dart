@@ -43,12 +43,6 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        //appBar: AppBar(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _hadleAddActionBasedOnActiveScreen,
-          child: Icon(Icons.add),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: _buildBottomAppBar(context),
         body: RefreshIndicator(
           child: (!_recipesLoaded || !_ingredientLoaded || !_shoppingListLoaded)
@@ -70,9 +64,7 @@ class _HomePageState extends State<HomePage> {
       child: CircularProgressIndicator(),
     );
   }
-
-  void _hadleAddActionBasedOnActiveScreen() {}
-
+  
   Future<void> _fetchAndSetData() async {
     await Provider.of<IngredientsProvider>(context, listen: false)
         .fetchIngredients()

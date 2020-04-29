@@ -30,20 +30,21 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        _buildAppBar(context),
-        Expanded(
-          child: Container(
-            padding: EdgeInsets.all(10),
-            child: PageView.builder(
-              itemBuilder: (ctx, index) => MenuPage(_day),
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-            ),
-          ),
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.add),
         ),
-      ],
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      body: Container(
+        padding: EdgeInsets.all(10),
+        child: PageView.builder(
+          itemBuilder: (ctx, index) => MenuPage(_day),
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+        ),
+      ),
     );
   }
 

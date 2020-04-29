@@ -10,7 +10,7 @@ import '../../presentation/custom_icons_icons.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({Key key}) : super(key: key);
-  
+
   @override
   _RecipesScreenState createState() => _RecipesScreenState();
 }
@@ -35,16 +35,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
     var body = _buildScreenBody(recipes);
 
-    return Column(
-      children: <Widget>[
-        _buildAppBar(context),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: body,
-          ),
-        ),
-      ],
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: body,
+      ),
     );
   }
 
