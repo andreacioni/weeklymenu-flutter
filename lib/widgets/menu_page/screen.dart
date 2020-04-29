@@ -7,7 +7,7 @@ import '../app_bar.dart';
 import './page.dart';
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen();
+  const MenuScreen({Key key}) : super(key: key);
 
   @override
   _MenuScreenState createState() => _MenuScreenState();

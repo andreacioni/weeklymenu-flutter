@@ -9,6 +9,8 @@ import '../menu_page/recipe_title.dart';
 import '../../presentation/custom_icons_icons.dart';
 
 class RecipesScreen extends StatefulWidget {
+  const RecipesScreen({Key key}) : super(key: key);
+  
   @override
   _RecipesScreenState createState() => _RecipesScreenState();
 }
