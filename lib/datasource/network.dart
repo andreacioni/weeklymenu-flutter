@@ -110,7 +110,8 @@ class NetworkDatasource {
     return resp.data;
   }
 
-  Future<Map<String, dynamic>> createIngredient(Map<String, dynamic> ingredient) async {
+  Future<Map<String, dynamic>> createIngredient(
+      Map<String, dynamic> ingredient) async {
     var resp = await _dio.post(
       '$BASE_URL/ingredients',
       data: ingredient,
@@ -119,38 +120,40 @@ class NetworkDatasource {
     return resp.data;
   }
 
-  Future<void> deleteShoppingItemFromList(String shoppingListId, String itemId) async {
-    var resp = await _dio.delete(
-      '$BASE_URL/shopping-lists/$shoppingListId/items/$itemId'
-    );
+  Future<void> deleteShoppingItemFromList(
+      String shoppingListId, String itemId) async {
+    var resp = await _dio
+        .delete('$BASE_URL/shopping-lists/$shoppingListId/items/$itemId');
 
     return resp.data;
   }
 
-  Future<Map<String, dynamic>> addShoppingListItem(String shoppingListId, Map<String, dynamic> jsonMap) async {
-    var resp = await _dio.post(
-      '$BASE_URL/shopping-lists/$shoppingListId/items',
-      data: jsonMap
-    );
+  Future<Map<String, dynamic>> addShoppingListItem(
+      String shoppingListId, Map<String, dynamic> jsonMap) async {
+    var resp = await _dio.post('$BASE_URL/shopping-lists/$shoppingListId/items',
+        data: jsonMap);
 
     return resp.data;
   }
 
-  Future<Map<String, dynamic>> patchShoppingList(String shoppingListId, Map<String, dynamic> jsonMap) async {
+  Future<Map<String, dynamic>> patchShoppingList(
+      String shoppingListId, Map<String, dynamic> jsonMap) async {
+    var resp = await _dio.patch('$BASE_URL/shopping-lists/$shoppingListId',
+        data: jsonMap);
+
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> patchShoppingListItem(String shoppingListId,
+      String itemId, Map<String, dynamic> jsonMap) async {
     var resp = await _dio.patch(
-      '$BASE_URL/shopping-lists/$shoppingListId',
-      data: jsonMap
-    );
+        '$BASE_URL/shopping-lists/$shoppingListId/items/$itemId',
+        data: jsonMap);
 
     return resp.data;
   }
 
-  Future<Map<String, dynamic>> patchShoppingListItem(String shoppingListId, String itemId, Map<String, dynamic> jsonMap) async {
-    var resp = await _dio.patch(
-      '$BASE_URL/shopping-lists/$shoppingListId/items/$itemId',
-      data: jsonMap
-    );
-
-    return resp.data;
+  Future<void> deleteIngredient(String ingredientId) async {
+    await _dio.delete('$BASE_URL/ingredients/$ingredientId');
   }
 }

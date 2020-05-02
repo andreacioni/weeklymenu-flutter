@@ -34,4 +34,11 @@ class IngredientsProvider with ChangeNotifier {
 
     return newIngredient;
   }
+
+  Future<void> deleteIngredient(Ingredient ingredient) async {
+    _ingredients.removeWhere((ing) => ing.id == ingredient.id);
+    notifyListeners();
+
+    _restApi.deleteIngredient(ingredient.id);
+  }
 }
