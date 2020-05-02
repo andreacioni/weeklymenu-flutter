@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
+import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import './shopping_list_tile.dart';
 import '../../models/shopping_list.dart';
@@ -14,11 +15,13 @@ class ShoppingListScrollView extends StatefulWidget {
 class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
   bool _newItemMode;
   bool _expandChecked;
+  bool _loading;
 
   @override
   void initState() {
     _expandChecked = true;
     _newItemMode = false;
+    _loading = false;
     super.initState();
   }
 
@@ -44,6 +47,8 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
           _buildAppBar(context),
           //if (allItems.isEmpty)
           //  _buildNoElementsPage(),
+          if (_loading)
+            _buildLoadingItem(),
           if (_newItemMode)
             _buildAddItem(shoppingList),
           //_buildFloatingHeader('Unckecked'),
@@ -52,6 +57,23 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
           //_buildFloatingHeader('Checked'),
           if (allItems.isNotEmpty)
             ..._buildCheckedList(shoppingList),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingItem() {
+    return SliverList(
+      delegate: SliverChildListDelegate.fixed(
+        <Widget>[
+          ListTile(
+            title: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          Divider(
+            height: 0,
+          )
         ],
       ),
     );
@@ -73,6 +95,8 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
                   });
                 }
               },
+              onSubmitted: (ingredientName) =>
+                  _createNewIngredientAndShopItem(shoppingList, ingredientName),
               onShoppingItemSelected: (shopItem) => shoppingList.setChecked(
                 shopItem,
                 false,
@@ -200,5 +224,16 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
   void _createShopItemForIngredient(ShoppingList shoppingList, Ingredient ing) {
     shoppingList
         .addShoppingListItem(ShoppingListItem(item: ing.id, checked: false));
+  }
+
+  void _createNewIngredientAndShopItem(
+      ShoppingList shoppingList, String ingredientName) async {
+    IngredientsProvider ingredientsProvider =
+        Provider.of<IngredientsProvider>(context, listen: false);
+    setState(() => _loading = true);
+    Ingredient newIngredient = await ingredientsProvider
+        .addIngredient(Ingredient(name: ingredientName));
+    setState(() => _loading = false);
+    _createShopItemForIngredient(shoppingList, newIngredient);
   }
 }
