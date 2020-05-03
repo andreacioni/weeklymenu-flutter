@@ -1,44 +1,60 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-import './ingredient.dart';
 import '../datasource/network.dart';
 
+part 'recipe.g.dart';
+
+@JsonSerializable()
 class Recipe with ChangeNotifier {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
+  @JsonKey(name: '_id')
   String id;
-
   String name;
-  String description;
-  int rating;
-  int cost;
-  String difficulty;
-  List<int> availabilityMonths;
 
+  @JsonKey(includeIfNull: false)
+  String description;
+  @JsonKey(includeIfNull: false)
+  int rating;
+  @JsonKey(includeIfNull: false)
+  int cost;
+  @JsonKey(includeIfNull: false)
+  String difficulty;
+  @JsonKey(includeIfNull: false)
+  List<int> availabilityMonths;
+  @JsonKey(includeIfNull: false)
   int servs;
+  @JsonKey(includeIfNull: false)
   int estimatedCookingTime;
+  @JsonKey(includeIfNull: false)
   int estimatedPreparationTime;
 
+  @JsonKey(includeIfNull: false, defaultValue: [])
   List<RecipeIngredient> ingredients;
 
+  @JsonKey(includeIfNull: false)
   String preparation;
+  @JsonKey(includeIfNull: false)
   String note;
 
+  @JsonKey(includeIfNull: false)
   String imgUrl;
+  @JsonKey(includeIfNull: false)
   String recipeUrl;
+  @JsonKey(includeIfNull: false)
   List<String> tags;
 
+  @JsonKey(ignore: true)
   String owner;
 
   bool _edited = false;
 
   Recipe(
-      {@required this.id,
+      {this.id,
       this.name,
       this.description,
-      this.ingredients,
+      this.ingredients = const <RecipeIngredient>[],
       this.difficulty,
       this.rating = 0,
       this.cost = 0,
@@ -48,48 +64,9 @@ class Recipe with ChangeNotifier {
       this.imgUrl,
       this.tags});
 
-  factory Recipe.fromJson(Map<String, dynamic> jsonMap) {
-    return Recipe(
-        id: jsonMap['_id'],
-        name: jsonMap['name'],
-        description: jsonMap['description'],
-        servs: jsonMap['servs'],
-        rating: jsonMap['rating'],
-        cost: jsonMap['cost'],
-        difficulty: jsonMap['difficulty'],
-        imgUrl: jsonMap['imgUrl'],
-        estimatedCookingTime: jsonMap['estimatedCookingTime'],
-        estimatedPreparationTime: jsonMap['estimatedPreparationTime'],
-        ingredients: jsonMap['ingredients'] != null
-            ? jsonMap['ingredients']
-                .map((recipeIngredientMap) => RecipeIngredient.fromJson(
-                    jsonMap['_id'], recipeIngredientMap))
-                .toList()
-                .cast<RecipeIngredient>()
-            : [],
-        tags: jsonMap['tags'] != null ? jsonMap['tags'].cast<String>() : []);
-  }
+  factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
-  Map<String, dynamic> toJSON() {
-    return {
-      '_id': id,
-      'name': name,
-      'description': description,
-      'servs': servs,
-      'rating': rating,
-      'cost': cost,
-      'difficulty': difficulty,
-      'imgUrl': imgUrl,
-      'estimatedCookingTime': estimatedCookingTime,
-      'estimatedPreparationTime': estimatedPreparationTime,
-      'ingredients': ingredients != null
-          ? ingredients
-              .map((recipeIngredient) => recipeIngredient.toJSON())
-              .toList()
-          : [],
-      'tags': tags
-    };
-  }
+  Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
   void updateDifficulty(String newValue) {
     _edited = true;
@@ -191,7 +168,7 @@ class Recipe with ChangeNotifier {
   bool get isResourceEdited => _edited;
 
   Future<void> save() async {
-    await _restApi.patchRecipe(id, this.toJSON());
+    await _restApi.patchRecipe(id, this.toJson());
     _edited = false;
     ingredients.forEach((recipeIngredient) => recipeIngredient.save());
   }
@@ -204,24 +181,28 @@ class Recipe with ChangeNotifier {
   int get hashCode => id.hashCode;
 }
 
+@JsonSerializable()
 class RecipeIngredient with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
-
+  @JsonKey(ignore: true)
   String recipeId;
+
+  @JsonKey(name: 'ingredient')
   String ingredientId;
+
+  @JsonKey(includeIfNull: false)
   double quantity;
+  @JsonKey(includeIfNull: false)
   String unitOfMeasure;
+  @JsonKey(includeIfNull: false)
   bool freezed;
 
   bool _edited = false;
 
   RecipeIngredient(
-      {@required this.recipeId,
-      @required this.ingredientId,
+      {@required this.ingredientId,
       this.quantity = 0,
       this.unitOfMeasure,
-      this.freezed = false})
-      : assert(recipeId != null) {
+      this.freezed = false}) {
     if (quantity == null) {
       this.quantity = 0;
     }
@@ -231,29 +212,10 @@ class RecipeIngredient with ChangeNotifier {
     }
   }
 
-  factory RecipeIngredient.fromJson(
-      String recId, Map<String, dynamic> jsonMap) {
-    return RecipeIngredient(
-      recipeId: recId,
-      ingredientId: jsonMap['ingredient'],
-      quantity: jsonMap['quantity'],
-      unitOfMeasure: jsonMap['unitOfMeasure'],
-      freezed: jsonMap['freezed'],
-    );
-  }
+  factory RecipeIngredient.fromJson(Map<String, dynamic> json) =>
+      _$RecipeIngredientFromJson(json);
 
-  Map<String, dynamic> toJSON() {
-    final jsonMap = {
-      'quantity': quantity,
-      'unitOfMeasure': unitOfMeasure,
-      'ingredient': ingredientId,
-      'freezed': freezed,
-    };
-
-    jsonMap.removeWhere((_, v) => v == null);
-
-    return jsonMap;
-  }
+  Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
 
   void setQuantity(double newValue) {
     _edited = true;

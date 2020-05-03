@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/widgets/recipe_view/recipe_view.dart';
 
 import '../../globals/utils.dart';
 import '../../providers/recipes_provider.dart';
@@ -38,7 +39,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     return Scaffold(
       appBar: _buildAppBar(context),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _openNewRecipeScreen,
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -123,6 +124,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 onPressed: () => setState(() => _searchModeEnabled = false),
               ),
       ],
+    );
+  }
+
+  void _openNewRecipeScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RecipeView(newRecipe: true,),
+      ),
     );
   }
 }

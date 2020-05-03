@@ -19,7 +19,7 @@ class ShoppingList with ChangeNotifier {
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
 
-  Map<String, dynamic> toJSON() => _$ShoppingListToJson(this);
+  Map<String, dynamic> toJson() => _$ShoppingListToJson(this);
 
   List<ShoppingListItem> get getAllItems => [...items];
 

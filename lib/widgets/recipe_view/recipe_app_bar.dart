@@ -3,20 +3,19 @@ import 'package:flutter/material.dart';
 import '../../models/recipe.dart';
 
 class RecipeAppBar extends StatelessWidget {
-  final editModeEnabled;
+  final bool editModeEnabled;
   final Recipe _recipe;
-  final Object _heroTag;
+  final Object heroTag;
   final Function(bool) onRecipeEditEnabled;
 
-  RecipeAppBar(this._recipe, this._heroTag,
-      {this.editModeEnabled, this.onRecipeEditEnabled});
+  RecipeAppBar(this._recipe,
+      {this.heroTag, this.editModeEnabled, this.onRecipeEditEnabled});
 
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
       expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
-      
       flexibleSpace: FlexibleSpaceBar(
         title: Container(
           color: Colors.black.withOpacity(0.4),
@@ -28,7 +27,7 @@ class RecipeAppBar extends StatelessWidget {
         ),
         background: _recipe.imgUrl != null
             ? Hero(
-                tag: _heroTag,
+                tag: heroTag,
                 child: Image.network(
                   _recipe.imgUrl,
                   fit: BoxFit.fitWidth,

@@ -87,7 +87,6 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
           .then(
             (createdIngredient) => Navigator.of(context).pop(
               RecipeIngredient(
-                recipeId: widget.recipeId,
                 ingredientId: createdIngredient.id,
                 freezed: _isFreezed,
                 quantity: _quantity,
@@ -101,7 +100,6 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   void _updateRecipeIngredient() {
     Navigator.of(context).pop(
       RecipeIngredient(
-        recipeId: widget.recipeIngredient.recipeId,
         ingredientId: _selectedIngredient.id,
         freezed: _isFreezed,
         quantity: _quantity,

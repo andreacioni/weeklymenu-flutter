@@ -35,7 +35,7 @@ class RecipeTile extends StatelessWidget {
           MaterialPageRoute(
             builder: (ctx) => ChangeNotifierProvider.value(
               value: _recipe,
-              child: RecipeView(heroTagValue),
+              child: RecipeView(heroTag: heroTagValue),
             ),
           ),
         ),
