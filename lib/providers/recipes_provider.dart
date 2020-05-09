@@ -35,4 +35,10 @@ class RecipesProvider with ChangeNotifier {
 
   Recipe getById(String id) =>
       _recipes.firstWhere((ing) => ing.id == id, orElse: () => null);
+
+  Future<Recipe> addRecipe(Recipe newRecipe) async {
+    var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
+
+    return Recipe.fromJson(recipeJson);
+  }
 }

@@ -11,9 +11,8 @@ import './editable_text_field.dart';
 
 class RecipeView extends StatefulWidget {
   final Object heroTag;
-  final bool newRecipe;
 
-  RecipeView({this.heroTag, this.newRecipe = false});
+  RecipeView({this.heroTag});
 
   @override
   _RecipeViewState createState() => _RecipeViewState();
@@ -32,22 +31,18 @@ class _RecipeViewState extends State<RecipeView> {
 
   @override
   Widget build(BuildContext context) {
-    Recipe recipe;
+    Recipe recipe = Provider.of<Recipe>(context);
 
-    if (widget.newRecipe == true) {
-      recipe = Recipe();
-    } else {
-      recipe = Provider.of<Recipe>(context);
-    }
-    
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
-          RecipeAppBar(recipe,
-              heroTag: widget.heroTag,
-              editModeEnabled: _editEnabled,
-              onRecipeEditEnabled: (editEnabled) =>
-                  _handleEditToggle(recipe, editEnabled)),
+          RecipeAppBar(
+            recipe,
+            heroTag: widget.heroTag,
+            editModeEnabled: _editEnabled,
+            onRecipeEditEnabled: (editEnabled) =>
+                _handleEditToggle(recipe, editEnabled),
+          ),
           SliverList(
             delegate: SliverChildListDelegate([
               SizedBox(

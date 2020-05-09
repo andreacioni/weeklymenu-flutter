@@ -156,4 +156,13 @@ class NetworkDatasource {
   Future<void> deleteIngredient(String ingredientId) async {
     await _dio.delete('$BASE_URL/ingredients/$ingredientId');
   }
+
+  Future<Map<String, dynamic>> createRecipe(Map<String, dynamic> jsonMap) async {
+    var resp =  await _dio.post(
+      '$BASE_URL/recipes',
+      data: jsonMap,
+    );
+
+    return resp.data;
+  }
 }

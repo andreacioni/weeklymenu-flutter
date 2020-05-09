@@ -39,7 +39,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     return Scaffold(
       appBar: _buildAppBar(context),
       floatingActionButton: FloatingActionButton(
-        onPressed: _openNewRecipeScreen,
+        onPressed: _showRecipeNameDialog,
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -127,10 +127,46 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  void _openNewRecipeScreen() {
+  void _showRecipeNameDialog() async {
+    final textController = TextEditingController();
+    Recipe newRecipe = await showDialog<Recipe>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: TextField(
+          controller: textController,
+          decoration: InputDecoration(hintText: 'Recipe name'),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('CANCEL'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FlatButton(
+            child: Text('ADD'),
+            onPressed: () {
+              if (textController.text.trim().isNotEmpty) {
+                Provider.of<RecipesProvider>(context, listen: false).addRecipe(
+                  Recipe(name: textController.text),
+                );
+              }
+            },
+          )
+        ],
+      ),
+    );
+
+    if (newRecipe != null) {
+      _openNewRecipeScreen(newRecipe);
+    }
+  }
+
+  void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeView(newRecipe: true,),
+        builder: (_) => ChangeNotifierProvider.value(
+          value: newRecipe,
+          child: RecipeView(),
+        ),
       ),
     );
   }

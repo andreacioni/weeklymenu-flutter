@@ -68,6 +68,20 @@ class Recipe with ChangeNotifier {
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
+  factory Recipe.empty() {
+    return Recipe(
+      name: '',
+      description: '',
+      ingredients: [],
+    );
+  }
+
+  void updateName(String newRecipeName) {
+    _edited = true;
+    this.name = newRecipeName;
+    notifyListeners();
+  }
+
   void updateDifficulty(String newValue) {
     _edited = true;
     difficulty = newValue;

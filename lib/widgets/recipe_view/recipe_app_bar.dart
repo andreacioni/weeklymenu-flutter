@@ -17,13 +17,29 @@ class RecipeAppBar extends StatelessWidget {
       expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
-        title: Container(
-          color: Colors.black.withOpacity(0.4),
-          padding: EdgeInsets.all(3),
-          child: Text(
-            _recipe.name,
-            style: TextStyle(color: Colors.white),
-          ),
+        title: Row(
+          children: <Widget>[
+            Container(
+              color: Colors.black.withOpacity(0.4),
+              padding: EdgeInsets.all(3),
+              child: Text(
+                _recipe.name,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            if (editModeEnabled)
+              SizedBox(
+                width: 10,
+              ),
+            if (editModeEnabled)
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                child: Icon(
+                  Icons.edit,
+                ),
+                onTap: () => _openEditRecipeNameModal(context),
+              )
+          ],
         ),
         background: _recipe.imgUrl != null
             ? Hero(
@@ -78,6 +94,38 @@ class RecipeAppBar extends StatelessWidget {
 
     if (newUrl != null) {
       _recipe.updateImgUrl(newUrl);
+    }
+  }
+
+  void _openEditRecipeNameModal(BuildContext context) async {
+    final textController = TextEditingController(text: _recipe.name);
+    String newRecipeName = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: TextField(
+          controller: textController,
+          decoration: InputDecoration(hintText: 'Recipe name'),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('CANCEL'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FlatButton(
+            child: Text('ADD'),
+            onPressed: () {
+              var text = textController.text.trim();
+              if (text.isNotEmpty) {
+                Navigator.of(context).pop(text);
+              }
+            },
+          )
+        ],
+      ),
+    );
+
+    if(newRecipeName != null) {
+      _recipe.updateName(newRecipeName);
     }
   }
 }
