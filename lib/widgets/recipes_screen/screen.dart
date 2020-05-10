@@ -133,22 +133,30 @@ class _RecipesScreenState extends State<RecipesScreen> {
       context: context,
       builder: (_) => AlertDialog(
         content: TextField(
+          autofocus: true,
           controller: textController,
           decoration: InputDecoration(hintText: 'Recipe name'),
         ),
         actions: <Widget>[
           FlatButton(
-            child: Text('CANCEL'),
+            child: Text(
+              'CANCEL',
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            ),
             onPressed: () => Navigator.of(context).pop(),
           ),
           FlatButton(
-            child: Text('ADD'),
+            child: Text(
+              'ADD',
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            ),
             onPressed: () {
               if (textController.text.trim().isNotEmpty) {
                 Provider.of<RecipesProvider>(context, listen: false).addRecipe(
                   Recipe(name: textController.text),
                 );
               }
+              Navigator.of(context).pop();
             },
           )
         ],

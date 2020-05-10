@@ -20,24 +20,22 @@ class RecipeInformationTiles extends StatelessWidget {
         ListTile(
           title: Text("Servs"),
           leading: Icon(Icons.people),
-          trailing: _buildSpinner(_recipe.servs.toDouble(), "ppl",
+          trailing: _buildSpinner(_recipe.servs, "ppl",
               minValue: 1,
               onChange: (newValue) => _recipe.updateServs(newValue.truncate())),
         ),
         ListTile(
           title: Text("Preparation time"),
           leading: Icon(Icons.timer),
-          trailing: _buildSpinner(
-              _recipe.estimatedPreparationTime.toDouble(), "min",
+          trailing: _buildSpinner(_recipe.estimatedPreparationTime, "min",
               onChange: (newValue) =>
                   _recipe.updatePreparationTime(newValue.truncate())),
         ),
         ListTile(
           title: Text("Cooking time"),
           leading: Icon(Icons.timelapse),
-          trailing:
-              _buildSpinner(_recipe.estimatedCookingTime.toDouble(), "min",
-                  onChange: (newValue) {
+          trailing: _buildSpinner(_recipe.estimatedCookingTime, "min",
+              onChange: (newValue) {
             _recipe.updateCookingTime(newValue.truncate());
           }),
         ),
@@ -68,11 +66,14 @@ class RecipeInformationTiles extends StatelessWidget {
     );
   }
 
-  Widget _buildSpinner(double val, String suffix,
+  Widget _buildSpinner(int val, String suffix,
       {Function(double) onChange, double minValue = 0.0, double step = 1.0}) {
+    if (val == null) {
+      val = 0;
+    }
     return editEnabled
         ? SpinnerInput(
-            spinnerValue: val,
+            spinnerValue: val.toDouble(),
             fractionDigits: 0,
             disabledPopup: true,
             minValue: minValue,

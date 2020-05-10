@@ -56,11 +56,11 @@ class Recipe with ChangeNotifier {
       this.description,
       this.ingredients = const <RecipeIngredient>[],
       this.difficulty,
-      this.rating = 0,
-      this.cost = 0,
-      this.servs = 0,
-      this.estimatedPreparationTime = 0,
-      this.estimatedCookingTime = 0,
+      this.rating,
+      this.cost,
+      this.servs,
+      this.estimatedPreparationTime,
+      this.estimatedCookingTime,
       this.imgUrl,
       this.tags});
 
