@@ -158,6 +158,7 @@ class NetworkDatasource {
   }
 
   Future<Map<String, dynamic>> createRecipe(Map<String, dynamic> jsonMap) async {
+    jsonMap.removeWhere((k, _) => k =='_id');
     var resp =  await _dio.post(
       '$BASE_URL/recipes',
       data: jsonMap,

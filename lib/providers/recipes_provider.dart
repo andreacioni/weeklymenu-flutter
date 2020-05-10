@@ -38,7 +38,9 @@ class RecipesProvider with ChangeNotifier {
 
   Future<Recipe> addRecipe(Recipe newRecipe) async {
     var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
-
-    return Recipe.fromJson(recipeJson);
+    var postedRecipe = Recipe.fromJson(recipeJson);
+    _recipes.add(postedRecipe);
+    notifyListeners();
+    return postedRecipe;
   }
 }

@@ -18,12 +18,14 @@ class RecipesScreen extends StatefulWidget {
 
 class _RecipesScreenState extends State<RecipesScreen> {
   bool _searchModeEnabled;
+  bool _isLoading;
   String _searchText;
 
   @override
   void initState() {
     _searchModeEnabled = false;
     _searchText = "";
+    _isLoading = false;
 
     super.initState();
   }
@@ -43,10 +45,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: body,
-      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: body,
+            ),
     );
   }
 
@@ -147,16 +151,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
           ),
           FlatButton(
             child: Text(
-              'ADD',
+              'CREATE',
               style: TextStyle(color: Theme.of(context).primaryColor),
             ),
-            onPressed: () {
-              if (textController.text.trim().isNotEmpty) {
-                Provider.of<RecipesProvider>(context, listen: false).addRecipe(
-                  Recipe(name: textController.text),
-                );
-              }
+            onPressed: () async {
               Navigator.of(context).pop();
+              setState(() => _isLoading = true);
+              if (textController.text.trim().isNotEmpty) {
+                await Provider.of<RecipesProvider>(context, listen: false)
+                    .addRecipe(Recipe(name: textController.text));
+                setState(() => _isLoading = false);
+              }
+              setState(() => _isLoading = false);
             },
           )
         ],
