@@ -11,7 +11,6 @@ import '../../providers/shopping_list_provider.dart';
 class ItemSuggestionTextField extends StatefulWidget {
   final Ingredient value;
   final String hintText;
-  final FocusNode focusNode;
   final bool autofocus;
   final bool showShoppingItemSuggestions;
   final void Function(Ingredient) onIngredientSelected;
@@ -30,7 +29,6 @@ class ItemSuggestionTextField extends StatefulWidget {
     this.onTap,
     this.onFocusChanged,
     this.hintText,
-    this.focusNode,
     this.autofocus = false,
     this.enabled = true,
   });
@@ -45,14 +43,15 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
 
   @override
   void initState() {
-    if (widget.focusNode != null) {
-      focusNode = widget.focusNode;
-    } else {
-      focusNode = FocusNode();
-    }
-
+    focusNode = FocusNode();
     focusNode.addListener(() => widget.onFocusChanged(focusNode.hasFocus));
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
   }
 
   @override
