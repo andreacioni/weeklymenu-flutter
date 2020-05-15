@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 
 import '../../globals/constants.dart';
-import '../add_recipe_modal/add_recipe_to_menu_modal.dart';
 import '../app_bar.dart';
 import './page.dart';
+import './date_range_picker.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({Key key}) : super(key: key);
@@ -33,9 +34,9 @@ class _MenuScreenState extends State<MenuScreen> {
     return Scaffold(
       appBar: _buildAppBar(context),
       floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: Icon(Icons.add),
-        ),
+        onPressed: _showDateRangePicker,
+        child: Icon(Icons.lightbulb_outline),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Container(
         padding: EdgeInsets.all(10),
@@ -84,7 +85,7 @@ class _MenuScreenState extends State<MenuScreen> {
             size: 30.0,
             color: Colors.black,
           ),
-          onPressed: () => _openAddRecipeModal(context),
+          onPressed: () => () {},
         ),
       ],
     );
@@ -124,13 +125,135 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
-  void _openAddRecipeModal(ctx) {
-    showModalBottomSheet(
+  void _openAddRecipeModal() async {
+    /* showModalBottomSheet(
       context: ctx,
       builder: (_) => Padding(
         padding: EdgeInsets.all(15),
         child: AddRecipeToMenuModal(
           onSelectionEnd: (_) {},
+        ),
+      ),
+    ); */
+
+    /* showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        contentPadding: EdgeInsets.all(0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            InkWell(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(10),
+                topLeft: Radius.circular(10),
+              ),
+              splashColor: Theme.of(context).primaryColor,
+              child: ListTile(
+                leading: Icon(
+                  Icons.calendar_today,
+                  size: 40,
+                ),
+                title: Text(
+                  'Single Day',
+                ),
+                subtitle: Text(
+                  'Generate menu automatically for current day',
+                ),
+              ),
+              onTap: () {},
+            ),
+            InkWell(
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+              splashColor: Theme.of(context).primaryColor,
+              child: ListTile(
+                leading: Icon(
+                  Icons.date_range,
+                  size: 45,
+                ),
+                title: Text(
+                  'Multiple Days',
+                ),
+                subtitle: Text(
+                  'Generate menu automatically for multiple days',
+                ),
+              ),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _showDateRangePicker();
+              },
+            ),
+          ],
+        ),
+      ),
+    ); */
+  }
+
+  void _showDateRangePicker() {
+    DatePickerRangeStyles styles = DatePickerRangeStyles(
+      selectedPeriodLastDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10.0),
+              bottomRight: Radius.circular(10.0))),
+      selectedPeriodStartDecoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10.0), bottomLeft: Radius.circular(10.0)),
+      ),
+      selectedPeriodMiddleDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.3),
+          shape: BoxShape.rectangle),
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.all(15),
+        child: AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              DateRangePicker(
+                selectedPeriod: DatePeriod(DateTime.now(), DateTime.now()),
+                onChanged: (dp) {print("${dp.start} - ${dp.end}");},
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 30)),
+                datePickerStyles: styles,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'CANCEL',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            ),
+            FlatButton(
+              onPressed: () {},
+              child: Text(
+                'AUTO',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            ),
+            FlatButton(
+              onPressed: () {},
+              child: Text(
+                'MANUAL',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            )
+          ],
         ),
       ),
     );

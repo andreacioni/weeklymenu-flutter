@@ -90,7 +90,15 @@ class _MenuPageState extends State<MenuPage> {
               color: _textColor,
             ),
           ),
-        )
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        FlatButton(
+          color: Theme.of(context).primaryColor,
+          child: Text('ADD RECIPE', style: TextStyle(color: Colors.black),),
+          onPressed: () {},
+        ),
       ],
     );
   }
