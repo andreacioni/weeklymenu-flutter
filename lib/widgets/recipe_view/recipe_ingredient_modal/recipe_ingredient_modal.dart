@@ -49,33 +49,28 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            children: <Widget>[
-              _buildIngredientSelectionTextField(),
-              _buildQuantityAndUomRow(),
-              _buildFreezedRow(),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  FlatButton(
-                    child: Text("CANCEL"),
-                    textColor: Theme.of(context).primaryColor,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  _buildDoneButton(context),
-                ],
-              )
-            ],
-          ),
-        )
+    return AlertDialog(
+      content: Container(
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _buildIngredientSelectionTextField(),
+            _buildQuantityAndUomRow(),
+            _buildFreezedRow(),
+            SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text("CANCEL"),
+          textColor: Theme.of(context).primaryColor,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        _buildDoneButton(context),
       ],
     );
   }

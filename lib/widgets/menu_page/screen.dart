@@ -219,6 +219,7 @@ class _MenuScreenState extends State<MenuScreen> {
       builder: (ctx) => Padding(
         padding: EdgeInsets.all(15),
         child: AlertDialog(
+          title: Text('Choose a single date or a range'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -242,17 +243,10 @@ class _MenuScreenState extends State<MenuScreen> {
             FlatButton(
               onPressed: () {},
               child: Text(
-                'AUTO',
+                'CONTINUE',
                 style: TextStyle(color: Theme.of(ctx).primaryColor),
               ),
             ),
-            FlatButton(
-              onPressed: () {},
-              child: Text(
-                'MANUAL',
-                style: TextStyle(color: Theme.of(ctx).primaryColor),
-              ),
-            )
           ],
         ),
       ),
