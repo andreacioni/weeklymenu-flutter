@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sticky_headers/sticky_headers.dart';
 import 'package:provider/provider.dart';
 
 import './meal_head.dart';
@@ -38,31 +37,27 @@ class _MenuPageState extends State<MenuPage> {
         : _buildPageBody(context);
   }
 
-  Column _buildPageBody(BuildContext context) {
+  Widget _buildPageBody(BuildContext context) {
     final _stickyHeaderMeal = Provider.of<MenusProvider>(context)
         .getDailyMenuByMeal(widget._day)
         .entries
         .map(_buildStickyHeaderFromMeal)
+        .expand((i) => i) //Flatten a list of lists
         .toList();
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: Card(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            elevation: 1,
-            child: _stickyHeaderMeal.isEmpty
-                ? _buildEmptyMealBackground()
-                : ListView(
-                    padding: EdgeInsets.all(10),
-                    children: _stickyHeaderMeal,
-                  ),
-          ),
+    return Expanded(
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-      ],
+        elevation: 1,
+        child: _stickyHeaderMeal.isEmpty
+            ? _buildEmptyMealBackground()
+            : CustomScrollView(
+                slivers: _stickyHeaderMeal,
+              ),
+      ),
     );
   }
 
@@ -96,21 +91,72 @@ class _MenuPageState extends State<MenuPage> {
         ),
         FlatButton(
           color: Theme.of(context).primaryColor,
-          child: Text('ADD RECIPE', style: TextStyle(color: Colors.black),),
+          child: Text(
+            'ADD RECIPE',
+            style: TextStyle(color: Colors.black),
+          ),
           onPressed: () {},
         ),
       ],
     );
   }
 
-  Widget _buildStickyHeaderFromMeal(MapEntry<Meal, List<String>> mealEntry) {
-    return StickyHeader(
+  List<Widget> _buildStickyHeaderFromMeal(
+      MapEntry<Meal, List<String>> mealEntry) {
+    /* return SliverAppBar(
       header: MealHead(mealEntry.key.value),
       content: buildRecipeTilesColumn(mealEntry),
-    );
+    ); */
+
+    return <Widget>[
+      SliverAppBar(
+        primary: false,
+        automaticallyImplyLeading: false,
+        actions: <Widget>[
+          ButtonTheme(
+            minWidth: 5,
+            height: 5,
+            child: FlatButton(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.add),
+              onPressed: () {},
+              shape: CircleBorder(),
+            ),
+          ),
+          ButtonTheme(
+            minWidth: 5,
+            height: 5,
+            child: FlatButton(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.close),
+              onPressed: () {},
+              shape: CircleBorder(),
+            ),
+          ),
+          ButtonTheme(
+            minWidth: 5,
+            height: 5,
+            child: FlatButton(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.replay),
+              onPressed: () {},
+              shape: CircleBorder(),
+            ),
+          ),
+        ],
+        elevation: 0,
+        pinned: true,
+        backgroundColor: Colors.white,
+        title: Text(
+          mealEntry.key.value,
+          textAlign: TextAlign.left,
+        ),
+      ),
+      _buildRecipeTilesColumn(mealEntry),
+    ];
   }
 
-  Widget buildRecipeTilesColumn(MapEntry<Meal, List<String>> mealEntry) {
+  Widget _buildRecipeTilesColumn(MapEntry<Meal, List<String>> mealEntry) {
     final recipes = mealEntry.value
         .map((recipeId) => Provider.of<RecipesProvider>(
               context,
@@ -118,12 +164,17 @@ class _MenuPageState extends State<MenuPage> {
             ).getById(recipeId))
         .toList();
 
-    return Column(
-      children: recipes
-          .map(
-            (recipe) => RecipeTile(recipe),
-          )
-          .toList(),
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        recipes
+            .map(
+              (recipe) => Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: RecipeTile(recipe),
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 }

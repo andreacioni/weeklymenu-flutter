@@ -23,6 +23,7 @@ class MealHead extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
+          IconButton(icon: Icon(Icons.add), onPressed: () {}, color: Theme.of(context).primaryColor,)
         ],
       ),
     );
