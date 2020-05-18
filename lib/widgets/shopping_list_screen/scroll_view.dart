@@ -116,27 +116,24 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
   List<Widget> _buildCheckedList(ShoppingList shoppingList) {
     final checkItems = shoppingList.getCheckedItems;
     return [
-      MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        child: SliverAppBar(
-          title: Text("Checked (${checkItems.length})"),
-          forceElevated: true,
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.grey.shade100,
-          actions: <Widget>[
-            if (_expandChecked)
-              IconButton(
-                icon: Icon(Icons.expand_less),
-                onPressed: () => setState(() => _expandChecked = false),
-              ),
-            if (!_expandChecked)
-              IconButton(
-                icon: Icon(Icons.expand_more),
-                onPressed: () => setState(() => _expandChecked = true),
-              )
-          ],
-        ),
+      SliverAppBar(
+        primary: false,
+        title: Text("Checked (${checkItems.length})"),
+        forceElevated: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.grey.shade100,
+        actions: <Widget>[
+          if (_expandChecked)
+            IconButton(
+              icon: Icon(Icons.expand_less),
+              onPressed: () => setState(() => _expandChecked = false),
+            ),
+          if (!_expandChecked)
+            IconButton(
+              icon: Icon(Icons.expand_more),
+              onPressed: () => setState(() => _expandChecked = true),
+            )
+        ],
       ),
       if (_expandChecked)
         SliverList(
