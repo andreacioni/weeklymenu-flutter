@@ -103,15 +103,17 @@ class _MenuPageState extends State<MenuPage> {
 
   List<Widget> _buildStickyHeaderFromMeal(
       MapEntry<Meal, List<String>> mealEntry) {
-    /* return SliverAppBar(
-      header: MealHead(mealEntry.key.value),
-      content: buildRecipeTilesColumn(mealEntry),
-    ); */
-
     return <Widget>[
       SliverAppBar(
         primary: false,
         automaticallyImplyLeading: false,
+        elevation: 0,
+        pinned: true,
+        backgroundColor: Colors.white,
+        title: Text(
+          mealEntry.key.value,
+          textAlign: TextAlign.left,
+        ),
         actions: <Widget>[
           ButtonTheme(
             minWidth: 5,
@@ -119,7 +121,7 @@ class _MenuPageState extends State<MenuPage> {
             child: FlatButton(
               padding: EdgeInsets.all(2),
               child: Icon(Icons.add),
-              onPressed: () {},
+              onPressed: () => _addRecipeToMeal(mealEntry.key),
               shape: CircleBorder(),
             ),
           ),
@@ -129,28 +131,11 @@ class _MenuPageState extends State<MenuPage> {
             child: FlatButton(
               padding: EdgeInsets.all(2),
               child: Icon(Icons.close),
-              onPressed: () {},
-              shape: CircleBorder(),
-            ),
-          ),
-          ButtonTheme(
-            minWidth: 5,
-            height: 5,
-            child: FlatButton(
-              padding: EdgeInsets.all(2),
-              child: Icon(Icons.replay),
-              onPressed: () {},
+              onPressed: () => _removeWholeMeal(mealEntry.key),
               shape: CircleBorder(),
             ),
           ),
         ],
-        elevation: 0,
-        pinned: true,
-        backgroundColor: Colors.white,
-        title: Text(
-          mealEntry.key.value,
-          textAlign: TextAlign.left,
-        ),
       ),
       _buildRecipeTilesColumn(mealEntry),
     ];
@@ -176,5 +161,33 @@ class _MenuPageState extends State<MenuPage> {
             .toList(),
       ),
     );
+  }
+
+  void _addRecipeToMeal(Meal meal) async {
+    showDialog(context: context, builder: (ctx) => AlertDialog());
+  }
+
+  void _removeWholeMeal(Meal key) async {
+    var confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Are you sure?'),
+        content: Text('All recipe associated to this meal will be lost'),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('NO'),
+          ),
+          FlatButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('YES'),
+          ),
+        ],
+      ),
+    );
+
+    if(confirm) {
+
+    }
   }
 }

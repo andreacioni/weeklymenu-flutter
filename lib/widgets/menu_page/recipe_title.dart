@@ -13,6 +13,7 @@ class RecipeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final heroTagValue = UniqueKey();
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Hero(
           tag: heroTagValue,

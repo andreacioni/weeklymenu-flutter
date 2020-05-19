@@ -78,7 +78,7 @@ class _MenuScreenState extends State<MenuScreen> {
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
-      actions: <Widget>[/* 
+      actions: <Widget>[
         IconButton(
           icon: Icon(
             Icons.refresh,
@@ -86,7 +86,7 @@ class _MenuScreenState extends State<MenuScreen> {
             color: Colors.black,
           ),
           onPressed: () => () {},
-        ), */
+        ),
       ],
     );
   }
