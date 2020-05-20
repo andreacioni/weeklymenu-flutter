@@ -55,6 +55,12 @@ class NetworkDatasource {
     return resp.data;
   }
 
+  Future<void> deleteMenu(String menuId) async {
+    await _dio.delete(
+      '$BASE_URL/menus/$menuId',
+    );
+  }
+
   Future<Map<String, dynamic>> getIngredients() async {
     var resp = await _dio.get(
       '$BASE_URL/ingredients',

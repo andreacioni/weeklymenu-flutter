@@ -167,7 +167,7 @@ class _MenuPageState extends State<MenuPage> {
     showDialog(context: context, builder: (ctx) => AlertDialog());
   }
 
-  void _removeWholeMeal(Meal key) async {
+  void _removeWholeMeal(Meal meal) async {
     var confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -187,7 +187,7 @@ class _MenuPageState extends State<MenuPage> {
     );
 
     if(confirm) {
-
+      Provider.of<MenusProvider>(context, listen: false).removeDayMeal(widget._day, meal);
     }
   }
 }

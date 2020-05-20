@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -55,7 +58,7 @@ class MenusProvider with ChangeNotifier {
         date: dateTime,
         meal: meal,
         recipes: [recipe.id],
-      ).toJSON());
+      ).toJson());
     } else {
       await _restApi.addRecipeToMenu(menu.id, recipe.id);
 
@@ -70,7 +73,7 @@ class MenusProvider with ChangeNotifier {
 
   Future<Menu> addMenu(Menu menu) async {
     try {
-      var resp = await _restApi.createMenu(menu.toJSON());
+      var resp = await _restApi.createMenu(menu.toJson());
       menu.id = resp['_id'];
 
       if (_dayToMenus[menu.date] == null) {
@@ -85,5 +88,17 @@ class MenusProvider with ChangeNotifier {
     }
 
     return menu;
+  }
+
+  Future<void> removeDayMeal(DateTime day, Meal meal) async {
+    if (_dayToMenus[day] == null || _dayToMenus[day].isEmpty) {
+      throw ArgumentError("no menu found for day: $day");
+    }
+
+    for (var menu in _dayToMenus[day]) {
+      if (menu.meal == meal) {
+        await _restApi.deleteMenu(menu.id);
+      }
+    }
   }
 }

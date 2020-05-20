@@ -29,12 +29,7 @@ class Menu with ChangeNotifier {
 
   Map<String, dynamic> toJson() => _$MenuToJson(this);
 
-  static String dateToJson(DateTime date) =>
-    _dateParser.format(date);
+  static String dateToJson(DateTime date) => _dateParser.format(date);
 
-  static DateTime dateFromJson(String date) =>
-    _dateParser.parse(date);
-  
-
-  Future<void> removeRecipeFromMeal(Meal meal) {}
+  static DateTime dateFromJson(String date) => _dateParser.parse(date);
 }
