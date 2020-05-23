@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './meal_head.dart';
 import '../../models/enums/meals.dart';
 import '../../presentation/custom_icons_icons.dart';
-import './recipe_title.dart';
+import './recipe_card.dart';
 import '../../providers/menus_provider.dart';
 import '../../providers/recipes_provider.dart';
+import '../recipe_view/recipe_view.dart';
 
 class MenuPage extends StatefulWidget {
   final DateTime _day;
@@ -18,23 +18,25 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    Provider.of<MenusProvider>(context, listen: false)
-        .fetchDailyMenu(widget._day)
-        .then((_) => setState(() => _isLoading = false));
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? Center(
-            child: CircularProgressIndicator(),
-          )
-        : _buildPageBody(context);
+    return FutureBuilder(
+      future: Provider.of<MenusProvider>(context, listen: false)
+          .fetchDailyMenu(widget._day),
+      builder: (ctx, snapshot) {
+        if (snapshot.hasError) {
+          return Container();
+        }
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            return _buildPageBody(context);
+          default:
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+        }
+      },
+    );
   }
 
   Widget _buildPageBody(BuildContext context) {
@@ -148,6 +150,7 @@ class _MenuPageState extends State<MenuPage> {
               listen: false,
             ).getById(recipeId))
         .toList();
+    final heroTag = UniqueKey();
 
     return SliverList(
       delegate: SliverChildListDelegate(
@@ -155,7 +158,19 @@ class _MenuPageState extends State<MenuPage> {
             .map(
               (recipe) => Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: RecipeTile(recipe),
+                child: RecipeCard(
+                  recipe,
+                  heroTagValue: heroTag,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (ctx) => ChangeNotifierProvider.value(
+                        value: recipe,
+                        child: RecipeView(heroTag: heroTag),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             )
             .toList(),
@@ -186,8 +201,9 @@ class _MenuPageState extends State<MenuPage> {
       ),
     );
 
-    if(confirm) {
-      Provider.of<MenusProvider>(context, listen: false).removeDayMeal(widget._day, meal);
+    if (confirm) {
+      Provider.of<MenusProvider>(context, listen: false)
+          .removeDayMeal(widget._day, meal);
     }
   }
 }

@@ -6,7 +6,7 @@ import '../../globals/utils.dart';
 import '../../providers/recipes_provider.dart';
 import '../app_bar.dart';
 import '../../models/recipe.dart';
-import '../menu_page/recipe_title.dart';
+import '../menu_page/recipe_card.dart';
 import '../../presentation/custom_icons_icons.dart';
 
 class RecipesScreen extends StatefulWidget {
@@ -21,11 +21,16 @@ class _RecipesScreenState extends State<RecipesScreen> {
   bool _isLoading;
   String _searchText;
 
+  bool _editingModeEnabled;
+  List<Recipe> _selectedRecipes;
+
   @override
   void initState() {
     _searchModeEnabled = false;
     _searchText = "";
     _isLoading = false;
+    _editingModeEnabled = false;
+    _selectedRecipes = <Recipe>[];
 
     super.initState();
   }
@@ -39,7 +44,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
     var body = _buildScreenBody(recipes);
 
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _editingModeEnabled == false
+          ? _buildAppBar(context)
+          : _buildEditingAppBar(context),
       floatingActionButton: FloatingActionButton(
         onPressed: _showRecipeNameDialog,
         child: Icon(Icons.add),
@@ -89,9 +96,59 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildRecipeList(List<Recipe> recipes) {
     return ListView.builder(
-      itemBuilder: (_, index) => RecipeTile(recipes[index]),
+      itemBuilder: (_, index) => RecipeCard(
+        recipes[index],
+        borderSide: _editingModeEnabled == true &&
+                _selectedRecipes.contains(recipes[index])
+            ? BorderSide(color: Theme.of(context).accentColor, width: 2)
+            : BorderSide.none,
+        color: _editingModeEnabled == true &&
+                _selectedRecipes.contains(recipes[index])
+            ? Theme.of(context).accentColor.withOpacity(0.7)
+            : Colors.white,
+        heroTagValue: recipes[index].id,
+        onTap: () => _editingModeEnabled == true
+            ? _addRecipeToEditingList(recipes[index])
+            : _openRecipeView(recipes, index, recipes[index].id),
+        onLongPress: () => _editingModeEnabled == false
+            ? _enableEditingMode(recipes[index])
+            : null,
+      ),
       itemCount: recipes.length,
     );
+  }
+
+  Future _openRecipeView(List<Recipe> recipes, int index, Object heroTag) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => ChangeNotifierProvider.value(
+          value: recipes[index],
+          child: RecipeView(heroTag: heroTag),
+        ),
+      ),
+    );
+  }
+
+  void _addRecipeToEditingList(Recipe recipe) {
+    if (!_selectedRecipes.contains(recipe)) {
+      setState(() {
+        _selectedRecipes.add(recipe);
+      });
+    } else {
+      setState(() {
+        _selectedRecipes.removeWhere((r) => r.id == recipe.id);
+      });
+
+      if (_selectedRecipes.isEmpty) {
+        setState(() => _editingModeEnabled = false);
+      }
+    }
+  }
+
+  void _enableEditingMode(Recipe recipe) {
+    setState(() => _editingModeEnabled = true);
+    _addRecipeToEditingList(recipe);
   }
 
   AppBar _buildAppBar(BuildContext context) {
@@ -99,7 +156,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       _searchText = "";
     }
 
-    return BaseAppBar(
+    return AppBar(
       title: _searchModeEnabled == false
           ? Text('Recipes')
           : TextField(
@@ -129,6 +186,52 @@ class _RecipesScreenState extends State<RecipesScreen> {
               ),
       ],
     );
+  }
+
+  AppBar _buildEditingAppBar(BuildContext context) {
+    return AppBar(
+      titleSpacing: 0,
+      automaticallyImplyLeading: false,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              setState(() => _editingModeEnabled = false);
+              _selectedRecipes.clear();
+            },
+          ),
+          Text(
+            "${_selectedRecipes.length}",
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 20),
+          )
+        ],
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: _deleteRecipes,
+        )
+      ],
+    );
+  }
+
+  void _deleteRecipes() async {
+    showDialog(context: context, builder: (ctx) {
+      return AlertDialog(
+        content: Text('Are you sure to delete ${_selectedRecipes.length} recipes? This operation is not reversible'),
+        actions: <Widget>[
+          FlatButton(onPressed: () {}, child: Text('NO')),
+          FlatButton(onPressed: () {}, child: Text('YES')),
+        ],
+      );
+    });
   }
 
   void _showRecipeNameDialog() async {

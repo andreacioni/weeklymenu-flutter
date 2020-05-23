@@ -19,10 +19,13 @@ class MenusProvider with ChangeNotifier {
   Future<void> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
     final jsonPage = await _restApi.getMenusByDay(_dateParser.format(day));
-    _dayToMenus[day] = jsonPage['results']
+    final menu = jsonPage['results']
         .map((jsonMenu) => Menu.fromJson(jsonMenu))
         .toList()
         .cast<Menu>();
+    _dayToMenus[day] = menu;
+
+    return menu;
   }
 
   Map<Meal, List<String>> getDailyMenuByMeal(DateTime day) {
@@ -95,10 +98,18 @@ class MenusProvider with ChangeNotifier {
       throw ArgumentError("no menu found for day: $day");
     }
 
+    var menuIds = <String>[];
+
     for (var menu in _dayToMenus[day]) {
       if (menu.meal == meal) {
-        await _restApi.deleteMenu(menu.id);
+        menuIds.add(menu.id);
       }
+    }
+
+    notifyListeners();
+
+    for (var id in menuIds) {
+      await _restApi.deleteMenu(id);
     }
   }
 }

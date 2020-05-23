@@ -4,17 +4,32 @@ import '../recipe_view/recipe_view.dart';
 
 import '../../models/recipe.dart';
 
-class RecipeTile extends StatelessWidget {
+class RecipeCard extends StatelessWidget {
   final Recipe _recipe;
+  final Function onLongPress;
+  final Function onTap;
+  final Object heroTagValue;
+  final BorderSide borderSide;
+  final Color color;
 
-  RecipeTile(this._recipe);
+  RecipeCard(this._recipe,
+      {this.onLongPress,
+      this.onTap,
+      this.heroTagValue,
+      this.borderSide = BorderSide.none,
+      this.color});
 
   @override
   Widget build(BuildContext context) {
-    final heroTagValue = UniqueKey();
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: borderSide,
+      ),
+      color: color,
       child: ListTile(
+        onLongPress: onLongPress,
+        onTap: onTap,
         leading: Hero(
           tag: heroTagValue,
           child: _recipe.imgUrl != null
@@ -31,15 +46,6 @@ class RecipeTile extends StatelessWidget {
         subtitle: Text('A sufficiently long subtitle warrants three lines.'),
         trailing: Icon(Icons.more_vert),
         isThreeLine: true,
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => ChangeNotifierProvider.value(
-              value: _recipe,
-              child: RecipeView(heroTag: heroTagValue),
-            ),
-          ),
-        ),
       ),
     );
   }
