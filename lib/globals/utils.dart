@@ -28,3 +28,7 @@ void removeNullEntriesFromMap(Map map) {
     map.removeWhere((k,v) => v == null);
   }
 }
+
+DateTime dateTimeToDate(DateTime dt) {
+  return DateTime(dt.year, dt.month, dt.day);
+}

@@ -38,6 +38,8 @@ class MenusProvider with ChangeNotifier {
           : null;
       if (menuMeal != null) {
         recipeByMeal[meal] = menuMeal.recipes;
+      } else {
+        recipeByMeal[meal] = [];
       }
     });
 

@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 
 import '../../globals/constants.dart';
-import '../app_bar.dart';
-import './page.dart';
+import './menu_card.dart';
+import '../../globals/utils.dart' as utils;
 import './date_range_picker.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -15,60 +15,68 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  PageController _pageController;
+  final _todayOffset = (PAGEVIEW_LIMIT_DAYS / 2);
+  final _today = utils.dateTimeToDate(DateTime.now());
+  final _itemExtent = MenuCard.extent;
+
   DateTime _day;
+  ScrollController _scrollController;
 
   @override
   void initState() {
-    var pageIndex = (PAGEVIEW_LIMIT_DAYS / 2).truncate();
-    _pageController = new PageController(initialPage: pageIndex);
+    _scrollController = new ScrollController(
+      initialScrollOffset: _todayOffset * _itemExtent,
+      keepScrollOffset: true,
+    );
 
-    var now = DateTime.now();
-    _day = DateTime(now.year, now.month, now.day);
+    //_scrollController.addListener(
+    //    () => _onPageChanged(_scrollController.offset ~/ _itemExtent));
 
+    _day = _today;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showDateRangePicker,
-        child: Icon(Icons.lightbulb_outline),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: Container(
-        padding: EdgeInsets.all(10),
-        child: PageView.builder(
-          itemBuilder: (ctx, index) => MenuPage(_day),
-          controller: _pageController,
-          onPageChanged: _onPageChanged,
+        appBar: _buildAppBar(context),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showDateRangePicker,
+          child: Icon(Icons.lightbulb_outline),
         ),
-      ),
-    );
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: ListView.builder(
+          itemExtent: _itemExtent,
+          itemBuilder: _buildListItem,
+          controller: _scrollController,
+          itemCount: PAGEVIEW_LIMIT_DAYS,
+        ));
+  }
+
+  Widget _buildListItem(BuildContext context, int index) {
+    return MenuCard(utils.dateTimeToDate(
+        _today.add(Duration(days: index - _todayOffset.toInt()))));
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    return BaseAppBar(
-      title: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          FlatButton(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(Icons.calendar_today),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(DateFormat.MMMEd().format(_day)),
-              ],
-            ),
-            onPressed: () => _openDatePicker(context),
+    return AppBar(
+      title: Text("Weekly Menu"),
+      centerTitle: true,
+      bottom: AppBar(
+        title: FlatButton(
+          color: Colors.white.withOpacity(0.5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.calendar_today),
+              SizedBox(
+                width: 5,
+              ),
+              Text(DateFormat.MMMEd().format(_day)),
+            ],
           ),
-        ],
+          onPressed: () => _openDatePicker(context),
+        ),
       ),
       leading: IconButton(
         icon: Icon(
@@ -113,88 +121,16 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void _setNewDate(DateTime selectedDate) {
     setState(() {
-      int oldPageIndex = _pageController.page.truncate();
+      var oldPageIndex = _scrollController.offset ~/ _itemExtent;
       if (selectedDate.compareTo(_day) != 0) {
         print(
             "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
-        int newPageIndex = oldPageIndex + selectedDate.difference(_day).inDays;
+        var newPageIndex = oldPageIndex + selectedDate.difference(_day).inDays;
         print("jumping to page: $newPageIndex");
-        _pageController.jumpToPage(newPageIndex);
+        _scrollController.jumpTo(newPageIndex.toDouble() * _itemExtent);
       }
       _day = selectedDate;
     });
-  }
-
-  void _openAddRecipeModal() async {
-    /* showModalBottomSheet(
-      context: ctx,
-      builder: (_) => Padding(
-        padding: EdgeInsets.all(15),
-        child: AddRecipeToMenuModal(
-          onSelectionEnd: (_) {},
-        ),
-      ),
-    ); */
-
-    /* showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        contentPadding: EdgeInsets.all(0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(10),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            InkWell(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(10),
-                topLeft: Radius.circular(10),
-              ),
-              splashColor: Theme.of(context).primaryColor,
-              child: ListTile(
-                leading: Icon(
-                  Icons.calendar_today,
-                  size: 40,
-                ),
-                title: Text(
-                  'Single Day',
-                ),
-                subtitle: Text(
-                  'Generate menu automatically for current day',
-                ),
-              ),
-              onTap: () {},
-            ),
-            InkWell(
-              borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(10),
-                bottomLeft: Radius.circular(10),
-              ),
-              splashColor: Theme.of(context).primaryColor,
-              child: ListTile(
-                leading: Icon(
-                  Icons.date_range,
-                  size: 45,
-                ),
-                title: Text(
-                  'Multiple Days',
-                ),
-                subtitle: Text(
-                  'Generate menu automatically for multiple days',
-                ),
-              ),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                _showDateRangePicker();
-              },
-            ),
-          ],
-        ),
-      ),
-    ); */
   }
 
   void _showDateRangePicker() {
@@ -225,7 +161,9 @@ class _MenuScreenState extends State<MenuScreen> {
             children: <Widget>[
               DateRangePicker(
                 selectedPeriod: DatePeriod(DateTime.now(), DateTime.now()),
-                onChanged: (dp) {print("${dp.start} - ${dp.end}");},
+                onChanged: (dp) {
+                  print("${dp.start} - ${dp.end}");
+                },
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(Duration(days: 30)),
                 datePickerStyles: styles,
@@ -251,5 +189,11 @@ class _MenuScreenState extends State<MenuScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

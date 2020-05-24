@@ -48,8 +48,11 @@ class IngredientsScreen extends StatelessWidget {
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    return BaseAppBar(
+    return AppBar(
       title: Text('Ingredients'),
+      actions: <Widget>[
+        IconButton(icon: Icon(Icons.add), onPressed: () {} ,)
+      ],
     );
   }
 

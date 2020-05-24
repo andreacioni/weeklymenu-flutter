@@ -29,7 +29,7 @@ class App extends StatelessWidget {
           accentColor: Colors.amber,
           splashColor: Colors.amberAccent,
           // Define the default font family.
-          fontFamily: 'Aerial',
+          fontFamily: 'Rubik',
 
           // Define the default TextTheme. Use this to specify the default
           // text styling for headlines, titles, bodies of text, and more.

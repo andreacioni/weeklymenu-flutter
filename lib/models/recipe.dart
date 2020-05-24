@@ -152,7 +152,7 @@ class Recipe with ChangeNotifier {
   void updateDescription(String newValue) {
     _edited = true;
     description = newValue;
-    notifyListeners();
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateImgUrl(String newValue) {
@@ -164,13 +164,13 @@ class Recipe with ChangeNotifier {
   void updatePreparation(String newValue) {
     _edited = true;
     preparation = newValue;
-    notifyListeners();
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateNote(String newValue) {
     _edited = true;
     note = newValue;
-    notifyListeners();
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateServs(int newValue) {

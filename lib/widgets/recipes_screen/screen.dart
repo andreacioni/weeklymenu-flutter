@@ -6,7 +6,7 @@ import '../../globals/utils.dart';
 import '../../providers/recipes_provider.dart';
 import '../app_bar.dart';
 import '../../models/recipe.dart';
-import '../menu_page/recipe_card.dart';
+import './recipe_card.dart';
 import '../../presentation/custom_icons_icons.dart';
 
 class RecipesScreen extends StatefulWidget {
