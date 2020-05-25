@@ -9,9 +9,10 @@ import '../../providers/menus_provider.dart';
 import '../../providers/recipes_provider.dart';
 import '../recipe_view/recipe_view.dart';
 import './add_recipe_modal/add_recipe_to_menu_modal.dart';
+import '../../globals/utils.dart' as utils;
 
 class MenuCard extends StatefulWidget {
-  static final extent = 200.0;
+  static final extent = 150.0;
 
   final DateTime _day;
 
@@ -46,30 +47,55 @@ class _MenuCardState extends State<MenuCard> {
   }
 
   Widget _abc() {
+    final isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
+    final pastDay = (utils
+        .dateTimeToDate(widget._day)
+        .add(Duration(days: 1))
+        .isBefore(DateTime.now()));
+
     final divider = Divider(
       color: Colors.grey.shade500,
       height: 0,
     );
+
     final padding = EdgeInsets.symmetric(horizontal: 10);
+
     final rowExtend = (MenuCard.extent - 8) /
         (Meal.values.length + 1); // +1 for the day header
+
+    final primaryColor = pastDay
+        ? Colors.indigo
+        : (isToday ? Colors.green : Theme.of(context).primaryColor);
+
     return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      splashColor: primaryColor.withOpacity(0.2),
       onTap: () {},
       child: Card(
+        elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Column(children: <Widget>[
           //HEADER
           Container(
             padding: padding,
-            color: Theme.of(context).primaryColor.withOpacity(0.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+              color: isToday
+                  ? primaryColor.withOpacity(0.4)
+                  : primaryColor.withOpacity(0.4),
+            ),
             child: SizedBox(
               height: rowExtend,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
                     _dateParser.format(widget._day),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  if (isToday) Text('TODAY'),
+                  if (pastDay) Text('PAST')
                 ],
               ),
             ),
@@ -78,14 +104,21 @@ class _MenuCardState extends State<MenuCard> {
           //BREAKFAST
           Container(
             padding: padding,
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: primaryColor.withOpacity(0.1),
             child: SizedBox(
               height: rowExtend,
               child: Row(
                 children: <Widget>[
+                  Icon(Icons.local_cafe, color: primaryColor.withOpacity(0.3)),
+                  SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     Meal.Breakfast.value,
-                    style: TextStyle(fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black45),
                   ),
                 ],
               ),
@@ -94,14 +127,21 @@ class _MenuCardState extends State<MenuCard> {
           divider,
           Container(
             padding: padding,
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: primaryColor.withOpacity(0.1),
             child: SizedBox(
               height: rowExtend,
               child: Row(
                 children: <Widget>[
+                  Icon(Icons.fastfood, color: primaryColor.withOpacity(0.3)),
+                  SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     Meal.Lunch.value,
-                    style: TextStyle(fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black45),
                   ),
                 ],
               ),
@@ -110,14 +150,21 @@ class _MenuCardState extends State<MenuCard> {
           divider,
           Container(
             padding: padding,
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: primaryColor.withOpacity(0.1),
             child: SizedBox(
               height: rowExtend,
               child: Row(
                 children: <Widget>[
+                  Icon(Icons.local_bar, color: primaryColor.withOpacity(0.3)),
+                  SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     Meal.Dinner.value,
-                    style: TextStyle(fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black45),
                   ),
                 ],
               ),
