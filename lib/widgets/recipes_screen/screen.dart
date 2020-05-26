@@ -95,16 +95,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildRecipeList(List<Recipe> recipes) {
-    return ListView.builder(
-      itemBuilder: (_, index) => RecipeCard(
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemBuilder: (ctx, index) => RecipeCard(
         recipes[index],
         borderSide: _editingModeEnabled == true &&
                 _selectedRecipes.contains(recipes[index])
-            ? BorderSide(color: Theme.of(context).accentColor, width: 2)
+            ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
             : BorderSide.none,
         color: _editingModeEnabled == true &&
                 _selectedRecipes.contains(recipes[index])
-            ? Theme.of(context).accentColor.withOpacity(0.7)
+            ? Theme.of(ctx).accentColor.withOpacity(0.7)
             : Colors.white,
         heroTagValue: recipes[index].id,
         onTap: () => _editingModeEnabled == true

@@ -22,12 +22,38 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: borderSide,
-      ),
-      color: color,
-      child: ListTile(
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: borderSide,
+        ),
+        color: color,
+        child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            children: <Widget>[
+              Flexible(
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10)),
+                      child: _buildImageHeader(_recipe.imgUrl),
+                ),
+                flex: 2,
+              ),
+              Flexible(
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                flex: 1,
+              ),
+            ],
+          ),
+        ));
+
+    /*ListTile(
         onLongPress: onLongPress,
         onTap: onTap,
         leading: Hero(
@@ -43,10 +69,20 @@ class RecipeCard extends StatelessWidget {
                 ),
         ),
         title: Text(_recipe.name),
-        subtitle: Text('A sufficiently long subtitle warrants three lines.'),
-        trailing: Icon(Icons.more_vert),
-        isThreeLine: true,
-      ),
-    );
+      ), */
+  }
+
+  Widget _buildImageHeader(String imgUrl) {
+    if (imgUrl != null) {
+      return Image.network(
+        imgUrl,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.asset(
+        "assets/icons/book.png",
+        scale: 0.2,
+      );
+    }
   }
 }

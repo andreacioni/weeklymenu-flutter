@@ -16,34 +16,20 @@ class MenusProvider with ChangeNotifier {
 
   Map<DateTime, List<Menu>> _dayToMenus = {};
 
-  Future<void> fetchDailyMenu(DateTime day) async {
+  Future<List<Menu>> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
     final jsonPage = await _restApi.getMenusByDay(_dateParser.format(day));
-    final menu = jsonPage['results']
+    final List<Menu> menuList = jsonPage['results']
         .map((jsonMenu) => Menu.fromJson(jsonMenu))
         .toList()
         .cast<Menu>();
-    _dayToMenus[day] = menu;
+    _dayToMenus[day] = menuList;
 
-    return menu;
+    return menuList;
   }
 
   Map<Meal, List<String>> getDailyMenuByMeal(DateTime day) {
-    Map<Meal, List<String>> recipeByMeal = {};
-
-    Meal.values.forEach((meal) {
-      final Menu menuMeal = _dayToMenus[day] != null
-          ? _dayToMenus[day]
-              .firstWhere((menu) => menu.meal == meal, orElse: () => null)
-          : null;
-      if (menuMeal != null) {
-        recipeByMeal[meal] = menuMeal.recipes;
-      } else {
-        recipeByMeal[meal] = [];
-      }
-    });
-
-    return recipeByMeal;
+    return MenusProvider.organizeMenuListByMeal(_dayToMenus[day]);
   }
 
   Menu getByDateAndMeal(DateTime dateTime, Meal meal) {
@@ -113,5 +99,26 @@ class MenusProvider with ChangeNotifier {
     for (var id in menuIds) {
       await _restApi.deleteMenu(id);
     }
+  }
+
+  static Map<Meal, List<String>> organizeMenuListByMeal(List<Menu> menuList) {
+    Map<Meal, List<String>> recipeByMeal = {};
+
+    if (menuList != null && menuList.isNotEmpty) {
+      Meal.values.forEach((meal) {
+        final Menu menuMeal = menuList != null
+            ? menuList.firstWhere((menu) => menu.meal == meal,
+                orElse: () => null)
+            : null;
+
+        if (menuMeal != null) {
+          recipeByMeal[meal] = menuMeal.recipes;
+        } else {
+          recipeByMeal[meal] = [];
+        }
+      });
+    }
+
+    return recipeByMeal;
   }
 }

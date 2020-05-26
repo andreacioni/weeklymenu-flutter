@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../../models/menu.dart';
 import '../../models/enums/meals.dart';
 import '../../presentation/custom_icons_icons.dart';
 import '../recipes_screen/recipe_card.dart';
@@ -36,7 +37,7 @@ class _MenuCardState extends State<MenuCard> {
         }
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            return _abc();
+            return _abc(MenusProvider.organizeMenuListByMeal(snapshot.data));
           default:
             return Center(
               child: CircularProgressIndicator(),
@@ -46,7 +47,7 @@ class _MenuCardState extends State<MenuCard> {
     );
   }
 
-  Widget _abc() {
+  Widget _abc(Map<Meal, List<String>> menuByMeal) {
     final isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
     final pastDay = (utils
         .dateTimeToDate(widget._day)
@@ -120,11 +121,16 @@ class _MenuCardState extends State<MenuCard> {
                         fontSize: 15,
                         color: Colors.black45),
                   ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  _recipesRow(menuByMeal[Meal.Breakfast]),
                 ],
               ),
             ),
           ),
           divider,
+          //Lunch
           Container(
             padding: padding,
             color: primaryColor.withOpacity(0.1),
@@ -143,17 +149,23 @@ class _MenuCardState extends State<MenuCard> {
                         fontSize: 15,
                         color: Colors.black45),
                   ),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  _recipesRow(menuByMeal[Meal.Lunch]),
                 ],
               ),
             ),
           ),
           divider,
+          //DINNER
           Container(
             padding: padding,
             color: primaryColor.withOpacity(0.1),
             child: SizedBox(
               height: rowExtend,
               child: Row(
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   Icon(Icons.local_bar, color: primaryColor.withOpacity(0.3)),
                   SizedBox(
@@ -166,11 +178,51 @@ class _MenuCardState extends State<MenuCard> {
                         fontSize: 15,
                         color: Colors.black45),
                   ),
+                  SizedBox(
+                    width: 28,
+                  ),
+                  _recipesRow(menuByMeal[Meal.Dinner]),
                 ],
               ),
             ),
           ),
         ]),
+      ),
+    );
+  }
+
+  Widget _recipesRow(List<String> recipesIds) {
+    return Expanded(
+          child: Row(
+        children: <Widget>[
+          if (recipesIds == null || recipesIds.isEmpty)
+            Text(
+              "No recipes defined",
+              textAlign: TextAlign.right,
+              style:
+                  TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
+            ),
+          if (recipesIds != null && recipesIds.isNotEmpty) _listToText(recipesIds)
+        ],
+      ),
+    );
+  }
+
+  Widget _listToText(List<String> mealEntry) {
+    final recipes = mealEntry
+        .map((recipeId) => Provider.of<RecipesProvider>(
+              context,
+              listen: false,
+            ).getById(recipeId))
+        .toList();
+
+    return Expanded(
+          child: Text(
+        recipes.join(', '),
+        style: TextStyle(fontStyle: FontStyle.normal, color: Colors.black),
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        maxLines: 1,
       ),
     );
   }
