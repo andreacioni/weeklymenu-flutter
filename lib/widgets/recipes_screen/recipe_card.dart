@@ -21,37 +21,52 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.circular(10);
     return Card(
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: borderSide,
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius,
+        side: borderSide,
+      ),
+      color: color,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          //color: Theme.of(context).primaryColor.withOpacity(0.4),
         ),
-        color: color,
         child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-          child: Column(
-            children: <Widget>[
-              Flexible(
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10)),
-                      child: _buildImageHeader(_recipe.imgUrl),
-                ),
-                flex: 2,
-              ),
-              Flexible(
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                flex: 1,
-              ),
-            ],
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            image: _buildImageProvider(_recipe.imgUrl),
           ),
-        ));
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.black54, Colors.transparent],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
+              color: Colors.blueAccent,
+              borderRadius: borderRadius,
+            ),
+            alignment: AlignmentDirectional.bottomStart,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                _recipe.name,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white.withOpacity(0.88),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Rubik',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
     /*ListTile(
         onLongPress: onLongPress,
@@ -73,15 +88,38 @@ class RecipeCard extends StatelessWidget {
   }
 
   Widget _buildImageHeader(String imgUrl) {
+    Widget imgWidget;
     if (imgUrl != null) {
-      return Image.network(
+      imgWidget = Image.network(
         imgUrl,
+      );
+    } else {
+      imgWidget = Image.asset(
+        "assets/icons/book.png",
+        scale: 0.2,
+      );
+    }
+
+    return FittedBox(
+      child: imgWidget,
+      fit: BoxFit.cover,
+    );
+  }
+
+  DecorationImage _buildImageProvider(String imgUrl) {
+    if (imgUrl != null) {
+      return DecorationImage(
+        image: NetworkImage(
+          imgUrl,
+        ),
         fit: BoxFit.cover,
       );
     } else {
-      return Image.asset(
-        "assets/icons/book.png",
-        scale: 0.2,
+      return DecorationImage(
+        image: AssetImage(
+          "assets/icons/book.png",
+        ),
+        fit: BoxFit.scaleDown,
       );
     }
   }

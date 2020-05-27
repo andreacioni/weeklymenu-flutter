@@ -87,6 +87,13 @@ flutter:
     - family:  CustomIcons
       fonts:
         - asset: assets/fonts/CustomIcons.ttf
+    - family: Pacifico
+      fonts:
+          - asset: assets/fonts/Pacifico.ttf
+    - family: ChunckFive
+      fonts:
+          - asset: assets/fonts/ChunkFive-Regular.otf
+
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
