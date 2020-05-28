@@ -16,8 +16,11 @@ class MenuCard extends StatefulWidget {
   static final extent = 150.0;
 
   final DateTime _day;
+  final Map<Meal, List<String>> _menuByMeal;
 
-  MenuCard(this._day);
+  final void Function() onTap;
+
+  MenuCard(this._day, this._menuByMeal, {this.onTap});
 
   @override
   _MenuCardState createState() => _MenuCardState();
@@ -37,7 +40,8 @@ class _MenuCardState extends State<MenuCard> {
         }
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            return _abc(MenusProvider.organizeMenuListByMeal(snapshot.data));
+            return _buildListBody(
+                MenusProvider.organizeMenuListByMeal(snapshot.data));
           default:
             return Center(
               child: CircularProgressIndicator(),
@@ -47,7 +51,7 @@ class _MenuCardState extends State<MenuCard> {
     );
   }
 
-  Widget _abc(Map<Meal, List<String>> menuByMeal) {
+  Widget _buildListBody(Map<Meal, List<String>> menuByMeal) {
     final isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
     final pastDay = (utils
         .dateTimeToDate(widget._day)
@@ -71,7 +75,7 @@ class _MenuCardState extends State<MenuCard> {
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       splashColor: primaryColor.withOpacity(0.2),
-      onTap: () {},
+      onTap: widget.onTap,
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -193,7 +197,7 @@ class _MenuCardState extends State<MenuCard> {
 
   Widget _recipesRow(List<String> recipesIds) {
     return Expanded(
-          child: Row(
+      child: Row(
         children: <Widget>[
           if (recipesIds == null || recipesIds.isEmpty)
             Text(
@@ -202,7 +206,8 @@ class _MenuCardState extends State<MenuCard> {
               style:
                   TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
             ),
-          if (recipesIds != null && recipesIds.isNotEmpty) _listToText(recipesIds)
+          if (recipesIds != null && recipesIds.isNotEmpty)
+            _listToText(recipesIds)
         ],
       ),
     );
@@ -217,189 +222,12 @@ class _MenuCardState extends State<MenuCard> {
         .toList();
 
     return Expanded(
-          child: Text(
+      child: Text(
         recipes.join(', '),
         style: TextStyle(fontStyle: FontStyle.normal, color: Colors.black),
         overflow: TextOverflow.ellipsis,
         softWrap: false,
         maxLines: 1,
-      ),
-    );
-  }
-
-  Widget _buildPageBody(BuildContext context) {
-    final _stickyHeaderMeal = Provider.of<MenusProvider>(context)
-        .getDailyMenuByMeal(widget._day)
-        .entries
-        .map(_buildStickyHeaderFromMeal)
-        .expand((i) => i) //Flatten a list of lists
-        .toList();
-
-    return Expanded(
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 1,
-        child: _stickyHeaderMeal.isEmpty
-            ? _buildEmptyMealBackground()
-            : CustomScrollView(
-                slivers: _stickyHeaderMeal,
-              ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyMealBackground() {
-    final _textColor = Colors.grey.shade300;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Icon(
-          CustomIcons.dinner,
-          size: 150,
-          color: _textColor,
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Container(
-          width: double.infinity,
-          child: Text(
-            'No Menu Defined Here',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 25,
-              color: _textColor,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        FlatButton(
-          color: Theme.of(context).primaryColor,
-          child: Text(
-            'ADD RECIPE',
-            style: TextStyle(color: Colors.black),
-          ),
-          onPressed: _openAddRecipeModal,
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildStickyHeaderFromMeal(
-      MapEntry<Meal, List<String>> mealEntry) {
-    return <Widget>[
-      SliverAppBar(
-        primary: false,
-        automaticallyImplyLeading: false,
-        elevation: 0,
-        pinned: true,
-        backgroundColor: Colors.white,
-        title: Text(mealEntry.key.value),
-        actions: <Widget>[
-          ButtonTheme(
-            minWidth: 5,
-            height: 5,
-            child: FlatButton(
-              padding: EdgeInsets.all(2),
-              child: Icon(Icons.add),
-              onPressed: () => _addRecipeToMeal(mealEntry.key),
-              shape: CircleBorder(),
-            ),
-          ),
-          ButtonTheme(
-            minWidth: 5,
-            height: 5,
-            child: FlatButton(
-              padding: EdgeInsets.all(2),
-              child: Icon(Icons.close),
-              onPressed: () => _removeWholeMeal(mealEntry.key),
-              shape: CircleBorder(),
-            ),
-          ),
-        ],
-      ),
-      SliverList(delegate: SliverChildListDelegate.fixed(<Widget>[Divider()])),
-      _buildRecipeTilesColumn(mealEntry),
-    ];
-  }
-
-  Widget _buildRecipeTilesColumn(MapEntry<Meal, List<String>> mealEntry) {
-    final recipes = mealEntry.value
-        .map((recipeId) => Provider.of<RecipesProvider>(
-              context,
-              listen: false,
-            ).getById(recipeId))
-        .toList();
-    final heroTag = UniqueKey();
-
-    return SliverList(
-      delegate: SliverChildListDelegate(
-        recipes
-            .map(
-              (recipe) => Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: RecipeCard(
-                  recipe,
-                  heroTagValue: heroTag,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) => ChangeNotifierProvider.value(
-                        value: recipe,
-                        child: RecipeView(heroTag: heroTag),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  void _addRecipeToMeal(Meal meal) async {
-    showDialog(context: context, builder: (ctx) => AlertDialog());
-  }
-
-  void _removeWholeMeal(Meal meal) async {
-    var confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Are you sure?'),
-        content: Text('All recipe associated to this meal will be lost'),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('NO'),
-          ),
-          FlatButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('YES'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm) {
-      Provider.of<MenusProvider>(context, listen: false)
-          .removeDayMeal(widget._day, meal);
-    }
-  }
-
-  void _openAddRecipeModal() async {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        content: AddRecipeToMenuModal(
-          onSelectionEnd: (_) {},
-        ),
       ),
     );
   }

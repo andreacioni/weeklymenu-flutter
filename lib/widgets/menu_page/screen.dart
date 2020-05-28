@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 
+import '../menu_editor/screen.dart';
+import '../../providers/menus_provider.dart';
 import '../../globals/constants.dart';
 import './menu_card.dart';
 import '../../globals/utils.dart' as utils;
@@ -39,23 +42,56 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: _buildAppBar(context),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _showDateRangePicker,
-          child: Icon(Icons.lightbulb_outline),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        body: ListView.builder(
-          itemExtent: _itemExtent,
-          itemBuilder: _buildListItem,
-          controller: _scrollController,
-          itemCount: PAGEVIEW_LIMIT_DAYS,
-        ));
+      appBar: _buildAppBar(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showDateRangePicker,
+        child: Icon(Icons.lightbulb_outline),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      body: ListView.builder(
+        itemExtent: _itemExtent,
+        itemBuilder: _buildListItem,
+        controller: _scrollController,
+        itemCount: PAGEVIEW_LIMIT_DAYS,
+      ),
+    );
   }
 
   Widget _buildListItem(BuildContext context, int index) {
-    return MenuCard(utils.dateTimeToDate(
-        _today.add(Duration(days: index - _todayOffset.toInt()))));
+    final day = utils.dateTimeToDate(
+      _today.add(
+        Duration(
+          days: index - _todayOffset.toInt(),
+        ),
+      ),
+    );
+    return FutureBuilder(
+      future: Provider.of<MenusProvider>(context, listen: false)
+          .fetchDailyMenu(day),
+      builder: (ctx, snapshot) {
+        if (snapshot.hasError) {
+          return Container();
+        }
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            return MenuCard(
+              day, 
+              MenusProvider.organizeMenuListByMeal(snapshot.data),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => MenuEditorScreen(day, MenusProvider.organizeMenuListByMeal(snapshot.data)),
+                  ),
+                );
+              },
+            );
+          default:
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+        }
+      },
+    );
   }
 
   AppBar _buildAppBar(BuildContext context) {
