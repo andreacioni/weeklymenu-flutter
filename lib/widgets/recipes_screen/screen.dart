@@ -96,17 +96,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildRecipeList(List<Recipe> recipes) {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      gridDelegate:
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => RecipeCard(
         recipes[index],
         borderSide: _editingModeEnabled == true &&
                 _selectedRecipes.contains(recipes[index])
             ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
             : BorderSide.none,
-        color: _editingModeEnabled == true &&
+        shadowColorStart: _editingModeEnabled == true &&
                 _selectedRecipes.contains(recipes[index])
             ? Theme.of(ctx).accentColor.withOpacity(0.7)
-            : Colors.white,
+            : Colors.black54,
         heroTagValue: recipes[index].id,
         onTap: () => _editingModeEnabled == true
             ? _addRecipeToEditingList(recipes[index])
@@ -176,15 +177,20 @@ class _RecipesScreenState extends State<RecipesScreen> {
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
       actions: <Widget>[
-        _searchModeEnabled == false
-            ? IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () => setState(() => _searchModeEnabled = true),
-              )
-            : IconButton(
-                icon: Icon(Icons.clear),
-                onPressed: () => setState(() => _searchModeEnabled = false),
-              ),
+        if (_searchModeEnabled == false)
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => setState(() => _searchModeEnabled = true),
+          )
+        else
+          IconButton(
+            icon: Icon(Icons.clear),
+            onPressed: () => setState(() => _searchModeEnabled = false),
+          ),
+        IconButton(
+          icon: Icon(Icons.filter_list),
+          onPressed: () {},
+        )
       ],
     );
   }
@@ -224,15 +230,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   void _deleteRecipes() async {
-    showDialog(context: context, builder: (ctx) {
-      return AlertDialog(
-        content: Text('Are you sure to delete ${_selectedRecipes.length} recipes? This operation is not reversible'),
-        actions: <Widget>[
-          FlatButton(onPressed: () {}, child: Text('NO')),
-          FlatButton(onPressed: () {}, child: Text('YES')),
-        ],
-      );
-    });
+    showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            content: Text(
+                'Are you sure to delete ${_selectedRecipes.length} recipes? This operation is not reversible'),
+            actions: <Widget>[
+              FlatButton(onPressed: () {}, child: Text('NO')),
+              FlatButton(onPressed: () {}, child: Text('YES')),
+            ],
+          );
+        });
   }
 
   void _showRecipeNameDialog() async {

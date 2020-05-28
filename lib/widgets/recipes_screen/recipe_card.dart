@@ -10,14 +10,16 @@ class RecipeCard extends StatelessWidget {
   final Function onTap;
   final Object heroTagValue;
   final BorderSide borderSide;
-  final Color color;
+  final Color shadowColorStart;
+  final Color shadowColorEnd;
 
   RecipeCard(this._recipe,
       {this.onLongPress,
       this.onTap,
       this.heroTagValue,
       this.borderSide = BorderSide.none,
-      this.color});
+      this.shadowColorStart,
+      this.shadowColorEnd = Colors.transparent});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,6 @@ class RecipeCard extends StatelessWidget {
         borderRadius: borderRadius,
         side: borderSide,
       ),
-      color: color,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: borderRadius,
@@ -39,70 +40,43 @@ class RecipeCard extends StatelessWidget {
             borderRadius: borderRadius,
             image: _buildImageProvider(_recipe.imgUrl),
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.black54, Colors.transparent],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-              ),
-              color: Colors.blueAccent,
+          child: Material(
+            //Workaround to place the InkWell animation over the recipe image (https://github.com/flutter/flutter/issues/3782)
+            color: Colors.transparent,
+            child: InkWell(
               borderRadius: borderRadius,
-            ),
-            alignment: AlignmentDirectional.bottomStart,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                _recipe.name,
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.white.withOpacity(0.88),
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Rubik',
+              splashColor: Theme.of(context).primaryColor.withOpacity(0.5),
+              onTap: onTap,
+              onLongPress: onLongPress,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [shadowColorStart, shadowColorEnd],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                  color: Colors.blueAccent,
+                  borderRadius: borderRadius,
+                ),
+                alignment: AlignmentDirectional.bottomStart,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _recipe.name,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      fontSize: 25,
+                      color: Colors.white.withOpacity(0.88),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Rubik',
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    );
-
-    /*ListTile(
-        onLongPress: onLongPress,
-        onTap: onTap,
-        leading: Hero(
-          tag: heroTagValue,
-          child: _recipe.imgUrl != null
-              ? CircleAvatar(
-                  backgroundImage: NetworkImage(_recipe.imgUrl),
-                  radius: 30,
-                )
-              : Image.asset(
-                  "assets/icons/book.png",
-                  scale: 0.5,
-                ),
-        ),
-        title: Text(_recipe.name),
-      ), */
-  }
-
-  Widget _buildImageHeader(String imgUrl) {
-    Widget imgWidget;
-    if (imgUrl != null) {
-      imgWidget = Image.network(
-        imgUrl,
-      );
-    } else {
-      imgWidget = Image.asset(
-        "assets/icons/book.png",
-        scale: 0.2,
-      );
-    }
-
-    return FittedBox(
-      child: imgWidget,
-      fit: BoxFit.cover,
     );
   }
 

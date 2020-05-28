@@ -58,10 +58,14 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                "Information",
-                style: TextStyle(
-                  fontSize: 18,
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Information",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
                 ),
               ),
               SizedBox(
@@ -77,10 +81,14 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                "Ingredients",
-                style: TextStyle(
-                  fontSize: 18,
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Ingredients",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
                 ),
               ),
               SizedBox(
@@ -107,10 +115,14 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                "Prepation",
-                style: TextStyle(
-                  fontSize: 18,
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Prepation",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
                 ),
               ),
               SizedBox(
@@ -126,10 +138,14 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                "Notes",
-                style: TextStyle(
-                  fontSize: 18,
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Notes",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
                 ),
               ),
               SizedBox(
@@ -145,10 +161,14 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                "Tags",
-                style: TextStyle(
-                  fontSize: 18,
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Tags",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
                 ),
               ),
               SizedBox(
