@@ -18,7 +18,7 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  final _todayOffset = (PAGEVIEW_LIMIT_DAYS / 2);
+  final _todayOffset = (pageViewLimitDays / 2);
   final _today = utils.dateTimeToDate(DateTime.now());
   final _itemExtent = MenuCard.extent;
 
@@ -52,7 +52,7 @@ class _MenuScreenState extends State<MenuScreen> {
         itemExtent: _itemExtent,
         itemBuilder: _buildListItem,
         controller: _scrollController,
-        itemCount: PAGEVIEW_LIMIT_DAYS,
+        itemCount: pageViewLimitDays,
       ),
     );
   }
@@ -75,12 +75,13 @@ class _MenuScreenState extends State<MenuScreen> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             return MenuCard(
-              day, 
+              day,
               MenusProvider.organizeMenuListByMeal(snapshot.data),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => MenuEditorScreen(day, MenusProvider.organizeMenuListByMeal(snapshot.data)),
+                    builder: (_) => MenuEditorScreen(day,
+                        MenusProvider.organizeMenuListByMeal(snapshot.data)),
                   ),
                 );
               },
@@ -135,15 +136,18 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _openDatePicker(BuildContext ctx) {
-    showDatePicker(
+  void _openDatePicker(BuildContext ctx) async {
+    DateTime dt = await showDatePicker(
       context: ctx,
       initialDate: _day,
       firstDate: DateTime.now()
-          .subtract(Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate())),
+          .subtract(Duration(days: (pageViewLimitDays / 2).truncate())),
       lastDate: DateTime.now()
-          .add((Duration(days: (PAGEVIEW_LIMIT_DAYS / 2).truncate()))),
-    ).then(_setNewDate);
+          .add((Duration(days: (pageViewLimitDays / 2).truncate()))),
+    );
+    if (dt != null) {
+      _setNewDate(dt);
+    }
   }
 
   void _onPageChanged(int newPageIndex) {
@@ -151,7 +155,7 @@ class _MenuScreenState extends State<MenuScreen> {
     setState(() {
       var now = DateTime.now();
       _day = DateTime(now.year, now.month, now.day).add(
-          Duration(days: newPageIndex - (PAGEVIEW_LIMIT_DAYS / 2).truncate()));
+          Duration(days: newPageIndex - (pageViewLimitDays / 2).truncate()));
     });
   }
 

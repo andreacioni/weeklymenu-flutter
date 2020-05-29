@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../../models/enums/meals.dart';
 import '../../presentation/custom_icons_icons.dart';
@@ -69,8 +70,8 @@ class _MenuCardState extends State<MenuCard> {
         (Meal.values.length + 1); // +1 for the day header
 
     final primaryColor = pastDay
-        ? Colors.indigo
-        : (isToday ? Colors.green : Theme.of(context).primaryColor);
+        ? constants.pastColor
+        : (isToday ? constants.todayColor : Theme.of(context).primaryColor);
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
@@ -86,9 +87,7 @@ class _MenuCardState extends State<MenuCard> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              color: isToday
-                  ? primaryColor.withOpacity(0.4)
-                  : primaryColor.withOpacity(0.4),
+              color: primaryColor.withOpacity(0.4),
             ),
             child: SizedBox(
               height: rowExtend,
