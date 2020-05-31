@@ -8,7 +8,6 @@ class RecipeCard extends StatelessWidget {
   final Recipe _recipe;
   final Function onLongPress;
   final Function onTap;
-  final Object heroTagValue;
   final BorderSide borderSide;
   final Color shadowColorStart;
   final Color shadowColorEnd;
@@ -16,7 +15,6 @@ class RecipeCard extends StatelessWidget {
   RecipeCard(this._recipe,
       {this.onLongPress,
       this.onTap,
-      this.heroTagValue,
       this.borderSide = BorderSide.none,
       this.shadowColorStart,
       this.shadowColorEnd = Colors.transparent});

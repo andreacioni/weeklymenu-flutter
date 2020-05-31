@@ -98,8 +98,8 @@ class _MenuCardState extends State<MenuCard> {
                     _dateParser.format(widget._day),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  if (isToday) Text('TODAY'),
-                  if (pastDay) Text('PAST')
+                  if (isToday) Container(child: Text('TODAY'), decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.green, ), padding: EdgeInsets.all(5),),
+                  if (pastDay) Container(child: Text('PAST'), decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.indigo.withOpacity(0.6), ), padding: EdgeInsets.all(5),)
                 ],
               ),
             ),
