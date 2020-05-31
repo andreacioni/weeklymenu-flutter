@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
 import '../../models/enums/meals.dart';
+import './scroll_view.dart';
 
 class MenuEditorScreen extends StatefulWidget {
   final DateTime _day;
@@ -17,55 +18,62 @@ class MenuEditorScreen extends StatefulWidget {
 class _MenuEditorScreenState extends State<MenuEditorScreen> {
   static final _dateParser = DateFormat('EEEE, MMMM dd');
 
-  bool isToday;
-  bool pastDay;
-  Color primaryColor;
-  Color accentColor;
-  bool initialized;
+  bool _isToday;
+  bool _pastDay;
+
+  bool _initialized;
+
+  ThemeData _theme;
 
   @override
   void initState() {
-    isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
-    pastDay = (utils
+    _isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
+    _pastDay = (utils
         .dateTimeToDate(widget._day)
         .add(Duration(days: 1))
         .isBefore(DateTime.now()));
 
-    initialized = false;
+    _initialized = false;
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!initialized) {
-      primaryColor = pastDay
+    if (!_initialized) {
+      Color primaryColor = _pastDay
           ? constants.pastColor
-          : (isToday ? constants.todayColor : Theme.of(context).primaryColor);
+          : (_isToday ? constants.todayColor : Theme.of(context).primaryColor);
 
-      primaryColor = primaryColor.withOpacity(0.6);
-      accentColor = primaryColor.withOpacity(0.1);
-      initialized = true;
+      _theme = Theme.of(context).copyWith(
+        appBarTheme: AppBarTheme(
+          color: primaryColor,
+        ),
+      );
+
+      _initialized = true;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_dateParser.format(widget._day).toString()),
-        backgroundColor: primaryColor,
-        actions: <Widget>[
-          if (pastDay)
-            IconButton(
-              icon: Icon(Icons.lock),
-              onPressed: () {},
-              highlightColor: accentColor,
-              splashColor: accentColor,
-            ),
-        ],
+    return Theme(
+      data: _theme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_dateParser.format(widget._day).toString()),
+          actions: <Widget>[
+            if (_pastDay)
+              IconButton(
+                icon: Icon(Icons.lock),
+                onPressed: () {},
+              ),
+          ],
+        ),
+        body: Container(
+          child: MenuEditorScrollView(widget._day),
+        ),
       ),
-      body: Container(color: accentColor),
     );
   }
 }

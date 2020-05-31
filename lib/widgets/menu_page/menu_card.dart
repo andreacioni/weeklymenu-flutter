@@ -71,11 +71,11 @@ class _MenuCardState extends State<MenuCard> {
 
     final primaryColor = pastDay
         ? constants.pastColor
-        : (isToday ? constants.todayColor : Theme.of(context).primaryColor);
+        : (isToday ? constants.todayColor : Colors.amber.shade200);
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
-      splashColor: primaryColor.withOpacity(0.2),
+      splashColor: primaryColor.withOpacity(0.6),
       onTap: widget.onTap,
       child: Card(
         elevation: 4,
@@ -87,7 +87,7 @@ class _MenuCardState extends State<MenuCard> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              color: primaryColor.withOpacity(0.4),
+              color: primaryColor,
             ),
             child: SizedBox(
               height: rowExtend,

@@ -25,11 +25,23 @@ class App extends StatelessWidget {
         theme: ThemeData(
           // Define the default brightness and colors.
           brightness: Brightness.light,
-          primaryColor: Colors.amber,
-          accentColor: Colors.amber,
+          primaryColor: Colors.amber.shade300,
+          accentColor: Colors.amberAccent,
           splashColor: Colors.amberAccent,
+          scaffoldBackgroundColor: Colors.white,
           // Define the default font family.
           fontFamily: 'Rubik',
+
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Colors.amber.shade300
+          ),
+
+          appBarTheme: AppBarTheme(color: Colors.amber.shade300),
+
+          //AppBarTheme
+          bottomAppBarTheme: BottomAppBarTheme(
+            color: Colors.white,
+          ),
 
           // Define the default TextTheme. Use this to specify the default
           // text styling for headlines, titles, bodies of text, and more.
