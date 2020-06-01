@@ -98,8 +98,20 @@ class _MenuCardState extends State<MenuCard> {
                     _dateParser.format(widget._day),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  if (isToday) Container(child: Text('TODAY'), decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.green, ), padding: EdgeInsets.all(5),),
-                  if (pastDay) Container(child: Text('PAST'), decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.indigo.withOpacity(0.6), ), padding: EdgeInsets.all(5),)
+                  if (isToday)
+                    Container(
+                      child: Text('TODAY'),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.green,
+                      ),
+                      padding: EdgeInsets.all(5),
+                    ),
+                  if (pastDay)
+                    Icon(
+                      Icons.archive,
+                      color: Colors.black,
+                    ),
                 ],
               ),
             ),
@@ -113,7 +125,7 @@ class _MenuCardState extends State<MenuCard> {
               height: rowExtend,
               child: Row(
                 children: <Widget>[
-                  Icon(Icons.local_cafe, color: primaryColor.withOpacity(0.3)),
+                  Icon(Icons.local_cafe, color: primaryColor.withOpacity(0.5)),
                   SizedBox(
                     width: 5,
                   ),
@@ -141,7 +153,7 @@ class _MenuCardState extends State<MenuCard> {
               height: rowExtend,
               child: Row(
                 children: <Widget>[
-                  Icon(Icons.fastfood, color: primaryColor.withOpacity(0.3)),
+                  Icon(Icons.fastfood, color: primaryColor.withOpacity(0.5)),
                   SizedBox(
                     width: 5,
                   ),
@@ -170,7 +182,7 @@ class _MenuCardState extends State<MenuCard> {
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Icon(Icons.local_bar, color: primaryColor.withOpacity(0.3)),
+                  Icon(Icons.local_bar, color: primaryColor.withOpacity(0.5)),
                   SizedBox(
                     width: 5,
                   ),

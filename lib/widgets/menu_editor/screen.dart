@@ -65,7 +65,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
           actions: <Widget>[
             if (_pastDay)
               IconButton(
-                icon: Icon(Icons.lock),
+                icon: Icon(Icons.archive),
                 onPressed: () {},
               ),
           ],

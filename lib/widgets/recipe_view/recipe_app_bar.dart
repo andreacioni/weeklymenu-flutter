@@ -20,7 +20,10 @@ class RecipeAppBar extends StatelessWidget {
         title: Row(
           children: <Widget>[
             Container(
-              color: Colors.black.withOpacity(0.4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.black.withOpacity(0.4),
+              ),
               padding: EdgeInsets.all(3),
               child: Text(
                 _recipe.name,
@@ -124,7 +127,7 @@ class RecipeAppBar extends StatelessWidget {
       ),
     );
 
-    if(newRecipeName != null) {
+    if (newRecipeName != null) {
       _recipe.updateName(newRecipeName);
     }
   }
