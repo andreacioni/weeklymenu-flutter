@@ -7,6 +7,7 @@ import '../menu_editor/screen.dart';
 import '../../providers/menus_provider.dart';
 import '../../globals/constants.dart';
 import './menu_card.dart';
+import '../../models/menu.dart';
 import '../../globals/utils.dart' as utils;
 import './date_range_picker.dart';
 
@@ -74,24 +75,32 @@ class _MenuScreenState extends State<MenuScreen> {
         }
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            return MenuCard(
-              day,
-              MenusProvider.organizeMenuListByMeal(snapshot.data),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => MenuEditorScreen(day,
-                        MenusProvider.organizeMenuListByMeal(snapshot.data)),
-                  ),
-                );
-              },
-            );
+            return _buildMenuCard(day, snapshot.data);
           default:
             return Center(
               child: CircularProgressIndicator(),
             );
         }
       },
+    );
+  }
+
+  Widget _buildMenuCard(DateTime day, List<Menu> menuList) {
+    final dailyMenu = DailyMenu.byMenuList(day, menuList);
+    return ChangeNotifierProvider.value(
+      value: dailyMenu,
+      child: MenuCard(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ChangeNotifierProvider.value(
+                value: dailyMenu,
+                child: MenuEditorScreen(),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

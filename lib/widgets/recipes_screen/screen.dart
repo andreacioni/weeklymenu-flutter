@@ -100,7 +100,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => Hero(
         tag: recipes[index].id,
-              child: RecipeCard(
+        child: RecipeCard(
           recipes[index],
           borderSide: _editingModeEnabled == true &&
                   _selectedRecipes.contains(recipes[index])
@@ -122,11 +122,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Future _openRecipeView(List<Recipe> recipes, int index, Object heroTag) {
-    return Navigator.push(
-      context,
+  void _openRecipeView(List<Recipe> recipes, int index, Object heroTag) {
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (ctx) => ChangeNotifierProvider.value(
+        builder: (_) => ChangeNotifierProvider.value(
           value: recipes[index],
           child: RecipeView(heroTag: heroTag),
         ),

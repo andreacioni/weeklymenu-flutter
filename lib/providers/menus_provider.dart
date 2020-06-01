@@ -28,10 +28,6 @@ class MenusProvider with ChangeNotifier {
     return menuList;
   }
 
-  Map<Meal, List<String>> getDailyMenuByMeal(DateTime day) {
-    return MenusProvider.organizeMenuListByMeal(_dayToMenus[day]);
-  }
-
   Menu getByDateAndMeal(DateTime dateTime, Meal meal) {
     return _dayToMenus[dateTime].firstWhere((menu) => menu.meal == meal);
   }
@@ -99,26 +95,5 @@ class MenusProvider with ChangeNotifier {
     for (var id in menuIds) {
       await _restApi.deleteMenu(id);
     }
-  }
-
-  static Map<Meal, List<String>> organizeMenuListByMeal(List<Menu> menuList) {
-    Map<Meal, List<String>> recipeByMeal = {};
-
-    if (menuList != null && menuList.isNotEmpty) {
-      Meal.values.forEach((meal) {
-        final Menu menuMeal = menuList != null
-            ? menuList.firstWhere((menu) => menu.meal == meal,
-                orElse: () => null)
-            : null;
-
-        if (menuMeal != null) {
-          recipeByMeal[meal] = menuMeal.recipes;
-        } else {
-          recipeByMeal[meal] = [];
-        }
-      });
-    }
-
-    return recipeByMeal;
   }
 }

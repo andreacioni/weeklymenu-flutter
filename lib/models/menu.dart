@@ -9,7 +9,7 @@ import './enums/meals.dart';
 part 'menu.g.dart';
 
 @JsonSerializable()
-class Menu with ChangeNotifier {
+class Menu {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
   static final _dateParser = DateFormat('y-M-d');
@@ -32,4 +32,36 @@ class Menu with ChangeNotifier {
   static String dateToJson(DateTime date) => _dateParser.format(date);
 
   static DateTime dateFromJson(String date) => _dateParser.parse(date);
+}
+
+class DailyMenu with ChangeNotifier {
+  DateTime day;
+  Map<Meal, List<String>> recipeIdsByMeal;
+
+  DailyMenu(this.day, this.recipeIdsByMeal);
+
+  factory DailyMenu.byMenuList(DateTime day, List<Menu> menuList) {
+    Map<Meal, List<String>> recipeIdsByMeal = {};
+
+    if (menuList != null && menuList.isNotEmpty) {
+      Meal.values.forEach((meal) {
+        final Menu menuMeal = menuList != null
+            ? menuList.firstWhere((menu) => menu.meal == meal,
+                orElse: () => null)
+            : null;
+
+        if (menuMeal != null) {
+          recipeIdsByMeal[meal] = menuMeal.recipes;
+        } else {
+          recipeIdsByMeal[meal] = [];
+        }
+      });
+    }
+
+    return DailyMenu(day, recipeIdsByMeal);
+  }
+
+  List<String> getByMeal(Meal meal) {
+    return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
+  }
 }

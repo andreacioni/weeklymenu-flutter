@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../../models/enums/meals.dart';
+import '../menu_editor/screen.dart';
+
 import '../../presentation/custom_icons_icons.dart';
 import '../recipes_screen/recipe_card.dart';
 import '../../providers/menus_provider.dart';
@@ -13,49 +15,21 @@ import '../recipe_view/recipe_view.dart';
 import './add_recipe_modal/add_recipe_to_menu_modal.dart';
 import '../../globals/utils.dart' as utils;
 
-class MenuCard extends StatefulWidget {
+class MenuCard extends StatelessWidget {
   static final extent = 150.0;
-
-  final DateTime _day;
-  final Map<Meal, List<String>> _menuByMeal;
+  static final _dateParser = DateFormat('EEEE, MMMM dd');
 
   final void Function() onTap;
 
-  MenuCard(this._day, this._menuByMeal, {this.onTap});
-
-  @override
-  _MenuCardState createState() => _MenuCardState();
-}
-
-class _MenuCardState extends State<MenuCard> {
-  static final _dateParser = DateFormat('EEEE, MMMM dd');
+  MenuCard({this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Provider.of<MenusProvider>(context, listen: false)
-          .fetchDailyMenu(widget._day),
-      builder: (ctx, snapshot) {
-        if (snapshot.hasError) {
-          return Container();
-        }
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            return _buildListBody(
-                MenusProvider.organizeMenuListByMeal(snapshot.data));
-          default:
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-        }
-      },
-    );
-  }
+    final dailyMenu = Provider.of<DailyMenu>(context);
 
-  Widget _buildListBody(Map<Meal, List<String>> menuByMeal) {
-    final isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
+    final isToday = (utils.dateTimeToDate(DateTime.now()) == dailyMenu.day);
     final pastDay = (utils
-        .dateTimeToDate(widget._day)
+        .dateTimeToDate(dailyMenu.day)
         .add(Duration(days: 1))
         .isBefore(DateTime.now()));
 
@@ -76,7 +50,7 @@ class _MenuCardState extends State<MenuCard> {
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       splashColor: primaryColor.withOpacity(0.6),
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -95,7 +69,7 @@ class _MenuCardState extends State<MenuCard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    _dateParser.format(widget._day),
+                    _dateParser.format(dailyMenu.day),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   if (isToday)
@@ -139,7 +113,7 @@ class _MenuCardState extends State<MenuCard> {
                   SizedBox(
                     width: 5,
                   ),
-                  _recipesRow(menuByMeal[Meal.Breakfast]),
+                  _recipesRow(context, dailyMenu.getByMeal(Meal.Breakfast)),
                 ],
               ),
             ),
@@ -167,7 +141,7 @@ class _MenuCardState extends State<MenuCard> {
                   SizedBox(
                     width: 30,
                   ),
-                  _recipesRow(menuByMeal[Meal.Lunch]),
+                  _recipesRow(context, dailyMenu.getByMeal(Meal.Lunch)),
                 ],
               ),
             ),
@@ -196,7 +170,7 @@ class _MenuCardState extends State<MenuCard> {
                   SizedBox(
                     width: 28,
                   ),
-                  _recipesRow(menuByMeal[Meal.Dinner]),
+                  _recipesRow(context, dailyMenu.getByMeal(Meal.Dinner)),
                 ],
               ),
             ),
@@ -206,7 +180,7 @@ class _MenuCardState extends State<MenuCard> {
     );
   }
 
-  Widget _recipesRow(List<String> recipesIds) {
+  Widget _recipesRow(BuildContext context, List<String> recipesIds) {
     return Expanded(
       child: Row(
         children: <Widget>[
@@ -218,13 +192,13 @@ class _MenuCardState extends State<MenuCard> {
                   TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
             ),
           if (recipesIds != null && recipesIds.isNotEmpty)
-            _listToText(recipesIds)
+            _listToText(context, recipesIds)
         ],
       ),
     );
   }
 
-  Widget _listToText(List<String> mealEntry) {
+  Widget _listToText(BuildContext context, List<String> mealEntry) {
     final recipes = mealEntry
         .map((recipeId) => Provider.of<RecipesProvider>(
               context,

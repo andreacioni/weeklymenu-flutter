@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
-import '../../models/enums/meals.dart';
+import '../../models/menu.dart';
 import './scroll_view.dart';
 
 class MenuEditorScreen extends StatefulWidget {
-  final DateTime _day;
-  final Map<Meal, List<String>> _menuByMeal;
-
-  MenuEditorScreen(this._day, this._menuByMeal);
+  MenuEditorScreen();
 
   @override
   _MenuEditorScreenState createState() => _MenuEditorScreenState();
@@ -18,52 +16,33 @@ class MenuEditorScreen extends StatefulWidget {
 class _MenuEditorScreenState extends State<MenuEditorScreen> {
   static final _dateParser = DateFormat('EEEE, MMMM dd');
 
-  bool _isToday;
-  bool _pastDay;
-
-  bool _initialized;
-
-  ThemeData _theme;
-
   @override
-  void initState() {
-    _isToday = (utils.dateTimeToDate(DateTime.now()) == widget._day);
-    _pastDay = (utils
-        .dateTimeToDate(widget._day)
+  Widget build(BuildContext context) {
+    final dailyMenu = Provider.of<DailyMenu>(context);
+
+    final isToday = (utils.dateTimeToDate(DateTime.now()) == dailyMenu.day);
+    final pastDay = (utils
+        .dateTimeToDate(dailyMenu.day)
         .add(Duration(days: 1))
         .isBefore(DateTime.now()));
 
-    _initialized = false;
-    super.initState();
-  }
+    final primaryColor = pastDay
+        ? constants.pastColor
+        : (isToday ? constants.todayColor : Theme.of(context).primaryColor);
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      Color primaryColor = _pastDay
-          ? constants.pastColor
-          : (_isToday ? constants.todayColor : Theme.of(context).primaryColor);
-
-      _theme = Theme.of(context).copyWith(
-        appBarTheme: AppBarTheme(
-          color: primaryColor,
-        ),
-      );
-
-      _initialized = true;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    final theme = Theme.of(context).copyWith(
+      primaryColor: primaryColor,
+      appBarTheme: AppBarTheme(
+        color: primaryColor,
+      ),
+    );
     return Theme(
-      data: _theme,
+      data: theme,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_dateParser.format(widget._day).toString()),
+          title: Text(_dateParser.format(dailyMenu.day).toString()),
           actions: <Widget>[
-            if (_pastDay)
+            if (pastDay)
               IconButton(
                 icon: Icon(Icons.archive),
                 onPressed: () {},
@@ -71,7 +50,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
           ],
         ),
         body: Container(
-          child: MenuEditorScrollView(widget._day),
+          child: MenuEditorScrollView(dailyMenu),
         ),
       ),
     );
