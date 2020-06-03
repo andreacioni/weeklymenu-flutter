@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../datasource/network.dart';
+import './enums/meals.dart';
 
 part 'recipe.g.dart';
 
@@ -262,4 +263,10 @@ class RecipeIngredient with ChangeNotifier {
       o is RecipeIngredient && o.ingredientId == this.ingredientId;
   @override
   int get hashCode => ingredientId.hashCode;
+}
+
+class MealRecipe {
+  final Meal meal;
+  final Recipe recipe;
+  MealRecipe(this.meal, this.recipe);
 }

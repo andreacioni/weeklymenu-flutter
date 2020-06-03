@@ -26,13 +26,7 @@ class MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dailyMenu = Provider.of<DailyMenu>(context);
-
-    final isToday = (utils.dateTimeToDate(DateTime.now()) == dailyMenu.day);
-    final pastDay = (utils
-        .dateTimeToDate(dailyMenu.day)
-        .add(Duration(days: 1))
-        .isBefore(DateTime.now()));
-
+    
     final divider = Divider(
       color: Colors.grey.shade500,
       height: 0,
@@ -43,9 +37,9 @@ class MenuCard extends StatelessWidget {
     final rowExtend = (MenuCard.extent - 8) /
         (Meal.values.length + 1); // +1 for the day header
 
-    final primaryColor = pastDay
+    final primaryColor = dailyMenu.isPast
         ? constants.pastColor
-        : (isToday ? constants.todayColor : Colors.amber.shade200);
+        : (dailyMenu.isToday ? constants.todayColor : Colors.amber.shade200);
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
@@ -72,7 +66,7 @@ class MenuCard extends StatelessWidget {
                     _dateParser.format(dailyMenu.day),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  if (isToday)
+                  if (dailyMenu.isToday)
                     Container(
                       child: Text('TODAY'),
                       decoration: BoxDecoration(
@@ -81,7 +75,7 @@ class MenuCard extends StatelessWidget {
                       ),
                       padding: EdgeInsets.all(5),
                     ),
-                  if (pastDay)
+                  if (dailyMenu.isPast)
                     Icon(
                       Icons.archive,
                       color: Colors.black,
@@ -113,7 +107,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 5,
                   ),
-                  _recipesRow(context, dailyMenu.getByMeal(Meal.Breakfast)),
+                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
                 ],
               ),
             ),
@@ -141,7 +135,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 30,
                   ),
-                  _recipesRow(context, dailyMenu.getByMeal(Meal.Lunch)),
+                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
                 ],
               ),
             ),
@@ -170,7 +164,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 28,
                   ),
-                  _recipesRow(context, dailyMenu.getByMeal(Meal.Dinner)),
+                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
                 ],
               ),
             ),

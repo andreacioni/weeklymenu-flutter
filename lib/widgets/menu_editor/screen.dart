@@ -15,26 +15,31 @@ class MenuEditorScreen extends StatefulWidget {
 
 class _MenuEditorScreenState extends State<MenuEditorScreen> {
   static final _dateParser = DateFormat('EEEE, MMMM dd');
+  bool _editingMode;
+
+  @override
+  void initState() {
+    _editingMode = true;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final dailyMenu = Provider.of<DailyMenu>(context);
 
-    final isToday = (utils.dateTimeToDate(DateTime.now()) == dailyMenu.day);
-    final pastDay = (utils
-        .dateTimeToDate(dailyMenu.day)
-        .add(Duration(days: 1))
-        .isBefore(DateTime.now()));
-
-    final primaryColor = pastDay
+    final primaryColor = dailyMenu.isPast
         ? constants.pastColor
-        : (isToday ? constants.todayColor : Theme.of(context).primaryColor);
+        : (dailyMenu.isToday
+            ? constants.todayColor
+            : Theme.of(context).primaryColor);
 
     final theme = Theme.of(context).copyWith(
       primaryColor: primaryColor,
+      toggleableActiveColor: primaryColor,
       appBarTheme: AppBarTheme(
         color: primaryColor,
       ),
+      splashColor: primaryColor.withOpacity(0.4),
     );
     return Theme(
       data: theme,
@@ -42,15 +47,34 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         appBar: AppBar(
           title: Text(_dateParser.format(dailyMenu.day).toString()),
           actions: <Widget>[
-            if (pastDay)
+            if (dailyMenu.isPast)
               IconButton(
                 icon: Icon(Icons.archive),
                 onPressed: () {},
               ),
+            if (!_editingMode)
+              IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {},
+              )
+            else ...<Widget>[
+              IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: Icon(Icons.swap_horiz),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: Icon(Icons.add_box),
+                onPressed: () {},
+              ),
+            ]
           ],
         ),
         body: Container(
-          child: MenuEditorScrollView(dailyMenu),
+          child: MenuEditorScrollView(dailyMenu, editingMode: _editingMode),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../globals/utils.dart' as utils;
 import '../datasource/network.dart';
 import '../globals/utils.dart';
 import './enums/meals.dart';
@@ -61,7 +62,38 @@ class DailyMenu with ChangeNotifier {
     return DailyMenu(day, recipeIdsByMeal);
   }
 
-  List<String> getByMeal(Meal meal) {
+  void moveRecipeToMeal(Meal from, to, String recipeId) {
+    assert((recipeIdsByMeal[from] != null) && (recipeIdsByMeal[from].isNotEmpty));
+
+    final initialLength = recipeIdsByMeal[from].length;
+
+    List<String> recipeIdsForMeal = recipeIdsByMeal[from];
+    recipeIdsForMeal.removeWhere((id) => recipeId == id);
+
+    assert(initialLength != recipeIdsForMeal.length);
+
+    if(recipeIdsByMeal[to] == null) {
+      recipeIdsByMeal[to] = <String>[recipeId];
+    } else {
+      recipeIdsByMeal[to].add(recipeId);
+    }
+
+    notifyListeners();
+  }
+
+  List<String> getRecipeIdsByMeal(Meal meal) {
     return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
   }
+
+  List<Menu> getMenusByMeal(Meal meal) {
+    return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
+  }
+
+  bool get isToday  => utils.dateTimeToDate(DateTime.now()) == day;
+  
+  bool get isPast => (utils
+        .dateTimeToDate(day)
+        .add(Duration(days: 1))
+        .isBefore(DateTime.now()));
+
 }
