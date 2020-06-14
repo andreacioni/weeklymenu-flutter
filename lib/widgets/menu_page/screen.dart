@@ -86,7 +86,7 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   Widget _buildMenuCard(DateTime day, List<Menu> menuList) {
-    final dailyMenu = DailyMenu.byMenuList(day, menuList);
+    final dailyMenu = DailyMenu(day, menuList);
     return ChangeNotifierProvider.value(
       value: dailyMenu,
       child: MenuCard(

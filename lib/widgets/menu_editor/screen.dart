@@ -19,7 +19,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   @override
   void initState() {
-    _editingMode = true;
+    _editingMode = false;
     super.initState();
   }
 
@@ -45,6 +45,10 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
       data: theme,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => _handleBackButton(dailyMenu),
+          ),
           title: Text(_dateParser.format(dailyMenu.day).toString()),
           actions: <Widget>[
             if (dailyMenu.isPast)
@@ -55,12 +59,12 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
             if (!_editingMode)
               IconButton(
                 icon: Icon(Icons.edit),
-                onPressed: () {},
+                onPressed: () => setState(() => _editingMode = true),
               )
             else ...<Widget>[
               IconButton(
                 icon: Icon(Icons.delete),
-                onPressed: () {},
+                onPressed: () => _handleDeleteRecipes(dailyMenu),
               ),
               IconButton(
                 icon: Icon(Icons.swap_horiz),
@@ -70,13 +74,71 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
                 icon: Icon(Icons.add_box),
                 onPressed: () {},
               ),
+              IconButton(
+                icon: Icon(Icons.save),
+                onPressed: () => _saveDailyMenu(dailyMenu),
+              ),
             ]
           ],
         ),
         body: Container(
-          child: MenuEditorScrollView(dailyMenu, editingMode: _editingMode),
+          child: MenuEditorScrollView(
+            dailyMenu,
+            editingMode: _editingMode,
+          ),
         ),
       ),
     );
+  }
+
+  void _handleDeleteRecipes(DailyMenu dailyMenu) async {
+    await dailyMenu.removeSelectedMealRecipes();
+  }
+
+  void _saveDailyMenu(DailyMenu dailyMenu) async {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(),
+            ],
+          ),
+        ),
+      ),
+    );
+    dailyMenu.save();
+    setState(() => _editingMode = false);
+  }
+
+  void _handleBackButton(DailyMenu dailyMenu) async {
+    var cancel = true;
+    if (_editingMode == true) {
+      cancel = await showDialog<bool>(
+        context: context,
+        builder: (bCtx) => AlertDialog(
+          title: Text('Are you sure?'),
+          content: Text('Every unsaved change will be lost'),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () => Navigator.of(bCtx).pop(false),
+              child: Text('CANCEL'),
+            ),
+            FlatButton(
+              onPressed: () => Navigator.of(bCtx).pop(true),
+              child: Text('OK'),
+            )
+          ],
+        ),
+      );
+    }
+
+    if (cancel != null && cancel == true) {
+      dailyMenu.restoreOriginal();
+      Navigator.of(context).pop();
+    }
   }
 }

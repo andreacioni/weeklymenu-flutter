@@ -4,10 +4,12 @@ import 'package:weekly_menu_app/providers/recipes_provider.dart';
 
 import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
+import '../recipe_view/recipe_view.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
 import '../../models/enums/meals.dart';
 import './recipe_tile.dart';
+import './recipe_suggestion_text_field.dart';
 
 class MenuEditorScrollView extends StatefulWidget {
   final DailyMenu _dailyMenu;
@@ -26,11 +28,11 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   bool _dragMode;
   Meal _fromMeal;
 
-  bool _editingMode;
+  Meal _addRecipeMealTarget;
 
   @override
   void initState() {
-    _editingMode = widget.editingMode;
+    _addRecipeMealTarget = null;
     _initialized = false;
     _dragMode = false;
     super.initState();
@@ -43,6 +45,8 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
         splashColor: Theme.of(context).primaryColor.withOpacity(0.4),
         appBarTheme: AppBarTheme(color: Colors.grey.shade100),
       );
+
+      _initialized = true;
     }
     super.didChangeDependencies();
   }
@@ -68,22 +72,52 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
         forceElevated: true,
         elevation: 1,
         automaticallyImplyLeading: false,
-        title: Text(
-          meal.value,
-          textAlign: TextAlign.right,
+        title: Row(
+          children: <Widget>[
+            Icon(meal.icon),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              meal.value,
+              textAlign: TextAlign.right,
+            ),
+          ],
         ),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {},
-          ),
+          if (widget.editingMode) ...<Widget>[
+            IconButton(
+              icon: Icon(Icons.cancel),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () => _showRecipeTextFieldForMeal(meal),
+            ),
+          ]
         ],
       ),
       SliverList(
         delegate: SliverChildListDelegate.fixed(
           <Widget>[
+            if (_addRecipeMealTarget == meal)
+              RecipeSuggestionTextField(
+                meal,
+                autofocus: true,
+                enabled: true,
+                hintText: 'Recipe',
+                showSuggestions: true,
+                onFocusChanged: (hasFocus) {
+                  if (hasFocus == false) {
+                    _stopMealEditing(widget._dailyMenu);
+                  }
+                },
+                onRecipeSelected: (recipe) => _addRecipeToMeal(meal, recipe),
+              ),
             if (recipeIds.isNotEmpty)
-              ...recipeIds.map((id) => _buildRecipeTile(meal, id)).toList(),
+              ...recipeIds
+                  .map((id) => _buildRecipeTile(widget._dailyMenu, meal, id))
+                  .toList(),
             _buildDragTarget(meal),
           ],
         ),
@@ -91,28 +125,54 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     ];
   }
 
-  Widget _buildRecipeTile(Meal meal, String id) {
+  void _showRecipeTextFieldForMeal(Meal meal) {
+    setState(() {
+      _addRecipeMealTarget = meal;
+    });
+  }
+
+  void _addRecipeToMeal(Meal meal, Recipe recipe) {
+    widget._dailyMenu.addRecipeToMeal(meal, recipe);
+  }
+
+  void _stopMealEditing(DailyMenu dailyMenu) {
+    dailyMenu.clearSelected();
+    setState(() {
+      _addRecipeMealTarget = null;
+    });
+  }
+
+  Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id) {
     final recipe = Provider.of<RecipesProvider>(context).getById(id);
     final mealRecipe = MealRecipe(meal, recipe);
+    final recipeTile = RecipeTile(
+      editEnable: widget.editingMode,
+      isChecked: false,
+      onPressed: !widget.editingMode ? () => _openRecipeView(recipe) : null,
+      onCheckChange: (c) => _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
+    );
     return ChangeNotifierProvider.value(
       value: recipe,
       child: Column(
         children: <Widget>[
-          Draggable<MealRecipe>(
-            child: RecipeTile(),
-            feedback: Material(
-              child: Text(recipe.name),
+          if (!widget.editingMode)
+            recipeTile
+          else
+            Draggable<MealRecipe>(
+              child: recipeTile,
+              feedback: Material(
+                child: Text(recipe.name),
+              ),
+              childWhenDragging: Container(),
+              data: mealRecipe,
+              onDragStarted: () => setState(() {
+                _dragMode = true;
+                _fromMeal = meal;
+              }),
+              onDragCompleted: () => setState(() => _dragMode = false),
+              onDragEnd: (_) => setState(() => _dragMode = false),
+              onDraggableCanceled: (_, __) => setState(() => _dragMode = false),
             ),
-            childWhenDragging: Container(),
-            data: mealRecipe,
-            onDragStarted: () => setState(() {
-              _dragMode = true;
-              _fromMeal = meal;
-            }),
-            onDragCompleted: () => setState(() => _dragMode = false),
-            onDragEnd: (_) => setState(() => _dragMode = false),
-            onDraggableCanceled: (_, __) => setState(() => _dragMode = false),
-          ),
           Divider(
             height: 0,
           ),
@@ -140,6 +200,15 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     );
   }
 
+  void _hadleRecipeCheckChange(
+      DailyMenu dailyMenu, MealRecipe mealRecipe, bool checked) {
+    if (checked) {
+      dailyMenu.setSelectedRecipe(mealRecipe);
+    } else {
+      dailyMenu.removeSelectedRecipe(mealRecipe);
+    }
+  }
+
   Widget _dropTargetBuilder(BuildContext context,
       List<MealRecipe> candidateRecipes, rejectedRecipes, Meal targetMeal) {
     if (candidateRecipes.isNotEmpty) {
@@ -151,5 +220,17 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     } else {
       return Container();
     }
+  }
+
+  void _openRecipeView(Recipe recipe) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+            value: recipe,
+            child: RecipeView(
+              heroTag: Object(), //Just a placeholder to avoid NPE
+            )),
+      ),
+    );
   }
 }

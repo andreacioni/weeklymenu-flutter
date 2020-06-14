@@ -93,7 +93,7 @@ class MenuCard extends StatelessWidget {
               height: rowExtend,
               child: Row(
                 children: <Widget>[
-                  Icon(Icons.local_cafe, color: primaryColor.withOpacity(0.5)),
+                  Icon(Meal.Dinner.icon, color: primaryColor.withOpacity(0.5)),
                   SizedBox(
                     width: 5,
                   ),
@@ -121,7 +121,7 @@ class MenuCard extends StatelessWidget {
               height: rowExtend,
               child: Row(
                 children: <Widget>[
-                  Icon(Icons.fastfood, color: primaryColor.withOpacity(0.5)),
+                  Icon(Meal.Lunch.icon, color: primaryColor.withOpacity(0.5)),
                   SizedBox(
                     width: 5,
                   ),
@@ -150,7 +150,7 @@ class MenuCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Icon(Icons.local_bar, color: primaryColor.withOpacity(0.5)),
+                  Icon(Meal.Dinner.icon, color: primaryColor.withOpacity(0.5)),
                   SizedBox(
                     width: 5,
                   ),

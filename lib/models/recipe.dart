@@ -69,6 +69,7 @@ class Recipe with ChangeNotifier {
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
+
   factory Recipe.empty() {
     return Recipe(
       name: '',
@@ -187,6 +188,8 @@ class Recipe with ChangeNotifier {
     _edited = false;
     ingredients.forEach((recipeIngredient) => recipeIngredient.save());
   }
+  
+  Recipe clone() => Recipe.fromJson(this.toJson());
 
   @override
   String toString() => name;

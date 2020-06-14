@@ -37,13 +37,11 @@ class NetworkDatasource {
     return resp.data;
   }
 
-  Future<List<String>> addRecipeToMenu(String menuId, String recipeId) async {
-    var resp = await _dio.post(
+  Future<void> addRecipeToMenu(String menuId, String recipeId) async {
+    await _dio.post(
       '$BASE_URL/menus/$menuId/recipes',
       data: {'recipe_id': recipeId},
     );
-
-    return resp.data;
   }
 
   Future<Map<String, dynamic>> createMenu(Map<String, dynamic> menu) async {
@@ -171,5 +169,13 @@ class NetworkDatasource {
     );
 
     return resp.data;
+  }
+
+  Future<void> putMenu(String id, Map<String, dynamic> jsonMap) async {
+    jsonMap.removeWhere((k, _) => k =='_id');
+    await _dio.put(
+      '$BASE_URL/menus/$id',
+      data: jsonMap,
+    );
   }
 }
