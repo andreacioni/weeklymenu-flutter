@@ -152,6 +152,7 @@ class DailyMenu with ChangeNotifier {
     }
 
     recipesList.add(mealRecipe.recipe.id);
+    _selectedRecipesByMeal[mealRecipe.meal] = recipesList;
   }
 
   void removeSelectedRecipe(MealRecipe mealRecipe) {
@@ -166,20 +167,24 @@ class DailyMenu with ChangeNotifier {
     _selectedRecipesByMeal.clear();
   }
 
-  Future<void> removeSelectedMealRecipes() async {
-    _selectedRecipesByMeal.forEach((meal, recipesId) {
-      if (recipesId != null && recipesId.isNotEmpty) {
-        Menu menu = getMenuByMeal(meal);
-        recipesId.forEach((recipeIdToBeDeleted) async {
-          if (menu.recipes != null && menu.recipes.isNotEmpty) {
-            menu.recipes.removeWhere(
-                (menuRecipeId) => recipeIdToBeDeleted == menuRecipeId);
-            
-            await menu.save();
-          }
-        });
-      }
-    });
+  void removeSelectedMealRecipes() {
+    _selectedRecipesByMeal.forEach(
+      (meal, recipesId) {
+        if (recipesId != null && recipesId.isNotEmpty) {
+          Menu menu = getMenuByMeal(meal);
+          recipesId.forEach(
+            (recipeIdToBeDeleted) {
+              if (menu.recipes != null && menu.recipes.isNotEmpty) {
+                menu.recipes.removeWhere(
+                    (menuRecipeId) => recipeIdToBeDeleted == menuRecipeId);
+              }
+            },
+          );
+        }
+      },
+    );
+
+    notifyListeners();
   }
 
   bool get isToday => utils.dateTimeToDate(DateTime.now()) == day;

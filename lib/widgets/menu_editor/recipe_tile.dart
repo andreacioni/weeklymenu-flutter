@@ -10,8 +10,9 @@ class RecipeTile extends StatefulWidget {
   final bool isChecked;
   final void Function() onPressed;
   final void Function(bool) onCheckChange;
+  final Key key;
 
-  RecipeTile({this.editEnable, this.isChecked, this.onPressed, this.onCheckChange});
+  RecipeTile({this.editEnable, this.isChecked, this.onPressed, this.onCheckChange, this.key});
 
   @override
   _RecipeTileState createState() => _RecipeTileState();

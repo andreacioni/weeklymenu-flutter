@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
@@ -15,11 +16,27 @@ class MenuEditorScreen extends StatefulWidget {
 
 class _MenuEditorScreenState extends State<MenuEditorScreen> {
   static final _dateParser = DateFormat('EEEE, MMMM dd');
+
   bool _editingMode;
+
+  ProgressDialog progressDialog;
 
   @override
   void initState() {
     _editingMode = false;
+    Future.delayed(Duration(seconds: 0)).then(
+      (_) {
+        progressDialog = ProgressDialog(
+          context,
+          isDismissible: false,
+        );
+        progressDialog.style(
+          message: 'Saving',
+          progressWidget: CircularProgressIndicator(),
+        );
+      },
+    );
+
     super.initState();
   }
 
@@ -91,26 +108,17 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     );
   }
 
-  void _handleDeleteRecipes(DailyMenu dailyMenu) async {
-    await dailyMenu.removeSelectedMealRecipes();
+  Future<void> _handleDeleteRecipes(DailyMenu dailyMenu) async {
+    dailyMenu.removeSelectedMealRecipes();
+    await dailyMenu.save();
+    progressDialog.hide();
+    progressDialog.hide();
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        content: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              CircularProgressIndicator(),
-            ],
-          ),
-        ),
-      ),
-    );
-    dailyMenu.save();
+    progressDialog.show();
+    await dailyMenu.save();
+    progressDialog.hide();
     setState(() => _editingMode = false);
   }
 
