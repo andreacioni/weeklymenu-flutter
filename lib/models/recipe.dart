@@ -1,13 +1,121 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../globals/memento.dart';
 import '../datasource/network.dart';
 import './enums/meals.dart';
 
 part 'recipe.g.dart';
 
+class RecipeOriginator extends Originator<Recipe> {
+  RecipeOriginator(Recipe original) : super(original);
+
+  void updateName(String newRecipeName) {
+    setEdited();
+    instance.name = newRecipeName;
+    notifyListeners();
+  }
+
+  void updateDifficulty(String newValue) {
+    setEdited();
+    instance.difficulty = newValue;
+    notifyListeners();
+  }
+
+  void updatePreparationTime(int newValue) {
+    setEdited();
+    instance.estimatedPreparationTime = newValue;
+    notifyListeners();
+  }
+
+  void updateCookingTime(int newValue) {
+    setEdited();
+    instance.estimatedCookingTime = newValue;
+    notifyListeners();
+  }
+
+  void updateRating(int newValue) {
+    setEdited();
+    instance.rating = newValue;
+    notifyListeners();
+  }
+
+  void updateCost(int newValue) {
+    setEdited();
+    instance.cost = newValue;
+    notifyListeners();
+  }
+
+  void addRecipeIngredient(RecipeIngredient recipeIngredient) {
+    setEdited();
+    if (instance.ingredients == null) {
+      instance.ingredients = [recipeIngredient];
+    } else {
+      instance.ingredients.add(recipeIngredient);
+    }
+    notifyListeners();
+  }
+
+  void deleteRecipeIngredient(String recipeIngredientId) {
+    if (instance.ingredients != null && instance.ingredients.isNotEmpty) {
+      setEdited();
+      instance.ingredients.removeWhere((recipeIngredient) =>
+          recipeIngredient.ingredientId == recipeIngredientId);
+      notifyListeners();
+    }
+  }
+
+  void addTag(String newTag) {
+    setEdited();
+    if (instance.tags == null) {
+      instance.tags = [newTag];
+    } else {
+      instance.tags.add(newTag);
+    }
+    notifyListeners();
+  }
+
+  void removeTag(String tagToRemove) {
+    setEdited();
+    if (instance.tags != null) {
+      instance.tags.removeWhere((tag) => tag == tagToRemove);
+      notifyListeners();
+    }
+  }
+
+  void updateDescription(String newValue) {
+    setEdited();
+    instance.description = newValue;
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
+  }
+
+  void updateImgUrl(String newValue) {
+    setEdited();
+    instance.imgUrl = newValue;
+    notifyListeners();
+  }
+
+  void updatePreparation(String newValue) {
+    setEdited();
+    instance.preparation = newValue;
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
+  }
+
+  void updateNote(String newValue) {
+    setEdited();
+    instance.note = newValue;
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
+  }
+
+  void updateServs(int newValue) {
+    setEdited();
+    instance.servs = newValue;
+    notifyListeners();
+  }
+}
+
 @JsonSerializable()
-class Recipe with ChangeNotifier {
+class Recipe extends CloneableAndSaveable<Recipe> {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
   @JsonKey(name: '_id')
@@ -49,8 +157,6 @@ class Recipe with ChangeNotifier {
   @JsonKey(ignore: true)
   String owner;
 
-  bool _edited = false;
-
   Recipe(
       {this.id,
       this.name,
@@ -69,7 +175,6 @@ class Recipe with ChangeNotifier {
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
-
   factory Recipe.empty() {
     return Recipe(
       name: '',
@@ -78,117 +183,13 @@ class Recipe with ChangeNotifier {
     );
   }
 
-  void updateName(String newRecipeName) {
-    _edited = true;
-    this.name = newRecipeName;
-    notifyListeners();
-  }
-
-  void updateDifficulty(String newValue) {
-    _edited = true;
-    difficulty = newValue;
-    notifyListeners();
-  }
-
-  void updatePreparationTime(int newValue) {
-    _edited = true;
-    estimatedPreparationTime = newValue;
-    notifyListeners();
-  }
-
-  void updateCookingTime(int newValue) {
-    _edited = true;
-    estimatedCookingTime = newValue;
-    notifyListeners();
-  }
-
-  void updateRating(int newValue) {
-    _edited = true;
-    rating = newValue;
-    notifyListeners();
-  }
-
-  void updateCost(int newValue) {
-    _edited = true;
-    cost = newValue;
-    notifyListeners();
-  }
-
-  void addRecipeIngredient(RecipeIngredient recipeIngredient) {
-    _edited = true;
-    if (ingredients == null) {
-      ingredients = [recipeIngredient];
-    } else {
-      ingredients.add(recipeIngredient);
-    }
-    notifyListeners();
-  }
-
-  void deleteRecipeIngredient(String recipeIngredientId) {
-    if (ingredients != null && ingredients.isNotEmpty) {
-      _edited = true;
-      ingredients.removeWhere((recipeIngredient) =>
-          recipeIngredient.ingredientId == recipeIngredientId);
-      notifyListeners();
-    }
-  }
-
-  void addTag(String newTag) {
-    _edited = true;
-    if (tags == null) {
-      tags = [newTag];
-    } else {
-      tags.add(newTag);
-    }
-    notifyListeners();
-  }
-
-  void removeTag(String tagToRemove) {
-    _edited = true;
-    if (tags != null) {
-      tags.removeWhere((tag) => tag == tagToRemove);
-      notifyListeners();
-    }
-  }
-
-  void updateDescription(String newValue) {
-    _edited = true;
-    description = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
-  }
-
-  void updateImgUrl(String newValue) {
-    _edited = true;
-    imgUrl = newValue;
-    notifyListeners();
-  }
-
-  void updatePreparation(String newValue) {
-    _edited = true;
-    preparation = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
-  }
-
-  void updateNote(String newValue) {
-    _edited = true;
-    note = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
-  }
-
-  void updateServs(int newValue) {
-    _edited = true;
-    servs = newValue;
-    notifyListeners();
-  }
-
-  bool get isResourceEdited => _edited;
-
-  Future<void> save() async {
+  @override
+  Future<Recipe> save() async {
     await _restApi.patchRecipe(id, this.toJson());
-    _edited = false;
     ingredients.forEach((recipeIngredient) => recipeIngredient.save());
+    return this;
   }
-  
+
   Recipe clone() => Recipe.fromJson(this.toJson());
 
   @override
@@ -199,8 +200,30 @@ class Recipe with ChangeNotifier {
   int get hashCode => id.hashCode;
 }
 
+class RecipeIngredientOriginator extends Originator<RecipeIngredient> {
+  RecipeIngredientOriginator(RecipeIngredient original) : super(original);
+
+  void setQuantity(double newValue) {
+    setEdited();
+    instance.quantity = newValue;
+    notifyListeners();
+  }
+
+  void setUom(String newValue) {
+    setEdited();
+    instance.unitOfMeasure = newValue;
+    notifyListeners();
+  }
+
+  void setFreezed(bool newValue) {
+    setEdited();
+    instance.freezed = newValue;
+    notifyListeners();
+  }
+}
+
 @JsonSerializable()
-class RecipeIngredient with ChangeNotifier {
+class RecipeIngredient extends CloneableAndSaveable<RecipeIngredient> {
   @JsonKey(ignore: true)
   String recipeId;
 
@@ -213,8 +236,6 @@ class RecipeIngredient with ChangeNotifier {
   String unitOfMeasure;
   @JsonKey(includeIfNull: false)
   bool freezed;
-
-  bool _edited = false;
 
   RecipeIngredient(
       {@required this.ingredientId,
@@ -235,31 +256,14 @@ class RecipeIngredient with ChangeNotifier {
 
   Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
 
-  void setQuantity(double newValue) {
-    _edited = true;
-    quantity = newValue;
-    notifyListeners();
-  }
-
-  void setUom(String newValue) {
-    _edited = true;
-    unitOfMeasure = newValue;
-    notifyListeners();
-  }
-
-  void setFreezed(bool newValue) {
-    _edited = true;
-    freezed = newValue;
-    notifyListeners();
-  }
-
-  bool get isResourceEdited => _edited;
-
-  Future<void> save() {
+  @override
+  Future<RecipeIngredient> save() {
     //No patch here (this is done by the recipe class)
-    _edited = false;
-    return Future.delayed(Duration.zero);
+    return Future.delayed(Duration.zero, () => this);
   }
+
+  @override
+  RecipeIngredient clone() => RecipeIngredient.fromJson(this.toJson());
 
   @override
   bool operator ==(o) =>
