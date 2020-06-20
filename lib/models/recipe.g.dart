@@ -20,17 +20,17 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
     difficulty: json['difficulty'] as String,
     rating: json['rating'] as int,
     cost: json['cost'] as int,
+    availabilityMonths:
+        (json['availabilityMonths'] as List)?.map((e) => e as int)?.toList(),
     servs: json['servs'] as int,
     estimatedPreparationTime: json['estimatedPreparationTime'] as int,
     estimatedCookingTime: json['estimatedCookingTime'] as int,
     imgUrl: json['imgUrl'] as String,
     tags: (json['tags'] as List)?.map((e) => e as String)?.toList(),
-  )
-    ..availabilityMonths =
-        (json['availabilityMonths'] as List)?.map((e) => e as int)?.toList()
-    ..preparation = json['preparation'] as String
-    ..note = json['note'] as String
-    ..recipeUrl = json['recipeUrl'] as String;
+    preparation: json['preparation'] as String,
+    recipeUrl: json['recipeUrl'] as String,
+    note: json['note'] as String,
+  );
 }
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {

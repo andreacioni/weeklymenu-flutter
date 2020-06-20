@@ -14,7 +14,7 @@ class RecipeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
+      expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Row(
@@ -26,7 +26,7 @@ class RecipeAppBar extends StatelessWidget {
               ),
               padding: EdgeInsets.all(3),
               child: Text(
-                _recipe.instance.name,
+                _recipe.name,
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -44,11 +44,11 @@ class RecipeAppBar extends StatelessWidget {
               )
           ],
         ),
-        background: _recipe.instance.imgUrl != null
+        background: _recipe.imgUrl != null
             ? Hero(
                 tag: heroTag,
                 child: Image.network(
-                  _recipe.instance.imgUrl,
+                  _recipe.imgUrl,
                   fit: BoxFit.fitWidth,
                 ),
               )
@@ -75,7 +75,7 @@ class RecipeAppBar extends StatelessWidget {
 
   void _showUpdateImageDialog(BuildContext context) async {
     final textController = TextEditingController();
-    textController.text = _recipe.instance.imgUrl;
+    textController.text = _recipe.imgUrl;
     String newUrl = await showDialog<String>(
         context: context,
         builder: (_) => AlertDialog(
@@ -96,12 +96,12 @@ class RecipeAppBar extends StatelessWidget {
             ));
 
     if (newUrl != null) {
-      _recipe.instance.updateImgUrl(newUrl);
+      _recipe.updateImgUrl(newUrl);
     }
   }
 
   void _openEditRecipeNameModal(BuildContext context) async {
-    final textController = TextEditingController(text: _recipe.instance.name);
+    final textController = TextEditingController(text: _recipe.name);
     String newRecipeName = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
@@ -128,7 +128,7 @@ class RecipeAppBar extends StatelessWidget {
     );
 
     if (newRecipeName != null) {
-      _recipe.instance.updateName(newRecipeName);
+      _recipe.updateName(newRecipeName);
     }
   }
 }

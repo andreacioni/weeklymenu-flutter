@@ -22,7 +22,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   String _searchText;
 
   bool _editingModeEnabled;
-  List<Recipe> _selectedRecipes;
+  List<RecipeOriginator> _selectedRecipes;
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     _searchText = "";
     _isLoading = false;
     _editingModeEnabled = false;
-    _selectedRecipes = <Recipe>[];
+    _selectedRecipes = <RecipeOriginator>[];
 
     super.initState();
   }
@@ -61,7 +61,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Widget _buildScreenBody(List<Recipe> recipes) {
+  Widget _buildScreenBody(List<RecipeOriginator> recipes) {
     if (recipes.isEmpty && _searchModeEnabled) {
       return _buildNoRecipesFound();
     } else {
@@ -94,7 +94,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Widget _buildRecipeList(List<Recipe> recipes) {
+  Widget _buildRecipeList(List<RecipeOriginator> recipes) {
     return GridView.builder(
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
@@ -122,7 +122,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  void _openRecipeView(List<Recipe> recipes, int index, Object heroTag) {
+  void _openRecipeView(List<RecipeOriginator> recipes, int index, Object heroTag) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(
@@ -133,7 +133,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  void _addRecipeToEditingList(Recipe recipe) {
+  void _addRecipeToEditingList(RecipeOriginator recipe) {
     if (!_selectedRecipes.contains(recipe)) {
       setState(() {
         _selectedRecipes.add(recipe);
@@ -149,7 +149,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     }
   }
 
-  void _enableEditingMode(Recipe recipe) {
+  void _enableEditingMode(RecipeOriginator recipe) {
     setState(() => _editingModeEnabled = true);
     _addRecipeToEditingList(recipe);
   }
@@ -247,7 +247,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   void _showRecipeNameDialog() async {
     final textController = TextEditingController();
-    Recipe newRecipe = await showDialog<Recipe>(
+    RecipeOriginator newRecipe = await showDialog<RecipeOriginator>(
       context: context,
       builder: (_) => AlertDialog(
         content: TextField(
@@ -288,7 +288,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     }
   }
 
-  void _openNewRecipeScreen(Recipe newRecipe) {
+  void _openNewRecipeScreen(RecipeOriginator newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(

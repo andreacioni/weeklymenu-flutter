@@ -31,7 +31,7 @@ class _RecipeViewState extends State<RecipeView> {
 
   @override
   Widget build(BuildContext context) {
-    Recipe recipe = Provider.of<Recipe>(context);
+    RecipeOriginator recipe = Provider.of<RecipeOriginator>(context);
 
     return Scaffold(
       body: CustomScrollView(
@@ -104,7 +104,7 @@ class _RecipeViewState extends State<RecipeView> {
                 ...recipe.ingredients
                     .map((recipeIng) => ChangeNotifierProvider.value(
                           value: recipeIng,
-                          child: DismissibleRecipeIngredientTile(_editEnabled),
+                          child: DismissibleRecipeIngredientTile(recipe, _editEnabled),
                         ))
                     .toList(),
               if (_editEnabled)
@@ -188,12 +188,8 @@ class _RecipeViewState extends State<RecipeView> {
     );
   }
 
-  void _handleEditToggle(Recipe recipe, bool editEnabled) {
-    if (!editEnabled &&
-        (recipe.isResourceEdited ||
-            (recipe.ingredients
-                    .indexWhere((recipeIng) => recipeIng.isResourceEdited) !=
-                -1))) {
+  void _handleEditToggle(RecipeOriginator recipe, bool editEnabled) {
+    if (!editEnabled && recipe.isEdited) {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
       recipe.save();
     }

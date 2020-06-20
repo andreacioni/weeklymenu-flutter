@@ -38,6 +38,7 @@ abstract class Originator<T extends CloneableAndSaveable<T>> with ChangeNotifier
     return _original;
   }
 
+  @protected
   T get instance => _original;
 
   void setEdited() => _edited = true;

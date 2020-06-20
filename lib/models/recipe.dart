@@ -68,7 +68,7 @@ class RecipeOriginator extends Originator<Recipe> {
   void addTag(String newTag) {
     setEdited();
     if (instance.tags == null) {
-      instance.tags = [newTag];
+     instance.tags = [newTag];
     } else {
       instance.tags.add(newTag);
     }
@@ -112,6 +112,40 @@ class RecipeOriginator extends Originator<Recipe> {
     instance.servs = newValue;
     notifyListeners();
   }
+ 
+  String get id => instance.id;
+
+  String get name => instance.name;
+
+  String get description => instance.description;
+
+  List<RecipeIngredient> get ingredients => [...instance.ingredients.map((e) => e.clone())];
+
+  String get difficulty => instance.difficulty;
+
+  int get rating => instance.rating;
+
+  int get cost => instance.cost;
+
+  List<int> get availabilityMonths => [...instance.availabilityMonths];
+
+  int get servs => instance.servs;
+
+  int get estimatedPreparationTime => instance.estimatedPreparationTime;
+
+  int get estimatedCookingTime => instance.estimatedCookingTime;
+
+  String get imgUrl => instance.imgUrl;
+
+  String get preparation => instance.preparation;
+
+  String get recipeUrl => instance.recipeUrl;
+
+  String get note => instance.note;
+
+  List<String> get tags => [...instance.tags];
+
+  String get owner => instance.owner;
 }
 
 @JsonSerializable()
@@ -120,6 +154,7 @@ class Recipe extends CloneableAndSaveable<Recipe> {
 
   @JsonKey(name: '_id')
   String id;
+
   String name;
 
   @JsonKey(includeIfNull: false)
@@ -157,36 +192,33 @@ class Recipe extends CloneableAndSaveable<Recipe> {
   @JsonKey(ignore: true)
   String owner;
 
-  Recipe(
-      {this.id,
-      this.name,
-      this.description,
-      this.ingredients = const <RecipeIngredient>[],
-      this.difficulty,
-      this.rating,
-      this.cost,
-      this.servs,
-      this.estimatedPreparationTime,
-      this.estimatedCookingTime,
-      this.imgUrl,
-      this.tags});
+  Recipe({
+    this.id,
+    this.name,
+    this.description,
+    this.ingredients = const <RecipeIngredient>[],
+    this. difficulty,
+    this.rating,
+    this.cost,
+    this.availabilityMonths,
+    this.servs,
+    this.estimatedPreparationTime,
+    this.estimatedCookingTime,
+    this.imgUrl,
+    this.tags = const <String>[],
+    this.preparation,
+    this.recipeUrl,
+    this.note,
+    this.owner,
+  });
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
-  factory Recipe.empty() {
-    return Recipe(
-      name: '',
-      description: '',
-      ingredients: [],
-    );
-  }
-
   @override
   Future<Recipe> save() async {
     await _restApi.patchRecipe(id, this.toJson());
-    ingredients.forEach((recipeIngredient) => recipeIngredient.save());
     return this;
   }
 
@@ -200,7 +232,7 @@ class Recipe extends CloneableAndSaveable<Recipe> {
   int get hashCode => id.hashCode;
 }
 
-class RecipeIngredientOriginator extends Originator<RecipeIngredient> {
+/* class RecipeIngredientOriginator extends Originator<RecipeIngredient> {
   RecipeIngredientOriginator(RecipeIngredient original) : super(original);
 
   void setQuantity(double newValue) {
@@ -220,10 +252,21 @@ class RecipeIngredientOriginator extends Originator<RecipeIngredient> {
     instance.freezed = newValue;
     notifyListeners();
   }
-}
+
+  String get recipeId => instance.recipeId;
+
+  String get ingredientId => instance.ingredientId;
+
+  double get quantity => instance.quantity;
+
+  String get unitOfMeasure => instance.unitOfMeasure;
+
+  bool get freezed => instance.freezed;
+
+} */
 
 @JsonSerializable()
-class RecipeIngredient extends CloneableAndSaveable<RecipeIngredient> {
+class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
   @JsonKey(ignore: true)
   String recipeId;
 
@@ -255,12 +298,6 @@ class RecipeIngredient extends CloneableAndSaveable<RecipeIngredient> {
       _$RecipeIngredientFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
-
-  @override
-  Future<RecipeIngredient> save() {
-    //No patch here (this is done by the recipe class)
-    return Future.delayed(Duration.zero, () => this);
-  }
 
   @override
   RecipeIngredient clone() => RecipeIngredient.fromJson(this.toJson());

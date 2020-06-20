@@ -12,7 +12,7 @@ class RecipeTags extends StatelessWidget {
     @required this.editEnabled,
   });
 
-  final Recipe recipe;
+  final RecipeOriginator recipe;
   final bool editEnabled;
 
   List<String> _availableTags(BuildContext context) {

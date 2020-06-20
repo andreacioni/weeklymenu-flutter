@@ -5,7 +5,7 @@ import '../recipe_view/recipe_view.dart';
 import '../../models/recipe.dart';
 
 class RecipeCard extends StatelessWidget {
-  final Recipe _recipe;
+  final RecipeOriginator _recipe;
   final Function onLongPress;
   final Function onTap;
   final BorderSide borderSide;

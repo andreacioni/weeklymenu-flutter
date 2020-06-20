@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
 
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
@@ -7,10 +9,11 @@ import '../../../models/recipe.dart';
 import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientListTile extends StatefulWidget {
+  final RecipeOriginator _recipe;
   final RecipeIngredient _recipeIngredient;
   final bool editEnabled;
 
-  RecipeIngredientListTile(this._recipeIngredient, {this.editEnabled = false});
+  RecipeIngredientListTile(this._recipe, this._recipeIngredient, {this.editEnabled = false});
 
   @override
   _RecipeIngredientListTileState createState() =>
@@ -18,6 +21,8 @@ class RecipeIngredientListTile extends StatefulWidget {
 }
 
 class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
+  final log = Logger((RecipeIngredientListTile).toString());
+
   @override
   Widget build(BuildContext context) {
     Ingredient ingredient =
@@ -61,17 +66,23 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
     );
   }
 
-  void _openRecipeIngredientUpdateModal() {
-    showDialog<RecipeIngredient>(
+  void _openRecipeIngredientUpdateModal() async {
+    RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
       builder: (bContext) => RecipeIngredientModal(
         widget._recipeIngredient.recipeId,
         recipeIngredient: widget._recipeIngredient,
       ),
-    ).then((updatedRecipeIng) {
-      widget._recipeIngredient.setQuantity(updatedRecipeIng.quantity);
-      widget._recipeIngredient.setUom(updatedRecipeIng.unitOfMeasure);
-      widget._recipeIngredient.setFreezed(updatedRecipeIng.freezed);
-    });
+    );
+
+    if (updatedRecipeIng != null) {
+      widget._recipe.setEdited();
+
+      widget._recipeIngredient.quantity = updatedRecipeIng.quantity;
+      widget._recipeIngredient.unitOfMeasure = updatedRecipeIng.unitOfMeasure;
+      widget._recipeIngredient.freezed = updatedRecipeIng.freezed;
+    } else {
+      log.info("No update ingredient recipe returned");
+    }
   }
 }
