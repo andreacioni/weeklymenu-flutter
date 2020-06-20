@@ -131,7 +131,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     });
   }
 
-  void _addRecipeToMeal(Meal meal, Recipe recipe) {
+  void _addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
     widget._dailyMenu.addRecipeToMeal(meal, recipe);
   }
 
@@ -223,7 +223,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     }
   }
 
-  void _openRecipeView(Recipe recipe) {
+  void _openRecipeView(RecipeOriginator recipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(

@@ -311,6 +311,6 @@ class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
 
 class MealRecipe {
   final Meal meal;
-  final Recipe recipe;
+  final RecipeOriginator recipe;
   MealRecipe(this.meal, this.recipe);
 }

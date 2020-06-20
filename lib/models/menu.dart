@@ -15,12 +15,14 @@ part 'menu.g.dart';
 class MenuOriginator extends Originator<Menu> {
   MenuOriginator(Menu original) : super(original);
   
-  void addRecipe(Recipe recipe) {
+  void addRecipe(RecipeOriginator recipe) {
     if (recipe != null) {
       instance.recipes.add(recipe.id);
       setEdited();
     }
   }
+
+  List<String> get recipes => [...instance.recipes];
 }
 
 @JsonSerializable()
@@ -95,7 +97,7 @@ class DailyMenu with ChangeNotifier {
     return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
   }
 
-  void addRecipeToMeal(Meal meal, Recipe recipe) async {
+  void addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
     final menu = getMenuByMeal(meal);
 
     if (menu != null) {
