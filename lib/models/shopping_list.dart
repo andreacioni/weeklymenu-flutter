@@ -5,7 +5,7 @@ import '../datasource/network.dart';
 
 part 'shopping_list.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ShoppingList with ChangeNotifier {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
@@ -37,7 +37,7 @@ class ShoppingList with ChangeNotifier {
     items.add(shoppingListItem);
     notifyListeners();
     
-    _restApi.addShoppingListItem(id, shoppingListItem.toJSON());
+    _restApi.addShoppingListItem(id, shoppingListItem.toJson());
   }
 
   Future<void> removeItemFromList(ShoppingListItem toBeRemoved) async {
@@ -48,7 +48,7 @@ class ShoppingList with ChangeNotifier {
 
   Future<void> setChecked(ShoppingListItem item, bool checked) async {
     item.checked = checked;
-    _restApi.patchShoppingListItem(id, item.item, item.toJSON());
+    _restApi.patchShoppingListItem(id, item.item, item.toJson());
     notifyListeners();
   }
 
@@ -82,5 +82,5 @@ class ShoppingListItem with ChangeNotifier {
   factory ShoppingListItem.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListItemFromJson(json);
 
-  Map<String, dynamic> toJSON() => _$ShoppingListItemToJson(this);
+  Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
 }

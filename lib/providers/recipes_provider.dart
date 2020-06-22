@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/ingredient.dart';
 
 import '../datasource/network.dart';
 import '../models/recipe.dart';

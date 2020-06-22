@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import './scroll_view.dart';

@@ -53,7 +53,8 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('servs', instance.servs);
   writeNotNull('estimatedCookingTime', instance.estimatedCookingTime);
   writeNotNull('estimatedPreparationTime', instance.estimatedPreparationTime);
-  writeNotNull('ingredients', instance.ingredients);
+  writeNotNull(
+      'ingredients', instance.ingredients?.map((e) => e?.toJson())?.toList());
   writeNotNull('preparation', instance.preparation);
   writeNotNull('note', instance.note);
   writeNotNull('imgUrl', instance.imgUrl);

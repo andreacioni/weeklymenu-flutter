@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
 
 import '../../globals/utils.dart' as utils;
@@ -131,8 +132,17 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     });
   }
 
-  void _addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
-    widget._dailyMenu.addRecipeToMeal(meal, recipe);
+  Future<void> _addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
+    if (widget._dailyMenu.getMenuByMeal(meal) == null) {
+      var newMenu =
+          Menu(date: widget._dailyMenu.day, recipes: [recipe.id], meal: meal);
+      MenuOriginator menuOriginator =
+          await Provider.of<MenusProvider>(context, listen: false)
+              .addMenu(newMenu);
+      widget._dailyMenu.addMenu(menuOriginator);
+    } else {
+      widget._dailyMenu.addRecipeToMeal(meal, recipe);
+    }
   }
 
   void _stopMealEditing(DailyMenu dailyMenu) {

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/models/menu.dart';
 
-import '../../providers/recipes_provider.dart';
 import '../../models/recipe.dart';
 
 class RecipeTile extends StatefulWidget {
@@ -29,7 +27,7 @@ class _RecipeTileState extends State<RecipeTile> {
 
   @override
   Widget build(BuildContext context) {
-    final recipe = Provider.of<Recipe>(context);
+    final recipe = Provider.of<RecipeOriginator>(context);
 
     return InkWell(
       onTap: widget.onPressed,

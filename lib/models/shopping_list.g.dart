@@ -21,7 +21,7 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
     <String, dynamic>{
       '_id': instance.id,
-      'items': instance.items,
+      'items': instance.items?.map((e) => e?.toJson())?.toList(),
       'name': instance.name,
     };
 

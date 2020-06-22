@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 
 import '../globals/utils.dart' as utils;
 import '../datasource/network.dart';
-import '../globals/utils.dart';
 import './enums/meals.dart';
 import './recipe.dart';
 
@@ -14,7 +12,7 @@ part 'menu.g.dart';
 
 class MenuOriginator extends Originator<Menu> {
   MenuOriginator(Menu original) : super(original);
-  
+
   void addRecipe(RecipeOriginator recipe) {
     if (recipe != null) {
       instance.recipes.add(recipe.id);
@@ -22,7 +20,16 @@ class MenuOriginator extends Originator<Menu> {
     }
   }
 
+  String get id => instance.id;
+
+  Meal get meal => instance.meal;
+
   List<String> get recipes => [...instance.recipes];
+
+  set recipes(List<String> recipes) {
+    setEdited();
+    this.recipes = recipes;
+  }
 }
 
 @JsonSerializable()
@@ -97,12 +104,22 @@ class DailyMenu with ChangeNotifier {
     return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
   }
 
-  void addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
-    final menu = getMenuByMeal(meal);
+  void addMenu(MenuOriginator newMenu) {
+    assert(_menus.firstWhere(
+          (menu) => menu.meal == newMenu.meal,
+          orElse: () => null,
+        ) ==
+        null);
+    _menus.add(newMenu);
 
-    if (menu != null) {
-      menu.addRecipe(recipe);
-    } else {}
+    notifyListeners();
+  }
+
+  void addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
+    var menu = getMenuByMeal(meal);
+
+    assert(menu != null);
+    menu.addRecipe(recipe);
 
     notifyListeners();
   }
