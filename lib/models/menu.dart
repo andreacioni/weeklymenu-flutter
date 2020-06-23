@@ -55,7 +55,14 @@ class Menu implements CloneableAndSaveable<Menu> {
 
   @override
   Future<Menu> save() async {
-    await _restApi.putMenu(id, toJson());
+    if (id == null) {
+      var toJson = this.toJson();
+      toJson.remove('_id');
+      var createdMenu = await _restApi.createMenu(toJson);
+      this.id = createdMenu['_id'];
+    } else {
+      await _restApi.putMenu(id, toJson());
+    }
     return this;
   }
 
@@ -213,6 +220,20 @@ class DailyMenu with ChangeNotifier {
     );
 
     notifyListeners();
+  }
+
+  bool get isEdited {
+    bool ret = false;
+    
+    _menus.forEach(
+      (menu) {
+        if (menu.isEdited == true) {
+          ret = true;
+        }
+      },
+    );
+
+    return ret;
   }
 
   bool get isToday => utils.dateTimeToDate(DateTime.now()) == day;

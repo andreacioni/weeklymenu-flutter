@@ -57,7 +57,10 @@ class MenusProvider with ChangeNotifier {
 
   Future<MenuOriginator> addMenu(Menu menu) async {
     try {
-      var resp = await _restApi.createMenu(menu.toJson());
+      var toJson = menu.toJson();
+      toJson.remove('_id');
+      
+      var resp = await _restApi.createMenu(toJson);
       menu.id = resp['_id'];
       
       final originator = MenuOriginator(menu);

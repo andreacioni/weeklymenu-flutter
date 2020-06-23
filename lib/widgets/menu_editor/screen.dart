@@ -115,9 +115,11 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
-    progressDialog.show();
-    await dailyMenu.save();
-    progressDialog.hide();
+    if(dailyMenu.isEdited) {
+      progressDialog.show();
+      await dailyMenu.save();
+      progressDialog.hide();
+    }
     setState(() => _editingMode = false);
   }
 

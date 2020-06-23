@@ -136,10 +136,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
       var newMenu =
           Menu(date: widget._dailyMenu.day, recipes: [recipe.id], meal: meal);
-      MenuOriginator menuOriginator =
-          await Provider.of<MenusProvider>(context, listen: false)
-              .addMenu(newMenu);
-      widget._dailyMenu.addMenu(menuOriginator);
+      widget._dailyMenu.addMenu(MenuOriginator(newMenu));
     } else {
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
     }
