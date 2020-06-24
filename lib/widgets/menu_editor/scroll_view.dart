@@ -199,6 +199,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       },
       onAccept: (mealRecipe) {
         print('onAccept - $meal');
+        if(widget._dailyMenu.getMenuByMeal(meal) == null) {
+          widget._dailyMenu.addMenu(MenuOriginator(Menu(date: widget._dailyMenu.day, meal: meal)));
+        }
         widget._dailyMenu
             .moveRecipeToMeal(mealRecipe.meal, meal, mealRecipe.recipe.id);
       },

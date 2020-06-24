@@ -14,10 +14,21 @@ class MenuOriginator extends Originator<Menu> {
   MenuOriginator(Menu original) : super(original);
 
   void addRecipe(RecipeOriginator recipe) {
-    if (recipe != null) {
-      instance.recipes.add(recipe.id);
-      setEdited();
-    }
+    assert(recipe != null);
+    addRecipeById(recipe.id);
+  }
+
+  void addRecipeById(String recipeId) {
+    assert(recipeId != null);
+    instance.recipes.add(recipeId);
+    setEdited();
+  }
+
+  void removeRecipeById(String recipeId) {
+    assert(recipeId != null);
+
+    instance.recipes.removeWhere((recId) => recId == recipeId);
+    setEdited();
   }
 
   String get id => instance.id;
@@ -84,21 +95,17 @@ class DailyMenu with ChangeNotifier {
   DailyMenu(this.day, this._menus) : assert(_menus != null);
 
   void moveRecipeToMeal(Meal from, to, String recipeId) {
-    assert(
-        (recipeIdsByMeal[from] != null) && (recipeIdsByMeal[from].isNotEmpty));
+    assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
-    final initialLength = recipeIdsByMeal[from].length;
+    final menuFrom = getMenuByMeal(from);
+    final menuTo = getMenuByMeal(to);
+    final initialLength = menuFrom.recipes.length;
 
-    List<String> recipeIdsForMeal = recipeIdsByMeal[from];
-    recipeIdsForMeal.removeWhere((id) => recipeId == id);
+    menuFrom.removeRecipeById(recipeId);
 
-    assert(initialLength != recipeIdsForMeal.length);
+    assert(initialLength != menuFrom.recipes.length);
 
-    if (recipeIdsByMeal[to] == null) {
-      recipeIdsByMeal[to] = <String>[recipeId];
-    } else {
-      recipeIdsByMeal[to].add(recipeId);
-    }
+    menuTo.addRecipeById(recipeId);
 
     notifyListeners();
   }
@@ -137,12 +144,11 @@ class DailyMenu with ChangeNotifier {
     if (_menus != null && _menus.isNotEmpty) {
       Meal.values.forEach((meal) {
         final MenuOriginator menuMeal = _menus != null
-            ? _menus.firstWhere((menu) => menu.instance.meal == meal,
-                orElse: () => null)
+            ? _menus.firstWhere((menu) => menu.meal == meal, orElse: () => null)
             : null;
 
         if (menuMeal != null) {
-          recipeIdsByMeal[meal] = menuMeal.instance.recipes;
+          recipeIdsByMeal[meal] = menuMeal.recipes;
         } else {
           recipeIdsByMeal[meal] = [];
         }
@@ -154,8 +160,7 @@ class DailyMenu with ChangeNotifier {
 
   MenuOriginator getMenuByMeal(Meal meal) {
     if (_menus != null && _menus.isNotEmpty) {
-      return _menus.firstWhere((menu) => menu.instance.meal == meal,
-          orElse: () => null);
+      return _menus.firstWhere((menu) => menu.meal == meal, orElse: () => null);
     }
 
     return null;
@@ -224,7 +229,7 @@ class DailyMenu with ChangeNotifier {
 
   bool get isEdited {
     bool ret = false;
-    
+
     _menus.forEach(
       (menu) {
         if (menu.isEdited == true) {
