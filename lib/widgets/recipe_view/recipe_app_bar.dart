@@ -4,7 +4,7 @@ import '../../models/recipe.dart';
 
 class RecipeAppBar extends StatelessWidget {
   final bool editModeEnabled;
-  final Recipe _recipe;
+  final RecipeOriginator _recipe;
   final Object heroTag;
   final Function(bool) onRecipeEditEnabled;
 

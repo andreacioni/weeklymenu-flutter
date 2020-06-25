@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -14,31 +11,31 @@ class MenusProvider with ChangeNotifier {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
   static final _dateParser = DateFormat('y-MM-dd');
 
-  Map<DateTime, List<Menu>> _dayToMenus = {};
+  Map<DateTime, List<MenuOriginator>> _dayToMenus = {};
 
-  Future<List<Menu>> fetchDailyMenu(DateTime day) async {
+  Future<List<MenuOriginator>> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
     final jsonPage = await _restApi.getMenusByDay(_dateParser.format(day));
-    final List<Menu> menuList = jsonPage['results']
-        .map((jsonMenu) => Menu.fromJson(jsonMenu))
+    final List<MenuOriginator> menuList = jsonPage['results']
+        .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
         .toList()
-        .cast<Menu>();
+        .cast<MenuOriginator>();
     _dayToMenus[day] = menuList;
 
     return menuList;
   }
 
-  Menu getByDateAndMeal(DateTime dateTime, Meal meal) {
+  MenuOriginator getByDateAndMeal(DateTime dateTime, Meal meal) {
     return _dayToMenus[dateTime].firstWhere((menu) => menu.meal == meal);
   }
 
   Future<void> addRecipeToMenu(
-      Recipe recipe, DateTime dateTime, Meal meal) async {
+      RecipeOriginator recipe, DateTime dateTime, Meal meal) async {
     if (recipe == null || dateTime == null || meal == null) {
       print('can\'t add null recipe');
     }
 
-    Menu menu = getByDateAndMeal(dateTime, meal);
+    MenuOriginator menu = getByDateAndMeal(dateTime, meal);
 
     if (menu == null) {
       await _restApi.createMenu(Menu(
@@ -52,29 +49,34 @@ class MenusProvider with ChangeNotifier {
       if (menu.recipes == null) {
         menu.recipes = [recipe.id];
       }
-      menu.recipes.add(recipe.id);
+      menu.addRecipe(recipe);
     }
 
     notifyListeners();
   }
 
-  Future<Menu> addMenu(Menu menu) async {
+  Future<MenuOriginator> addMenu(Menu menu) async {
     try {
-      var resp = await _restApi.createMenu(menu.toJson());
+      var toJson = menu.toJson();
+      toJson.remove('_id');
+      
+      var resp = await _restApi.createMenu(toJson);
       menu.id = resp['_id'];
+      
+      final originator = MenuOriginator(menu);
 
       if (_dayToMenus[menu.date] == null) {
-        _dayToMenus[menu.date] = [menu];
+        _dayToMenus[menu.date] = [originator];
       } else {
-        _dayToMenus[menu.date].add(menu);
+        _dayToMenus[menu.date].add(originator);
       }
 
       notifyListeners();
+      
+      return originator;
     } catch (e) {
       throw e;
     }
-
-    return menu;
   }
 
   Future<void> removeDayMeal(DateTime day, Meal meal) async {

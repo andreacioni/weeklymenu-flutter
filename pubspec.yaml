@@ -35,6 +35,7 @@ dependencies:
   json_annotation: ^3.0.1
   flutter_date_pickers: ^0.0.6
   progress_dialog: ^1.2.4
+  logging: ^0.11.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -46,6 +47,8 @@ dev_dependencies:
   retrofit_generator: any
   build_runner: any
   json_serializable: ^3.3.0
+  lombok: ^0.0.5
+  meta: ^1.1.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

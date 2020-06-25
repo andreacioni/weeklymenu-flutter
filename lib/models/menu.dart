@@ -1,17 +1,50 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/globals/memento.dart';
 
 import '../globals/utils.dart' as utils;
 import '../datasource/network.dart';
-import '../globals/utils.dart';
 import './enums/meals.dart';
 import './recipe.dart';
 
 part 'menu.g.dart';
 
+class MenuOriginator extends Originator<Menu> {
+  MenuOriginator(Menu original) : super(original);
+
+  void addRecipe(RecipeOriginator recipe) {
+    assert(recipe != null);
+    addRecipeById(recipe.id);
+  }
+
+  void addRecipeById(String recipeId) {
+    assert(recipeId != null);
+    instance.recipes.add(recipeId);
+    setEdited();
+  }
+
+  void removeRecipeById(String recipeId) {
+    assert(recipeId != null);
+
+    instance.recipes.removeWhere((recId) => recId == recipeId);
+    setEdited();
+  }
+
+  String get id => instance.id;
+
+  Meal get meal => instance.meal;
+
+  List<String> get recipes => [...instance.recipes];
+
+  set recipes(List<String> recipes) {
+    setEdited();
+    this.recipes = recipes;
+  }
+}
+
 @JsonSerializable()
-class Menu {
+class Menu implements CloneableAndSaveable<Menu> {
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
 
   static final _dateParser = DateFormat('y-M-d');
@@ -31,16 +64,20 @@ class Menu {
 
   Map<String, dynamic> toJson() => _$MenuToJson(this);
 
-  void addRecipe(Recipe recipe) {
-    if (recipe != null) {
-      recipes.add(recipe.id);
+  @override
+  Future<Menu> save() async {
+    if (id == null) {
+      var toJson = this.toJson();
+      toJson.remove('_id');
+      var createdMenu = await _restApi.createMenu(toJson);
+      this.id = createdMenu['_id'];
+    } else {
+      await _restApi.putMenu(id, toJson());
     }
+    return this;
   }
 
-  Future<void> save() async {
-    return await _restApi.putMenu(id, toJson());
-  }
-
+  @override
   Menu clone() => Menu.fromJson(this.toJson());
 
   static String dateToJson(DateTime date) => _dateParser.format(date);
@@ -50,31 +87,25 @@ class Menu {
 
 class DailyMenu with ChangeNotifier {
   final DateTime day;
-  List<Menu> _originalMenus;
-  List<Menu> _snapshotMenus;
+
+  List<MenuOriginator> _menus;
+
   Map<Meal, List<String>> _selectedRecipesByMeal = {};
 
-  DailyMenu(this.day, this._originalMenus) : assert(_originalMenus != null) {
-    _snapshotMenus =
-        List<Menu>.from(_originalMenus.map((m) => m.clone()).toList());
-  }
+  DailyMenu(this.day, this._menus) : assert(_menus != null);
 
   void moveRecipeToMeal(Meal from, to, String recipeId) {
-    assert(
-        (recipeIdsByMeal[from] != null) && (recipeIdsByMeal[from].isNotEmpty));
+    assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
-    final initialLength = recipeIdsByMeal[from].length;
+    final menuFrom = getMenuByMeal(from);
+    final menuTo = getMenuByMeal(to);
+    final initialLength = menuFrom.recipes.length;
 
-    List<String> recipeIdsForMeal = recipeIdsByMeal[from];
-    recipeIdsForMeal.removeWhere((id) => recipeId == id);
+    menuFrom.removeRecipeById(recipeId);
 
-    assert(initialLength != recipeIdsForMeal.length);
+    assert(initialLength != menuFrom.recipes.length);
 
-    if (recipeIdsByMeal[to] == null) {
-      recipeIdsByMeal[to] = <String>[recipeId];
-    } else {
-      recipeIdsByMeal[to].add(recipeId);
-    }
+    menuTo.addRecipeById(recipeId);
 
     notifyListeners();
   }
@@ -83,16 +114,28 @@ class DailyMenu with ChangeNotifier {
     return this.recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
   }
 
-  List<Menu> getMenusByMeal(Meal meal) {
+  List<MenuOriginator> getMenusByMeal(Meal meal) {
     return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
   }
 
-  void addRecipeToMeal(Meal meal, Recipe recipe) async {
-    final menu = getMenuByMeal(meal);
+  void addMenu(MenuOriginator newMenu) {
+    assert(_menus.firstWhere(
+          (menu) => menu.meal == newMenu.meal,
+          orElse: () => null,
+        ) ==
+        null);
+    
+    newMenu.setEdited();
+    _menus.add(newMenu);
 
-    if (menu != null) {
-      menu.addRecipe(recipe);
-    } else {}
+    notifyListeners();
+  }
+
+  void addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
+    var menu = getMenuByMeal(meal);
+
+    assert(menu != null);
+    menu.addRecipe(recipe);
 
     notifyListeners();
   }
@@ -100,11 +143,10 @@ class DailyMenu with ChangeNotifier {
   Map<Meal, List<String>> get recipeIdsByMeal {
     Map<Meal, List<String>> recipeIdsByMeal = {};
 
-    if (_snapshotMenus != null && _snapshotMenus.isNotEmpty) {
+    if (_menus != null && _menus.isNotEmpty) {
       Meal.values.forEach((meal) {
-        final Menu menuMeal = _snapshotMenus != null
-            ? _snapshotMenus.firstWhere((menu) => menu.meal == meal,
-                orElse: () => null)
+        final MenuOriginator menuMeal = _menus != null
+            ? _menus.firstWhere((menu) => menu.meal == meal, orElse: () => null)
             : null;
 
         if (menuMeal != null) {
@@ -118,28 +160,28 @@ class DailyMenu with ChangeNotifier {
     return recipeIdsByMeal;
   }
 
-  Menu getMenuByMeal(Meal meal) {
-    if (_snapshotMenus != null && _snapshotMenus.isNotEmpty) {
-      return _snapshotMenus.firstWhere((menu) => menu.meal == meal,
-          orElse: () => null);
+  MenuOriginator getMenuByMeal(Meal meal) {
+    if (_menus != null && _menus.isNotEmpty) {
+      return _menus.firstWhere((menu) => menu.meal == meal, orElse: () => null);
     }
 
     return null;
   }
 
   Future<void> save() async {
-    for (Menu m in _snapshotMenus) {
+    for (MenuOriginator m in _menus) {
       //TODO handle exception of a subset of menu patch request failure
       await m.save();
     }
-
-    _originalMenus = _snapshotMenus;
 
     notifyListeners();
   }
 
   void restoreOriginal() {
-    _snapshotMenus = _originalMenus;
+    for (MenuOriginator m in _menus) {
+      //TODO handle exception of a subset of menu patch request failure
+      m.revert();
+    }
 
     notifyListeners();
   }
@@ -171,7 +213,7 @@ class DailyMenu with ChangeNotifier {
     _selectedRecipesByMeal.forEach(
       (meal, recipesId) {
         if (recipesId != null && recipesId.isNotEmpty) {
-          Menu menu = getMenuByMeal(meal);
+          MenuOriginator menu = getMenuByMeal(meal);
           recipesId.forEach(
             (recipeIdToBeDeleted) {
               if (menu.recipes != null && menu.recipes.isNotEmpty) {
@@ -185,6 +227,20 @@ class DailyMenu with ChangeNotifier {
     );
 
     notifyListeners();
+  }
+
+  bool get isEdited {
+    bool ret = false;
+
+    _menus.forEach(
+      (menu) {
+        if (menu.isEdited == true) {
+          ret = true;
+        }
+      },
+    );
+
+    return ret;
   }
 
   bool get isToday => utils.dateTimeToDate(DateTime.now()) == day;

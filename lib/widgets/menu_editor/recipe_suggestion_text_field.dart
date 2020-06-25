@@ -14,7 +14,7 @@ class RecipeSuggestionTextField extends StatefulWidget {
   final String hintText;
   final bool autofocus;
   final bool showSuggestions;
-  final void Function(Recipe) onRecipeSelected;
+  final void Function(RecipeOriginator) onRecipeSelected;
   final void Function(dynamic) onSubmitted;
   final Function onTap;
   final Function(bool) onFocusChanged;
@@ -61,7 +61,7 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     if (widget.value != null) {
       textEditingController.text = widget.value.name;
     }
-    return TypeAheadField<Recipe>(
+    return TypeAheadField<RecipeOriginator>(
       textFieldConfiguration: TextFieldConfiguration(
         controller: textEditingController,
         enabled: widget.enabled,
@@ -81,19 +81,19 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     );
   }
 
-  void _onSuggestionSelected(Recipe item) {
+  void _onSuggestionSelected(RecipeOriginator item) {
     if (widget.onRecipeSelected != null) {
       widget.onRecipeSelected(item);
     }
   }
 
-  Future<List<Recipe>> _suggestionsCallback(String pattern) async {
+  Future<List<RecipeOriginator>> _suggestionsCallback(String pattern) async {
     final recipesProvider =
         Provider.of<RecipesProvider>(context, listen: false);
     final dailyMenu = Provider.of<DailyMenu>(context, listen: false);
     final availableRecipes = recipesProvider.getRecipes;
-    final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal).recipes;
-    final List<Recipe> suggestions = [];
+    final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal) == null ? <RecipeOriginator>[] : dailyMenu.getMenuByMeal(widget.meal).recipes;
+    final List<RecipeOriginator> suggestions = [];
 
     suggestions.addAll(availableRecipes
         .where((ing) => stringContains(ing.name, pattern))
@@ -107,7 +107,7 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     return suggestions;
   }
 
-  Widget _itemBuilder(BuildContext buildContext, Recipe recipe) {
+  Widget _itemBuilder(BuildContext buildContext, RecipeOriginator recipe) {
     return ListTile(
       title: Text(recipe.name),
       trailing: Icon(Icons.check_box),

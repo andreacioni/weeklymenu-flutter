@@ -5,7 +5,7 @@ import 'package:weekly_menu_app/models/recipe.dart';
 
 class RecipeSelectionTextField extends StatefulWidget {
   final Function onRecipeSelected;
-  final List<Recipe> _availableRecipes;
+  final List<RecipeOriginator> _availableRecipes;
 
   RecipeSelectionTextField(this._availableRecipes, {this.onRecipeSelected});
 
@@ -20,7 +20,7 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
 
   Widget trailingTextFieldButton;
 
-  List<Recipe> getRecipesSuggestion(String pattern) {
+  List<RecipeOriginator> getRecipesSuggestion(String pattern) {
     var suggestions = widget._availableRecipes
         .where((r) =>
             r.name.toLowerCase().trim().contains(pattern.trim().toLowerCase()))
@@ -33,8 +33,8 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
         widget._availableRecipes.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(
-          Recipe(id: 'NONE', name: "Add ${_typeAheadController.text} ..."));
+      suggestions.add(RecipeOriginator(
+          Recipe(id: 'NONE', name: "Add ${_typeAheadController.text} ...")));
     }
 
     return suggestions.reversed.toList();
@@ -46,7 +46,7 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
     });
   }
 
-  Widget buildAddRecipeIconButton(Recipe selectedRecipe) {
+  Widget buildAddRecipeIconButton(RecipeOriginator selectedRecipe) {
     return IconButton(
       icon: Icon(Icons.add),
       onPressed: () {
@@ -62,7 +62,7 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
     return Row(
       children: <Widget>[
         Expanded(
-          child: TypeAheadField<Recipe>(
+          child: TypeAheadField<RecipeOriginator>(
             direction: AxisDirection.up,
             getImmediateSuggestions: true,
             textFieldConfiguration: TextFieldConfiguration(
@@ -92,9 +92,9 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
             onSuggestionSelected: (selectedRecipe) {
               if (selectedRecipe.id == 'NONE') {
                 print('Add Recipe: ${selectedRecipe.name}');
-                selectedRecipe.name = RegExp(r"^Add (.*) \.\.\.")
+                selectedRecipe.updateName(RegExp(r"^Add (.*) \.\.\.")
                     .firstMatch(selectedRecipe.name)
-                    .group(1);
+                    .group(1));
                 _typeAheadController.clear();
                 widget.onRecipeSelected(selectedRecipe);
               } else {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import './scroll_view.dart';
@@ -112,19 +111,20 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     dailyMenu.removeSelectedMealRecipes();
     await dailyMenu.save();
     progressDialog.hide();
-    progressDialog.hide();
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
-    progressDialog.show();
-    await dailyMenu.save();
-    progressDialog.hide();
+    if(dailyMenu.isEdited) {
+      progressDialog.show();
+      await dailyMenu.save();
+      progressDialog.hide();
+    }
     setState(() => _editingMode = false);
   }
 
   void _handleBackButton(DailyMenu dailyMenu) async {
     var cancel = true;
-    if (_editingMode == true) {
+    if (_editingMode == true && dailyMenu.isEdited) {
       cancel = await showDialog<bool>(
         context: context,
         builder: (bCtx) => AlertDialog(

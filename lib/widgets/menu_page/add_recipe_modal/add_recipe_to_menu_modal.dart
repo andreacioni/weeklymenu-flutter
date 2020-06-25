@@ -21,7 +21,7 @@ class _AddRecipeToMenuModalState extends State<AddRecipeToMenuModal> {
 
   @override
   Widget build(BuildContext context) {
-    List<Recipe> suggestibleRecipes =
+    List<RecipeOriginator> suggestibleRecipes =
         Provider.of<RecipesProvider>(context, listen: false).getRecipes;
 
     suggestibleRecipes.removeWhere((r) => _selectedRecipes.contains(r));

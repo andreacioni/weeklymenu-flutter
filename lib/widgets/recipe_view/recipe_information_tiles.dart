@@ -8,7 +8,7 @@ import '../../providers/recipes_provider.dart';
 import '../../models/recipe.dart';
 
 class RecipeInformationTiles extends StatelessWidget {
-  final Recipe _recipe;
+  final RecipeOriginator _recipe;
   final bool editEnabled;
 
   RecipeInformationTiles(this._recipe, {this.editEnabled});

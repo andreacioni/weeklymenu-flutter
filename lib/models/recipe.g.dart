@@ -20,17 +20,17 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
     difficulty: json['difficulty'] as String,
     rating: json['rating'] as int,
     cost: json['cost'] as int,
+    availabilityMonths:
+        (json['availabilityMonths'] as List)?.map((e) => e as int)?.toList(),
     servs: json['servs'] as int,
     estimatedPreparationTime: json['estimatedPreparationTime'] as int,
     estimatedCookingTime: json['estimatedCookingTime'] as int,
     imgUrl: json['imgUrl'] as String,
     tags: (json['tags'] as List)?.map((e) => e as String)?.toList(),
-  )
-    ..availabilityMonths =
-        (json['availabilityMonths'] as List)?.map((e) => e as int)?.toList()
-    ..preparation = json['preparation'] as String
-    ..note = json['note'] as String
-    ..recipeUrl = json['recipeUrl'] as String;
+    preparation: json['preparation'] as String,
+    recipeUrl: json['recipeUrl'] as String,
+    note: json['note'] as String,
+  );
 }
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
@@ -53,7 +53,8 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('servs', instance.servs);
   writeNotNull('estimatedCookingTime', instance.estimatedCookingTime);
   writeNotNull('estimatedPreparationTime', instance.estimatedPreparationTime);
-  writeNotNull('ingredients', instance.ingredients);
+  writeNotNull(
+      'ingredients', instance.ingredients?.map((e) => e?.toJson())?.toList());
   writeNotNull('preparation', instance.preparation);
   writeNotNull('note', instance.note);
   writeNotNull('imgUrl', instance.imgUrl);

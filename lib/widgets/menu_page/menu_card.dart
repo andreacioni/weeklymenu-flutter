@@ -5,15 +5,8 @@ import 'package:intl/intl.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../../models/enums/meals.dart';
-import '../menu_editor/screen.dart';
 
-import '../../presentation/custom_icons_icons.dart';
-import '../recipes_screen/recipe_card.dart';
-import '../../providers/menus_provider.dart';
 import '../../providers/recipes_provider.dart';
-import '../recipe_view/recipe_view.dart';
-import './add_recipe_modal/add_recipe_to_menu_modal.dart';
-import '../../globals/utils.dart' as utils;
 
 class MenuCard extends StatelessWidget {
   static final extent = 150.0;
@@ -197,7 +190,7 @@ class MenuCard extends StatelessWidget {
         .map((recipeId) => Provider.of<RecipesProvider>(
               context,
               listen: false,
-            ).getById(recipeId))
+            ).getById(recipeId).name)
         .toList();
 
     return Expanded(
