@@ -178,4 +178,10 @@ class NetworkDatasource {
       data: jsonMap,
     );
   }
+
+  Future<void> deleteRecipe(String recipeId) async {
+    await _dio.delete(
+      '$BASE_URL/recipes/$recipeId',
+    );
+  }
 }

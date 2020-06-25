@@ -37,14 +37,20 @@ class RecipesProvider with ChangeNotifier {
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);
-    
+
     var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
     var postedRecipe = Recipe.fromJson(recipeJson);
-    
+
     final RecipeOriginator recipeOriginator = RecipeOriginator(postedRecipe);
-    
+
     _recipes.add(recipeOriginator);
     notifyListeners();
     return recipeOriginator;
+  }
+
+  Future<void> removeRecipe(RecipeOriginator recipe) async {
+    await _restApi.deleteRecipe(recipe.id);
+    _recipes.removeWhere((rec) => rec.id == recipe.id);
+    notifyListeners();
   }
 }

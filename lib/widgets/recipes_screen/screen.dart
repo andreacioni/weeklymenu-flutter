@@ -122,7 +122,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  void _openRecipeView(List<RecipeOriginator> recipes, int index, Object heroTag) {
+  void _openRecipeView(
+      List<RecipeOriginator> recipes, int index, Object heroTag) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(
@@ -231,18 +232,31 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   void _deleteRecipes() async {
-    showDialog(
+    var confirmDelete = await showDialog<bool>(
         context: context,
         builder: (ctx) {
           return AlertDialog(
             content: Text(
                 'Are you sure to delete ${_selectedRecipes.length} recipes? This operation is not reversible'),
             actions: <Widget>[
-              FlatButton(onPressed: () {}, child: Text('NO')),
-              FlatButton(onPressed: () {}, child: Text('YES')),
+              FlatButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('NO')),
+              FlatButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text('YES')),
             ],
           );
         });
+
+    if (confirmDelete) {
+      for (var recipe in _selectedRecipes) {
+        await Provider.of<RecipesProvider>(context, listen: false)
+            .removeRecipe(recipe);
+      }
+    }
+
+    setState(() => _editingModeEnabled = false);
   }
 
   void _showRecipeNameDialog() async {
