@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
+import 'package:logging/logging.dart';
 
 import '../../globals/utils.dart' as utils;
 import '../../globals/constants.dart' as constants;
@@ -23,6 +25,10 @@ class MenuEditorScrollView extends StatefulWidget {
 }
 
 class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
+  final log = Logger((_MenuEditorScrollViewState).toString());
+
+  ProgressDialog progressDialog;
+
   bool _initialized;
   ThemeData _theme;
 
@@ -36,6 +42,20 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     _addRecipeMealTarget = null;
     _initialized = false;
     _dragMode = false;
+    
+    Future.delayed(Duration(seconds: 0)).then(
+      (_) {
+        progressDialog = ProgressDialog(
+          context,
+          isDismissible: false,
+        );
+        progressDialog.style(
+          message: 'Adding recipe',
+          progressWidget: CircularProgressIndicator(),
+        );
+      },
+    );
+    
     super.initState();
   }
 
@@ -114,6 +134,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                   }
                 },
                 onRecipeSelected: (recipe) => _addRecipeToMeal(meal, recipe),
+                onSubmitted: (recipeName) => _createNewRecipeByName(meal, recipeName),
               ),
             if (recipeIds.isNotEmpty)
               ...recipeIds
@@ -132,13 +153,25 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     });
   }
 
-  Future<void> _addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
+  void _addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
       var newMenu =
           Menu(date: widget._dailyMenu.day, recipes: [recipe.id], meal: meal);
       widget._dailyMenu.addMenu(MenuOriginator(newMenu));
     } else {
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
+    }
+  }
+
+  void _createNewRecipeByName(Meal meal, String recipeName) async {
+    if (recipeName != null && recipeName.trim().isNotEmpty) {
+      progressDialog.show();
+      RecipeOriginator recipe = await Provider.of<RecipesProvider>(context, listen: false).addRecipe(Recipe(name: recipeName));
+      progressDialog.hide();
+      
+      _addRecipeToMeal(meal, recipe);
+    } else {
+      log.warning("Can't create a reicpe with empty name");
     }
   }
 
@@ -199,8 +232,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       },
       onAccept: (mealRecipe) {
         print('onAccept - $meal');
-        if(widget._dailyMenu.getMenuByMeal(meal) == null) {
-          widget._dailyMenu.addMenu(MenuOriginator(Menu(date: widget._dailyMenu.day, meal: meal)));
+        if (widget._dailyMenu.getMenuByMeal(meal) == null) {
+          widget._dailyMenu.addMenu(
+              MenuOriginator(Menu(date: widget._dailyMenu.day, meal: meal)));
         }
         widget._dailyMenu
             .moveRecipeToMeal(mealRecipe.meal, meal, mealRecipe.recipe.id);

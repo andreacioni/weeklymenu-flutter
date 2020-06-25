@@ -143,7 +143,7 @@ class RecipeOriginator extends Originator<Recipe> {
 
   String get note => instance.note;
 
-  List<String> get tags => [...instance.tags];
+  List<String> get tags => instance.tags != null ? [...instance.tags] : null;
 
   String get owner => instance.owner;
 }

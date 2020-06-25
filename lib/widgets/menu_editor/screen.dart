@@ -111,7 +111,6 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     dailyMenu.removeSelectedMealRecipes();
     await dailyMenu.save();
     progressDialog.hide();
-    progressDialog.hide();
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
@@ -125,7 +124,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   void _handleBackButton(DailyMenu dailyMenu) async {
     var cancel = true;
-    if (_editingMode == true) {
+    if (_editingMode == true && dailyMenu.isEdited) {
       cancel = await showDialog<bool>(
         context: context,
         builder: (bCtx) => AlertDialog(

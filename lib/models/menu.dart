@@ -124,6 +124,8 @@ class DailyMenu with ChangeNotifier {
           orElse: () => null,
         ) ==
         null);
+    
+    newMenu.setEdited();
     _menus.add(newMenu);
 
     notifyListeners();
@@ -211,7 +213,7 @@ class DailyMenu with ChangeNotifier {
     _selectedRecipesByMeal.forEach(
       (meal, recipesId) {
         if (recipesId != null && recipesId.isNotEmpty) {
-          Menu menu = getMenuByMeal(meal).instance;
+          MenuOriginator menu = getMenuByMeal(meal);
           recipesId.forEach(
             (recipeIdToBeDeleted) {
               if (menu.recipes != null && menu.recipes.isNotEmpty) {
