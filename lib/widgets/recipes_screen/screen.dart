@@ -100,22 +100,24 @@ class _RecipesScreenState extends State<RecipesScreen> {
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => Hero(
         tag: recipes[index].id,
-        child: RecipeCard(
-          recipes[index],
-          borderSide: _editingModeEnabled == true &&
-                  _selectedRecipes.contains(recipes[index])
-              ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
-              : BorderSide.none,
-          shadowColorStart: _editingModeEnabled == true &&
-                  _selectedRecipes.contains(recipes[index])
-              ? Theme.of(ctx).accentColor.withOpacity(0.7)
-              : Colors.black54,
-          onTap: () => _editingModeEnabled == true
-              ? _addRecipeToEditingList(recipes[index])
-              : _openRecipeView(recipes, index, recipes[index].id),
-          onLongPress: () => _editingModeEnabled == false
-              ? _enableEditingMode(recipes[index])
-              : null,
+        child: ChangeNotifierProvider.value(
+          value: recipes[index],
+          child: RecipeCard(
+            borderSide: _editingModeEnabled == true &&
+                    _selectedRecipes.contains(recipes[index])
+                ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
+                : BorderSide.none,
+            shadowColorStart: _editingModeEnabled == true &&
+                    _selectedRecipes.contains(recipes[index])
+                ? Theme.of(ctx).accentColor.withOpacity(0.7)
+                : Colors.black54,
+            onTap: () => _editingModeEnabled == true
+                ? _addRecipeToEditingList(recipes[index])
+                : _openRecipeView(recipes, index, recipes[index].id),
+            onLongPress: () => _editingModeEnabled == false
+                ? _enableEditingMode(recipes[index])
+                : null,
+          ),
         ),
       ),
       itemCount: recipes.length,

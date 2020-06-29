@@ -16,31 +16,44 @@ class RecipeAppBar extends StatelessWidget {
     return SliverAppBar(
       expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
+      stretch: true,
       flexibleSpace: FlexibleSpaceBar(
+        centerTitle: false,
         title: Row(
+          mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.4),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.black.withOpacity(0.4),
+                ),
+                padding: EdgeInsets.all(3),
+                child: Text(
+                  _recipe.name,
+                  maxLines: 1,
+                  style: TextStyle(color: Colors.white),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              padding: EdgeInsets.all(3),
-              child: Text(
-                _recipe.name,
-                style: TextStyle(color: Colors.white),
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: SizedBox(
+                width: 10,
               ),
             ),
             if (editModeEnabled)
-              SizedBox(
-                width: 10,
-              ),
-            if (editModeEnabled)
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                child: Icon(
-                  Icons.edit,
+              Flexible(
+                fit: FlexFit.loose,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Icon(
+                    Icons.edit,
+                  ),
+                  onTap: () => _openEditRecipeNameModal(context),
                 ),
-                onTap: () => _openEditRecipeNameModal(context),
               )
           ],
         ),
@@ -115,7 +128,7 @@ class RecipeAppBar extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(),
           ),
           FlatButton(
-            child: Text('ADD'),
+            child: Text('CHANGE'),
             onPressed: () {
               var text = textController.text.trim();
               if (text.isNotEmpty) {

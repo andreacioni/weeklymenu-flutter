@@ -24,8 +24,8 @@ class RecipesProvider with ChangeNotifier {
   List<String> get getAllRecipeTags {
     List<String> tags = [];
     _recipes.forEach((recipe) {
-      if (recipe.instance.tags != null) {
-        tags.addAll(recipe.instance.tags);
+      if (recipe.tags != null) {
+        tags.addAll(recipe.tags);
       }
     });
 
@@ -33,7 +33,7 @@ class RecipesProvider with ChangeNotifier {
   }
 
   RecipeOriginator getById(String id) => _recipes
-      .firstWhere((recipe) => recipe.instance.id == id, orElse: () => null);
+      .firstWhere((recipe) => recipe.id == id, orElse: () => null);
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);

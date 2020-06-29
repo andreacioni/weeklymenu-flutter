@@ -98,4 +98,10 @@ class MenusProvider with ChangeNotifier {
       await _restApi.deleteMenu(id);
     }
   }
+
+  Future<void> removeMenu(MenuOriginator menu) async {
+    _dayToMenus[menu.date].removeWhere((m) => m.id == menu.id);
+    notifyListeners();
+    await _restApi.deleteMenu(menu.id);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:weekly_menu_app/providers/menus_provider.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import './scroll_view.dart';
@@ -107,15 +108,20 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     );
   }
 
-  Future<void> _handleDeleteRecipes(DailyMenu dailyMenu) async {
+  void _handleDeleteRecipes(DailyMenu dailyMenu) {
     dailyMenu.removeSelectedMealRecipes();
-    await dailyMenu.save();
-    progressDialog.hide();
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
-    if(dailyMenu.isEdited) {
+    if (dailyMenu.isEdited) {
       progressDialog.show();
+      for (MenuOriginator menu in dailyMenu.menus) {
+        if (menu.recipes.isEmpty) {
+          // No recipes in menu means that there isn't a menu for that meal, so when can remove it
+          await dailyMenu.removeMenu(
+              Provider.of<MenusProvider>(context, listen: false), menu);
+        }
+      }
       await dailyMenu.save();
       progressDialog.hide();
     }

@@ -29,12 +29,14 @@ abstract class Originator<T extends CloneableAndSaveable<T>> with ChangeNotifier
     _original = _backup;
     _backup = _original.clone();
     _edited = false;
+    notifyListeners();
     return _original;
   }
 
   T revert() {
     _backup = _original.clone();
     _edited = false;
+    notifyListeners();
     return _backup;
   }
 

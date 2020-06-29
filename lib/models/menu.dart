@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
+import 'package:weekly_menu_app/providers/menus_provider.dart';
 
 import '../globals/utils.dart' as utils;
 import '../datasource/network.dart';
@@ -32,6 +33,8 @@ class MenuOriginator extends Originator<Menu> {
   }
 
   String get id => instance.id;
+
+  DateTime get date => instance.date;
 
   Meal get meal => instance.meal;
 
@@ -124,7 +127,7 @@ class DailyMenu with ChangeNotifier {
           orElse: () => null,
         ) ==
         null);
-    
+
     newMenu.setEdited();
     _menus.add(newMenu);
 
@@ -173,8 +176,6 @@ class DailyMenu with ChangeNotifier {
       //TODO handle exception of a subset of menu patch request failure
       await m.save();
     }
-
-    notifyListeners();
   }
 
   void restoreOriginal() {
@@ -182,8 +183,6 @@ class DailyMenu with ChangeNotifier {
       //TODO handle exception of a subset of menu patch request failure
       m.revert();
     }
-
-    notifyListeners();
   }
 
   void setSelectedRecipe(MealRecipe mealRecipe) {
@@ -209,6 +208,14 @@ class DailyMenu with ChangeNotifier {
     _selectedRecipesByMeal.clear();
   }
 
+  Future<void> removeMenu(MenusProvider menusProvider, MenuOriginator menu) async {
+    //TODO improve: MenusProvider dependency is not good
+    _menus.removeWhere((element) => element.id == menu.id);
+    await menusProvider.removeMenu(menu);
+
+    notifyListeners();
+  }
+
   void removeSelectedMealRecipes() {
     _selectedRecipesByMeal.forEach(
       (meal, recipesId) {
@@ -217,8 +224,7 @@ class DailyMenu with ChangeNotifier {
           recipesId.forEach(
             (recipeIdToBeDeleted) {
               if (menu.recipes != null && menu.recipes.isNotEmpty) {
-                menu.recipes.removeWhere(
-                    (menuRecipeId) => recipeIdToBeDeleted == menuRecipeId);
+                menu.removeRecipeById(recipeIdToBeDeleted);
               }
             },
           );
@@ -243,10 +249,13 @@ class DailyMenu with ChangeNotifier {
     return ret;
   }
 
+  List<MenuOriginator> get menus => [..._menus];
+
   bool get isToday => utils.dateTimeToDate(DateTime.now()) == day;
 
   bool get isPast => (utils
       .dateTimeToDate(day)
       .add(Duration(days: 1))
       .isBefore(DateTime.now()));
+
 }
