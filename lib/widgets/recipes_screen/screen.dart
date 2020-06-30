@@ -193,10 +193,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
           ),
         IconButton(
           icon: Icon(Icons.filter_list),
-          onPressed: () {},
+          onPressed: _openOrderingDialog,
         )
       ],
     );
+  }
+
+  void _openOrderingDialog() async {
+    
   }
 
   AppBar _buildEditingAppBar(BuildContext context) {

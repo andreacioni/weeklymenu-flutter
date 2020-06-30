@@ -32,19 +32,9 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
     final allItems = shoppingList.getAllItems;
 
     return Scaffold(
-      floatingActionButton: _newItemMode
-          ? null
-          : FloatingActionButton(
-              onPressed: _newItemMode == false
-                  ? () => setState(() {
-                        _newItemMode = true;
-                      })
-                  : null,
-              child: Icon(Icons.add),
-            ),
+      appBar: _buildAppBar(context),
       body: CustomScrollView(
         slivers: <Widget>[
-          _buildAppBar(context),
           //if (allItems.isEmpty)
           //  _buildNoElementsPage(),
           if (_loading)
@@ -118,6 +108,7 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
     return [
       SliverAppBar(
         primary: false,
+        pinned: true,
         title: Text("Checked (${checkItems.length})"),
         forceElevated: true,
         automaticallyImplyLeading: false,
@@ -201,11 +192,9 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
     );
   }
 
-  SliverAppBar _buildAppBar(BuildContext context) {
-    return SliverAppBar(
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
       elevation: 5,
-      forceElevated: true,
-      pinned: true,
       title: Text('Shopping List'),
       leading: IconButton(
         icon: Icon(
@@ -215,6 +204,14 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: _newItemMode == false
+              ? () => setState(() => _newItemMode = true)
+              : null,
+        )
+      ],
     );
   }
 
