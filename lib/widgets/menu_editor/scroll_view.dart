@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
 import 'package:logging/logging.dart';
 
 import '../../globals/utils.dart' as utils;
-import '../../globals/constants.dart' as constants;
+import '../../globals/errors_handlers.dart';
 import '../recipe_view/recipe_view.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
@@ -27,8 +26,6 @@ class MenuEditorScrollView extends StatefulWidget {
 class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   final log = Logger((_MenuEditorScrollViewState).toString());
 
-  ProgressDialog progressDialog;
-
   bool _initialized;
   ThemeData _theme;
 
@@ -42,19 +39,6 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     _addRecipeMealTarget = null;
     _initialized = false;
     _dragMode = false;
-    
-    Future.delayed(Duration(seconds: 0)).then(
-      (_) {
-        progressDialog = ProgressDialog(
-          context,
-          isDismissible: false,
-        );
-        progressDialog.style(
-          message: 'Adding recipe',
-          progressWidget: CircularProgressIndicator(),
-        );
-      },
-    );
     
     super.initState();
   }
@@ -165,9 +149,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
   void _createNewRecipeByName(Meal meal, String recipeName) async {
     if (recipeName != null && recipeName.trim().isNotEmpty) {
-      progressDialog.show();
+      showProgressDialog(context);
       RecipeOriginator recipe = await Provider.of<RecipesProvider>(context, listen: false).addRecipe(Recipe(name: recipeName));
-      progressDialog.hide();
+      hideProgressDialog(context);
       
       _addRecipeToMeal(meal, recipe);
     } else {

@@ -22,7 +22,7 @@ class MenusProvider with ChangeNotifier {
         .cast<MenuOriginator>();
     _dayToMenus[day] = menuList;
 
-    return menuList;
+    return [...menuList];
   }
 
   MenuOriginator getByDateAndMeal(DateTime dateTime, Meal meal) {
@@ -102,6 +102,12 @@ class MenusProvider with ChangeNotifier {
   Future<void> removeMenu(MenuOriginator menu) async {
     _dayToMenus[menu.date].removeWhere((m) => m.id == menu.id);
     notifyListeners();
-    await _restApi.deleteMenu(menu.id);
+    try {
+      await _restApi.deleteMenu(menu.id);
+    } catch(e) {
+      _dayToMenus[menu.date].add(menu);
+      notifyListeners();
+      throw e;
+    }
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
+import '../../globals/errors_handlers.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import './scroll_view.dart';
@@ -19,24 +19,9 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   bool _editingMode;
 
-  ProgressDialog progressDialog;
-
   @override
   void initState() {
     _editingMode = false;
-    Future.delayed(Duration(seconds: 0)).then(
-      (_) {
-        progressDialog = ProgressDialog(
-          context,
-          isDismissible: false,
-        );
-        progressDialog.style(
-          message: 'Saving',
-          progressWidget: CircularProgressIndicator(),
-        );
-      },
-    );
-
     super.initState();
   }
 
@@ -113,17 +98,30 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
-    if (dailyMenu.isEdited) {
-      progressDialog.show();
+    if (dailyMenu.isEdited) {      
+      showProgressDialog(context);
+      
       for (MenuOriginator menu in dailyMenu.menus) {
         if (menu.recipes.isEmpty) {
           // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-          await dailyMenu.removeMenu(
-              Provider.of<MenusProvider>(context, listen: false), menu);
+          try {
+            await dailyMenu.removeMenu(
+                Provider.of<MenusProvider>(context, listen: false), menu);
+          } catch (e) {
+            hideProgressDialog(context);
+            showAlertErrorMessage(context);
+            return;
+          }
         }
       }
-      await dailyMenu.save();
-      progressDialog.hide();
+
+      try {
+        await dailyMenu.save();
+      } catch(e) {
+        showAlertErrorMessage(context);
+      }
+      
+      hideProgressDialog(context);
     }
     setState(() => _editingMode = false);
   }

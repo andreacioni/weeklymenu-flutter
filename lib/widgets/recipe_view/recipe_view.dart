@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../globals/errors_handlers.dart';
 import './add_ingredient_button.dart';
 import './recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import '../recipe_view/recipe_information_tiles.dart';
@@ -188,10 +189,20 @@ class _RecipeViewState extends State<RecipeView> {
     );
   }
 
-  void _handleEditToggle(RecipeOriginator recipe, bool editEnabled) {
+  void _handleEditToggle(RecipeOriginator recipe, bool editEnabled) async {
     if (!editEnabled && recipe.isEdited) {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
-      recipe.save();
+      
+      showProgressDialog(context);
+      
+      try {
+        await recipe.save();
+      } catch(e) {
+        showAlertErrorMessage(context);
+        return;
+      } finally {
+        hideProgressDialog(context);
+      }
     }
 
     setState(() => _editEnabled = editEnabled);

@@ -183,6 +183,8 @@ class DailyMenu with ChangeNotifier {
       //TODO handle exception of a subset of menu patch request failure
       m.revert();
     }
+
+    notifyListeners();
   }
 
   void setSelectedRecipe(MealRecipe mealRecipe) {
@@ -211,9 +213,16 @@ class DailyMenu with ChangeNotifier {
   Future<void> removeMenu(MenusProvider menusProvider, MenuOriginator menu) async {
     //TODO improve: MenusProvider dependency is not good
     _menus.removeWhere((element) => element.id == menu.id);
-    await menusProvider.removeMenu(menu);
-
     notifyListeners();
+    
+    try {
+      await menusProvider.removeMenu(menu);
+    } catch(e) {
+      _menus.add(menu);
+      notifyListeners();
+      throw e;
+    }
+
   }
 
   void removeSelectedMealRecipes() {
