@@ -16,11 +16,15 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: IngredientsProvider()),
         ChangeNotifierProxyProvider<IngredientsProvider, ShoppingListProvider>(
-          create: (_) => ShoppingListProvider(),
-          update: (_, ingredientsProvider, shoppingListProvider) => shoppingListProvider..update(ingredientsProvider),
-        ), //It depends on ingredients
-        ChangeNotifierProvider.value(
-            value: RecipesProvider()), //It depends on ingredients
+          create: (_) => ShoppingListProvider(), //It depends on ingredients
+          update: (_, ingredientsProvider, shoppingListProvider) =>
+              shoppingListProvider..update(ingredientsProvider),
+        ),
+        ChangeNotifierProxyProvider<IngredientsProvider, RecipesProvider>(
+          create: (_) => RecipesProvider(), //It depends on ingredients
+          update: (_, ingredientsProvider, recipesProvider) =>
+              recipesProvider..update(ingredientsProvider),
+        ),
         ChangeNotifierProvider.value(
             value: MenusProvider()), //It depends on menus
       ],

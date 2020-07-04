@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
+import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/recipe.dart';
@@ -52,5 +54,21 @@ class RecipesProvider with ChangeNotifier {
     await _restApi.deleteRecipe(recipe.id);
     _recipes.removeWhere((rec) => rec.id == recipe.id);
     notifyListeners();
+  }
+
+  void update(IngredientsProvider ingredientsProvider) {
+    List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
+    if(ingredientsList != null) {
+      for(RecipeOriginator recipe in _recipes) {
+        if(recipe.ingredients != null) {
+          //This is a list but hopefully we expect only one item to be removed
+          var toBeRemovedList = recipe.ingredients.where((recipeIngredient) =>  (ingredientsList.indexWhere((ingredient) => ingredient.id == recipeIngredient.ingredientId) == -1)).toList();
+          
+          for(RecipeIngredient recipeIngredientToBeRemvoved in toBeRemovedList) {
+            recipe.deleteRecipeIngredient(recipeIngredientToBeRemvoved.ingredientId);
+          }
+        }
+      }
+    }
   }
 }
