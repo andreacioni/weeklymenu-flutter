@@ -14,10 +14,15 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: MenusProvider()),
-        ChangeNotifierProvider.value(value: RecipesProvider()),
         ChangeNotifierProvider.value(value: IngredientsProvider()),
-        ChangeNotifierProvider.value(value: ShoppingListProvider()),
+        ChangeNotifierProxyProvider<IngredientsProvider, ShoppingListProvider>(
+          create: (_) => ShoppingListProvider(),
+          update: (_, ingredientsProvider, shoppingListProvider) => shoppingListProvider..update(ingredientsProvider),
+        ), //It depends on ingredients
+        ChangeNotifierProvider.value(
+            value: RecipesProvider()), //It depends on ingredients
+        ChangeNotifierProvider.value(
+            value: MenusProvider()), //It depends on menus
       ],
       child: MaterialApp(
         title: 'Weekly Menu',
@@ -33,8 +38,7 @@ class App extends StatelessWidget {
           fontFamily: 'Rubik',
 
           floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: Colors.amber.shade300
-          ),
+              backgroundColor: Colors.amber.shade300),
 
           appBarTheme: AppBarTheme(color: Colors.amber.shade300),
 
@@ -57,8 +61,6 @@ class App extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
-
-          
         ),
       ),
     );
