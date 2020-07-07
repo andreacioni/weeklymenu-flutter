@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/globals/errors_handlers.dart';
 import 'package:weekly_menu_app/widgets/recipe_view/recipe_view.dart';
 
 import '../../globals/utils.dart';
@@ -256,9 +257,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
         });
 
     if (confirmDelete) {
+      showProgressDialog(context);
       for (var recipe in _selectedRecipes) {
-        await Provider.of<RecipesProvider>(context, listen: false)
-            .removeRecipe(recipe);
+        try {
+          await Provider.of<RecipesProvider>(context, listen: false)
+              .removeRecipe(recipe);
+        } catch(e) {
+          hideProgressDialog(context);
+          showAlertErrorMessage(context);
+        }
+        
+        hideProgressDialog(context);
       }
     }
 
