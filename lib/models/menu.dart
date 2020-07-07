@@ -69,14 +69,8 @@ class Menu implements CloneableAndSaveable<Menu> {
 
   @override
   Future<Menu> save() async {
-    if (id == null) {
-      var toJson = this.toJson();
-      toJson.remove('_id');
-      var createdMenu = await _restApi.createMenu(toJson);
-      this.id = createdMenu['_id'];
-    } else {
-      await _restApi.putMenu(id, toJson());
-    }
+    assert(id != null);
+    await _restApi.putMenu(id, toJson());
     return this;
   }
 
@@ -210,19 +204,9 @@ class DailyMenu with ChangeNotifier {
     _selectedRecipesByMeal.clear();
   }
 
-  Future<void> removeMenu(MenusProvider menusProvider, MenuOriginator menu) async {
-    //TODO improve: MenusProvider dependency is not good
+  Future<void> removeMenu(MenuOriginator menu) async {
     _menus.removeWhere((element) => element.id == menu.id);
     notifyListeners();
-    
-    try {
-      await menusProvider.removeMenu(menu);
-    } catch(e) {
-      _menus.add(menu);
-      notifyListeners();
-      throw e;
-    }
-
   }
 
   void removeSelectedMealRecipes() {
@@ -266,5 +250,4 @@ class DailyMenu with ChangeNotifier {
       .dateTimeToDate(day)
       .add(Duration(days: 1))
       .isBefore(DateTime.now()));
-
 }

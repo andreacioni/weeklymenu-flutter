@@ -39,7 +39,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     _addRecipeMealTarget = null;
     _initialized = false;
     _dragMode = false;
-    
+
     super.initState();
   }
 
@@ -117,8 +117,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                     _stopMealEditing(widget._dailyMenu);
                   }
                 },
-                onRecipeSelected: (recipe) => _addRecipeToMeal(meal, recipe),
-                onSubmitted: (recipeName) => _createNewRecipeByName(meal, recipeName),
+                onRecipeSelected:(recipe) => _handleAddRecipe(meal, recipe),
+                onSubmitted: (recipeName) =>
+                    _createNewRecipeByName(meal, recipeName),
               ),
             if (recipeIds.isNotEmpty)
               ...recipeIds
@@ -137,11 +138,28 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     });
   }
 
-  void _addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
+  void _handleAddRecipe(Meal meal, RecipeOriginator recipe) async {
+    showProgressDialog(context);
+    try {
+      await _addRecipeToMeal(meal, recipe);
+    } catch (e) {
+      hideProgressDialog(context);
+      showAlertErrorMessage(context);
+    }
+    hideProgressDialog(context);
+  }
+
+  Future<void> _addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
       var newMenu =
-          Menu(date: widget._dailyMenu.day, recipes: [recipe.id], meal: meal);
-      widget._dailyMenu.addMenu(MenuOriginator(newMenu));
+          await Provider.of<MenusProvider>(context, listen: false).createMenu(
+        Menu(
+          date: widget._dailyMenu.day,
+          recipes: [recipe.id],
+          meal: meal,
+        ),
+      );
+      widget._dailyMenu.addMenu(newMenu);
     } else {
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
     }
@@ -150,10 +168,19 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   void _createNewRecipeByName(Meal meal, String recipeName) async {
     if (recipeName != null && recipeName.trim().isNotEmpty) {
       showProgressDialog(context);
-      RecipeOriginator recipe = await Provider.of<RecipesProvider>(context, listen: false).addRecipe(Recipe(name: recipeName));
+
+      try {
+        RecipeOriginator recipe =
+            await Provider.of<RecipesProvider>(context, listen: false)
+                .addRecipe(Recipe(name: recipeName));
+        await _addRecipeToMeal(meal, recipe);
+      } catch (e) {
+        hideProgressDialog(context);
+        showAlertErrorMessage(context);
+        return;
+      }
+
       hideProgressDialog(context);
-      
-      _addRecipeToMeal(meal, recipe);
     } else {
       log.warning("Can't create a reicpe with empty name");
     }

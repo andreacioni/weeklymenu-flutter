@@ -25,8 +25,13 @@ class App extends StatelessWidget {
           update: (_, ingredientsProvider, recipesProvider) =>
               recipesProvider..update(ingredientsProvider),
         ),
+        ChangeNotifierProxyProvider<RecipesProvider, MenusProvider>(
+          create: (_) => MenusProvider(), //It depends on ingredients
+          update: (_, recipesProvider, menusProvider) =>
+              menusProvider..update(recipesProvider),
+        ),
         ChangeNotifierProvider.value(
-            value: MenusProvider()), //It depends on menus
+            value: MenusProvider()), //It depends on recipes
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

@@ -218,6 +218,7 @@ class Recipe extends CloneableAndSaveable<Recipe> {
 
   @override
   Future<Recipe> save() async {
+    assert(id != null);
     await _restApi.patchRecipe(id, this.toJson());
     return this;
   }

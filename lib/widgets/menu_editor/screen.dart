@@ -98,15 +98,16 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
-    if (dailyMenu.isEdited) {      
+    if (dailyMenu.isEdited) {
       showProgressDialog(context);
-      
+
       for (MenuOriginator menu in dailyMenu.menus) {
         if (menu.recipes.isEmpty) {
           // No recipes in menu means that there isn't a menu for that meal, so when can remove it
           try {
-            await dailyMenu.removeMenu(
-                Provider.of<MenusProvider>(context, listen: false), menu);
+            await Provider.of<MenusProvider>(context, listen: false)
+                .removeMenu(menu);
+            dailyMenu.removeMenu(menu);
           } catch (e) {
             hideProgressDialog(context);
             showAlertErrorMessage(context);
@@ -117,10 +118,10 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
       try {
         await dailyMenu.save();
-      } catch(e) {
+      } catch (e) {
         showAlertErrorMessage(context);
       }
-      
+
       hideProgressDialog(context);
     }
     setState(() => _editingMode = false);

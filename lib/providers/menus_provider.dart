@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logging/logging.dart';
 
+import './recipes_provider.dart';
 import '../models/menu.dart';
 import '../models/enums/meals.dart';
 import '../models/recipe.dart';
-
 import '../datasource/network.dart';
 
 class MenusProvider with ChangeNotifier {
+  final log = Logger((MenusProvider).toString());
   final NetworkDatasource _restApi = NetworkDatasource.getInstance();
   static final _dateParser = DateFormat('y-MM-dd');
 
-  Map<DateTime, List<MenuOriginator>> _dayToMenus = {};
+  Map<DateTime, DailyMenu> _dayToMenus = {};
 
   Future<List<MenuOriginator>> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
@@ -20,94 +22,89 @@ class MenusProvider with ChangeNotifier {
         .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
         .toList()
         .cast<MenuOriginator>();
-    _dayToMenus[day] = menuList;
 
-    return [...menuList];
+    _dayToMenus[day] = DailyMenu(day, menuList);
+
+    return menuList;
   }
 
-  MenuOriginator getByDateAndMeal(DateTime dateTime, Meal meal) {
-    return _dayToMenus[dateTime].firstWhere((menu) => menu.meal == meal);
-  }
+  Future<MenuOriginator> createMenu(Menu menu) async {
+    assert(menu.id == null);
 
-  Future<void> addRecipeToMenu(
-      RecipeOriginator recipe, DateTime dateTime, Meal meal) async {
-    if (recipe == null || dateTime == null || meal == null) {
-      print('can\'t add null recipe');
-    }
-
-    MenuOriginator menu = getByDateAndMeal(dateTime, meal);
-
-    if (menu == null) {
-      await _restApi.createMenu(Menu(
-        date: dateTime,
-        meal: meal,
-        recipes: [recipe.id],
-      ).toJson());
-    } else {
-      await _restApi.addRecipeToMenu(menu.id, recipe.id);
-
-      if (menu.recipes == null) {
-        menu.recipes = [recipe.id];
-      }
-      menu.addRecipe(recipe);
-    }
-
-    notifyListeners();
-  }
-
-  Future<MenuOriginator> addMenu(Menu menu) async {
     try {
       var toJson = menu.toJson();
       toJson.remove('_id');
-      
+
       var resp = await _restApi.createMenu(toJson);
       menu.id = resp['_id'];
-      
+
       final originator = MenuOriginator(menu);
 
       if (_dayToMenus[menu.date] == null) {
-        _dayToMenus[menu.date] = [originator];
+        _dayToMenus[menu.date].addMenu(originator);
       } else {
-        _dayToMenus[menu.date].add(originator);
+        _dayToMenus[menu.date].addMenu(originator);
       }
 
       notifyListeners();
-      
+
       return originator;
     } catch (e) {
       throw e;
     }
   }
 
-  Future<void> removeDayMeal(DateTime day, Meal meal) async {
-    if (_dayToMenus[day] == null || _dayToMenus[day].isEmpty) {
-      throw ArgumentError("no menu found for day: $day");
-    }
-
-    var menuIds = <String>[];
-
-    for (var menu in _dayToMenus[day]) {
-      if (menu.meal == meal) {
-        menuIds.add(menu.id);
-      }
-    }
-
-    notifyListeners();
-
-    for (var id in menuIds) {
-      await _restApi.deleteMenu(id);
-    }
-  }
-
   Future<void> removeMenu(MenuOriginator menu) async {
-    _dayToMenus[menu.date].removeWhere((m) => m.id == menu.id);
+    _dayToMenus[menu.date].removeMenu(menu);
     notifyListeners();
     try {
       await _restApi.deleteMenu(menu.id);
-    } catch(e) {
-      _dayToMenus[menu.date].add(menu);
+    } catch (e) {
+      _dayToMenus[menu.date].addMenu(menu);
       notifyListeners();
       throw e;
     }
+  }
+
+  void update(RecipesProvider recipesProvider) {
+    List<RecipeOriginator> recipesList = recipesProvider.getRecipes;
+    List<MenuOriginator> menusToBeRemoved = [];
+    if (recipesList != null) {
+      _dayToMenus.forEach(
+        (date, dailyMenu) {
+          if (dailyMenu.menus != null) {
+            for (MenuOriginator menu in dailyMenu.menus) {
+              if (menu.recipes != null) {
+                var toBeRemovedList = menu.recipes
+                    .where((recipeId) => (recipesList
+                            .indexWhere((recipe) => recipe.id == recipeId) ==
+                        -1))
+                    .toList();
+
+                for (String recipeIdToBeRemvoved in toBeRemovedList) {
+                  menu.removeRecipeById(recipeIdToBeRemvoved);
+                }
+
+                if (menu.recipes.isEmpty) {
+                  menusToBeRemoved.add(menu);
+                }
+              }
+            }
+          }
+        },
+      );
+    }
+
+    Future.delayed(Duration(seconds: 0)).then(
+      (_) {
+        for(MenuOriginator menu in menusToBeRemoved) {
+          try {
+            removeMenu(menu);
+          } catch(e) {
+            log.warning("Failed to remove empty menu ${menu.id}", e);
+          }
+        }
+      },
+    );
   }
 }
