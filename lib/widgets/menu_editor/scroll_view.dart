@@ -117,7 +117,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                     _stopMealEditing(widget._dailyMenu);
                   }
                 },
-                onRecipeSelected:(recipe) => _handleAddRecipe(meal, recipe),
+                onRecipeSelected: (recipe) => _handleAddRecipe(meal, recipe),
                 onSubmitted: (recipeName) =>
                     _createNewRecipeByName(meal, recipeName),
               ),
@@ -151,15 +151,14 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
   Future<void> _addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-      var newMenu =
-          await Provider.of<MenusProvider>(context, listen: false).createMenu(
+      await Provider.of<MenusProvider>(context, listen: false).createMenu(
         Menu(
           date: widget._dailyMenu.day,
-          recipes: [recipe.id],
+          recipes: [],
           meal: meal,
         ),
       );
-      widget._dailyMenu.addMenu(newMenu);
+      widget._dailyMenu.addRecipeToMeal(meal, recipe);
     } else {
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
     }

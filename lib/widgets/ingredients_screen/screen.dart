@@ -56,7 +56,7 @@ class IngredientsScreen extends StatelessWidget {
       builder: (_) => AlertDialog(
         title: Text('Are you sure?'),
         content: Text(
-            'This will also remove all associated recipe ingredients from your recipes'),
+            'This will also remove all related recipe ingredients and shop. list item'),
         actions: <Widget>[
           FlatButton(
             onPressed: () => Navigator.of(context).pop(false),
