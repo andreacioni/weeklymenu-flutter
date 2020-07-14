@@ -57,9 +57,10 @@ class RecipeTags extends StatelessWidget {
               helperText: 'Add',
               suggestions: _availableTags(context),
               textCapitalization: TextCapitalization.words,
-              maxLength: 10,
+              maxLength: 20,
               onSubmitted: (newTag) => recipe.addTag(newTag),
-              constraintSuggestion: false)
+              constraintSuggestion: false,
+            )
           : null,
     );
   }

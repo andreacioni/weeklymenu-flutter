@@ -85,7 +85,7 @@ class NetworkDatasource {
 
   Future<void> patchRecipe(
       String recipeId, Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k =='_id');
+    jsonMap.removeWhere((k, _) => k == '_id');
     var resp = await _dio.patch('$BASE_URL/recipes/$recipeId', data: jsonMap);
 
     return resp.data;
@@ -161,9 +161,10 @@ class NetworkDatasource {
     await _dio.delete('$BASE_URL/ingredients/$ingredientId');
   }
 
-  Future<Map<String, dynamic>> createRecipe(Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k =='_id');
-    var resp =  await _dio.post(
+  Future<Map<String, dynamic>> createRecipe(
+      Map<String, dynamic> jsonMap) async {
+    jsonMap.removeWhere((k, _) => k == '_id');
+    var resp = await _dio.post(
       '$BASE_URL/recipes',
       data: jsonMap,
     );
@@ -172,7 +173,7 @@ class NetworkDatasource {
   }
 
   Future<void> putMenu(String id, Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k =='_id');
+    jsonMap.removeWhere((k, _) => k == '_id');
     await _dio.put(
       '$BASE_URL/menus/$id',
       data: jsonMap,
@@ -183,5 +184,23 @@ class NetworkDatasource {
     await _dio.delete(
       '$BASE_URL/recipes/$recipeId',
     );
+  }
+
+  Future<void> register(String email, password) async {
+    var resp = await _dio.post('$BASE_URL/auth/register',
+        data: {'username': email, 'password': password});
+
+    return resp.data;
+  }
+
+  Future<Map<String, dynamic>> login(String email, password) async {
+    var resp = await _dio.post('$BASE_URL/auth/login',
+        data: {'username': email, 'password': password});
+
+    return resp.data;
+  }
+
+  Future<void> logout() async {
+    await _dio.post('$BASE_URL/auth/logout');
   }
 }
