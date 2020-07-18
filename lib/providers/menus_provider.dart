@@ -7,13 +7,17 @@ import '../models/menu.dart';
 import '../models/enums/meals.dart';
 import '../models/recipe.dart';
 import '../datasource/network.dart';
+import 'auth_provider.dart';
 
 class MenusProvider with ChangeNotifier {
   final log = Logger((MenusProvider).toString());
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
+  RestProvider _restApi;
+
   static final _dateParser = DateFormat('y-MM-dd');
 
   Map<DateTime, DailyMenu> _dayToMenus = {};
+
+  MenusProvider(this._restApi);
 
   Future<List<MenuOriginator>> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination

@@ -4,12 +4,14 @@ import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/shopping_list.dart';
+import 'auth_provider.dart';
 
 class ShoppingListProvider with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
+  RestProvider _restApi;
 
   List<ShoppingList> _shoppingList = [];
 
+  ShoppingListProvider(this._restApi);
 
   Future<void> fetchShoppingListItems() async {
     //TODO handle pagination

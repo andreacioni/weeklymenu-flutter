@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:weekly_menu_app/providers/auth_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
-class IngredientsProvider with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
+class IngredientsProvider with ChangeNotifier {  
+  RestProvider _restProvider;
 
   List<Ingredient> _ingredients = [];
 
   List<Ingredient> get getIngredients => [..._ingredients];
 
+  IngredientsProvider(this._restProvider);
+
   Future<void> fetchIngredients() async {
     //TODO handle pagination
-    final jsonPage = await _restApi.getIngredients();
+    final jsonPage = await _restProvider.getIngredients();
     _ingredients = jsonPage['results']
         .map((jsonMenu) => Ingredient.fromJson(jsonMenu))
         .toList()
@@ -26,7 +29,7 @@ class IngredientsProvider with ChangeNotifier {
       _ingredients.firstWhere((ing) => ing.id == id, orElse: () => null);
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
-    var resp = await _restApi.createIngredient(ingredient.toJSON());
+    var resp = await _restProvider.createIngredient(ingredient.toJSON());
     var newIngredient = Ingredient.fromJson(resp);
     
     _ingredients.add(newIngredient);
@@ -39,6 +42,10 @@ class IngredientsProvider with ChangeNotifier {
     _ingredients.removeWhere((ing) => ing.id == ingredient.id);
     notifyListeners();
 
-    _restApi.deleteIngredient(ingredient.id);
+    _restProvider.deleteIngredient(ingredient.id);
+  }
+
+  void update(RestProvider authProvider) {
+    _restProvider = authProvider;
   }
 }

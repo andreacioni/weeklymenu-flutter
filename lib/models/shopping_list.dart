@@ -7,8 +7,7 @@ part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ShoppingList with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
-
+  
   @JsonKey(name: '_id')
   String id;
   List<ShoppingListItem> items;

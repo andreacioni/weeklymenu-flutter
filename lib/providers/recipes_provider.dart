@@ -4,11 +4,14 @@ import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/recipe.dart';
+import 'auth_provider.dart';
 
 class RecipesProvider with ChangeNotifier {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
+  RestProvider _restApi;
 
   List<RecipeOriginator> _recipes = [];
+
+  RecipesProvider(this._restApi);
 
   Future<void> fetchRecipes() async {
     //TODO handle pagination

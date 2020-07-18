@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import './providers/auth_provider.dart';
 import './providers/recipes_provider.dart';
 import './providers/menus_provider.dart';
 import './providers/ingredients_provider.dart';
@@ -12,26 +13,31 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final RestProvider initialRestProvider = RestProvider();
+
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: IngredientsProvider()),
-        ChangeNotifierProxyProvider<IngredientsProvider, ShoppingListProvider>(
-          create: (_) => ShoppingListProvider(), //It depends on ingredients
-          update: (_, ingredientsProvider, shoppingListProvider) =>
-              shoppingListProvider..update(ingredientsProvider),
+        ChangeNotifierProvider.value(value: initialRestProvider),
+        ChangeNotifierProxyProvider<RestProvider, IngredientsProvider>(
+          create: (_) => IngredientsProvider(initialRestProvider), //It depends on auth
+          update: (_, restProvider, ingredientsProvider) =>
+              ingredientsProvider..update(restProvider, ingredientsProvider),
         ),
-        ChangeNotifierProxyProvider<IngredientsProvider, RecipesProvider>(
-          create: (_) => RecipesProvider(), //It depends on ingredients
-          update: (_, ingredientsProvider, recipesProvider) =>
-              recipesProvider..update(ingredientsProvider),
+        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider, ShoppingListProvider>(
+          create: (_) => ShoppingListProvider(initialRestProvider), //It depends on ingredients & auth
+          update: (_, restProvider, ingredientsProvider, shoppingListProvider) => 
+              shoppingListProvider..update(restProvider, ingredientsProvider),
         ),
-        ChangeNotifierProxyProvider<RecipesProvider, MenusProvider>(
-          create: (_) => MenusProvider(), //It depends on ingredients
-          update: (_, recipesProvider, menusProvider) =>
-              menusProvider..update(recipesProvider),
+        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider, RecipesProvider>(
+          create: (_) => RecipesProvider(initialRestProvider), //It depends on ingredients & auth
+          update: (_, restProvider, ingredientsProvider, recipesProvider) =>
+              recipesProvider..update(restProvider, ingredientsProvider),
         ),
-        ChangeNotifierProvider.value(
-            value: MenusProvider()), //It depends on recipes
+        ChangeNotifierProxyProvider2<RestProvider, RecipesProvider, MenusProvider>(
+          create: (_) => MenusProvider(initialRestProvider), //It depends on ingredients & auth
+          update: (_, restProvider, recipesProvider, menusProvider) =>
+              menusProvider..update(restProvider, recipesProvider),
+        ),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

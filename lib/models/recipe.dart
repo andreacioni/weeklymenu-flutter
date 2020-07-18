@@ -150,8 +150,7 @@ class RecipeOriginator extends Originator<Recipe> {
 
 @JsonSerializable(explicitToJson: true)
 class Recipe extends CloneableAndSaveable<Recipe> {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
-
+  
   @JsonKey(name: '_id')
   String id;
 

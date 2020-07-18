@@ -48,8 +48,7 @@ class MenuOriginator extends Originator<Menu> {
 
 @JsonSerializable()
 class Menu implements CloneableAndSaveable<Menu> {
-  final NetworkDatasource _restApi = NetworkDatasource.getInstance();
-
+  
   static final _dateParser = DateFormat('y-M-d');
 
   @JsonKey(name: '_id')
