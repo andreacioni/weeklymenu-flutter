@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 
 abstract class Saveable<T> {
-  Future<dynamic> save();
+  T save();
 }
 
 abstract class Cloneable<T> {
@@ -11,7 +11,7 @@ abstract class Cloneable<T> {
 
 abstract class CloneableAndSaveable<T> implements Cloneable<T>, Saveable<T> {}
 
-abstract class Originator<T extends CloneableAndSaveable<T>> with ChangeNotifier implements Saveable<T> {
+abstract class Originator<T extends Cloneable<T>> with ChangeNotifier implements Saveable<T> {
   
   T _backup, _original;
 
@@ -24,8 +24,7 @@ abstract class Originator<T extends CloneableAndSaveable<T>> with ChangeNotifier
   }
   
   @override
-  Future<T> save() async {
-    await _backup.save();
+  T save() {
     _original = _backup;
     _backup = _original.clone();
     _edited = false;

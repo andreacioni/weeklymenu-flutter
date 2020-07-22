@@ -146,11 +146,13 @@ class RecipeOriginator extends Originator<Recipe> {
   List<String> get tags => instance.tags != null ? [...instance.tags] : null;
 
   String get owner => instance.owner;
+
+  Map<String, dynamic> toJson() => instance.toJson();
 }
 
 @JsonSerializable(explicitToJson: true)
-class Recipe extends CloneableAndSaveable<Recipe> {
-  
+class Recipe extends Cloneable<Recipe> {
+
   @JsonKey(name: '_id')
   String id;
 
@@ -215,13 +217,6 @@ class Recipe extends CloneableAndSaveable<Recipe> {
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
-  @override
-  Future<Recipe> save() async {
-    assert(id != null);
-    await _restApi.patchRecipe(id, this.toJson());
-    return this;
-  }
-
   Recipe clone() => Recipe.fromJson(this.toJson());
 
   @override
@@ -231,39 +226,6 @@ class Recipe extends CloneableAndSaveable<Recipe> {
   @override
   int get hashCode => id.hashCode;
 }
-
-/* class RecipeIngredientOriginator extends Originator<RecipeIngredient> {
-  RecipeIngredientOriginator(RecipeIngredient original) : super(original);
-
-  void setQuantity(double newValue) {
-    setEdited();
-    instance.quantity = newValue;
-    notifyListeners();
-  }
-
-  void setUom(String newValue) {
-    setEdited();
-    instance.unitOfMeasure = newValue;
-    notifyListeners();
-  }
-
-  void setFreezed(bool newValue) {
-    setEdited();
-    instance.freezed = newValue;
-    notifyListeners();
-  }
-
-  String get recipeId => instance.recipeId;
-
-  String get ingredientId => instance.ingredientId;
-
-  double get quantity => instance.quantity;
-
-  String get unitOfMeasure => instance.unitOfMeasure;
-
-  bool get freezed => instance.freezed;
-
-} */
 
 @JsonSerializable()
 class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {

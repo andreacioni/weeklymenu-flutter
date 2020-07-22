@@ -45,7 +45,7 @@ class IngredientsProvider with ChangeNotifier {
     _restProvider.deleteIngredient(ingredient.id);
   }
 
-  void update(RestProvider authProvider) {
-    _restProvider = authProvider;
+  void update(RestProvider restProvider) {
+    _restProvider = restProvider;
   }
 }

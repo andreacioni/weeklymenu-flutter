@@ -11,17 +11,17 @@ import 'auth_provider.dart';
 
 class MenusProvider with ChangeNotifier {
   final log = Logger((MenusProvider).toString());
-  RestProvider _restApi;
+  RestProvider _restProvider;
 
   static final _dateParser = DateFormat('y-MM-dd');
 
   Map<DateTime, DailyMenu> _dayToMenus = {};
 
-  MenusProvider(this._restApi);
+  MenusProvider(this._restProvider);
 
   Future<List<MenuOriginator>> fetchDailyMenu(DateTime day) async {
     //TODO handle pagination
-    final jsonPage = await _restApi.getMenusByDay(_dateParser.format(day));
+    final jsonPage = await _restProvider.getMenusByDay(_dateParser.format(day));
     final List<MenuOriginator> menuList = jsonPage['results']
         .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
         .toList()
@@ -39,7 +39,7 @@ class MenusProvider with ChangeNotifier {
       var toJson = menu.toJson();
       toJson.remove('_id');
 
-      var resp = await _restApi.createMenu(toJson);
+      var resp = await _restProvider.createMenu(toJson);
       menu.id = resp['_id'];
 
       final originator = MenuOriginator(menu);
@@ -62,7 +62,7 @@ class MenusProvider with ChangeNotifier {
     _dayToMenus[menu.date].removeMenu(menu);
     notifyListeners();
     try {
-      await _restApi.deleteMenu(menu.id);
+      await _restProvider.deleteMenu(menu.id);
     } catch (e) {
       _dayToMenus[menu.date].addMenu(menu);
       notifyListeners();
@@ -70,7 +70,7 @@ class MenusProvider with ChangeNotifier {
     }
   }
 
-  void update(RecipesProvider recipesProvider) {
+  void update(RestProvider restProvider, RecipesProvider recipesProvider) {
     List<RecipeOriginator> recipesList = recipesProvider.getRecipes;
     List<MenuOriginator> menusToBeRemoved = [];
     if (recipesList != null) {
@@ -110,5 +110,7 @@ class MenusProvider with ChangeNotifier {
         }
       },
     );
+
+    _restProvider = restProvider;
   }
 }

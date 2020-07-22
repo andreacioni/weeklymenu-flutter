@@ -59,7 +59,13 @@ class RecipesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void update(IngredientsProvider ingredientsProvider) {
+  Future<void> updateRecipe(RecipeOriginator recipe) async {
+    assert(recipe.id != null);
+    await _restApi.patchRecipe(recipe.id, recipe.toJson());
+    recipe.save();
+  }
+
+  void update(RestProvider restProvider, IngredientsProvider ingredientsProvider) {
     List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
     if(ingredientsList != null) {
       for(RecipeOriginator recipe in _recipes) {
@@ -73,5 +79,7 @@ class RecipesProvider with ChangeNotifier {
         }
       }
     }
+
+    _restApi = restProvider;
   }
 }

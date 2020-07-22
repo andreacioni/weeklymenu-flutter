@@ -7,15 +7,15 @@ import '../models/shopping_list.dart';
 import 'auth_provider.dart';
 
 class ShoppingListProvider with ChangeNotifier {
-  RestProvider _restApi;
+  RestProvider _restProvider;
 
   List<ShoppingList> _shoppingList = [];
 
-  ShoppingListProvider(this._restApi);
+  ShoppingListProvider(this._restProvider);
 
   Future<void> fetchShoppingListItems() async {
     //TODO handle pagination
-    final jsonPage = await _restApi.getShoppingList();
+    final jsonPage = await _restProvider.getShoppingList();
     _shoppingList = jsonPage['results']
         .map((jsonMenu) => ShoppingList.fromJson(jsonMenu))
         .toList()
@@ -26,7 +26,7 @@ class ShoppingListProvider with ChangeNotifier {
 
   List<ShoppingList> get getShoppingLists => [..._shoppingList]; 
 
-  void update(IngredientsProvider ingredientsProvider) {
+  void update(RestProvider restProvider, IngredientsProvider ingredientsProvider) {
     List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
 
     if(ingredientsList != null) {
@@ -42,5 +42,6 @@ class ShoppingListProvider with ChangeNotifier {
       }
     }
     
+    _restProvider = restProvider;
   }
 }

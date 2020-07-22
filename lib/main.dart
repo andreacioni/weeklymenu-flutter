@@ -21,7 +21,7 @@ class App extends StatelessWidget {
         ChangeNotifierProxyProvider<RestProvider, IngredientsProvider>(
           create: (_) => IngredientsProvider(initialRestProvider), //It depends on auth
           update: (_, restProvider, ingredientsProvider) =>
-              ingredientsProvider..update(restProvider, ingredientsProvider),
+              ingredientsProvider..update(restProvider),
         ),
         ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider, ShoppingListProvider>(
           create: (_) => ShoppingListProvider(initialRestProvider), //It depends on ingredients & auth

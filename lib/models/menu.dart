@@ -47,7 +47,7 @@ class MenuOriginator extends Originator<Menu> {
 }
 
 @JsonSerializable()
-class Menu implements CloneableAndSaveable<Menu> {
+class Menu implements Cloneable<Menu> {
   
   static final _dateParser = DateFormat('y-M-d');
 
@@ -65,13 +65,6 @@ class Menu implements CloneableAndSaveable<Menu> {
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
 
   Map<String, dynamic> toJson() => _$MenuToJson(this);
-
-  @override
-  Future<Menu> save() async {
-    assert(id != null);
-    await _restApi.putMenu(id, toJson());
-    return this;
-  }
 
   @override
   Menu clone() => Menu.fromJson(this.toJson());

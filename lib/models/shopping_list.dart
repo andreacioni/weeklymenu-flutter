@@ -7,7 +7,7 @@ part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ShoppingList with ChangeNotifier {
-  
+
   @JsonKey(name: '_id')
   String id;
   List<ShoppingListItem> items;
