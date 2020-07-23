@@ -24,24 +24,39 @@ class ShoppingListProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  List<ShoppingList> get getShoppingLists => [..._shoppingList]; 
+  List<ShoppingList> get getShoppingLists => [..._shoppingList];
 
-  void update(RestProvider restProvider, IngredientsProvider ingredientsProvider) {
+  Future<void> updateShoppingList(ShoppingList shoppingList) async {
+    _restProvider.patchShoppingList(shoppingList.id, shoppingList.toJson());
+  }
+
+  void update(
+      RestProvider restProvider, IngredientsProvider ingredientsProvider) {
     List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
 
-    if(ingredientsList != null) {
+    if (ingredientsList != null) {
       for (ShoppingList shoppingList in _shoppingList) {
-        if(shoppingList.items != null) {
+        if (shoppingList.items != null) {
           //This is a list but hopefully we expect only one item to be removed
-          var toBeRemovedList = shoppingList.items.where((item) =>  (ingredientsList.indexWhere((ingredient) => ingredient.id == item.item) == -1)).toList();
-          
-          for(ShoppingListItem itemToBeRemoved in toBeRemovedList) {
+          var toBeRemovedList = shoppingList.items
+              .where((item) => (ingredientsList
+                      .indexWhere((ingredient) => ingredient.id == item.item) ==
+                  -1))
+              .toList();
+          bool changed = false;
+
+          for (ShoppingListItem itemToBeRemoved in toBeRemovedList) {
             shoppingList.removeItemFromList(itemToBeRemoved);
+            changed = true;
+          }
+
+          if (changed) {
+            updateShoppingList(shoppingList);
           }
         }
       }
     }
-    
+
     _restProvider = restProvider;
   }
 }

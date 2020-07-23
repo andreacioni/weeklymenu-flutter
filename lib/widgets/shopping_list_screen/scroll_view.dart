@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
+import 'package:weekly_menu_app/providers/shopping_list_provider.dart';
 
 import './shopping_list_tile.dart';
+import '../../globals/errors_handlers.dart';
 import '../../models/shopping_list.dart';
 import './item_suggestion_text_field.dart';
 
@@ -37,16 +39,12 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
         slivers: <Widget>[
           //if (allItems.isEmpty)
           //  _buildNoElementsPage(),
-          if (_loading)
-            _buildLoadingItem(),
-          if (_newItemMode)
-            _buildAddItem(shoppingList),
+          if (_loading) _buildLoadingItem(),
+          if (_newItemMode) _buildAddItem(shoppingList),
           //_buildFloatingHeader('Unckecked'),
-          if (allItems.isNotEmpty)
-            ..._buildUncheckedList(shoppingList),
+          if (allItems.isNotEmpty) ..._buildUncheckedList(shoppingList),
           //_buildFloatingHeader('Checked'),
-          if (allItems.isNotEmpty)
-            ..._buildCheckedList(shoppingList),
+          if (allItems.isNotEmpty) ..._buildCheckedList(shoppingList),
         ],
       ),
     );
@@ -87,7 +85,8 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
               },
               onSubmitted: (ingredientName) =>
                   _createNewIngredientAndShopItem(shoppingList, ingredientName),
-              onShoppingItemSelected: (shopItem) => shoppingList.setChecked(
+              onShoppingItemSelected: (shopItem) => _setChecked(
+                shoppingList,
                 shopItem,
                 false,
               ),
@@ -129,17 +128,16 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
       if (_expandChecked)
         SliverList(
           delegate: SliverChildBuilderDelegate(
-            (_, index) => ShoppingListItemTile(
-              checkItems[index],
-              editable: false,
-              key: ValueKey(checkItems[index].item),
-              onCheckChange: (newValue) => shoppingList.setChecked(
-                checkItems[index],
-                newValue,
-              ),
-              onDismiss: (_) =>
-                  shoppingList.removeItemFromList(checkItems[index]),
-            ),
+            (_, index) => ShoppingListItemTile(checkItems[index],
+                editable: false,
+                key: ValueKey(checkItems[index].item),
+                onCheckChange: (newValue) => _setChecked(
+                      shoppingList,
+                      checkItems[index],
+                      newValue,
+                    ),
+                onDismiss: (_) =>
+                    _removeItemFromList(shoppingList, checkItems[index])),
             childCount: checkItems.length,
           ),
         )
@@ -155,11 +153,13 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
                   uncheckItems[index],
                   key: ValueKey(uncheckItems[index].item),
                   editable: false,
-                  onCheckChange: (newValue) => shoppingList.setChecked(
+                  onCheckChange: (newValue) => _setChecked(
+                    shoppingList,
                     uncheckItems[index],
                     newValue,
                   ),
-                  onDismiss: (_) => shoppingList.removeItemFromList(
+                  onDismiss: (_) => _removeItemFromList(
+                    shoppingList,
                     uncheckItems[index],
                   ),
                 ),
@@ -215,9 +215,19 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
     );
   }
 
-  void _createShopItemForIngredient(ShoppingList shoppingList, Ingredient ing) {
+  Future<void> _createShopItemForIngredient(ShoppingList shoppingList, Ingredient ing) async {
+    ShoppingListItem item = ShoppingListItem(item: ing.id, checked: false);
+    
     shoppingList
-        .addShoppingListItem(ShoppingListItem(item: ing.id, checked: false));
+        .addShoppingListItem(item);
+    
+    try {
+      await Provider.of<ShoppingListProvider>(context, listen: false)
+          .updateShoppingList(shoppingList);
+    } catch (e) {
+      showAlertErrorMessage(context);
+      shoppingList.removeItemFromList(item);
+    }
   }
 
   void _createNewIngredientAndShopItem(
@@ -229,5 +239,36 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
         .addIngredient(Ingredient(name: ingredientName));
     setState(() => _loading = false);
     _createShopItemForIngredient(shoppingList, newIngredient);
+  }
+
+  Future<void> _removeItemFromList(
+      ShoppingList shoppingList, ShoppingListItem shoppingListItem) async {
+    shoppingList.removeItemFromList(shoppingListItem);
+    try {
+      await Provider.of<ShoppingListProvider>(context, listen: false)
+          .updateShoppingList(shoppingList);
+    } catch (e) {
+      showAlertErrorMessage(context);
+      shoppingList.addShoppingListItem(shoppingListItem);
+    }
+  }
+
+  Future<void> _setChecked(ShoppingList shoppingList, ShoppingListItem shopItem,
+      bool checked) async {
+    shoppingList.setChecked(
+      shopItem,
+      checked,
+    );
+
+    try {
+      await Provider.of<ShoppingListProvider>(context, listen: false)
+          .updateShoppingList(shoppingList);
+    } catch (e) {
+      showAlertErrorMessage(context);
+      shoppingList.setChecked(
+        shopItem,
+        !checked,
+      );
+    }
   }
 }

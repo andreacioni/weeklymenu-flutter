@@ -31,23 +31,19 @@ class ShoppingList with ChangeNotifier {
   ShoppingListItem getItemById(String itemId) =>
       items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
 
-  Future<void> addShoppingListItem(
-      ShoppingListItem shoppingListItem) async {
+  void addShoppingListItem(
+      ShoppingListItem shoppingListItem) {
     items.add(shoppingListItem);
     notifyListeners();
-    
-    _restApi.addShoppingListItem(id, shoppingListItem.toJson());
   }
 
-  Future<void> removeItemFromList(ShoppingListItem toBeRemoved) async {
+  void removeItemFromList(ShoppingListItem toBeRemoved) {
     items.removeWhere((item) => item.item == toBeRemoved.item);
-    _restApi.deleteShoppingItemFromList(id, toBeRemoved.item);
     notifyListeners();
   }
 
-  Future<void> setChecked(ShoppingListItem item, bool checked) async {
+  void setChecked(ShoppingListItem item, bool checked)  {
     item.checked = checked;
-    _restApi.patchShoppingListItem(id, item.item, item.toJson());
     notifyListeners();
   }
 
