@@ -70,6 +70,16 @@ class MenusProvider with ChangeNotifier {
     }
   }
 
+  Future<void> saveMenu(MenuOriginator menu) async {
+    try {
+      await _restProvider.putMenu(menu.id, menu.toJson());
+      menu.save();
+    } catch (e) {
+      menu.revert();
+      notifyListeners();
+      throw e;
+    }
+  }
   void update(RestProvider restProvider, RecipesProvider recipesProvider) {
     List<RecipeOriginator> recipesList = recipesProvider.getRecipes;
     List<MenuOriginator> menusToBeRemoved = [];
@@ -101,10 +111,10 @@ class MenusProvider with ChangeNotifier {
 
     Future.delayed(Duration(seconds: 0)).then(
       (_) {
-        for(MenuOriginator menu in menusToBeRemoved) {
+        for (MenuOriginator menu in menusToBeRemoved) {
           try {
             removeMenu(menu);
-          } catch(e) {
+          } catch (e) {
             log.warning("Failed to remove empty menu ${menu.id}", e);
           }
         }

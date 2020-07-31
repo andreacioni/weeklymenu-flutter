@@ -44,6 +44,8 @@ class MenuOriginator extends Originator<Menu> {
     setEdited();
     this.recipes = recipes;
   }
+
+  Map<String, dynamic> toJson() => instance.toJson();
 }
 
 @JsonSerializable()
@@ -157,16 +159,8 @@ class DailyMenu with ChangeNotifier {
     return null;
   }
 
-  Future<void> save() async {
-    for (MenuOriginator m in _menus) {
-      //TODO handle exception of a subset of menu patch request failure
-      await m.save();
-    }
-  }
-
   void restoreOriginal() {
     for (MenuOriginator m in _menus) {
-      //TODO handle exception of a subset of menu patch request failure
       m.revert();
     }
 

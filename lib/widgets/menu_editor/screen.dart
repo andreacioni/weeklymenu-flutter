@@ -113,14 +113,16 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
             showAlertErrorMessage(context);
             return;
           }
+        } else {
+          try {
+            await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
+          } catch (e) {
+            showAlertErrorMessage(context);
+          }
         }
-      }
 
-      try {
-        await dailyMenu.save();
-      } catch (e) {
-        showAlertErrorMessage(context);
       }
+      
 
       hideProgressDialog(context);
     }

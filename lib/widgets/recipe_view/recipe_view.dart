@@ -197,7 +197,7 @@ class _RecipeViewState extends State<RecipeView> {
       showProgressDialog(context);
       
       try {
-        await Provider.of<RecipesProvider>(context, listen: false).updateRecipe(recipe);
+        await Provider.of<RecipesProvider>(context, listen: false).saveRecipe(recipe);
       } catch(e) {
         showAlertErrorMessage(context);
         return;

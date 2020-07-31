@@ -38,9 +38,10 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+          Divider(),
           ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Logout'),
+            leading: Icon(Icons.question_answer),
+            title: Text('Q&A'),
             onTap: () {
               // Update the state of the app
               // ...
@@ -48,10 +49,19 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          Divider(),
           ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('Info'),
+            onTap: () {
+              // Update the state of the app
+              // ...
+              // Then close the drawer
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.exit_to_app),
+            title: Text('Logout'),
             onTap: () {
               // Update the state of the app
               // ...

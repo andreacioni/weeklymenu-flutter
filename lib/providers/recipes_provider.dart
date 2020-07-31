@@ -59,10 +59,15 @@ class RecipesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateRecipe(RecipeOriginator recipe) async {
+  Future<void> saveRecipe(RecipeOriginator recipe) async {
     assert(recipe.id != null);
-    await _restApi.patchRecipe(recipe.id, recipe.toJson());
-    recipe.save();
+    try {
+      await _restApi.patchRecipe(recipe.id, recipe.toJson());
+      recipe.save();
+    } catch(e) {
+      recipe.revert();
+      throw e;
+    }
   }
 
   void update(RestProvider restProvider, IngredientsProvider ingredientsProvider) {
