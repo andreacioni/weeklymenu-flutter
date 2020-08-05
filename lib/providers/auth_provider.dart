@@ -136,6 +136,7 @@ class RestProvider with ChangeNotifier {
 
   Future<Map<String, dynamic>> patchShoppingList(
       String shoppingListId, Map<String, dynamic> jsonMap) async {
+    jsonMap.removeWhere((k, _) => k == '_id');
     var resp = await _dio.patch('$BASE_URL/shopping-lists/$shoppingListId',
         data: jsonMap);
 

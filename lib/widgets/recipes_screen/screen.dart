@@ -72,26 +72,28 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildNoRecipesFound() {
     final _textColor = Colors.grey.shade300;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Icon(
-          CustomIcons.not_found_lens,
-          size: 130,
-          color: _textColor,
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          'Recipe "$_searchText" not found...',
-          style: TextStyle(
-            fontSize: 25,
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            CustomIcons.not_found_lens,
+            size: 130,
             color: _textColor,
           ),
-        )
-      ],
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Recipe "$_searchText" not found...',
+            style: TextStyle(
+              fontSize: 25,
+              color: _textColor,
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -200,9 +202,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  void _openOrderingDialog() async {
-    
-  }
+  void _openOrderingDialog() async {}
 
   AppBar _buildEditingAppBar(BuildContext context) {
     return AppBar(
@@ -262,11 +262,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
         try {
           await Provider.of<RecipesProvider>(context, listen: false)
               .removeRecipe(recipe);
-        } catch(e) {
+        } catch (e) {
           hideProgressDialog(context);
           showAlertErrorMessage(context);
         }
-        
+
         hideProgressDialog(context);
       }
     }

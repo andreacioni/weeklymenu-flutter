@@ -35,18 +35,19 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
 
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          //if (allItems.isEmpty)
-          //  _buildNoElementsPage(),
-          if (_loading) _buildLoadingItem(),
-          if (_newItemMode) _buildAddItem(shoppingList),
-          //_buildFloatingHeader('Unckecked'),
-          if (allItems.isNotEmpty) ..._buildUncheckedList(shoppingList),
-          //_buildFloatingHeader('Checked'),
-          if (allItems.isNotEmpty) ..._buildCheckedList(shoppingList),
-        ],
-      ),
+      body: allItems.isEmpty && !_newItemMode
+          ? _buildNoElementsPage()
+          : CustomScrollView(
+              slivers: <Widget>[
+                //if (allItems.isEmpty) _buildNoElementsPage(),
+                if (_loading) _buildLoadingItem(),
+                if (_newItemMode) _buildAddItem(shoppingList),
+                //_buildFloatingHeader('Unckecked'),
+                if (allItems.isNotEmpty) ..._buildUncheckedList(shoppingList),
+                //_buildFloatingHeader('Checked'),
+                if (allItems.isNotEmpty) ..._buildCheckedList(shoppingList),
+              ],
+            ),
     );
   }
 
@@ -170,25 +171,29 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
 
   Widget _buildNoElementsPage() {
     final _textColor = Colors.grey.shade300;
-    return Flex(
-      direction: Axis.vertical,
-      children: <Widget>[
-        Icon(
-          Icons.check_box,
-          size: 150,
-          color: _textColor,
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          'Your Shopping List Is Empty',
-          style: TextStyle(
-            fontSize: 25,
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.check_box,
+            size: 150,
             color: _textColor,
           ),
-        ),
-      ],
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Your Shopping List Is Empty',
+            style: TextStyle(
+              fontSize: 25,
+              color: _textColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -215,12 +220,12 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
     );
   }
 
-  Future<void> _createShopItemForIngredient(ShoppingList shoppingList, Ingredient ing) async {
+  Future<void> _createShopItemForIngredient(
+      ShoppingList shoppingList, Ingredient ing) async {
     ShoppingListItem item = ShoppingListItem(item: ing.id, checked: false);
-    
-    shoppingList
-        .addShoppingListItem(item);
-    
+
+    shoppingList.addShoppingListItem(item);
+
     try {
       await Provider.of<ShoppingListProvider>(context, listen: false)
           .updateShoppingList(shoppingList);

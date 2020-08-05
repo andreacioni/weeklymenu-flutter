@@ -10,20 +10,30 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
   return ShoppingList(
     id: json['_id'] as String,
     items: (json['items'] as List)
-        ?.map((e) => e == null
-            ? null
-            : ShoppingListItem.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+            ?.map((e) => e == null
+                ? null
+                : ShoppingListItem.fromJson(e as Map<String, dynamic>))
+            ?.toList() ??
+        [],
     name: json['name'] as String,
   );
 }
 
-Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'items': instance.items?.map((e) => e?.toJson())?.toList(),
-      'name': instance.name,
-    };
+Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
+  final val = <String, dynamic>{
+    '_id': instance.id,
+    'items': instance.items?.map((e) => e?.toJson())?.toList(),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('name', instance.name);
+  return val;
+}
 
 ShoppingListItem _$ShoppingListItemFromJson(Map<String, dynamic> json) {
   return ShoppingListItem(

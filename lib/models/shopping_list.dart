@@ -7,10 +7,13 @@ part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ShoppingList with ChangeNotifier {
-
   @JsonKey(name: '_id')
   String id;
+
+  @JsonKey(defaultValue: [])
   List<ShoppingListItem> items;
+
+  @JsonKey(includeIfNull: false)
   String name;
 
   ShoppingList({@required this.id, this.items, this.name});
@@ -31,8 +34,7 @@ class ShoppingList with ChangeNotifier {
   ShoppingListItem getItemById(String itemId) =>
       items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
 
-  void addShoppingListItem(
-      ShoppingListItem shoppingListItem) {
+  void addShoppingListItem(ShoppingListItem shoppingListItem) {
     items.add(shoppingListItem);
     notifyListeners();
   }
@@ -42,7 +44,7 @@ class ShoppingList with ChangeNotifier {
     notifyListeners();
   }
 
-  void setChecked(ShoppingListItem item, bool checked)  {
+  void setChecked(ShoppingListItem item, bool checked) {
     item.checked = checked;
     notifyListeners();
   }

@@ -14,6 +14,7 @@ class RecipeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      forceElevated: true,
       expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
       pinned: true,
       stretch: true,
