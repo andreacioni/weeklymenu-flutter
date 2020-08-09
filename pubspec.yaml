@@ -95,6 +95,9 @@ flutter:
     - family: ChunckFive
       fonts:
           - asset: assets/fonts/ChunkFive-Regular.otf
+    - family: Milkshake
+      fonts:
+        - asset: assets/fonts/Milkshake.otf
 
   #   - family: Trajan Pro
   #     fonts:

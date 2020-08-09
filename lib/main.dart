@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/widgets/login_screen/screen.dart';
 
 import './providers/auth_provider.dart';
 import './providers/recipes_provider.dart';
@@ -19,29 +20,37 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: initialRestProvider),
         ChangeNotifierProxyProvider<RestProvider, IngredientsProvider>(
-          create: (_) => IngredientsProvider(initialRestProvider), //It depends on auth
+          create: (_) =>
+              IngredientsProvider(initialRestProvider), //It depends on auth
           update: (_, restProvider, ingredientsProvider) =>
               ingredientsProvider..update(restProvider),
         ),
-        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider, ShoppingListProvider>(
-          create: (_) => ShoppingListProvider(initialRestProvider), //It depends on ingredients & auth
-          update: (_, restProvider, ingredientsProvider, shoppingListProvider) => 
+        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider,
+            ShoppingListProvider>(
+          create: (_) => ShoppingListProvider(
+              initialRestProvider), //It depends on ingredients & auth
+          update: (_, restProvider, ingredientsProvider,
+                  shoppingListProvider) =>
               shoppingListProvider..update(restProvider, ingredientsProvider),
         ),
-        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider, RecipesProvider>(
-          create: (_) => RecipesProvider(initialRestProvider), //It depends on ingredients & auth
+        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider,
+            RecipesProvider>(
+          create: (_) => RecipesProvider(
+              initialRestProvider), //It depends on ingredients & auth
           update: (_, restProvider, ingredientsProvider, recipesProvider) =>
               recipesProvider..update(restProvider, ingredientsProvider),
         ),
-        ChangeNotifierProxyProvider2<RestProvider, RecipesProvider, MenusProvider>(
-          create: (_) => MenusProvider(initialRestProvider), //It depends on ingredients & auth
+        ChangeNotifierProxyProvider2<RestProvider, RecipesProvider,
+            MenusProvider>(
+          create: (_) => MenusProvider(
+              initialRestProvider), //It depends on ingredients & auth
           update: (_, restProvider, recipesProvider, menusProvider) =>
               menusProvider..update(restProvider, recipesProvider),
         ),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',
-        home: HomePage(),
+        home: LogingScreen(), //HomePage(),
         theme: ThemeData(
           // Define the default brightness and colors.
           brightness: Brightness.light,
