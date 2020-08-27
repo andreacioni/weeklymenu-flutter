@@ -7,7 +7,7 @@ import '../../models/ingredient.dart';
 import './item_suggestion_text_field.dart';
 
 class ShoppingListItemTile extends StatefulWidget {
-  final Key key;
+  final Key formKey;
   final ShoppingListItem shoppingListItem;
   final Function(bool) onCheckChange;
   final Function(DismissDirection) onDismiss;
@@ -15,11 +15,11 @@ class ShoppingListItemTile extends StatefulWidget {
 
   ShoppingListItemTile(
     this.shoppingListItem, {
-    this.key,
+    this.formKey,
     this.onCheckChange,
     this.onDismiss,
     this.editable = true,
-  }) : super(key: key);
+  }) : super(key: formKey);
 
   @override
   _ShoppingListItemTileState createState() => _ShoppingListItemTileState();
@@ -50,7 +50,7 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: widget.key,
+      key: widget.formKey,
       onDismissed: widget.onDismiss,
       child: Column(
         children: <Widget>[
@@ -94,7 +94,7 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
 
   void _onTap() {
     setState(() {
-     _editingMode = true;
+      _editingMode = true;
     });
   }
 

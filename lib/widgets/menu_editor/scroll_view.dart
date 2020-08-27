@@ -200,7 +200,8 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       isChecked: false,
       onPressed: !widget.editingMode ? () => _openRecipeView(recipe) : null,
       onCheckChange: (c) => _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
-      key: ValueKey(mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
+      formKey:
+          ValueKey(mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
     );
     return ChangeNotifierProvider.value(
       value: recipe,

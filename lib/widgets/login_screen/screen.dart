@@ -1,12 +1,33 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:weekly_menu_app/widgets/login_screen/forms/base_login_form.dart';
+import 'package:weekly_menu_app/widgets/login_screen/forms/register_form.dart';
+import 'package:weekly_menu_app/widgets/login_screen/forms/reset_password_form.dart';
+import 'package:weekly_menu_app/widgets/login_screen/forms/sign_in_form.dart';
 
-class LogingScreen extends StatelessWidget {
+enum LoginScreenMode {
+  SignIn,
+  Register,
+  LostPassword,
+}
+
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  LoginScreenMode mode;
+
+  @override
+  void initState() {
+    mode = LoginScreenMode.SignIn;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final flatButtonBorderRadius = BorderRadius.circular(30);
-
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -34,7 +55,7 @@ class LogingScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "- AI powered daily menu organizer -",
+                      "- AI-powered Daily Menu Organizer -",
                       style: TextStyle(
                         fontFamily: "Milkshake",
                         fontSize: 20,
@@ -46,97 +67,39 @@ class LogingScreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(30),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        elevation: 10,
+                      child: buildMainCard(),
+                    ),
+                    if (mode != LoginScreenMode.Register) ...[
+                      Text(
+                        "Don't have an account?",
+                        style: TextStyle(
+                          color: Colors.black45,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      FlatButton(
+                        onPressed: () =>
+                            setState(() => mode = LoginScreenMode.Register),
                         child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Form(
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Sign In",
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                ),
-                                TextField(
-                                  autofocus: true,
-                                  decoration:
-                                      InputDecoration(hintText: "Email"),
-                                  keyboardType: TextInputType.emailAddress,
-                                ),
-                                TextField(
-                                  autofocus: true,
-                                  obscureText: true,
-                                  decoration:
-                                      InputDecoration(hintText: "Password"),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                ),
-                                RaisedButton(
-                                  child: Text(
-                                    "Login",
-                                    style: TextStyle(
-                                        color: Colors.amber[50],
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: flatButtonBorderRadius,
-                                  ),
-                                  color: Colors.amber,
-                                  onPressed: () {},
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  "I've lost the password",
-                                  style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.bold,
-                                      fontFeatures: []),
-                                ),
-                              ],
-                            ),
+                          padding: const EdgeInsets.all(18),
+                          child: Text(
+                            "Register",
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
-                      ),
-                    ),
-                    Text(
-                      "Don't have an account?",
-                      style: TextStyle(
-                        color: Colors.black45,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    FlatButton(
-                      onPressed: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Text(
-                          "Register",
-                          style: TextStyle(fontSize: 20),
+                        textColor: Colors.amber,
+                        color: Colors.white,
+                        minWidth: 250,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BaseLoginForm.flatButtonBorderRadius,
+                          side: BorderSide(color: Colors.amber[100], width: 3),
                         ),
-                      ),
-                      textColor: Colors.amber,
-                      color: Colors.white,
-                      minWidth: 350,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: flatButtonBorderRadius,
-                        side: BorderSide(color: Colors.amber[100], width: 3),
-                      ),
-                      splashColor: Colors.amber[100],
-                      highlightColor: Colors.amber[100],
-                    )
+                        splashColor: Colors.amber[100],
+                        highlightColor: Colors.amber[100],
+                      )
+                    ]
                   ],
                 ),
               ),
@@ -146,4 +109,101 @@ class LogingScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget buildMainCard() {
+    switch (mode) {
+      case LoginScreenMode.SignIn:
+        return SignInForm(
+          onLostPasswordPressed: toResetPasswordForm,
+        );
+      case LoginScreenMode.Register:
+        return RegisterForm(
+          onBackToSignInPressed: toSignInForm,
+        );
+      case LoginScreenMode.LostPassword:
+        return ResetPasswordForm(
+          onBackToSignInPressed: toSignInForm,
+        );
+    }
+
+    return null;
+  }
+
+  void toSignInForm() => setState(() => mode = LoginScreenMode.SignIn);
+
+  void toResetPasswordForm() =>
+      setState(() => mode = LoginScreenMode.LostPassword);
+
+/*   Widget buildRegisterCard(BorderRadius flatButtonBorderRadius) {
+    final GlobalKey formKey = GlobalKey<FormState>();
+
+    return BaseLoginForm(
+      "Sign Up",
+      "Register",
+      [
+        TextFormField(
+          autofocus: true,
+          decoration: InputDecoration(hintText: "Name"),
+          keyboardType: TextInputType.emailAddress,
+        ),
+        buildEmailFormField(),
+        TextFormField(
+          autofocus: true,
+          obscureText: true,
+          decoration: InputDecoration(hintText: "Password"),
+        ),
+        TextFormField(
+          autofocus: true,
+          obscureText: true,
+          decoration: InputDecoration(hintText: "Confirm password"),
+        )
+      ],
+      secondaryActionWidget: buildCancelButton(),
+      key: formKey,
+    );
+  }
+
+  Widget buildLostPasswordCard() {
+    final GlobalKey formKey = GlobalKey<FormState>();
+
+    return BaseLoginForm(
+      "Password Recovery",
+      "Send email",
+      [
+        buildEmailFormField(),
+      ],
+      secondaryActionWidget: buildCancelButton(),
+      key: formKey,
+    );
+  }
+
+  Widget buildSignInCard() {
+    final Key formKey = GlobalKey<FormState>();
+
+    return BaseLoginForm(
+      "Sign In",
+      "Login",
+      [
+        buildEmailFormField(),
+        TextFormField(
+          autofocus: true,
+          obscureText: true,
+          decoration: InputDecoration(hintText: "Password"),
+        )
+      ],
+      secondaryActionWidget: FlatButton(
+        child: Text(
+          "I've lost the password",
+          style: TextStyle(
+              color: Colors.grey,
+              fontWeight: FontWeight.bold,
+              fontFeatures: []),
+        ),
+        onPressed: () => setState(() => mode = LoginScreenMode.LostPassword),
+        splashColor: Theme.of(context).accentColor.withOpacity(0.1),
+        shape: RoundedRectangleBorder(borderRadius: BaseLoginForm.flatButtonBorderRadius),
+      ),
+      key: formKey,
+    );
+  } */
 }

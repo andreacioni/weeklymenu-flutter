@@ -50,7 +50,7 @@ class App extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Weekly Menu',
-        home: LogingScreen(), //HomePage(),
+        home: LoginScreen(), //HomePage(),
         theme: ThemeData(
           // Define the default brightness and colors.
           brightness: Brightness.light,
