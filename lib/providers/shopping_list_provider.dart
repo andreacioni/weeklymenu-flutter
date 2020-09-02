@@ -4,7 +4,7 @@ import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/shopping_list.dart';
-import 'auth_provider.dart';
+import 'rest_provider.dart';
 
 class ShoppingListProvider with ChangeNotifier {
   RestProvider _restProvider;

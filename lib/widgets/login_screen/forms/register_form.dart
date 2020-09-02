@@ -26,16 +26,8 @@ class _RegisterFormState extends State<RegisterForm> {
           keyboardType: TextInputType.emailAddress,
         ),
         buildEmailFormField(),
-        TextFormField(
-          autofocus: true,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Password"),
-        ),
-        TextFormField(
-          autofocus: true,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Confirm password"),
-        )
+        buildPasswordFormField(),
+        buildPasswordFormField(hintText: "Confirm password"),
       ],
       secondaryActionWidget:
           buildCancelButton(context, widget.onBackToSignInPressed),

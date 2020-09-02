@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/homepage.dart';
+import 'package:weekly_menu_app/providers/rest_provider.dart';
 
 import 'base_login_form.dart';
 
@@ -19,14 +22,7 @@ class _SignInFormState extends State<SignInForm> {
     return BaseLoginForm(
       "Sign In",
       "Login",
-      [
-        buildEmailFormField(),
-        TextFormField(
-          autofocus: true,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Password"),
-        )
-      ],
+      [buildEmailFormField(), buildPasswordFormField()],
       onSubmit: _onLoginSubmit,
       secondaryActionWidget: FlatButton(
         child: Text(

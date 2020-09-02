@@ -1,10 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/providers/rest_provider.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/base_login_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/register_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/reset_password_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/sign_in_form.dart';
+
+import '../../homepage.dart';
 
 enum LoginScreenMode {
   SignIn,
@@ -13,6 +17,15 @@ enum LoginScreenMode {
 }
 
 class LoginScreen extends StatefulWidget {
+  static final backgroudContainer = Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[Colors.amber, Colors.amberAccent[200]]),
+    ),
+  );
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -31,14 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[Colors.amber, Colors.amberAccent[200]]),
-            ),
-          ),
+          LoginScreen.backgroudContainer,
           ListView(
             children: [
               Center(
@@ -133,77 +139,4 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void toResetPasswordForm() =>
       setState(() => mode = LoginScreenMode.LostPassword);
-
-/*   Widget buildRegisterCard(BorderRadius flatButtonBorderRadius) {
-    final GlobalKey formKey = GlobalKey<FormState>();
-
-    return BaseLoginForm(
-      "Sign Up",
-      "Register",
-      [
-        TextFormField(
-          autofocus: true,
-          decoration: InputDecoration(hintText: "Name"),
-          keyboardType: TextInputType.emailAddress,
-        ),
-        buildEmailFormField(),
-        TextFormField(
-          autofocus: true,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Password"),
-        ),
-        TextFormField(
-          autofocus: true,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Confirm password"),
-        )
-      ],
-      secondaryActionWidget: buildCancelButton(),
-      key: formKey,
-    );
-  }
-
-  Widget buildLostPasswordCard() {
-    final GlobalKey formKey = GlobalKey<FormState>();
-
-    return BaseLoginForm(
-      "Password Recovery",
-      "Send email",
-      [
-        buildEmailFormField(),
-      ],
-      secondaryActionWidget: buildCancelButton(),
-      key: formKey,
-    );
-  }
-
-  Widget buildSignInCard() {
-    final Key formKey = GlobalKey<FormState>();
-
-    return BaseLoginForm(
-      "Sign In",
-      "Login",
-      [
-        buildEmailFormField(),
-        TextFormField(
-          autofocus: true,
-          obscureText: true,
-          decoration: InputDecoration(hintText: "Password"),
-        )
-      ],
-      secondaryActionWidget: FlatButton(
-        child: Text(
-          "I've lost the password",
-          style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontFeatures: []),
-        ),
-        onPressed: () => setState(() => mode = LoginScreenMode.LostPassword),
-        splashColor: Theme.of(context).accentColor.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BaseLoginForm.flatButtonBorderRadius),
-      ),
-      key: formKey,
-    );
-  } */
 }

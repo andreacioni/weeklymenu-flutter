@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:weekly_menu_app/providers/auth_provider.dart';
+import 'package:weekly_menu_app/providers/rest_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
-class IngredientsProvider with ChangeNotifier {  
+class IngredientsProvider with ChangeNotifier {
   RestProvider _restProvider;
 
   List<Ingredient> _ingredients = [];
@@ -21,7 +21,7 @@ class IngredientsProvider with ChangeNotifier {
         .map((jsonMenu) => Ingredient.fromJson(jsonMenu))
         .toList()
         .cast<Ingredient>();
-    
+
     notifyListeners();
   }
 
@@ -31,7 +31,7 @@ class IngredientsProvider with ChangeNotifier {
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
     var resp = await _restProvider.createIngredient(ingredient.toJSON());
     var newIngredient = Ingredient.fromJson(resp);
-    
+
     _ingredients.add(newIngredient);
     notifyListeners();
 

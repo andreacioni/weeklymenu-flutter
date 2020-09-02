@@ -4,7 +4,7 @@ import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../datasource/network.dart';
 import '../models/recipe.dart';
-import 'auth_provider.dart';
+import 'rest_provider.dart';
 
 class RecipesProvider with ChangeNotifier {
   RestProvider _restApi;
@@ -37,12 +37,12 @@ class RecipesProvider with ChangeNotifier {
     return tags;
   }
 
-  RecipeOriginator getById(String id) => _recipes
-      .firstWhere((recipe) => recipe.id == id, orElse: () => null);
+  RecipeOriginator getById(String id) =>
+      _recipes.firstWhere((recipe) => recipe.id == id, orElse: () => null);
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);
-    
+
     var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
     var postedRecipe = Recipe.fromJson(recipeJson);
 
@@ -64,22 +64,30 @@ class RecipesProvider with ChangeNotifier {
     try {
       await _restApi.patchRecipe(recipe.id, recipe.toJson());
       recipe.save();
-    } catch(e) {
+    } catch (e) {
       recipe.revert();
       throw e;
     }
   }
 
-  void update(RestProvider restProvider, IngredientsProvider ingredientsProvider) {
+  void update(
+      RestProvider restProvider, IngredientsProvider ingredientsProvider) {
     List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
-    if(ingredientsList != null) {
-      for(RecipeOriginator recipe in _recipes) {
-        if(recipe.ingredients != null) {
+    if (ingredientsList != null) {
+      for (RecipeOriginator recipe in _recipes) {
+        if (recipe.ingredients != null) {
           //This is a list but hopefully we expect only one item to be removed
-          var toBeRemovedList = recipe.ingredients.where((recipeIngredient) =>  (ingredientsList.indexWhere((ingredient) => ingredient.id == recipeIngredient.ingredientId) == -1)).toList();
-          
-          for(RecipeIngredient recipeIngredientToBeRemvoved in toBeRemovedList) {
-            recipe.deleteRecipeIngredient(recipeIngredientToBeRemvoved.ingredientId);
+          var toBeRemovedList = recipe.ingredients
+              .where((recipeIngredient) => (ingredientsList.indexWhere(
+                      (ingredient) =>
+                          ingredient.id == recipeIngredient.ingredientId) ==
+                  -1))
+              .toList();
+
+          for (RecipeIngredient recipeIngredientToBeRemvoved
+              in toBeRemovedList) {
+            recipe.deleteRecipeIngredient(
+                recipeIngredientToBeRemvoved.ingredientId);
           }
         }
       }

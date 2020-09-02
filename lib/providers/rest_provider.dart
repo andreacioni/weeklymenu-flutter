@@ -1,33 +1,31 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
+import 'package:weekly_menu_app/models/auth_token.dart';
 
 class RestProvider with ChangeNotifier {
   final log = Logger((RestProvider).toString());
 
   static final String BASE_URL =
       'https://heroku-weeklymenu.herokuapp.com/api/v1';
-  static final String TOKEN =
-      'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODQ3OTgyNDgsIm5iZiI6MTU4NDc5ODI0OCwianRpIjoiYWQyM2U1ODctODJkZC00YmYyLThiN2EtNDE3YTk4ZDA1NTc0IiwiZXhwIjoyNTg0Nzk5MTQ4LCJpZGVudGl0eSI6ImFuZHJlYWNpb25pIiwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.aoorAJXoC7hfS1CquhaBCR_a9yFuSrdIkeQq8It2Zi8';
 
-  static final BASE_HEADERS = {
-    'Authorization': TOKEN,
-  };
+  static final BASE_HEADERS = <String, dynamic>{};
 
   static final BASE_PARAMS = {
     'per_page': 1000, //TODO handle pagination
   };
 
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: BASE_URL,
-    contentType: 'application/json',
-    headers: BASE_HEADERS,
-    queryParameters: BASE_PARAMS,
-  ));
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: BASE_URL,
+      contentType: 'application/json',
+      headers: BASE_HEADERS,
+      queryParameters: BASE_PARAMS,
+    ),
+  );
 
   Future<Map<String, dynamic>> getMenusByDay(String day) async {
     var resp = await _dio.get('$BASE_URL/menus', queryParameters: {'day': day});
-
     return resp.data;
   }
 
@@ -197,5 +195,9 @@ class RestProvider with ChangeNotifier {
 
   Future<void> logout() async {
     await _dio.post('$BASE_URL/auth/logout');
+  }
+
+  Future<void> initWithToken(JWTToken jwt) async {
+    _dio.options.headers['Authorization'] = jwt.token;
   }
 }

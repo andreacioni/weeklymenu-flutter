@@ -7,7 +7,7 @@ import '../models/menu.dart';
 import '../models/enums/meals.dart';
 import '../models/recipe.dart';
 import '../datasource/network.dart';
-import 'auth_provider.dart';
+import 'rest_provider.dart';
 
 class MenusProvider with ChangeNotifier {
   final log = Logger((MenusProvider).toString());
@@ -80,6 +80,7 @@ class MenusProvider with ChangeNotifier {
       throw e;
     }
   }
+
   void update(RestProvider restProvider, RecipesProvider recipesProvider) {
     List<RecipeOriginator> recipesList = recipesProvider.getRecipes;
     List<MenuOriginator> menusToBeRemoved = [];

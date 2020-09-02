@@ -76,6 +76,15 @@ TextFormField buildEmailFormField() {
   );
 }
 
+TextFormField buildPasswordFormField({String hintText = "Password"}) {
+  return TextFormField(
+    autofocus: true,
+    obscureText: true,
+    decoration: InputDecoration(hintText: hintText),
+    validator: _validatePassword,
+  );
+}
+
 FlatButton buildCancelButton(BuildContext context, void Function() onCancel) {
   return FlatButton(
     child: Text(
@@ -100,7 +109,7 @@ String _validateEmail(String value) {
 
 String _validatePassword(String value) {
   if (!RegExp(consts.passwordValidationRegex).hasMatch(value)) {
-    return "Password must be at least 8 characters long and should contains numbers, letters and symbols (${consts.alloweSpecialCharacters}";
+    return "Password must be at least 8 characters long";
   }
 
   return null;
