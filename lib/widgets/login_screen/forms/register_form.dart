@@ -14,6 +14,9 @@ class RegisterForm extends StatefulWidget {
 
 class _RegisterFormState extends State<RegisterForm> {
   final GlobalKey _formKey = GlobalKey<FormState>();
+
+  String _name, _email, _password, _passwordVerification;
+
   @override
   Widget build(BuildContext context) {
     return BaseLoginForm(
@@ -23,15 +26,23 @@ class _RegisterFormState extends State<RegisterForm> {
         TextFormField(
           autofocus: true,
           decoration: InputDecoration(hintText: "Name"),
-          keyboardType: TextInputType.emailAddress,
+          onSaved: (name) => _name = name,
         ),
-        buildEmailFormField(),
-        buildPasswordFormField(),
-        buildPasswordFormField(hintText: "Confirm password"),
+        buildEmailFormField(onSaved: (email) => _email = email),
+        buildPasswordFormField(
+          onSaved: (password) => _password = password,
+        ),
+        buildPasswordFormField(
+            hintText: "Confirm password",
+            onSaved: (passwordVerification) =>
+                _passwordVerification = passwordVerification),
       ],
       secondaryActionWidget:
-          buildCancelButton(context, widget.onBackToSignInPressed),
+          buildCancelButton(context, onCancel: widget.onBackToSignInPressed),
       formKey: _formKey,
+      onSaved: _doRegistration,
     );
   }
+
+  void _doRegistration() {}
 }

@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(30),
-                      child: buildMainCard(),
+                      child: buildMainForm(),
                     ),
                     if (mode != LoginScreenMode.Register) ...[
                       Text(
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildMainCard() {
+  Widget buildMainForm() {
     switch (mode) {
       case LoginScreenMode.SignIn:
         return SignInForm(

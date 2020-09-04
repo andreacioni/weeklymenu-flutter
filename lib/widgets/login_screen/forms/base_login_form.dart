@@ -7,13 +7,15 @@ class BaseLoginForm extends StatelessWidget {
 
   final String title;
   final String action;
-  final void Function() onSubmit;
+  final void Function() onSaved;
   final List<TextFormField> textFields;
   final Widget secondaryActionWidget;
-  final GlobalKey formKey;
+  final GlobalKey<FormState> formKey;
 
   BaseLoginForm(this.title, this.action, this.textFields,
-      {this.onSubmit, this.secondaryActionWidget, @required this.formKey});
+      {this.secondaryActionWidget,
+      @required this.onSaved,
+      @required this.formKey});
 
   @override
   Widget build(BuildContext context) {
@@ -65,18 +67,32 @@ class BaseLoginForm extends StatelessWidget {
       ),
     );
   }
+
+  void onSubmit() {
+    if (!formKey.currentState.validate()) {
+      return;
+    }
+
+    formKey.currentState.save();
+
+    onSaved();
+  }
 }
 
-TextFormField buildEmailFormField() {
+TextFormField buildEmailFormField(
+    {@required void Function(String value) onSaved}) {
   return TextFormField(
     autofocus: true,
     decoration: InputDecoration(hintText: "Email"),
     keyboardType: TextInputType.emailAddress,
     validator: _validateEmail,
+    onSaved: onSaved,
   );
 }
 
-TextFormField buildPasswordFormField({String hintText = "Password"}) {
+TextFormField buildPasswordFormField(
+    {@required void Function(String value) onSaved,
+    String hintText = "Password"}) {
   return TextFormField(
     autofocus: true,
     obscureText: true,
@@ -85,7 +101,7 @@ TextFormField buildPasswordFormField({String hintText = "Password"}) {
   );
 }
 
-FlatButton buildCancelButton(BuildContext context, void Function() onCancel) {
+FlatButton buildCancelButton(BuildContext context, {void Function() onCancel}) {
   return FlatButton(
     child: Text(
       "Cancel",
@@ -99,7 +115,8 @@ FlatButton buildCancelButton(BuildContext context, void Function() onCancel) {
   );
 }
 
-String _validateEmail(String value) {
+String _validateEmail(String value,
+    {@required void Function(String value) onSaved}) {
   if (!RegExp(consts.emailValidationRegex).hasMatch(value)) {
     return "Enter a valid email address";
   }
@@ -107,7 +124,8 @@ String _validateEmail(String value) {
   return null;
 }
 
-String _validatePassword(String value) {
+String _validatePassword(String value,
+    {@required void Function(String value) onSaved}) {
   if (!RegExp(consts.passwordValidationRegex).hasMatch(value)) {
     return "Password must be at least 8 characters long";
   }

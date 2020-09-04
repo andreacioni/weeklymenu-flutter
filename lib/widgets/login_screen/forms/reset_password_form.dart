@@ -14,17 +14,23 @@ class ResetPasswordForm extends StatefulWidget {
 
 class _ResetPasswordFormState extends State<ResetPasswordForm> {
   final GlobalKey _formKey = GlobalKey<FormState>();
+
+  String _email;
+
   @override
   Widget build(BuildContext context) {
     return BaseLoginForm(
       "Password Recovery",
       "Send email",
       [
-        buildEmailFormField(),
+        buildEmailFormField(onSaved: (email) => _email),
       ],
       secondaryActionWidget:
-          buildCancelButton(context, widget.onBackToSignInPressed),
+          buildCancelButton(context, onCancel: widget.onBackToSignInPressed),
       formKey: _formKey,
+      onSaved: _doResetPassword,
     );
   }
+
+  void _doResetPassword() {}
 }

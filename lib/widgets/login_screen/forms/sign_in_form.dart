@@ -17,13 +17,17 @@ class SignInForm extends StatefulWidget {
 class _SignInFormState extends State<SignInForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  String _email, _password;
+
   @override
   Widget build(BuildContext context) {
     return BaseLoginForm(
       "Sign In",
       "Login",
-      [buildEmailFormField(), buildPasswordFormField()],
-      onSubmit: _onLoginSubmit,
+      [
+        buildEmailFormField(onSaved: (email) => _email = email),
+        buildPasswordFormField(onSaved: (password) => _password = password)
+      ],
       secondaryActionWidget: FlatButton(
         child: Text(
           "I've lost the password",
@@ -38,12 +42,9 @@ class _SignInFormState extends State<SignInForm> {
             borderRadius: BaseLoginForm.flatButtonBorderRadius),
       ),
       formKey: _formKey,
+      onSaved: _doSignIn,
     );
   }
 
-  void _onLoginSubmit() {
-    if (!_formKey.currentState.validate()) {
-      return;
-    }
-  }
+  void _doSignIn() {}
 }
