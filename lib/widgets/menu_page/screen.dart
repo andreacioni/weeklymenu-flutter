@@ -109,6 +109,7 @@ class _MenuScreenState extends State<MenuScreen> {
       title: Text("Weekly Menu"),
       centerTitle: true,
       bottom: AppBar(
+        automaticallyImplyLeading: false,
         title: FlatButton(
           color: Colors.white.withOpacity(0.5),
           child: Row(

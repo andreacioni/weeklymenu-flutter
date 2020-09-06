@@ -16,7 +16,8 @@ void showAlertErrorMessage(BuildContext context,
       ));
 }
 
-void showProgressDialog(BuildContext context, {String message = 'Loading...', bool dismissible = true}) {
+void showProgressDialog(BuildContext context,
+    {String message = 'Loading...', bool dismissible = true}) {
   showDialog(
       context: context,
       barrierDismissible: dismissible,
@@ -24,13 +25,15 @@ void showProgressDialog(BuildContext context, {String message = 'Loading...', bo
         content: Row(
           children: <Widget>[
             CircularProgressIndicator(),
-            SizedBox(width: 10,),
+            SizedBox(
+              width: 10,
+            ),
             Text(message),
           ],
         ),
       ));
 }
 
-void hideProgressDialog(BuildContext context, {String message = 'Loading...'}) {
+void hideProgressDialog(BuildContext context) {
   Navigator.of(context).pop();
 }

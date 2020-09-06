@@ -9,11 +9,10 @@ const String emailValidationRegex =
     "(^[a-zA-Z0-9_.+-]{2,}@[a-zA-Z0-9-.]{2,}\.[a-zA-Z]{2,}\$)";
 
 const String alloweSpecialCharacters = "?\$#!'\"=%&/\/\(\)\[\]\{\}";
-const String passwordValidationRegex =
-    "^[a-zA-Z0-9$alloweSpecialCharacters]{8,20}\$";
+const String passwordValidationRegex = "^[a-zA-Z0-9]{7,20}\$";
 
 class SharedPreferencesKeys {
   static final String tokenSharedPreferencesKey = "token";
-  static final String usernameSharedPreferencesKey = "username";
+  static final String emailSharedPreferencesKey = "username";
   static final String passwordSharedPreferencesKey = "password";
 }

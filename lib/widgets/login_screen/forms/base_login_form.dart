@@ -98,6 +98,7 @@ TextFormField buildPasswordFormField(
     obscureText: true,
     decoration: InputDecoration(hintText: hintText),
     validator: _validatePassword,
+    onSaved: onSaved,
   );
 }
 

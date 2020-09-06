@@ -43,7 +43,7 @@ class JWTToken {
   });
 
   factory JWTToken.fromBase64Json(String token) {
-    final jsonString = utils.decodeBase64(token);
+    final jsonString = utils.decodeBase64(token.split(".")[1]);
     final jsonMap = utils.jsonMapFromString(jsonString);
 
     final jwtToken = _$JWTTokenFromJson(jsonMap);
@@ -52,11 +52,18 @@ class JWTToken {
     return jwtToken;
   }
 
-  String get token => _token;
+  String get toJwtString => _token;
 
-  bool isValid() {
-    final unixNow = DateTime.now().toUtc().millisecondsSinceEpoch;
+  Duration get duration {
+    final d = DateTime.fromMillisecondsSinceEpoch(validUntil * 1000)
+        .difference(DateTime.now().toUtc());
 
-    return unixNow <= validUntil && unixNow >= notValidBefore;
+    if (d.isNegative) {
+      return Duration.zero;
+    }
+
+    return d;
   }
+
+  bool isValid() => duration > Duration.zero;
 }

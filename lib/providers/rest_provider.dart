@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
@@ -23,6 +25,8 @@ class RestProvider with ChangeNotifier {
       queryParameters: BASE_PARAMS,
     ),
   );
+
+  Timer _expiryTokenTimer;
 
   Future<Map<String, dynamic>> getMenusByDay(String day) async {
     var resp = await _dio.get('$BASE_URL/menus', queryParameters: {'day': day});
@@ -179,25 +183,44 @@ class RestProvider with ChangeNotifier {
     );
   }
 
-  Future<void> register(String email, password) async {
+  Future<void> register(String name, email, password) async {
     var resp = await _dio.post('$BASE_URL/auth/register',
-        data: {'username': email, 'password': password});
+        data: {'name': name, 'email': email, 'password': password});
 
     return resp.data;
   }
 
-  Future<Map<String, dynamic>> login(String email, password) async {
-    var resp = await _dio.post('$BASE_URL/auth/login',
-        data: {'username': email, 'password': password});
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    var resp = await _dio.post('$BASE_URL/auth/token',
+        data: {'email': email, 'password': password});
 
     return resp.data;
   }
 
   Future<void> logout() async {
     await _dio.post('$BASE_URL/auth/logout');
+    _clearToken();
   }
 
-  Future<void> initWithToken(JWTToken jwt) async {
-    _dio.options.headers['Authorization'] = jwt.token;
+  Future<void> updateToken(JWTToken jwt) async {
+    _cancelTimer();
+
+    _expiryTokenTimer = Timer(jwt.duration, () {
+      _clearToken();
+    });
+
+    _dio.options.headers['Authorization'] = "Bearer ${jwt.toJwtString}";
+  }
+
+  void _clearToken() {
+    _dio.options.headers['Authorization'] = '';
+    _cancelTimer();
+  }
+
+  void _cancelTimer() {
+    if (_expiryTokenTimer != null) {
+      _expiryTokenTimer.cancel();
+      _expiryTokenTimer = null;
+    }
   }
 }

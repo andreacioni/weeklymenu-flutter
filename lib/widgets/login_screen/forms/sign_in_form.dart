@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weekly_menu_app/globals/constants.dart';
+import 'package:weekly_menu_app/globals/errors_handlers.dart';
 import 'package:weekly_menu_app/homepage.dart';
+import 'package:weekly_menu_app/models/auth_token.dart';
 import 'package:weekly_menu_app/providers/rest_provider.dart';
+import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
 
 import 'base_login_form.dart';
 
@@ -46,5 +51,32 @@ class _SignInFormState extends State<SignInForm> {
     );
   }
 
-  void _doSignIn() {}
+  void _doSignIn() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    var restProvider = Provider.of<RestProvider>(context, listen: false);
+
+    showProgressDialog(context, dismissible: false);
+    try {
+      var auth = await restProvider.login(_email, _password);
+      final token =
+          JWTToken.fromBase64Json(AuthToken.fromJson(auth).accessToken);
+      restProvider.updateToken(token);
+
+      //Email & Password
+      sharedPreferences.setString(
+          SharedPreferencesKeys.emailSharedPreferencesKey, _email);
+      sharedPreferences.setString(
+          SharedPreferencesKeys.passwordSharedPreferencesKey, _password);
+
+      //Token
+      sharedPreferences.setString(
+          SharedPreferencesKeys.tokenSharedPreferencesKey, token.toJwtString);
+
+      hideProgressDialog(context);
+      SplashScreen.goToHomepage(context);
+    } catch (e) {
+      hideProgressDialog(context);
+      showAlertErrorMessage(context, errorMessage: "Check your credentials");
+    }
+  }
 }

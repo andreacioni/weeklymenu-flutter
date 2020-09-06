@@ -13,7 +13,9 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration.zero, () => tryLogin(context));
+    final restProvider = Provider.of<RestProvider>(context, listen: false);
+
+    Future.delayed(Duration.zero, () => tryLogin(context, restProvider));
 
     return Scaffold(
       body: Stack(
@@ -26,14 +28,13 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  void tryLogin(BuildContext context) async {
+  void tryLogin(BuildContext context, RestProvider restProvider) async {
     JWTToken jwt;
-    final restProvider = Provider.of<RestProvider>(context, listen: false);
     final sharedPreferences = await SharedPreferences.getInstance();
 
     try {
       if ((jwt = tryUseOldToken(sharedPreferences)) != null) {
-        restProvider.initWithToken(jwt);
+        restProvider.updateToken(jwt);
         goToHomepage(context);
         return;
       } else {
@@ -46,7 +47,7 @@ class SplashScreen extends StatelessWidget {
     try {
       if ((jwt = await tryUseCredentials(restProvider, sharedPreferences)) !=
           null) {
-        restProvider.initWithToken(jwt);
+        restProvider.updateToken(jwt);
         goToHomepage(context);
         return;
       } else {
@@ -82,7 +83,7 @@ class SplashScreen extends StatelessWidget {
   Future<JWTToken> tryUseCredentials(
       RestProvider restProvider, SharedPreferences sharedPreferences) async {
     final username = sharedPreferences
-        .getString(SharedPreferencesKeys.usernameSharedPreferencesKey);
+        .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
     final password = sharedPreferences
         .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
 
@@ -95,12 +96,13 @@ class SplashScreen extends StatelessWidget {
     return null;
   }
 
-  void goToLogin(BuildContext context) {
+  static void goToLogin(BuildContext context) {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => LoginScreen()));
+        .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
   }
 
-  void goToHomepage(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => HomePage()));
+  static void goToHomepage(BuildContext context) {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => HomePage()));
   }
 }
