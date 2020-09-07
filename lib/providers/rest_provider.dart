@@ -202,6 +202,10 @@ class RestProvider with ChangeNotifier {
     _clearToken();
   }
 
+  Future<void> resetPassword(String email) async {
+    await _dio.post('$BASE_URL/auth/reset_password', data: {'email': email});
+  }
+
   Future<void> updateToken(JWTToken jwt) async {
     _cancelTimer();
 
