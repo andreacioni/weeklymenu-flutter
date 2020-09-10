@@ -33,15 +33,25 @@ class _RegisterFormState extends State<RegisterForm> {
           autofocus: true,
           decoration: InputDecoration(hintText: "Name"),
           onSaved: (name) => _name = name,
+          onChanged: (name) => _name = name,
         ),
-        buildEmailFormField(onSaved: (email) => _email = email),
+        buildEmailFormField(
+          onSaved: (email) => _email = email,
+          onChanged: (email) => _email = email,
+        ),
         buildPasswordFormField(
           onSaved: (password) => _password = password,
+          onChanged: (password) => _password = password,
         ),
         buildPasswordFormField(
-            hintText: "Confirm password",
-            onSaved: (passwordVerification) =>
-                _passwordVerification = passwordVerification),
+          hintText: "Confirm password",
+          onSaved: (passwordVerification) =>
+              _passwordVerification = passwordVerification,
+          onChanged: (passwordVerification) =>
+              _passwordVerification = passwordVerification,
+          onFieldSubmitted: (_) => _doRegistration(),
+          textInputAction: TextInputAction.done,
+        ),
       ],
       secondaryActionWidget:
           buildCancelButton(context, onCancel: widget.onBackToSignInPressed),

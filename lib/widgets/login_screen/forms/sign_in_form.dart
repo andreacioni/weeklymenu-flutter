@@ -30,8 +30,19 @@ class _SignInFormState extends State<SignInForm> {
       "Sign In",
       "Login",
       [
-        buildEmailFormField(onSaved: (email) => _email = email),
-        buildPasswordFormField(onSaved: (password) => _password = password)
+        buildEmailFormField(
+          onSaved: (email) => _email = email,
+          onChanged: (email) => _email = email,
+        ),
+        buildPasswordFormField(
+          onSaved: (password) => _password = password,
+          onChanged: (password) => _password = password,
+          onFieldSubmitted: (password) {
+            _password = password;
+            _doSignIn();
+          },
+          textInputAction: TextInputAction.done,
+        )
       ],
       secondaryActionWidget: FlatButton(
         child: Text(

@@ -79,26 +79,37 @@ class BaseLoginForm extends StatelessWidget {
   }
 }
 
-TextFormField buildEmailFormField(
-    {@required void Function(String value) onSaved}) {
+TextFormField buildEmailFormField({
+  @required void Function(String value) onSaved,
+  void Function(String value) onChanged,
+  void Function(String value) onFieldSubmitted,
+  TextInputAction textInputAction = TextInputAction.next,
+}) {
   return TextFormField(
-    autofocus: true,
     decoration: InputDecoration(hintText: "Email"),
     keyboardType: TextInputType.emailAddress,
+    textInputAction: textInputAction,
     validator: _validateEmail,
     onSaved: onSaved,
+    onChanged: onChanged,
+    onFieldSubmitted: onFieldSubmitted,
   );
 }
 
 TextFormField buildPasswordFormField(
     {@required void Function(String value) onSaved,
+    void Function(String value) onChanged,
+    void Function(String value) onFieldSubmitted,
+    TextInputAction textInputAction = TextInputAction.next,
     String hintText = "Password"}) {
   return TextFormField(
-    autofocus: true,
     obscureText: true,
     decoration: InputDecoration(hintText: hintText),
+    textInputAction: textInputAction,
     validator: _validatePassword,
     onSaved: onSaved,
+    onFieldSubmitted: onFieldSubmitted,
+    onChanged: onChanged,
   );
 }
 

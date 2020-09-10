@@ -30,7 +30,12 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
       "Password Recovery",
       "Send email",
       [
-        buildEmailFormField(onSaved: (email) => _email),
+        buildEmailFormField(
+          onSaved: (email) => _email,
+          onChanged: (email) => _email,
+          onFieldSubmitted: (_) => _doResetPassword(),
+          textInputAction: TextInputAction.done,
+        ),
       ],
       secondaryActionWidget:
           buildCancelButton(context, onCancel: widget.onBackToSignInPressed),
