@@ -21,11 +21,13 @@ class RegisterForm extends StatefulWidget {
 class _RegisterFormState extends State<RegisterForm> {
   final GlobalKey _formKey = GlobalKey<FormState>();
 
+  BaseLoginForm _form;
+
   String _name, _email, _password, _passwordVerification;
 
   @override
   Widget build(BuildContext context) {
-    return BaseLoginForm(
+    _form = BaseLoginForm(
       "Sign Up",
       "Register",
       [
@@ -37,56 +39,56 @@ class _RegisterFormState extends State<RegisterForm> {
         ),
         buildEmailFormField(
           onSaved: (email) => _email = email,
-          onChanged: (email) => _email = email,
         ),
         buildPasswordFormField(
           onSaved: (password) => _password = password,
-          onChanged: (password) => _password = password,
         ),
         buildPasswordFormField(
           hintText: "Confirm password",
           onSaved: (passwordVerification) =>
               _passwordVerification = passwordVerification,
-          onChanged: (passwordVerification) =>
-              _passwordVerification = passwordVerification,
-          onFieldSubmitted: (_) => _doRegistration(),
+          onFieldSubmitted: _doRegistration,
           textInputAction: TextInputAction.done,
         ),
       ],
       secondaryActionWidget:
           buildCancelButton(context, onCancel: widget.onBackToSignInPressed),
       formKey: _formKey,
-      onSaved: _doRegistration,
+      onSubmit: _doRegistration,
     );
+
+    return _form;
   }
 
-  void _doRegistration() async {
-    var restProvider = Provider.of<RestProvider>(context, listen: false);
+  void _doRegistration() {
+    _form.validateAndSave(() async {
+      var restProvider = Provider.of<RestProvider>(context, listen: false);
 
-    showProgressDialog(context, dismissible: false);
-    try {
-      await restProvider.register(_name, _email, _password);
+      showProgressDialog(context, dismissible: false);
+      try {
+        await restProvider.register(_name, _email, _password);
 
-      hideProgressDialog(context);
+        hideProgressDialog(context);
 
-      await showDialog(
-          context: context,
-          child: AlertDialog(
-            content: Text(
-                "You were successfully registered to Weekly Menu! Please login"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          ));
+        await showDialog(
+            context: context,
+            child: AlertDialog(
+              content: Text(
+                  "You were successfully registered to Weekly Menu! Please login"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              ],
+            ));
 
-      SplashScreen.goToLogin(context);
-    } catch (e) {
-      hideProgressDialog(context);
-      showAlertErrorMessage(context,
-          errorMessage: "New user registration failed. Try again later");
-    }
+        SplashScreen.goToLogin(context);
+      } catch (e) {
+        hideProgressDialog(context);
+        showAlertErrorMessage(context,
+            errorMessage: "New user registration failed. Try again later");
+      }
+    });
   }
 }

@@ -22,55 +22,59 @@ class ResetPasswordForm extends StatefulWidget {
 class _ResetPasswordFormState extends State<ResetPasswordForm> {
   final GlobalKey _formKey = GlobalKey<FormState>();
 
+  BaseLoginForm _form;
+
   String _email;
 
   @override
   Widget build(BuildContext context) {
-    return BaseLoginForm(
+    _form = BaseLoginForm(
       "Password Recovery",
       "Send email",
       [
         buildEmailFormField(
           onSaved: (email) => _email,
-          onChanged: (email) => _email,
-          onFieldSubmitted: (_) => _doResetPassword(),
-          textInputAction: TextInputAction.done,
+          onFieldSubmitted: _doResetPassword,
         ),
       ],
       secondaryActionWidget:
           buildCancelButton(context, onCancel: widget.onBackToSignInPressed),
       formKey: _formKey,
-      onSaved: _doResetPassword,
+      onSubmit: _doResetPassword,
     );
+
+    return _form;
   }
 
-  void _doResetPassword() async {
-    var restProvider = Provider.of<RestProvider>(context, listen: false);
+  void _doResetPassword() {
+    _form.validateAndSave(() async {
+      var restProvider = Provider.of<RestProvider>(context, listen: false);
 
-    showProgressDialog(context, dismissible: false);
-    try {
-      await restProvider.resetPassword(_email);
+      showProgressDialog(context, dismissible: false);
+      try {
+        await restProvider.resetPassword(_email);
 
-      hideProgressDialog(context);
+        hideProgressDialog(context);
 
-      await showDialog(
-          context: context,
-          child: AlertDialog(
-            content: Text(
-                "An e-mail was sent to you! Please follow the instructions provided in the message in order to reset your password"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          ));
+        await showDialog(
+            context: context,
+            child: AlertDialog(
+              content: Text(
+                  "An e-mail was sent to you! Please follow the instructions provided in the message in order to reset your password"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              ],
+            ));
 
-      SplashScreen.goToLogin(context);
-    } catch (e) {
-      hideProgressDialog(context);
-      showAlertErrorMessage(context,
-          errorMessage: "Password reset failed. Try again later");
-    }
+        SplashScreen.goToLogin(context);
+      } catch (e) {
+        hideProgressDialog(context);
+        showAlertErrorMessage(context,
+            errorMessage: "Password reset failed. Try again later");
+      }
+    });
   }
 }

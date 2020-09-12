@@ -7,14 +7,14 @@ class BaseLoginForm extends StatelessWidget {
 
   final String title;
   final String action;
-  final void Function() onSaved;
+  final void Function() onSubmit;
   final List<TextFormField> textFields;
   final Widget secondaryActionWidget;
   final GlobalKey<FormState> formKey;
 
   BaseLoginForm(this.title, this.action, this.textFields,
       {this.secondaryActionWidget,
-      @required this.onSaved,
+      @required this.onSubmit,
       @required this.formKey});
 
   @override
@@ -68,7 +68,7 @@ class BaseLoginForm extends StatelessWidget {
     );
   }
 
-  void onSubmit() {
+  void validateAndSave(void Function() onSaved) {
     if (!formKey.currentState.validate()) {
       return;
     }
@@ -81,35 +81,32 @@ class BaseLoginForm extends StatelessWidget {
 
 TextFormField buildEmailFormField({
   @required void Function(String value) onSaved,
-  void Function(String value) onChanged,
-  void Function(String value) onFieldSubmitted,
-  TextInputAction textInputAction = TextInputAction.next,
+  void Function() onFieldSubmitted,
 }) {
   return TextFormField(
     decoration: InputDecoration(hintText: "Email"),
     keyboardType: TextInputType.emailAddress,
-    textInputAction: textInputAction,
+    textInputAction:
+        onFieldSubmitted != null ? TextInputAction.done : TextInputAction.next,
     validator: _validateEmail,
     onSaved: onSaved,
-    onChanged: onChanged,
-    onFieldSubmitted: onFieldSubmitted,
+    onFieldSubmitted: (_) => onFieldSubmitted(),
   );
 }
 
 TextFormField buildPasswordFormField(
     {@required void Function(String value) onSaved,
-    void Function(String value) onChanged,
-    void Function(String value) onFieldSubmitted,
+    void Function() onFieldSubmitted,
     TextInputAction textInputAction = TextInputAction.next,
     String hintText = "Password"}) {
   return TextFormField(
     obscureText: true,
     decoration: InputDecoration(hintText: hintText),
-    textInputAction: textInputAction,
+    textInputAction:
+        onFieldSubmitted != null ? TextInputAction.done : TextInputAction.next,
     validator: _validatePassword,
     onSaved: onSaved,
-    onFieldSubmitted: onFieldSubmitted,
-    onChanged: onChanged,
+    onFieldSubmitted: (_) => onFieldSubmitted(),
   );
 }
 

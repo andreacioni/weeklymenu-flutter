@@ -22,35 +22,32 @@ class SignInForm extends StatefulWidget {
 class _SignInFormState extends State<SignInForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  BaseLoginForm _form;
+
   String _email, _password;
 
   @override
   Widget build(BuildContext context) {
-    return BaseLoginForm(
+    _form = BaseLoginForm(
       "Sign In",
       "Login",
       [
         buildEmailFormField(
           onSaved: (email) => _email = email,
-          onChanged: (email) => _email = email,
         ),
         buildPasswordFormField(
           onSaved: (password) => _password = password,
-          onChanged: (password) => _password = password,
-          onFieldSubmitted: (password) {
-            _password = password;
-            _doSignIn();
-          },
-          textInputAction: TextInputAction.done,
+          onFieldSubmitted: _doSignIn,
         )
       ],
       secondaryActionWidget: FlatButton(
         child: Text(
           "I've lost the password",
           style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontFeatures: []),
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+            fontFeatures: [],
+          ),
         ),
         onPressed: widget.onLostPasswordPressed,
         splashColor: Theme.of(context).accentColor.withOpacity(0.1),
@@ -58,36 +55,40 @@ class _SignInFormState extends State<SignInForm> {
             borderRadius: BaseLoginForm.flatButtonBorderRadius),
       ),
       formKey: _formKey,
-      onSaved: _doSignIn,
+      onSubmit: _doSignIn,
     );
+
+    return _form;
   }
 
-  void _doSignIn() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    var restProvider = Provider.of<RestProvider>(context, listen: false);
+  void _doSignIn() {
+    _form.validateAndSave(() async {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      var restProvider = Provider.of<RestProvider>(context, listen: false);
 
-    showProgressDialog(context, dismissible: false);
-    try {
-      var auth = await restProvider.login(_email, _password);
-      final token =
-          JWTToken.fromBase64Json(AuthToken.fromJson(auth).accessToken);
-      restProvider.updateToken(token);
+      showProgressDialog(context, dismissible: false);
+      try {
+        var auth = await restProvider.login(_email, _password);
+        final token =
+            JWTToken.fromBase64Json(AuthToken.fromJson(auth).accessToken);
+        restProvider.updateToken(token);
 
-      //Email & Password
-      sharedPreferences.setString(
-          SharedPreferencesKeys.emailSharedPreferencesKey, _email);
-      sharedPreferences.setString(
-          SharedPreferencesKeys.passwordSharedPreferencesKey, _password);
+        //Email & Password
+        sharedPreferences.setString(
+            SharedPreferencesKeys.emailSharedPreferencesKey, _email);
+        sharedPreferences.setString(
+            SharedPreferencesKeys.passwordSharedPreferencesKey, _password);
 
-      //Token
-      sharedPreferences.setString(
-          SharedPreferencesKeys.tokenSharedPreferencesKey, token.toJwtString);
+        //Token
+        sharedPreferences.setString(
+            SharedPreferencesKeys.tokenSharedPreferencesKey, token.toJwtString);
 
-      hideProgressDialog(context);
-      SplashScreen.goToHomepage(context);
-    } catch (e) {
-      hideProgressDialog(context);
-      showAlertErrorMessage(context, errorMessage: "Check your credentials");
-    }
+        hideProgressDialog(context);
+        SplashScreen.goToHomepage(context);
+      } catch (e) {
+        hideProgressDialog(context);
+        showAlertErrorMessage(context, errorMessage: "Check your credentials");
+      }
+    });
   }
 }
