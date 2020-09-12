@@ -47,6 +47,9 @@ class _RegisterFormState extends State<RegisterForm> {
           hintText: "Confirm password",
           onSaved: (passwordVerification) =>
               _passwordVerification = passwordVerification,
+          additionalValidator: (_) => _passwordVerification == _password
+              ? null
+              : "Passwords don't match",
           onFieldSubmitted: _doRegistration,
           textInputAction: TextInputAction.done,
         ),

@@ -98,13 +98,19 @@ TextFormField buildPasswordFormField(
     {@required void Function(String value) onSaved,
     void Function() onFieldSubmitted,
     TextInputAction textInputAction = TextInputAction.next,
+    String Function(String value) additionalValidator,
     String hintText = "Password"}) {
+  if (additionalValidator == null) {
+    additionalValidator = (_) => null;
+  }
+
   return TextFormField(
     obscureText: true,
     decoration: InputDecoration(hintText: hintText),
     textInputAction:
         onFieldSubmitted != null ? TextInputAction.done : TextInputAction.next,
-    validator: _validatePassword,
+    validator: (value) =>
+        _validatePassword(value) ?? additionalValidator(value),
     onSaved: onSaved,
     onFieldSubmitted: (_) => onFieldSubmitted(),
   );
@@ -124,8 +130,7 @@ FlatButton buildCancelButton(BuildContext context, {void Function() onCancel}) {
   );
 }
 
-String _validateEmail(String value,
-    {@required void Function(String value) onSaved}) {
+String _validateEmail(String value) {
   if (!RegExp(consts.emailValidationRegex).hasMatch(value)) {
     return "Enter a valid email address";
   }
@@ -133,8 +138,7 @@ String _validateEmail(String value,
   return null;
 }
 
-String _validatePassword(String value,
-    {@required void Function(String value) onSaved}) {
+String _validatePassword(String value) {
   if (!RegExp(consts.passwordValidationRegex).hasMatch(value)) {
     return "Password must be at least 8 characters long";
   }

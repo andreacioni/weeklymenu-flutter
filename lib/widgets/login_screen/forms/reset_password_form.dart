@@ -33,7 +33,7 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
       "Send email",
       [
         buildEmailFormField(
-          onSaved: (email) => _email,
+          onSaved: (email) => _email = email,
           onFieldSubmitted: _doResetPassword,
         ),
       ],
