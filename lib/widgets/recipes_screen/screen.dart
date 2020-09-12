@@ -46,7 +46,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
     return Scaffold(
       appBar: _editingModeEnabled == false
-          ? _buildAppBar(context)
+          ? _buildAppBar(context, recipes)
           : _buildEditingAppBar(context),
       floatingActionButton: FloatingActionButton(
         onPressed: _showRecipeNameDialog,
@@ -63,14 +63,24 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildScreenBody(List<RecipeOriginator> recipes) {
-    if (recipes.isEmpty && _searchModeEnabled) {
-      return _buildNoRecipesFound();
+    if (recipes.isEmpty) {
+      return _buildNoRecipesFound(
+        "No recipes defined\nLet's add your first!",
+        Icons.add_circle,
+      );
     } else {
-      return _buildRecipeList(recipes);
+      if (_searchModeEnabled) {
+        return _buildNoRecipesFound(
+          'Recipe "$_searchText" not found...',
+          CustomIcons.not_found_lens,
+        );
+      } else {
+        return _buildRecipeList(recipes);
+      }
     }
   }
 
-  Widget _buildNoRecipesFound() {
+  Widget _buildNoRecipesFound(String text, IconData icon) {
     final _textColor = Colors.grey.shade300;
     return Center(
       child: Column(
@@ -78,7 +88,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Icon(
-            CustomIcons.not_found_lens,
+            icon,
             size: 130,
             color: _textColor,
           ),
@@ -86,7 +96,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
             height: 10,
           ),
           Text(
-            'Recipe "$_searchText" not found...',
+            text,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 25,
               color: _textColor,
@@ -160,7 +171,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     _addRecipeToEditingList(recipe);
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context, List<RecipeOriginator> recipes) {
     if (_searchModeEnabled) {
       _searchText = "";
     }
@@ -187,7 +198,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
         if (_searchModeEnabled == false)
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () => setState(() => _searchModeEnabled = true),
+            onPressed: recipes.isEmpty
+                ? null
+                : () => setState(() => _searchModeEnabled = true),
           )
         else
           IconButton(
@@ -196,7 +209,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           ),
         IconButton(
           icon: Icon(Icons.filter_list),
-          onPressed: _openOrderingDialog,
+          onPressed: recipes.isEmpty ? null : _openOrderingDialog,
         )
       ],
     );
