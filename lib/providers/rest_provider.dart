@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
 
 class RestProvider with ChangeNotifier {
-  final log = Logger((RestProvider).toString());
+  final _log = Logger();
 
   static final String BASE_URL =
       'https://heroku-weeklymenu.herokuapp.com/api/v1';
@@ -27,6 +27,24 @@ class RestProvider with ChangeNotifier {
   );
 
   Timer _expiryTokenTimer;
+
+  RestProvider() {
+    _dio.interceptors.add(InterceptorsWrapper(
+      onError: (e) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            _handleErrorResponse(e);
+            break;
+          case DioErrorType.CONNECT_TIMEOUT:
+          case DioErrorType.SEND_TIMEOUT:
+          case DioErrorType.RECEIVE_TIMEOUT:
+          case DioErrorType.CANCEL:
+          case DioErrorType.DEFAULT:
+            break;
+        }
+      },
+    ));
+  }
 
   Future<Map<String, dynamic>> getMenusByDay(String day) async {
     var resp = await _dio.get('$BASE_URL/menus', queryParameters: {'day': day});
@@ -225,6 +243,13 @@ class RestProvider with ChangeNotifier {
     if (_expiryTokenTimer != null) {
       _expiryTokenTimer.cancel();
       _expiryTokenTimer = null;
+    }
+  }
+
+  void _handleErrorResponse(DioError e) {
+    if (e.response.statusCode == 401) {
+      _log.e("Token is no more valid. Going to login...");
+      notifyListeners();
     }
   }
 }

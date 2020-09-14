@@ -37,3 +37,24 @@ void showProgressDialog(BuildContext context,
 void hideProgressDialog(BuildContext context) {
   Navigator.of(context).pop();
 }
+
+Future<bool> showWannaSaveDialog(BuildContext context) {
+  return showDialog<bool>(
+    child: AlertDialog(
+      title: Text("Are you sure?"),
+      content: Text(
+          "You are leaving this screen with unsaved changes. Would you like to save them?"),
+      actions: [
+        FlatButton(
+          child: Text("NO"),
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        FlatButton(
+          child: Text("YES"),
+          onPressed: () => Navigator.of(context).pop(true),
+        )
+      ],
+    ),
+    context: context,
+  );
+}

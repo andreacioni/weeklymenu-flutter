@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import '../../globals/errors_handlers.dart';
@@ -15,6 +16,8 @@ class MenuEditorScreen extends StatefulWidget {
 }
 
 class _MenuEditorScreenState extends State<MenuEditorScreen> {
+  final _log = Logger();
+
   static final _dateParser = DateFormat('EEEE, MMMM dd');
 
   bool _editingMode;
@@ -99,6 +102,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   void _saveDailyMenu(DailyMenu dailyMenu) async {
     if (dailyMenu.isEdited) {
+      _log.i("Saving all daily menu changes");
       showProgressDialog(context);
 
       for (MenuOriginator menu in dailyMenu.menus) {
@@ -115,14 +119,13 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
           }
         } else {
           try {
-            await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
+            await Provider.of<MenusProvider>(context, listen: false)
+                .saveMenu(menu);
           } catch (e) {
             showAlertErrorMessage(context);
           }
         }
-
       }
-      
 
       hideProgressDialog(context);
     }
@@ -130,30 +133,19 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   void _handleBackButton(DailyMenu dailyMenu) async {
-    var cancel = true;
-    if (_editingMode == true && dailyMenu.isEdited) {
-      cancel = await showDialog<bool>(
-        context: context,
-        builder: (bCtx) => AlertDialog(
-          title: Text('Are you sure?'),
-          content: Text('Every unsaved change will be lost'),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () => Navigator.of(bCtx).pop(false),
-              child: Text('CANCEL'),
-            ),
-            FlatButton(
-              onPressed: () => Navigator.of(bCtx).pop(true),
-              child: Text('OK'),
-            )
-          ],
-        ),
-      );
+    if (dailyMenu.isEdited) {
+      final wannaSave = await showWannaSaveDialog(context);
+
+      if (wannaSave) {
+        _saveDailyMenu(dailyMenu);
+      } else {
+        _log.i("Losing all the changes");
+        dailyMenu.revert();
+      }
+    } else {
+      _log.d("No changes made, not save action is necessary");
     }
 
-    if (cancel != null && cancel == true) {
-      dailyMenu.restoreOriginal();
-      Navigator.of(context).pop();
-    }
+    Navigator.of(context).pop();
   }
 }

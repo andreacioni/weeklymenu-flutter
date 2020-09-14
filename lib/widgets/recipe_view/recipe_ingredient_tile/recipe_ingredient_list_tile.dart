@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
-import 'package:provider/provider.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
@@ -13,7 +12,8 @@ class RecipeIngredientListTile extends StatefulWidget {
   final RecipeIngredient _recipeIngredient;
   final bool editEnabled;
 
-  RecipeIngredientListTile(this._recipe, this._recipeIngredient, {this.editEnabled = false});
+  RecipeIngredientListTile(this._recipe, this._recipeIngredient,
+      {this.editEnabled = false});
 
   @override
   _RecipeIngredientListTileState createState() =>
@@ -21,7 +21,7 @@ class RecipeIngredientListTile extends StatefulWidget {
 }
 
 class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
-  final log = Logger((RecipeIngredientListTile).toString());
+  final _log = Logger();
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
   void _openRecipeIngredientUpdateModal() async {
     RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
-      builder: (bContext) => RecipeIngredientModal(
+      builder: (_) => RecipeIngredientModal(
         widget._recipeIngredient.recipeId,
         recipeIngredient: widget._recipeIngredient,
       ),
@@ -77,12 +77,13 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
 
     if (updatedRecipeIng != null) {
       widget._recipe.setEdited();
-
-      widget._recipeIngredient.quantity = updatedRecipeIng.quantity;
-      widget._recipeIngredient.unitOfMeasure = updatedRecipeIng.unitOfMeasure;
-      widget._recipeIngredient.freezed = updatedRecipeIng.freezed;
+      widget._recipeIngredient.update(
+        quantity: updatedRecipeIng.quantity,
+        unitOfMeasure: updatedRecipeIng.unitOfMeasure,
+        freezed: updatedRecipeIng.freezed,
+      );
     } else {
-      log.info("No update ingredient recipe returned");
+      _log.i("No update ingredient recipe returned");
     }
   }
 }

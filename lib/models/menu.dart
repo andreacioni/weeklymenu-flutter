@@ -50,7 +50,6 @@ class MenuOriginator extends Originator<Menu> {
 
 @JsonSerializable()
 class Menu implements Cloneable<Menu> {
-  
   static final _dateParser = DateFormat('y-M-d');
 
   @JsonKey(name: '_id')
@@ -76,7 +75,9 @@ class Menu implements Cloneable<Menu> {
   static DateTime dateFromJson(String date) => _dateParser.parse(date);
 }
 
-class DailyMenu with ChangeNotifier {
+class DailyMenu
+    with ChangeNotifier
+    implements Revertable<List<MenuOriginator>> {
   final DateTime day;
 
   List<MenuOriginator> _menus;
@@ -159,12 +160,13 @@ class DailyMenu with ChangeNotifier {
     return null;
   }
 
-  void restoreOriginal() {
+  List<MenuOriginator> revert() {
     for (MenuOriginator m in _menus) {
       m.revert();
     }
 
     notifyListeners();
+    return _menus;
   }
 
   void setSelectedRecipe(MealRecipe mealRecipe) {

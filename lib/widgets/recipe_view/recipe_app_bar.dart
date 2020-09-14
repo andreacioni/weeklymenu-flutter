@@ -7,9 +7,15 @@ class RecipeAppBar extends StatelessWidget {
   final RecipeOriginator _recipe;
   final Object heroTag;
   final Function(bool) onRecipeEditEnabled;
+  final void Function() onBackPressed;
 
-  RecipeAppBar(this._recipe,
-      {this.heroTag, this.editModeEnabled, this.onRecipeEditEnabled});
+  RecipeAppBar(
+    this._recipe, {
+    this.heroTag,
+    this.editModeEnabled,
+    this.onRecipeEditEnabled,
+    this.onBackPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +74,8 @@ class RecipeAppBar extends StatelessWidget {
               )
             : null,
       ),
+      leading:
+          IconButton(icon: Icon(Icons.arrow_back), onPressed: onBackPressed),
       actions: <Widget>[
         if (!editModeEnabled)
           IconButton(

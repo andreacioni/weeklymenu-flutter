@@ -68,7 +68,7 @@ class RecipeOriginator extends Originator<Recipe> {
   void addTag(String newTag) {
     setEdited();
     if (instance.tags == null) {
-     instance.tags = [newTag];
+      instance.tags = [newTag];
     } else {
       instance.tags.add(newTag);
     }
@@ -112,14 +112,14 @@ class RecipeOriginator extends Originator<Recipe> {
     instance.servs = newValue;
     notifyListeners();
   }
- 
+
   String get id => instance.id;
 
   String get name => instance.name;
 
   String get description => instance.description;
 
-  List<RecipeIngredient> get ingredients => [...instance.ingredients.map((e) => e.clone())];
+  List<RecipeIngredient> get ingredients => instance.ingredients;
 
   String get difficulty => instance.difficulty;
 
@@ -152,7 +152,6 @@ class RecipeOriginator extends Originator<Recipe> {
 
 @JsonSerializable(explicitToJson: true)
 class Recipe extends Cloneable<Recipe> {
-
   @JsonKey(name: '_id')
   String id;
 
@@ -198,7 +197,7 @@ class Recipe extends Cloneable<Recipe> {
     this.name,
     this.description,
     this.ingredients = const <RecipeIngredient>[],
-    this. difficulty,
+    this.difficulty,
     this.rating,
     this.cost,
     this.availabilityMonths,
@@ -260,6 +259,23 @@ class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
       _$RecipeIngredientFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
+
+  void update(
+      {double quantity = -1, String unitOfMeasure, bool freezed = false}) {
+    if (quantity > 0) {
+      this.quantity = quantity;
+    }
+
+    if (unitOfMeasure != null) {
+      this.unitOfMeasure = unitOfMeasure;
+    }
+
+    if (freezed != null) {
+      this.freezed = freezed;
+    }
+
+    notifyListeners();
+  }
 
   @override
   RecipeIngredient clone() => RecipeIngredient.fromJson(this.toJson());
