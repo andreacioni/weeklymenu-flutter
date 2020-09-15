@@ -48,48 +48,54 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     );
     return Theme(
       data: theme,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () => _handleBackButton(dailyMenu),
+      child: WillPopScope(
+        onWillPop: () async {
+          _handleBackButton(dailyMenu);
+          return true;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => _handleBackButton(dailyMenu),
+            ),
+            title: Text(_dateParser.format(dailyMenu.day).toString()),
+            actions: <Widget>[
+              if (dailyMenu.isPast)
+                IconButton(
+                  icon: Icon(Icons.archive),
+                  onPressed: () {},
+                ),
+              if (!_editingMode)
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => setState(() => _editingMode = true),
+                )
+              else ...<Widget>[
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _handleDeleteRecipes(dailyMenu),
+                ),
+                IconButton(
+                  icon: Icon(Icons.swap_horiz),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.add_box),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.save),
+                  onPressed: () => _saveDailyMenu(dailyMenu),
+                ),
+              ]
+            ],
           ),
-          title: Text(_dateParser.format(dailyMenu.day).toString()),
-          actions: <Widget>[
-            if (dailyMenu.isPast)
-              IconButton(
-                icon: Icon(Icons.archive),
-                onPressed: () {},
-              ),
-            if (!_editingMode)
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () => setState(() => _editingMode = true),
-              )
-            else ...<Widget>[
-              IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () => _handleDeleteRecipes(dailyMenu),
-              ),
-              IconButton(
-                icon: Icon(Icons.swap_horiz),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.add_box),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.save),
-                onPressed: () => _saveDailyMenu(dailyMenu),
-              ),
-            ]
-          ],
-        ),
-        body: Container(
-          child: MenuEditorScrollView(
-            dailyMenu,
-            editingMode: _editingMode,
+          body: Container(
+            child: MenuEditorScrollView(
+              dailyMenu,
+              editingMode: _editingMode,
+            ),
           ),
         ),
       ),
