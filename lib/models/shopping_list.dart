@@ -60,7 +60,7 @@ class ShoppingListItem with ChangeNotifier {
   bool checked;
 
   @JsonKey(includeIfNull: false)
-  int quantity;
+  double quantity;
   @JsonKey(includeIfNull: false)
   String unitOfMeasure;
   @JsonKey(includeIfNull: false)

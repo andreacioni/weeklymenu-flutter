@@ -40,7 +40,7 @@ ShoppingListItem _$ShoppingListItemFromJson(Map<String, dynamic> json) {
     item: json['item'] as String,
     supermarketSection: json['supermarketSection'] as String,
     checked: json['checked'] as bool,
-    quantity: json['quantity'] as int,
+    quantity: (json['quantity'] as num)?.toDouble(),
     unitOfMeasure: json['unitOfMeasure'] as String,
     listPosition: json['listPosition'] as int,
   );

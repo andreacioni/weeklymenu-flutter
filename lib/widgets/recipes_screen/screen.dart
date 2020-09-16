@@ -40,9 +40,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
   Widget build(BuildContext context) {
     final recipes = Provider.of<RecipesProvider>(context).getRecipes;
 
-    recipes.removeWhere((recipe) => !stringContains(recipe.name, _searchText));
-
-    var body = _buildScreenBody(recipes);
+    var body = _buildScreenBody(
+        recipes, (recipe) => !stringContains(recipe.name, _searchText));
 
     return Scaffold(
       appBar: _editingModeEnabled == false
@@ -62,14 +61,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Widget _buildScreenBody(List<RecipeOriginator> recipes) {
-    if (recipes.isEmpty) {
-      return _buildNoRecipesFound(
-        "No recipes defined\nLet's add your first!",
-        Icons.add_circle,
-      );
-    } else {
-      if (_searchModeEnabled) {
+  Widget _buildScreenBody(
+      List<RecipeOriginator> recipes, bool Function(RecipeOriginator) filter) {
+    if (recipes.isNotEmpty) {
+      recipes.removeWhere(filter);
+
+      if (recipes.isEmpty && _searchModeEnabled) {
         return _buildNoRecipesFound(
           'Recipe "$_searchText" not found...',
           CustomIcons.not_found_lens,
@@ -77,6 +74,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
       } else {
         return _buildRecipeList(recipes);
       }
+    } else {
+      return _buildNoRecipesFound(
+        "No recipes defined\nLet's add your first!",
+        Icons.add_circle,
+      );
     }
   }
 
@@ -278,10 +280,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         } catch (e) {
           hideProgressDialog(context);
           showAlertErrorMessage(context);
+          return;
         }
-
-        hideProgressDialog(context);
       }
+      hideProgressDialog(context);
     }
 
     setState(() => _editingModeEnabled = false);
