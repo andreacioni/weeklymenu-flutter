@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
-import 'package:logging/logging.dart';
+import 'package:weekly_menu_app/globals/constants.dart' as consts;
+import 'package:weekly_menu_app/widgets/menu_editor/meal_selection_dialog.dart';
 
-import '../../globals/utils.dart' as utils;
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/recipe_view.dart';
 import '../../models/menu.dart';
@@ -24,7 +25,7 @@ class MenuEditorScrollView extends StatefulWidget {
 }
 
 class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
-  final log = Logger((_MenuEditorScrollViewState).toString());
+  final _log = Logger();
 
   bool _initialized;
   ThemeData _theme;
@@ -63,14 +64,18 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       child: CustomScrollView(
         slivers: Meal.values
             .map((m) =>
-                _buildAppBarForMeal(m, widget._dailyMenu.getRecipeIdsByMeal(m)))
+                _buildAppBarForMeal(m, widget._dailyMenu.getMenuByMeal(m)))
             .expand((element) => element)
             .toList(),
       ),
     );
   }
 
-  List<Widget> _buildAppBarForMeal(Meal meal, List<String> recipeIds) {
+  /**
+  * We can't pass only the menu object because it could be null if there isn't any recipe defined
+  * for that (day, meal)
+  **/
+  List<Widget> _buildAppBarForMeal(Meal meal, MenuOriginator menu) {
     return <Widget>[
       SliverAppBar(
         pinned: true,
@@ -92,8 +97,8 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
         actions: <Widget>[
           if (widget.editingMode) ...<Widget>[
             IconButton(
-              icon: Icon(Icons.cancel),
-              onPressed: () {},
+              icon: Icon(Icons.swap_horiz),
+              onPressed: () => _swapMenuBetweenDays(menu),
             ),
             IconButton(
               icon: Icon(Icons.add),
@@ -121,8 +126,8 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                 onSubmitted: (recipeName) =>
                     _createNewRecipeByName(meal, recipeName),
               ),
-            if (recipeIds.isNotEmpty)
-              ...recipeIds
+            if (menu != null && menu.recipes.isNotEmpty)
+              ...menu.recipes
                   .map((id) => _buildRecipeTile(widget._dailyMenu, meal, id))
                   .toList(),
             _buildDragTarget(meal),
@@ -130,6 +135,57 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
         ),
       ),
     ];
+  }
+
+  void _swapMenuBetweenDays(MenuOriginator menu) async {
+    //Ask for destination day
+    final destinationDay = await showDatePicker(
+      context: context,
+      initialDate: menu.date,
+      firstDate: DateTime.now()
+          .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate())),
+      lastDate: DateTime.now()
+          .add((Duration(days: (consts.pageViewLimitDays / 2).truncate()))),
+    );
+
+    if (destinationDay == null) {
+      return;
+    }
+
+    //Ask for destination meal
+    final destinationMeal = await showDialog(
+      context: context,
+      child: SimpleDialog(
+        children: <Widget>[
+          ...Meal.values
+              .map(
+                (meal) => InkWell(
+                    child: ListTile(
+                      title: Text(meal.toString()),
+                    ),
+                    onTap: () => Navigator.of(context).pop(meal)),
+              )
+              .toList(),
+          Column(
+            children: [
+              FlatButton(
+                child: Text("CANCEL"),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+
+    if (destinationMeal == null) {
+      return;
+    }
+
+    //Check for empty/notEmpty destination menu
+    final menusProvider = Provider.of<MenusProvider>(context, listen: false);
+
+    //Ask action to be performed if there are recipes already defined in selected (day, meal)
   }
 
   void _showRecipeTextFieldForMeal(Meal meal) {
@@ -181,15 +237,13 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
       hideProgressDialog(context);
     } else {
-      log.warning("Can't create a reicpe with empty name");
+      _log.w("Can't create a reicpe with empty name");
     }
   }
 
   void _stopMealEditing(DailyMenu dailyMenu) {
     dailyMenu.clearSelected();
-    setState(() {
-      _addRecipeMealTarget = null;
-    });
+    setState(() => _addRecipeMealTarget = null);
   }
 
   Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id) {

@@ -76,14 +76,11 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
                   icon: Icon(Icons.delete),
                   onPressed: () => _handleDeleteRecipes(dailyMenu),
                 ),
+                /* 
                 IconButton(
                   icon: Icon(Icons.swap_horiz),
                   onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.add_box),
-                  onPressed: () {},
-                ),
+                ), */
                 IconButton(
                   icon: Icon(Icons.save),
                   onPressed: () => _saveDailyMenu(dailyMenu),
@@ -154,4 +151,6 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
     Navigator.of(context).pop();
   }
+
+  void _handleSwapRecipes(DailyMenu dailyMenu) async {}
 }
