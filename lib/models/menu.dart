@@ -15,20 +15,33 @@ class MenuOriginator extends Originator<Menu> {
   MenuOriginator(Menu original) : super(original);
 
   void addRecipe(RecipeOriginator recipe) {
-    assert(recipe != null);
-    addRecipeById(recipe.id);
+    if (recipe != null) {
+      addRecipeById(recipe.id);
+    }
+  }
+
+  void addRecipesByIdList(List<String> selectedRecipes) {
+    if (selectedRecipes != null && selectedRecipes.isNotEmpty) {
+      selectedRecipes.forEach((recipeId) => addRecipeById(recipeId));
+    }
   }
 
   void addRecipeById(String recipeId) {
-    assert(recipeId != null);
-    instance.recipes.add(recipeId);
-    setEdited();
+    if (recipeId != null) {
+      instance.recipes.add(recipeId);
+      setEdited();
+    }
   }
 
   void removeRecipeById(String recipeId) {
-    assert(recipeId != null);
+    if (recipeId != null) {
+      instance.recipes.removeWhere((recId) => recId == recipeId);
+      setEdited();
+    }
+  }
 
-    instance.recipes.removeWhere((recId) => recId == recipeId);
+  void removeAllRecipes() {
+    instance.recipes.clear();
     setEdited();
   }
 
@@ -40,10 +53,7 @@ class MenuOriginator extends Originator<Menu> {
 
   List<String> get recipes => [...instance.recipes];
 
-  set recipes(List<String> recipes) {
-    setEdited();
-    this.recipes = recipes;
-  }
+  bool isEmpty() => instance.recipes == null || instance.recipes.isEmpty;
 
   Map<String, dynamic> toJson() => instance.toJson();
 }
@@ -214,6 +224,54 @@ class DailyMenu
     );
 
     notifyListeners();
+  }
+
+  /**
+   * Get the meal of the selected recipes, _null_ is returned if no recipes are selected.
+   * If there are selected recipe that belongs to more meals _null_ is returned.
+   */
+  Meal get selectedRecipesMeal {
+    Meal meal;
+    final selectedRecipesClone =
+        Map<Meal, List<String>>.from(_selectedRecipesByMeal);
+
+    if (selectedRecipesClone != null && selectedRecipesClone.isNotEmpty) {
+      selectedRecipesClone.removeWhere(
+          (_, recipeIds) => recipeIds == null || recipeIds.isEmpty);
+
+      if (selectedRecipesClone.length == 1) {
+        meal = selectedRecipesClone.entries.first.key;
+      }
+    }
+
+    return meal;
+  }
+
+/**
+ *  Returns selected recipes ids. Duplicates are removed.
+ */
+  List<String> get selectedRecipes {
+    final recipeIds = <String>[];
+
+    _selectedRecipesByMeal.forEach((meal, recipeMealIds) {
+      recipeMealIds.forEach((recipeId) {
+        if (!recipeIds.contains(recipeId)) {
+          recipeIds.add(recipeId);
+        }
+      });
+    });
+
+    return recipeIds;
+  }
+
+  void removeAllRecipesFromMeal(Meal meal) {
+    if (_menus != null && _menus.isNotEmpty) {
+      final menu = _menus.firstWhere((m) => m.meal == meal, orElse: () => null);
+      if (menu != null) {
+        menu.removeAllRecipes();
+        notifyListeners();
+      }
+    }
   }
 
   bool get isEdited {
