@@ -23,6 +23,12 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   bool _editingMode;
 
+  /**
+   * Used when moving recipes between days
+   */
+  Menu _newMenu;
+  DailyMenu _destinationMenu;
+
   @override
   void initState() {
     _editingMode = false;
@@ -74,12 +80,16 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
                 ),
               ] else ...<Widget>[
                 IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () => _handleDeleteRecipes(dailyMenu),
+                  icon: Icon(Icons.copy),
+                  onPressed: () => _handleSwapRecipes(dailyMenu),
                 ),
                 IconButton(
-                  icon: Icon(Icons.swap_horiz),
-                  onPressed: () => _handleSwapRecipes(dailyMenu),
+                  icon: Icon(Icons.cut),
+                  onPressed: () => _handleSwapRecipes(dailyMenu, cut: true),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _handleDeleteRecipes(dailyMenu),
                 ),
                 IconButton(
                   icon: Icon(Icons.save),
@@ -104,34 +114,55 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   Future<void> _saveDailyMenu(DailyMenu dailyMenu) async {
-    if (dailyMenu.isEdited) {
+    if (dailyMenu.isEdited || _newMenu != null || _destinationMenu != null) {
       _log.i("Saving all daily menu changes");
       showProgressDialog(context);
 
-      for (MenuOriginator menu in dailyMenu.menus) {
-        if (menu.recipes.isEmpty) {
-          // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-          try {
-            await Provider.of<MenusProvider>(context, listen: false)
-                .removeMenu(menu);
-            dailyMenu.removeMenu(menu);
-          } catch (e) {
-            hideProgressDialog(context);
-            showAlertErrorMessage(context);
-            return;
-          }
-        } else {
-          try {
-            await Provider.of<MenusProvider>(context, listen: false)
-                .saveMenu(menu);
-          } catch (e) {
-            showAlertErrorMessage(context);
-          }
+      if (dailyMenu.isEdited) {
+        try {
+          await dailyMenu.save(
+            context,
+            Provider.of<MenusProvider>(context, listen: false),
+          );
+        } catch (e) {
+          _log.e("Error saving currently menu", e);
+          return;
         }
+      }
+
+      if (_newMenu != null) {
+        _log.d("New menu was defined. Store it!");
+        try {
+          await Provider.of<MenusProvider>(context, listen: false)
+              .createMenu(_newMenu);
+        } catch (e) {
+          _log.e("Error saving new menu", e);
+          hideProgressDialog(context);
+          showAlertErrorMessage(context);
+          return;
+        }
+        _newMenu = null;
+      }
+
+      if (_destinationMenu != null) {
+        _log.d("Already existing menu was modified. Save it!");
+        try {
+          _destinationMenu.save(
+            context,
+            Provider.of<MenusProvider>(context, listen: false),
+          );
+        } catch (e) {
+          _log.e("Error saving destination menu ", e);
+          hideProgressDialog(context);
+          showAlertErrorMessage(context);
+          return;
+        }
+        _destinationMenu = null;
       }
 
       hideProgressDialog(context);
     }
+
     setState(() => _editingMode = false);
   }
 
@@ -152,7 +183,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     Navigator.of(context).pop();
   }
 
-  void _handleSwapRecipes(DailyMenu dailyMenu) async {
+  void _handleSwapRecipes(DailyMenu dailyMenu, {bool cut = false}) async {
     //Ask for destination day
     final destinationDay = await showDatePicker(
       context: context,
@@ -190,39 +221,38 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
     //Check for empty/notEmpty destination menu
     final menusProvider = Provider.of<MenusProvider>(context, listen: false);
-    final destinationMenu = await menusProvider.fetchDailyMenu(destinationDay);
+    _destinationMenu = await menusProvider.fetchDailyMenu(destinationDay);
 
     /* 
       Ask action to be performed if there are recipes already 
       defined in selected (day, meal), otherwise just move (and create
       menu if not defined)
     */
-    if (destinationMenu == null ||
-        destinationMenu.menus == null ||
-        destinationMenu.menus.isEmpty) {
+    if (_destinationMenu == null ||
+        _destinationMenu.menus == null ||
+        _destinationMenu.menus.isEmpty) {
       _log.i("No menus in destination day, creating menu");
-      try {
-        await _moveRecipesToNewMenu(
-            destinationMeal, destinationDay, dailyMenu, menusProvider);
-      } catch (e) {}
+      _newMenu = Menu(
+        meal: destinationMeal,
+        date: destinationDay,
+        recipes: dailyMenu.selectedRecipes,
+      );
     } else {
       //Check if all selected recipes are in the same meal
       final sameMeal = dailyMenu.selectedRecipesMeal;
-      final alreadyDefinedMenu = destinationMenu.getMenuByMeal(destinationMeal);
+      final alreadyDefinedMenu =
+          _destinationMenu.getMenuByMeal(destinationMeal);
 
       if (alreadyDefinedMenu == null) {
         _log.i("Destination menu is not already defined, creating menu");
-        try {
-          await _moveRecipesToNewMenu(
-              destinationMeal, destinationDay, dailyMenu, menusProvider);
-        } catch (e) {}
-      } else if (alreadyDefinedMenu.isEmpty()) {
+        _newMenu = Menu(
+          meal: destinationMeal,
+          date: destinationDay,
+          recipes: dailyMenu.selectedRecipes,
+        );
+      } else if (alreadyDefinedMenu.isEmpty) {
+        _log.i("Destination menu is defined but empty, add new recipes to it");
         alreadyDefinedMenu.addRecipesByIdList(dailyMenu.selectedRecipes);
-        try {
-          await _moveRecipesToNewMenu(
-              destinationMeal, destinationDay, dailyMenu, menusProvider,
-              newMenu: alreadyDefinedMenu);
-        } catch (e) {}
       } else {
         /**
          * If sameMeal == null it means that selected recipes in current menu
@@ -230,6 +260,28 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
          * we can ask for merge/overwrite current selected recipes in destination menu 
          * */
         if (sameMeal == null) {
+          final mergeRecipes = await showDialog<bool>(
+            context: context,
+            child: AlertDialog(
+              title: Text("Overwrite or Merge?"),
+              content: Text(
+                  "There are alredy defined recipes for that meal. Would you merge or overwrite them?"),
+              actions: [
+                FlatButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text("MERGE")),
+                FlatButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text("OVERWRITE"))
+              ],
+            ),
+          );
+
+          if (!mergeRecipes) {
+            _log.i("Overwriting recipes");
+            _destinationMenu.removeAllRecipesFromMeal(destinationMeal);
+          }
+          alreadyDefinedMenu.addRecipesByIdList(dailyMenu.selectedRecipes);
         } else {
           _log.i(
               "Destination menu is present, do you want to swap or move recipes?");
@@ -239,7 +291,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
             child: AlertDialog(
               title: Text("Swap or Merge?"),
               content: Text(
-                  "There are alredy defined recipes for that meal. Would you overwrite your menus or swap them?"),
+                  "There are alredy defined recipes for that meal. Would you merge or swap them?"),
               actions: [
                 FlatButton(
                     onPressed: () => Navigator.of(context).pop(false),
@@ -251,35 +303,21 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
             ),
           );
 
-          if (swapRecipes) {}
+          if (swapRecipes) {
+            _log.i("Swapping recipes");
+            final destinationRecipes =
+                _destinationMenu.getRecipeIdsByMeal(destinationMeal);
+            dailyMenu.addRecipeIdListToMeal(sameMeal, destinationRecipes);
+            _destinationMenu.removeAllRecipesFromMeal(destinationMeal);
+          }
+          alreadyDefinedMenu.addRecipesByIdList(dailyMenu.selectedRecipes);
         }
       }
     }
-  }
-
-  Future<void> _moveRecipesToNewMenu(Meal destinationMeal,
-      DateTime destinationDay, DailyMenu dailyMenu, MenusProvider menusProvider,
-      {Menu newMenu}) async {
-    showProgressDialog(context);
-    if (newMenu == null) {
-      newMenu = Menu(
-        meal: destinationMeal,
-        date: destinationDay,
-        recipes: dailyMenu.selectedRecipes,
-      );
+    if (cut) {
+      dailyMenu.removeSelectedMealRecipes();
     }
 
-    try {
-      await menusProvider.createMenu(newMenu);
-    } catch (e) {
-      _log.e("Can't create new menu", e);
-      hideProgressDialog(context);
-      showAlertErrorMessage(context);
-      throw e;
-    }
-
-    dailyMenu.removeSelectedMealRecipes();
-    hideProgressDialog(context);
-    await _saveDailyMenu(dailyMenu);
+    dailyMenu.clearSelected();
   }
 }

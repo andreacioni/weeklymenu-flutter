@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
@@ -27,7 +28,7 @@ class MenuOriginator extends Originator<Menu> {
   }
 
   void addRecipeById(String recipeId) {
-    if (recipeId != null) {
+    if (recipeId != null && !instance.recipes.contains(recipeId)) {
       instance.recipes.add(recipeId);
       setEdited();
     }
@@ -53,7 +54,7 @@ class MenuOriginator extends Originator<Menu> {
 
   List<String> get recipes => [...instance.recipes];
 
-  bool isEmpty() => instance.recipes == null || instance.recipes.isEmpty;
+  bool get isEmpty => instance.recipes == null || instance.recipes.isEmpty;
 
   Map<String, dynamic> toJson() => instance.toJson();
 }
@@ -142,6 +143,17 @@ class DailyMenu
     notifyListeners();
   }
 
+  void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
+    if (recipeIds != null && recipeIds.isNotEmpty) {
+      var menu = getMenuByMeal(meal);
+
+      assert(menu != null);
+      menu.addRecipesByIdList(recipeIds);
+
+      notifyListeners();
+    }
+  }
+
   Map<Meal, List<String>> get recipeIdsByMeal {
     Map<Meal, List<String>> recipeIdsByMeal = {};
 
@@ -200,6 +212,19 @@ class DailyMenu
 
   void clearSelected() {
     _selectedRecipesByMeal.clear();
+  }
+
+  Future<void> save(BuildContext context, MenusProvider menusProvider) async {
+    for (MenuOriginator menu in menus) {
+      if (menu.recipes.isEmpty) {
+        // No recipes in menu means that there isn't a menu for that meal, so when can remove it
+        await Provider.of<MenusProvider>(context, listen: false)
+            .removeMenu(menu);
+        removeMenu(menu);
+      } else {
+        await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
+      }
+    }
   }
 
   Future<void> removeMenu(MenuOriginator menu) async {
