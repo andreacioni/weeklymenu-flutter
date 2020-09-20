@@ -80,16 +80,16 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
                 ),
               ] else ...<Widget>[
                 IconButton(
-                  icon: Icon(Icons.copy),
-                  onPressed: () => _handleSwapRecipes(dailyMenu),
-                ),
-                IconButton(
-                  icon: Icon(Icons.cut),
-                  onPressed: () => _handleSwapRecipes(dailyMenu, cut: true),
+                  icon: Icon(Icons.swap_horiz),
+                  onPressed: dailyMenu.hasSelectedRecipes
+                      ? () => _handleSwapRecipes(dailyMenu)
+                      : null,
                 ),
                 IconButton(
                   icon: Icon(Icons.delete),
-                  onPressed: () => _handleDeleteRecipes(dailyMenu),
+                  onPressed: dailyMenu.hasSelectedRecipes
+                      ? () => _handleDeleteRecipes(dailyMenu)
+                      : null,
                 ),
                 IconButton(
                   icon: Icon(Icons.save),
@@ -114,7 +114,9 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   Future<void> _saveDailyMenu(DailyMenu dailyMenu) async {
-    if (dailyMenu.isEdited || _newMenu != null || _destinationMenu != null) {
+    if (dailyMenu.isEdited ||
+        _newMenu != null ||
+        (_destinationMenu != null && _destinationMenu.isEdited)) {
       _log.i("Saving all daily menu changes");
       showProgressDialog(context);
 
@@ -144,7 +146,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         _newMenu = null;
       }
 
-      if (_destinationMenu != null) {
+      if (_destinationMenu != null && _destinationMenu.isEdited) {
         _log.d("Already existing menu was modified. Save it!");
         try {
           _destinationMenu.save(
@@ -167,14 +169,28 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
   }
 
   void _handleBackButton(DailyMenu dailyMenu) async {
-    if (dailyMenu.isEdited) {
+    if (dailyMenu.isEdited ||
+        _newMenu != null ||
+        (_destinationMenu != null && _destinationMenu.isEdited)) {
       final wannaSave = await showWannaSaveDialog(context);
 
       if (wannaSave) {
         _saveDailyMenu(dailyMenu);
       } else {
         _log.i("Losing all the changes");
-        dailyMenu.revert();
+
+        if (dailyMenu.isEdited) {
+          dailyMenu.revert();
+        }
+
+        if (_newMenu != null) {
+          _newMenu = null;
+        }
+
+        if (_destinationMenu != null && _destinationMenu.isEdited) {
+          _destinationMenu.revert();
+          _destinationMenu = null;
+        }
       }
     } else {
       _log.d("No changes made, not save action is necessary");
@@ -183,7 +199,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     Navigator.of(context).pop();
   }
 
-  void _handleSwapRecipes(DailyMenu dailyMenu, {bool cut = false}) async {
+  void _handleSwapRecipes(DailyMenu dailyMenu, {bool cut = true}) async {
     //Ask for destination day
     final destinationDay = await showDatePicker(
       context: context,

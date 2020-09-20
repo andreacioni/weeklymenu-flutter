@@ -289,6 +289,8 @@ class DailyMenu
     return recipeIds;
   }
 
+  bool get hasSelectedRecipes => selectedRecipes.isNotEmpty;
+
   void removeAllRecipesFromMeal(Meal meal) {
     if (_menus != null && _menus.isNotEmpty) {
       final menu = _menus.firstWhere((m) => m.meal == meal, orElse: () => null);
