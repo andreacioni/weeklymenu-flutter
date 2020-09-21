@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
-import '../datasource/network.dart';
 import '../models/recipe.dart';
 import 'rest_provider.dart';
 

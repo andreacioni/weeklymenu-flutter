@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../datasource/network.dart';
-
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)

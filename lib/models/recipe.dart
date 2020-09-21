@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../globals/memento.dart';
-import '../datasource/network.dart';
 import './enums/meals.dart';
 
 part 'recipe.g.dart';

@@ -6,7 +6,6 @@ import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
 import '../globals/utils.dart' as utils;
-import '../datasource/network.dart';
 import './enums/meals.dart';
 import './recipe.dart';
 

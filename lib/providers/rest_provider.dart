@@ -4,8 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
+import 'package:weekly_menu_app/datastore/abstract_datastore.dart';
 
-class RestProvider with ChangeNotifier {
+class RestProvider with ChangeNotifier implements AbstractDatastore {
   final _log = Logger();
 
   static final String BASE_URL =
@@ -48,18 +49,13 @@ class RestProvider with ChangeNotifier {
     ));
   }
 
+  @override
   Future<Map<String, dynamic>> getMenusByDay(String day) async {
     var resp = await _dio.get('$BASE_URL/menus', queryParameters: {'day': day});
     return resp.data;
   }
 
-  Future<void> addRecipeToMenu(String menuId, String recipeId) async {
-    await _dio.post(
-      '$BASE_URL/menus/$menuId/recipes',
-      data: {'recipe_id': recipeId},
-    );
-  }
-
+  @override
   Future<Map<String, dynamic>> createMenu(Map<String, dynamic> menu) async {
     var resp = await _dio.post(
       '$BASE_URL/menus',
@@ -69,12 +65,14 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
+  @override
   Future<void> deleteMenu(String menuId) async {
     await _dio.delete(
       '$BASE_URL/menus/$menuId',
     );
   }
 
+  @override
   Future<Map<String, dynamic>> getIngredients() async {
     var resp = await _dio.get(
       '$BASE_URL/ingredients',
@@ -83,6 +81,7 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
+  @override
   Future<Map<String, dynamic>> getShoppingList() async {
     var resp = await _dio.get(
       '$BASE_URL/shopping-lists',
@@ -91,6 +90,7 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
+  @override
   Future<Map<String, dynamic>> getRecipes() async {
     var resp = await _dio.get(
       '$BASE_URL/recipes',
@@ -99,33 +99,11 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
+  @override
   Future<void> patchRecipe(
       String recipeId, Map<String, dynamic> jsonMap) async {
     jsonMap.removeWhere((k, _) => k == '_id');
     var resp = await _dio.patch('$BASE_URL/recipes/$recipeId', data: jsonMap);
-
-    return resp.data;
-  }
-
-  Future<void> addRecipeIngredient(
-      String recipeId, Map<String, dynamic> jsonMap) async {
-    var resp;
-    try {
-      resp = await _dio.post('$BASE_URL/recipes/$recipeId/ingredients',
-          data: jsonMap);
-    } on DioError catch (e) {
-      print(e.response);
-      throw e;
-    }
-
-    return resp.data;
-  }
-
-  Future<void> removeRecipeIngredient(
-      String recipeId, String ingredientId) async {
-    var resp = await _dio.delete(
-      '$BASE_URL/recipes/$recipeId/ingredients/$ingredientId',
-    );
 
     return resp.data;
   }
@@ -140,22 +118,7 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
-  Future<void> deleteShoppingItemFromList(
-      String shoppingListId, String itemId) async {
-    var resp = await _dio
-        .delete('$BASE_URL/shopping-lists/$shoppingListId/items/$itemId');
-
-    return resp.data;
-  }
-
-  Future<Map<String, dynamic>> addShoppingListItem(
-      String shoppingListId, Map<String, dynamic> jsonMap) async {
-    var resp = await _dio.post('$BASE_URL/shopping-lists/$shoppingListId/items',
-        data: jsonMap);
-
-    return resp.data;
-  }
-
+  @override
   Future<Map<String, dynamic>> patchShoppingList(
       String shoppingListId, Map<String, dynamic> jsonMap) async {
     jsonMap.removeWhere((k, _) => k == '_id');
@@ -165,19 +128,12 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
-  Future<Map<String, dynamic>> patchShoppingListItem(String shoppingListId,
-      String itemId, Map<String, dynamic> jsonMap) async {
-    var resp = await _dio.patch(
-        '$BASE_URL/shopping-lists/$shoppingListId/items/$itemId',
-        data: jsonMap);
-
-    return resp.data;
-  }
-
+  @override
   Future<void> deleteIngredient(String ingredientId) async {
     await _dio.delete('$BASE_URL/ingredients/$ingredientId');
   }
 
+  @override
   Future<Map<String, dynamic>> createRecipe(
       Map<String, dynamic> jsonMap) async {
     jsonMap.removeWhere((k, _) => k == '_id');
@@ -189,6 +145,7 @@ class RestProvider with ChangeNotifier {
     return resp.data;
   }
 
+  @override
   Future<void> putMenu(String id, Map<String, dynamic> jsonMap) async {
     jsonMap.removeWhere((k, _) => k == '_id');
     await _dio.put(
@@ -197,18 +154,22 @@ class RestProvider with ChangeNotifier {
     );
   }
 
+  @override
   Future<void> deleteRecipe(String recipeId) async {
     await _dio.delete(
       '$BASE_URL/recipes/$recipeId',
     );
   }
 
+  @override
   Future<void> register(String name, email, password) async {
     var resp = await _dio.post('$BASE_URL/auth/register',
         data: {'name': name, 'email': email, 'password': password});
 
     return resp.data;
   }
+
+  //This method works only ONLINE
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     var resp = await _dio.post('$BASE_URL/auth/token',
