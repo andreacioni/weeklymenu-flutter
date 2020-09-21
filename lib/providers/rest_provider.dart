@@ -28,6 +28,8 @@ class RestProvider with ChangeNotifier {
 
   Timer _expiryTokenTimer;
 
+  String email, password;
+
   RestProvider() {
     _dio.interceptors.add(InterceptorsWrapper(
       onError: (e) {
@@ -212,6 +214,9 @@ class RestProvider with ChangeNotifier {
     var resp = await _dio.post('$BASE_URL/auth/token',
         data: {'email': email, 'password': password});
 
+    this.email = email;
+    this.password = password;
+
     return resp.data;
   }
 
@@ -248,8 +253,8 @@ class RestProvider with ChangeNotifier {
 
   void _handleErrorResponse(DioError e) {
     if (e.response.statusCode == 401) {
-      _log.e("Token is no more valid. Going to login...");
-      notifyListeners();
+      _log.e("Token is no more valid. Try to login again...");
+      //TODO login(email, password);
     }
   }
 }

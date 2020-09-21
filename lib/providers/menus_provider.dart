@@ -19,17 +19,20 @@ class MenusProvider with ChangeNotifier {
 
   MenusProvider(this._restProvider);
 
-  Future<List<MenuOriginator>> fetchDailyMenu(DateTime day) async {
-    //TODO handle pagination
-    final jsonPage = await _restProvider.getMenusByDay(_dateParser.format(day));
-    final List<MenuOriginator> menuList = jsonPage['results']
-        .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
-        .toList()
-        .cast<MenuOriginator>();
+  Future<DailyMenu> fetchDailyMenu(DateTime day) async {
+    if (_dayToMenus[day] == null) {
+      //TODO handle pagination
+      final jsonPage =
+          await _restProvider.getMenusByDay(_dateParser.format(day));
+      final List<MenuOriginator> menuList = jsonPage['results']
+          .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
+          .toList()
+          .cast<MenuOriginator>();
 
-    _dayToMenus[day] = DailyMenu(day, menuList);
+      _dayToMenus[day] = DailyMenu(day, menuList);
+    }
 
-    return menuList;
+    return _dayToMenus[day];
   }
 
   Future<MenuOriginator> createMenu(Menu menu) async {

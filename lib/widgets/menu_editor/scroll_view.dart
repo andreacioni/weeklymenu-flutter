@@ -3,8 +3,6 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
-import 'package:weekly_menu_app/globals/constants.dart' as consts;
-import 'package:weekly_menu_app/widgets/menu_editor/meal_selection_dialog.dart';
 
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/recipe_view.dart';
@@ -96,10 +94,14 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
         ),
         actions: <Widget>[
           if (widget.editingMode) ...<Widget>[
-            IconButton(
+/*             IconButton(
               icon: Icon(Icons.swap_horiz),
-              onPressed: () => _swapMenuBetweenDays(menu),
-            ),
+              onPressed: menu != null &&
+                      menu.recipes != null &&
+                      menu.recipes.isNotEmpty
+                  ? () => _swapMenuBetweenDays(menu)
+                  : null,
+            ), */
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () => _showRecipeTextFieldForMeal(meal),
@@ -135,57 +137,6 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
         ),
       ),
     ];
-  }
-
-  void _swapMenuBetweenDays(MenuOriginator menu) async {
-    //Ask for destination day
-    final destinationDay = await showDatePicker(
-      context: context,
-      initialDate: menu.date,
-      firstDate: DateTime.now()
-          .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate())),
-      lastDate: DateTime.now()
-          .add((Duration(days: (consts.pageViewLimitDays / 2).truncate()))),
-    );
-
-    if (destinationDay == null) {
-      return;
-    }
-
-    //Ask for destination meal
-    final destinationMeal = await showDialog(
-      context: context,
-      child: SimpleDialog(
-        children: <Widget>[
-          ...Meal.values
-              .map(
-                (meal) => InkWell(
-                    child: ListTile(
-                      title: Text(meal.toString()),
-                    ),
-                    onTap: () => Navigator.of(context).pop(meal)),
-              )
-              .toList(),
-          Column(
-            children: [
-              FlatButton(
-                child: Text("CANCEL"),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          )
-        ],
-      ),
-    );
-
-    if (destinationMeal == null) {
-      return;
-    }
-
-    //Check for empty/notEmpty destination menu
-    final menusProvider = Provider.of<MenusProvider>(context, listen: false);
-
-    //Ask action to be performed if there are recipes already defined in selected (day, meal)
   }
 
   void _showRecipeTextFieldForMeal(Meal meal) {

@@ -66,7 +66,7 @@ class _MenuScreenState extends State<MenuScreen> {
         ),
       ),
     );
-    return FutureBuilder(
+    return FutureBuilder<DailyMenu>(
       future: Provider.of<MenusProvider>(context, listen: false)
           .fetchDailyMenu(day),
       builder: (ctx, snapshot) {
@@ -85,8 +85,7 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  Widget _buildMenuCard(DateTime day, List<MenuOriginator> menuList) {
-    final dailyMenu = DailyMenu(day, menuList);
+  Widget _buildMenuCard(DateTime day, DailyMenu dailyMenu) {
     return ChangeNotifierProvider.value(
       value: dailyMenu,
       child: MenuCard(
