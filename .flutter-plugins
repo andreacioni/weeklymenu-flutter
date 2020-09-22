@@ -1,6 +1,8 @@
 # This is a generated file; do not edit or check into version control.
 flutter_keyboard_visibility=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_keyboard_visibility-0.7.0/
+path_provider=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.6.14/
 path_provider_linux=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-0.0.1+2/
+path_provider_macos=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_macos-0.0.4+4/
 shared_preferences=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.8/
 shared_preferences_linux=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_linux-0.0.2+1/
 shared_preferences_macos=/Users/andrea/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-0.0.1+10/

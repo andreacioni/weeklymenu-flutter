@@ -1,6 +1,8 @@
 import 'dart:async';
 
 abstract class AbstractDatastore {
+  Future<void> init() async {}
+
   Future<Map<String, dynamic>> getMenusByDay(String day);
 
   Future<Map<String, dynamic>> createMenu(Map<String, dynamic> menu);
@@ -28,6 +30,4 @@ abstract class AbstractDatastore {
   Future<void> putMenu(String id, Map<String, dynamic> jsonMap);
 
   Future<void> deleteRecipe(String recipeId);
-
-  Future<void> register(String name, email, password);
 }
