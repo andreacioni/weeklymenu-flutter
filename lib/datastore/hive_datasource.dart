@@ -1,5 +1,9 @@
+import 'dart:isolate';
+
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_util.dart';
 import 'package:weekly_menu_app/datastore/abstract_datastore.dart';
 
 class HiveDatastore implements AbstractDatastore {
@@ -8,6 +12,10 @@ class HiveDatastore implements AbstractDatastore {
   static final String RECIPES_BOX = 'recipes';
   static final String SHOPLIST_BOX = 'shoplist';
 
+  ReceivePort _receivePort;
+  SendPort _sendPort;
+  Isolate _syncIsolate;
+
   @override
   Future<void> init() async {
     await Hive.initFlutter();
@@ -15,13 +23,18 @@ class HiveDatastore implements AbstractDatastore {
     await Hive.openLazyBox(MENU_BOX);
     await Hive.openLazyBox(RECIPES_BOX);
     await Hive.openLazyBox(SHOPLIST_BOX);
+
+    _receivePort = ReceivePort();
+    _syncIsolate = await Isolate.spawn(
+        _syncronizationIsolateCallback, _receivePort.sendPort);
+    _sendPort = await _receivePort.first;
   }
 
   @override
   Future<Map<String, dynamic>> createIngredient(
       Map<String, dynamic> ingredient) async {
-    ingredient['_id'] = 'temp';
-    await Hive.lazyBox(INGREDIENTS_BOX).put(ingrediPent['_id'], ingredient);
+    ingredient['_id'] = Uuid().v4();
+    await Hive.lazyBox(INGREDIENTS_BOX).put(ingredient['_id'], ingredient);
     return ingredient;
   }
 
@@ -100,6 +113,44 @@ class HiveDatastore implements AbstractDatastore {
 
   @override
   Future<void> close() async {
-    await Hive.initFlutter();
+    _syncIsolate?.kill(priority: Isolate.immediate);
+    _syncIsolate = null;
+
+    await Hive.close();
   }
+
+  static void _syncronizationIsolateCallback(SendPort callerSendPort) async {
+    ReceivePort receivePort = ReceivePort();
+
+    callerSendPort.send(receivePort.sendPort);
+
+    await for (var message in receivePort) {}
+  }
+}
+
+@HiveType(typeId: 1)
+class _HiveObjectWrapper {
+  @HiveField(0)
+  final String offlineId;
+
+  @HiveField(1)
+  final String onlineId;
+
+  @HiveField(2)
+  final _HiveObjectState state;
+
+  @HiveField(3)
+  final Map<String, Object> element;
+
+  _HiveObjectWrapper(this.offlineId, this.onlineId, this.state, this.element);
+}
+
+@HiveType(typeId: 2)
+enum _HiveObjectState {
+  @HiveField(0)
+  CREATED,
+  @HiveField(1)
+  AVAILABLE,
+  @HiveField(2)
+  DELETED
 }
