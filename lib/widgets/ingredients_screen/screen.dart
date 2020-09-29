@@ -8,7 +8,7 @@ class IngredientsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Ingredient> ingredients =
-        Provider.of<IngredientsProvider>(context).getIngredients;
+        Provider.of<IngredientsProvider>(context).getIngredients();
     return Scaffold(
       appBar: _buildAppBar(context),
       body: ListView.builder(

@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
+import 'package:weekly_menu_app/providers/auth_provider.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/base_login_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/register_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/reset_password_form.dart';

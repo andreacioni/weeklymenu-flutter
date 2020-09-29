@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const String BASE_URL = 'https://heroku-weeklymenu.herokuapp.com/api/v1';
+
 final pageViewLimitDays = 365 * 2;
 
 const todayColor = Color.fromRGBO(183, 223, 189, 1);

@@ -1,94 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import './recipes_provider.dart';
 import '../models/menu.dart';
 import '../models/enums/meals.dart';
 import '../models/recipe.dart';
-import 'rest_provider.dart';
+import 'auth_provider.dart';
+
+const String MENU_BOX = 'menus';
 
 class MenusProvider with ChangeNotifier {
   final log = Logger((MenusProvider).toString());
-  RestProvider _restProvider;
 
   static final _dateParser = DateFormat('y-MM-dd');
 
-  Map<DateTime, DailyMenu> _dayToMenus = {};
+  LazyBox<DailyMenu> _dailyMenuBox = Hive.lazyBox(MENU_BOX);
 
-  MenusProvider(this._restProvider);
-
-  Future<DailyMenu> fetchDailyMenu(DateTime day) async {
-    if (_dayToMenus[day] == null) {
-      //TODO handle pagination
-      final jsonPage =
-          await _restProvider.getMenusByDay(_dateParser.format(day));
-      final List<MenuOriginator> menuList = jsonPage['results']
-          .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
-          .toList()
-          .cast<MenuOriginator>();
-
-      _dayToMenus[day] = DailyMenu(day, menuList);
-    }
-
-    return _dayToMenus[day];
-  }
+  Future<DailyMenu> fetchDailyMenu(DateTime day) => _dailyMenuBox.get(day);
 
   Future<MenuOriginator> createMenu(Menu menu) async {
-    assert(menu.id == null);
+    final originator = MenuOriginator(menu);
 
-    try {
-      var toJson = menu.toJson();
-      toJson.remove('_id');
+    var dailyMenu = await _dailyMenuBox.get(menu.date);
+    dailyMenu.addMenu(originator);
 
-      var resp = await _restProvider.createMenu(toJson);
-      menu.id = resp['_id'];
-
-      final originator = MenuOriginator(menu);
-
-      if (_dayToMenus[menu.date] == null) {
-        _dayToMenus[menu.date].addMenu(originator);
-      } else {
-        _dayToMenus[menu.date].addMenu(originator);
-      }
-
-      notifyListeners();
-
-      return originator;
-    } catch (e) {
-      throw e;
-    }
+    notifyListeners();
+    return originator;
   }
 
   Future<void> removeMenu(MenuOriginator menu) async {
-    _dayToMenus[menu.date].removeMenu(menu);
+    var dailyMenu = await _dailyMenuBox.get(menu.date);
+    dailyMenu.removeMenu(menu);
     notifyListeners();
-    try {
-      await _restProvider.deleteMenu(menu.id);
-    } catch (e) {
-      _dayToMenus[menu.date].addMenu(menu);
-      notifyListeners();
-      throw e;
-    }
   }
 
-  Future<void> saveMenu(MenuOriginator menu) async {
-    try {
-      await _restProvider.putMenu(menu.id, menu.toJson());
-      menu.save();
-    } catch (e) {
-      menu.revert();
-      notifyListeners();
-      throw e;
-    }
-  }
+  Future<void> saveMenu(MenuOriginator menu) async {}
 
-  void update(RestProvider restProvider, RecipesProvider recipesProvider) {
-    List<RecipeOriginator> recipesList = recipesProvider.getRecipes;
+  void update(RecipesProvider recipesProvider) {
+    List<RecipeOriginator> recipesList = recipesProvider.recipes;
     List<MenuOriginator> menusToBeRemoved = [];
+
     if (recipesList != null) {
-      _dayToMenus.forEach(
-        (date, dailyMenu) {
+      _dailyMenuBox.keys.forEach(
+        (date) async {
+          var dailyMenu = await _dailyMenuBox.get(date);
           if (dailyMenu.menus != null) {
             for (MenuOriginator menu in dailyMenu.menus) {
               if (menu.recipes != null) {
@@ -98,7 +56,7 @@ class MenusProvider with ChangeNotifier {
                         -1))
                     .toList();
 
-                for (String recipeIdToBeRemvoved in toBeRemovedList) {
+                for (Id recipeIdToBeRemvoved in toBeRemovedList) {
                   menu.removeRecipeById(recipeIdToBeRemvoved);
                 }
 
@@ -123,7 +81,5 @@ class MenusProvider with ChangeNotifier {
         }
       },
     );
-
-    _restProvider = restProvider;
   }
 }

@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../globals/utils.dart' as utils;
 import './enums/meals.dart';
@@ -20,20 +21,20 @@ class MenuOriginator extends Originator<Menu> {
     }
   }
 
-  void addRecipesByIdList(List<String> selectedRecipes) {
+  void addRecipesByIdList(List<Id> selectedRecipes) {
     if (selectedRecipes != null && selectedRecipes.isNotEmpty) {
       selectedRecipes.forEach((recipeId) => addRecipeById(recipeId));
     }
   }
 
-  void addRecipeById(String recipeId) {
+  void addRecipeById(Id recipeId) {
     if (recipeId != null && !instance.recipes.contains(recipeId)) {
       instance.recipes.add(recipeId);
       setEdited();
     }
   }
 
-  void removeRecipeById(String recipeId) {
+  void removeRecipeById(Id recipeId) {
     if (recipeId != null) {
       instance.recipes.removeWhere((recId) => recId == recipeId);
       setEdited();
@@ -45,13 +46,13 @@ class MenuOriginator extends Originator<Menu> {
     setEdited();
   }
 
-  String get id => instance.id;
+  Id get id => instance.id;
 
   DateTime get date => instance.date;
 
   Meal get meal => instance.meal;
 
-  List<String> get recipes => [...instance.recipes];
+  List<Id> get recipes => [...instance.recipes];
 
   bool get isEmpty => instance.recipes == null || instance.recipes.isEmpty;
 
@@ -59,19 +60,17 @@ class MenuOriginator extends Originator<Menu> {
 }
 
 @JsonSerializable()
-class Menu implements Cloneable<Menu> {
+class Menu extends BaseModel<Menu> {
   static final _dateParser = DateFormat('y-M-d');
 
-  @JsonKey(name: '_id')
-  String id;
   @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
   DateTime date;
   Meal meal;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
-  List<String> recipes;
+  List<Id> recipes;
 
-  Menu({this.id, this.date, this.meal, this.recipes});
+  Menu(Id id, {this.date, this.meal, this.recipes}) : super(id);
 
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
 
@@ -92,11 +91,11 @@ class DailyMenu
 
   List<MenuOriginator> _menus;
 
-  Map<Meal, List<String>> _selectedRecipesByMeal = {};
+  Map<Meal, List<Id>> _selectedRecipesByMeal = {};
 
   DailyMenu(this.day, this._menus) : assert(_menus != null);
 
-  void moveRecipeToMeal(Meal from, to, String recipeId) {
+  void moveRecipeToMeal(Meal from, to, Id recipeId) {
     assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
     final menuFrom = getMenuByMeal(from);
@@ -142,7 +141,7 @@ class DailyMenu
     notifyListeners();
   }
 
-  void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
+  void addRecipeIdListToMeal(Meal meal, List<Id> recipeIds) {
     if (recipeIds != null && recipeIds.isNotEmpty) {
       var menu = getMenuByMeal(meal);
 
@@ -153,8 +152,8 @@ class DailyMenu
     }
   }
 
-  Map<Meal, List<String>> get recipeIdsByMeal {
-    Map<Meal, List<String>> recipeIdsByMeal = {};
+  Map<Meal, List<Id>> get recipeIdsByMeal {
+    Map<Meal, List<Id>> recipeIdsByMeal = {};
 
     if (_menus != null && _menus.isNotEmpty) {
       Meal.values.forEach((meal) {
@@ -191,7 +190,7 @@ class DailyMenu
   }
 
   void setSelectedRecipe(MealRecipe mealRecipe) {
-    List<String> recipesList = _selectedRecipesByMeal[mealRecipe.meal];
+    List<Id> recipesList = _selectedRecipesByMeal[mealRecipe.meal];
 
     if (recipesList == null) {
       recipesList = [];
@@ -202,7 +201,7 @@ class DailyMenu
   }
 
   void removeSelectedRecipe(MealRecipe mealRecipe) {
-    final List<String> recipesList = _selectedRecipesByMeal[mealRecipe.meal];
+    final List<Id> recipesList = _selectedRecipesByMeal[mealRecipe.meal];
 
     if (recipesList != null) {
       recipesList.removeWhere((recId) => mealRecipe.recipe.id == recId);
@@ -274,8 +273,8 @@ class DailyMenu
 /**
  *  Returns selected recipes ids. Duplicates are removed.
  */
-  List<String> get selectedRecipes {
-    final recipeIds = <String>[];
+  List<Id> get selectedRecipes {
+    final recipeIds = <Id>[];
 
     _selectedRecipesByMeal.forEach((meal, recipeMealIds) {
       recipeMealIds.forEach((recipeId) {

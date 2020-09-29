@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../globals/memento.dart';
 import './enums/meals.dart';
@@ -55,7 +56,7 @@ class RecipeOriginator extends Originator<Recipe> {
     notifyListeners();
   }
 
-  void deleteRecipeIngredient(String recipeIngredientId) {
+  void deleteRecipeIngredient(Id recipeIngredientId) {
     if (instance.ingredients != null && instance.ingredients.isNotEmpty) {
       setEdited();
       instance.ingredients.removeWhere((recipeIngredient) =>
@@ -112,7 +113,7 @@ class RecipeOriginator extends Originator<Recipe> {
     notifyListeners();
   }
 
-  String get id => instance.id;
+  Id get id => instance.id;
 
   String get name => instance.name;
 
@@ -150,10 +151,7 @@ class RecipeOriginator extends Originator<Recipe> {
 }
 
 @JsonSerializable(explicitToJson: true)
-class Recipe extends Cloneable<Recipe> {
-  @JsonKey(name: '_id')
-  String id;
-
+class Recipe extends BaseModel<Recipe> {
   String name;
 
   @JsonKey(includeIfNull: false)
@@ -191,8 +189,8 @@ class Recipe extends Cloneable<Recipe> {
   @JsonKey(ignore: true)
   String owner;
 
-  Recipe({
-    this.id,
+  Recipe(
+    Id id, {
     this.name,
     this.description,
     this.ingredients = const <RecipeIngredient>[],
@@ -209,7 +207,7 @@ class Recipe extends Cloneable<Recipe> {
     this.recipeUrl,
     this.note,
     this.owner,
-  });
+  }) : super(id);
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
@@ -231,7 +229,7 @@ class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
   String recipeId;
 
   @JsonKey(name: 'ingredient')
-  String ingredientId;
+  Id ingredientId;
 
   @JsonKey(includeIfNull: false)
   double quantity;

@@ -1,45 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../models/shopping_list.dart';
-import 'rest_provider.dart';
+import 'auth_provider.dart';
+
+const String SHOPLIST_BOX = 'shoplist';
 
 class ShoppingListProvider with ChangeNotifier {
-  RestProvider _restProvider;
+  Box<ShoppingList> _shoppingListBox = Hive.box(SHOPLIST_BOX);
 
-  List<ShoppingList> _shoppingList = [];
+  Future<void> fetchShoppingListItems() async {}
 
-  ShoppingListProvider(this._restProvider);
-
-  Future<void> fetchShoppingListItems() async {
-    //TODO handle pagination
-    final jsonPage = await _restProvider.getShoppingList();
-    _shoppingList = jsonPage['results']
-        .map((jsonMenu) => ShoppingList.fromJson(jsonMenu))
-        .toList()
-        .cast<ShoppingList>();
-
-    notifyListeners();
-  }
-
-  List<ShoppingList> get getShoppingLists => [..._shoppingList];
+  List<ShoppingList> get shoppingLists => _shoppingListBox.values.toList();
 
   Future<void> updateShoppingList(ShoppingList shoppingList) async {
-    _restProvider.patchShoppingList(shoppingList.id, shoppingList.toJson());
+    _shoppingListBox.put(shoppingList.id, shoppingList);
   }
 
-  void update(
-      RestProvider restProvider, IngredientsProvider ingredientsProvider) {
-    List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
+  void update(IngredientsProvider ingredientsProvider) {
+    List<Ingredient> ingredientsList = ingredientsProvider.ingredients;
 
     if (ingredientsList != null) {
-      for (ShoppingList shoppingList in _shoppingList) {
+      for (ShoppingList shoppingList in _shoppingListBox.values) {
         if (shoppingList.items != null) {
           //This is a list but hopefully we expect only one item to be removed
           var toBeRemovedList = shoppingList.items
-              .where((item) => (ingredientsList
-                      .indexWhere((ingredient) => ingredient.id == item.item) ==
+              .where((item) => (ingredientsList.indexWhere(
+                      (ingredient) => ingredient.id == item.ingredientId) ==
                   -1))
               .toList();
           bool changed = false;
@@ -55,7 +44,5 @@ class ShoppingListProvider with ChangeNotifier {
         }
       }
     }
-
-    _restProvider = restProvider;
   }
 }

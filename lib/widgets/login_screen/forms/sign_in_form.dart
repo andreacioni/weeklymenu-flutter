@@ -5,7 +5,7 @@ import 'package:weekly_menu_app/globals/constants.dart';
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
 import 'package:weekly_menu_app/homepage.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
+import 'package:weekly_menu_app/providers/auth_provider.dart';
 import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
 
 import 'base_login_form.dart';
@@ -64,7 +64,7 @@ class _SignInFormState extends State<SignInForm> {
   void _doSignIn() {
     _form.validateAndSave(() async {
       final sharedPreferences = await SharedPreferences.getInstance();
-      var restProvider = Provider.of<RestProvider>(context, listen: false);
+      var restProvider = Provider.of<AuthProvider>(context, listen: false);
 
       showProgressDialog(context, dismissible: false);
       try {

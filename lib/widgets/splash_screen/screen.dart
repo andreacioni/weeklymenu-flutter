@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weekly_menu_app/homepage.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
+import 'package:weekly_menu_app/providers/auth_provider.dart';
 import 'package:weekly_menu_app/widgets/login_screen/screen.dart';
 import 'package:weekly_menu_app/globals/constants.dart';
 

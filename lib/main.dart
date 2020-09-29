@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/widgets/login_screen/screen.dart';
 import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
 
-import 'providers/rest_provider.dart';
+import 'providers/auth_provider.dart';
 import './providers/recipes_provider.dart';
 import './providers/menus_provider.dart';
 import './providers/ingredients_provider.dart';
@@ -15,7 +15,7 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final RestProvider initialRestProvider = RestProvider();
+    final AuthProvider initialRestProvider = AuthProvider();
 
     return MultiProvider(
       providers: [

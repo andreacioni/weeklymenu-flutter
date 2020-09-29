@@ -1,33 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
 import '../models/recipe.dart';
-import 'rest_provider.dart';
+
+const String RECIPES_BOX = 'recipes';
 
 class RecipesProvider with ChangeNotifier {
-  RestProvider _restApi;
+  final Box<RecipeOriginator> _recipesBox = Hive.box(RECIPES_BOX);
 
-  List<RecipeOriginator> _recipes = [];
+  List<RecipeOriginator> get recipes => _recipesBox.values;
 
-  RecipesProvider(this._restApi);
-
-  Future<void> fetchRecipes() async {
-    //TODO handle pagination
-    final jsonPage = await _restApi.getRecipes();
-    _recipes = jsonPage['results']
-        .map((jsonMenu) => RecipeOriginator(Recipe.fromJson(jsonMenu)))
-        .toList()
-        .cast<RecipeOriginator>();
-
-    notifyListeners();
-  }
-
-  List<RecipeOriginator> get getRecipes => [..._recipes];
-
-  List<String> get getAllRecipeTags {
+  List<String> get recipeTags {
     List<String> tags = [];
-    _recipes.forEach((recipe) {
+
+    _recipesBox.values.forEach((recipe) {
       if (recipe.tags != null) {
         tags.addAll(recipe.tags);
       }
@@ -36,32 +24,24 @@ class RecipesProvider with ChangeNotifier {
     return tags;
   }
 
-  RecipeOriginator getById(String id) =>
-      _recipes.firstWhere((recipe) => recipe.id == id, orElse: () => null);
+  RecipeOriginator getById(String id) => _recipesBox.get(id);
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
-    assert(newRecipe.id == null);
-
-    var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
-    var postedRecipe = Recipe.fromJson(recipeJson);
-
-    final RecipeOriginator recipeOriginator = RecipeOriginator(postedRecipe);
-
-    _recipes.add(recipeOriginator);
+    final RecipeOriginator recipeOriginator = RecipeOriginator(newRecipe);
+    await _recipesBox.put(recipeOriginator.id.offlineId, recipeOriginator);
     notifyListeners();
     return recipeOriginator;
   }
 
   Future<void> removeRecipe(RecipeOriginator recipe) async {
-    await _restApi.deleteRecipe(recipe.id);
-    _recipes.removeWhere((rec) => rec.id == recipe.id);
+    await _recipesBox.delete(recipe.id.offlineId);
     notifyListeners();
   }
 
   Future<void> saveRecipe(RecipeOriginator recipe) async {
     assert(recipe.id != null);
     try {
-      await _restApi.patchRecipe(recipe.id, recipe.toJson());
+      await _recipesBox.put(recipe.id.offlineId, recipe);
       recipe.save();
     } catch (e) {
       recipe.revert();
@@ -69,17 +49,17 @@ class RecipesProvider with ChangeNotifier {
     }
   }
 
-  void update(
-      RestProvider restProvider, IngredientsProvider ingredientsProvider) {
-    List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
+  void update(IngredientsProvider ingredientsProvider) {
+    List<Ingredient> ingredientsList = ingredientsProvider.ingredients;
     if (ingredientsList != null) {
-      for (RecipeOriginator recipe in _recipes) {
+      for (RecipeOriginator recipe in _recipesBox.values) {
         if (recipe.ingredients != null) {
           //This is a list but hopefully we expect only one item to be removed
           var toBeRemovedList = recipe.ingredients
               .where((recipeIngredient) => (ingredientsList.indexWhere(
                       (ingredient) =>
-                          ingredient.id == recipeIngredient.ingredientId) ==
+                          ingredient.id.offlineId ==
+                          recipeIngredient.ingredientId) ==
                   -1))
               .toList();
 
@@ -91,7 +71,5 @@ class RecipesProvider with ChangeNotifier {
         }
       }
     }
-
-    _restApi = restProvider;
   }
 }

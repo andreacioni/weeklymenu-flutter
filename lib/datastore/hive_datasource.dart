@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
 import 'package:weekly_menu_app/datastore/abstract_datastore.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 class HiveDatastore implements AbstractDatastore {
   static final String INGREDIENTS_BOX = 'ingredients';
@@ -51,19 +52,19 @@ class HiveDatastore implements AbstractDatastore {
   }
 
   @override
-  Future<void> deleteIngredient(String ingredientId) {
+  Future<void> deleteIngredient(Id ingredientId) {
     // TODO: implement deleteIngredient
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteMenu(String menuId) {
+  Future<void> deleteMenu(Id menuId) {
     // TODO: implement deleteMenu
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteRecipe(String recipeId) {
+  Future<void> deleteRecipe(Id recipeId) {
     // TODO: implement deleteRecipe
     throw UnimplementedError();
   }
@@ -93,20 +94,20 @@ class HiveDatastore implements AbstractDatastore {
   }
 
   @override
-  Future<void> patchRecipe(String recipeId, Map<String, dynamic> jsonMap) {
+  Future<void> patchRecipe(Id recipeId, Map<String, dynamic> jsonMap) {
     // TODO: implement patchRecipe
     throw UnimplementedError();
   }
 
   @override
   Future<Map<String, dynamic>> patchShoppingList(
-      String shoppingListId, Map<String, dynamic> jsonMap) {
+      Id shoppingListId, Map<String, dynamic> jsonMap) {
     // TODO: implement patchShoppingList
     throw UnimplementedError();
   }
 
   @override
-  Future<void> putMenu(String id, Map<String, dynamic> jsonMap) {
+  Future<void> putMenu(Id id, Map<String, dynamic> jsonMap) {
     // TODO: implement putMenu
     throw UnimplementedError();
   }

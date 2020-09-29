@@ -1,21 +1,29 @@
 import 'package:flutter/foundation.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
-class Ingredient with ChangeNotifier {
-  String id;
+@JsonSerializable()
+class Ingredient extends BaseModel<Ingredient> {
+  @JsonKey()
   String name;
 
-  Ingredient({this.id, this.name});
+  Ingredient({@required Id id, this.name}) : super(id);
 
   factory Ingredient.fromJson(Map<String, dynamic> jsonMap) {
     return Ingredient(
-      id: jsonMap['_id'],
+      id: Id(onlineId: jsonMap['_id'], offlineId: jsonMap['offline_id']),
       name: jsonMap['name'],
     );
   }
 
-  Map<String, dynamic> toJSON() {
+  Map<String, dynamic> toJson() {
     return {
+      '_id': id.onlineId,
+      'offline_id': id.offlineId,
       'name': name,
     };
   }
+
+  @override
+  Ingredient clone() => Ingredient.fromJson(this.toJson());
 }

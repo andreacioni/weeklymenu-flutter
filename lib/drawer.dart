@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
+import 'package:weekly_menu_app/providers/auth_provider.dart';
 import 'package:weekly_menu_app/globals/constants.dart';
 import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
 

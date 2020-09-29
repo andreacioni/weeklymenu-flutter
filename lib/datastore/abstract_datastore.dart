@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
+
 abstract class AbstractDatastore {
   Future<void> init() async {}
 
@@ -7,7 +9,7 @@ abstract class AbstractDatastore {
 
   Future<Map<String, dynamic>> createMenu(Map<String, dynamic> menu);
 
-  Future<void> deleteMenu(String menuId);
+  Future<void> deleteMenu(Id menuId);
 
   Future<Map<String, dynamic>> getIngredients();
 
@@ -15,19 +17,19 @@ abstract class AbstractDatastore {
 
   Future<Map<String, dynamic>> getRecipes();
 
-  Future<void> patchRecipe(String recipeId, Map<String, dynamic> jsonMap);
+  Future<void> patchRecipe(Id recipeId, Map<String, dynamic> jsonMap);
 
   Future<Map<String, dynamic>> createIngredient(
       Map<String, dynamic> ingredient);
 
   Future<Map<String, dynamic>> patchShoppingList(
-      String shoppingListId, Map<String, dynamic> jsonMap);
+      Id shoppingListId, Map<String, dynamic> jsonMap);
 
-  Future<void> deleteIngredient(String ingredientId);
+  Future<void> deleteIngredient(Id ingredientId);
 
   Future<Map<String, dynamic>> createRecipe(Map<String, dynamic> jsonMap);
 
-  Future<void> putMenu(String id, Map<String, dynamic> jsonMap);
+  Future<void> putMenu(Id id, Map<String, dynamic> jsonMap);
 
-  Future<void> deleteRecipe(String recipeId);
+  Future<void> deleteRecipe(Id recipeId);
 }
