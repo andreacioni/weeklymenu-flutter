@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../models/recipe.dart';
 
@@ -24,7 +25,7 @@ class RecipesProvider with ChangeNotifier {
     return tags;
   }
 
-  RecipeOriginator getById(String id) => _recipesBox.get(id);
+  RecipeOriginator getById(Id id) => _recipesBox.get(id);
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     final RecipeOriginator recipeOriginator = RecipeOriginator(newRecipe);

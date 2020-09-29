@@ -10,7 +10,7 @@ class ShoppingListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     //NOTE: we get only the first list here because, by now, only one list is supported per user
     final shoppingList =
-        Provider.of<ShoppingListProvider>(context).getShoppingLists[0];
+        Provider.of<ShoppingListProvider>(context).shoppingLists[0];
 
     return ChangeNotifierProvider.value(
       value: shoppingList,

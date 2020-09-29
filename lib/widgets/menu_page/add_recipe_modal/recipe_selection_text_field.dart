@@ -34,7 +34,7 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
       suggestions.add(RecipeOriginator(
-          Recipe(id: 'NONE', name: "Add ${_typeAheadController.text} ...")));
+          Recipe('NONE', name: "Add ${_typeAheadController.text} ...")));
     }
 
     return suggestions.reversed.toList();

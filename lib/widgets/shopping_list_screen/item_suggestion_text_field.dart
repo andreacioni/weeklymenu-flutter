@@ -105,7 +105,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
       context,
       listen: false,
     );
-    final availableIngredients = ingredientProvider.getIngredients;
+    final availableIngredients = ingredientProvider.ingredients;
 
     List<dynamic> suggestions = [];
 
@@ -115,7 +115,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
         listen: false,
       );
       final checkedItems = shoppingList.getCheckedItems.where((item) {
-        var ing = ingredientProvider.getById(item.item);
+        var ing = ingredientProvider.getById(item.ingredientId);
         return ing != null ? stringContains(ing.name, pattern) : false;
       });
 
@@ -155,6 +155,6 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     return Provider.of<IngredientsProvider>(
       context,
       listen: false,
-    ).getById(shoppingListItem.item);
+    ).getById(shoppingListItem.ingredientId);
   }
 }

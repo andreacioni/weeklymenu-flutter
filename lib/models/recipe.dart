@@ -226,7 +226,7 @@ class Recipe extends BaseModel<Recipe> {
 @JsonSerializable()
 class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
   @JsonKey(ignore: true)
-  String recipeId;
+  Id recipeId;
 
   @JsonKey(name: 'ingredient')
   Id ingredientId;

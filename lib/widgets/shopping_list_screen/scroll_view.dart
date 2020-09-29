@@ -131,7 +131,7 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
           delegate: SliverChildBuilderDelegate(
             (_, index) => ShoppingListItemTile(checkItems[index],
                 editable: false,
-                formKey: ValueKey(checkItems[index].item),
+                formKey: ValueKey(checkItems[index].ingredientId),
                 onCheckChange: (newValue) => _setChecked(
                       shoppingList,
                       checkItems[index],
@@ -152,7 +152,7 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
         delegate: SliverChildBuilderDelegate(
             (_, index) => ShoppingListItemTile(
                   uncheckItems[index],
-                  formKey: ValueKey(uncheckItems[index].item),
+                  formKey: ValueKey(uncheckItems[index].ingredientId),
                   editable: false,
                   onCheckChange: (newValue) => _setChecked(
                     shoppingList,
@@ -222,7 +222,8 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
 
   Future<void> _createShopItemForIngredient(
       ShoppingList shoppingList, Ingredient ing) async {
-    ShoppingListItem item = ShoppingListItem(item: ing.id, checked: false);
+    ShoppingListItem item =
+        ShoppingListItem(ingredientId: ing.id, checked: false);
 
     shoppingList.addShoppingListItem(item);
 
@@ -239,10 +240,13 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
       ShoppingList shoppingList, String ingredientName) async {
     IngredientsProvider ingredientsProvider =
         Provider.of<IngredientsProvider>(context, listen: false);
+
+    Ingredient newIngredient = Ingredient(name: ingredientName);
+
     setState(() => _loading = true);
-    Ingredient newIngredient = await ingredientsProvider
-        .addIngredient(Ingredient(name: ingredientName));
+    await ingredientsProvider.addIngredient(newIngredient);
     setState(() => _loading = false);
+
     _createShopItemForIngredient(shoppingList, newIngredient);
   }
 

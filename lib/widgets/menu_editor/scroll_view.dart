@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/recipe_view.dart';
@@ -197,7 +198,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     setState(() => _addRecipeMealTarget = null);
   }
 
-  Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id) {
+  Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, Id id) {
     final recipe = Provider.of<RecipesProvider>(context).getById(id);
     final mealRecipe = MealRecipe(meal, recipe);
     final recipeTile = RecipeTile(
@@ -205,7 +206,8 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       isChecked: false,
       onPressed: !widget.editingMode ? () => _openRecipeView(recipe) : null,
       onCheckChange: (c) => _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
-      key: ValueKey(mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
+      key: ValueKey(
+          mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id.offlineId),
     );
     return ChangeNotifierProvider.value(
       value: recipe,

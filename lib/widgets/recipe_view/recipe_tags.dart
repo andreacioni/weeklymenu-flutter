@@ -17,7 +17,7 @@ class RecipeTags extends StatelessWidget {
 
   List<String> _availableTags(BuildContext context) {
     List<String> recipesTags =
-        Provider.of<RecipesProvider>(context, listen: false).getAllRecipeTags;
+        Provider.of<RecipesProvider>(context, listen: false).recipeTags;
     if (recipe.tags != null) {
       recipesTags.removeWhere((tag) => recipe.tags.contains(tag));
     }

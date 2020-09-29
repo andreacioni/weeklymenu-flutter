@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final restProvider = Provider.of<RestProvider>(context, listen: false);
+    final restProvider = Provider.of<AuthProvider>(context, listen: false);
 
     Future.delayed(Duration.zero, () => tryLogin(context, restProvider));
 
@@ -28,7 +28,7 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  void tryLogin(BuildContext context, RestProvider restProvider) async {
+  void tryLogin(BuildContext context, AuthProvider restProvider) async {
     JWTToken jwt;
     final sharedPreferences = await SharedPreferences.getInstance();
 
@@ -81,7 +81,7 @@ class SplashScreen extends StatelessWidget {
   }
 
   Future<JWTToken> tryUseCredentials(
-      RestProvider restProvider, SharedPreferences sharedPreferences) async {
+      AuthProvider restProvider, SharedPreferences sharedPreferences) async {
     final username = sharedPreferences
         .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
     final password = sharedPreferences

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spinner_input/spinner_input.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
@@ -10,7 +11,7 @@ import '../../../presentation/custom_icons_icons.dart';
 import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientModal extends StatefulWidget {
-  final String recipeId;
+  final Id recipeId;
   final RecipeIngredient recipeIngredient;
 
   RecipeIngredientModal(this.recipeId, {this.recipeIngredient});
@@ -76,14 +77,8 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   }
 
   void _handleAddButton() async {
-    String ingredientToAddId = _selectedIngredient.id;
+    Id ingredientToAddId = _selectedIngredient.id;
 
-    if (ingredientToAddId == null) {
-      ingredientToAddId =
-          (await Provider.of<IngredientsProvider>(context, listen: false)
-                  .addIngredient(_selectedIngredient))
-              .id;
-    }
     Navigator.of(context).pop(
       RecipeIngredient(
         ingredientId: ingredientToAddId,

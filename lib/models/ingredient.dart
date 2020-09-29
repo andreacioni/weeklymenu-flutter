@@ -7,11 +7,11 @@ class Ingredient extends BaseModel<Ingredient> {
   @JsonKey()
   String name;
 
-  Ingredient({@required Id id, this.name}) : super(id);
+  Ingredient(Id id, {this.name}) : super(id);
 
   factory Ingredient.fromJson(Map<String, dynamic> jsonMap) {
     return Ingredient(
-      id: Id(onlineId: jsonMap['_id'], offlineId: jsonMap['offline_id']),
+      Id(onlineId: jsonMap['_id'], offlineId: jsonMap['offline_id']),
       name: jsonMap['name'],
     );
   }

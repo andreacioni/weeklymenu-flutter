@@ -12,7 +12,12 @@ class IngredientSelectionTextField extends StatefulWidget {
   final bool enabled;
   final bool autofocus;
 
-  IngredientSelectionTextField({@required this.onIngredientSelected, this.onSubmitted, this.value, this.enabled = true, this.autofocus=false});
+  IngredientSelectionTextField(
+      {@required this.onIngredientSelected,
+      this.onSubmitted,
+      this.value,
+      this.enabled = true,
+      this.autofocus = false});
 
   @override
   _IngredientSelectionTextFieldState createState() =>
@@ -26,7 +31,7 @@ class _IngredientSelectionTextFieldState
 
   @override
   Widget build(BuildContext context) {
-    if(widget.value != null) {
+    if (widget.value != null) {
       _typeAheadController.text = widget.value.name;
     }
 
@@ -36,24 +41,21 @@ class _IngredientSelectionTextFieldState
           child: TypeAheadField<Ingredient>(
             direction: AxisDirection.down,
             textFieldConfiguration: TextFieldConfiguration(
-              autofocus: widget.autofocus,
-              enabled: widget.enabled,
-              controller: _typeAheadController,
-              decoration: InputDecoration(
-                hintText: "Ingredient",
+                autofocus: widget.autofocus,
                 enabled: widget.enabled,
-                border: InputBorder.none
-              ),
-              onSubmitted: (text) {
-
-              }
-            ),
+                controller: _typeAheadController,
+                decoration: InputDecoration(
+                    hintText: "Ingredient",
+                    enabled: widget.enabled,
+                    border: InputBorder.none),
+                onSubmitted: (text) {}),
             suggestionsCallback: (pattern) async {
               return getIngredientsSuggestion(pattern);
             },
             itemBuilder: (context, ingredient) {
               return ListTile(
-                trailing: Icon(ingredient.id == null ? Icons.add : Icons.call_made),
+                trailing:
+                    Icon(ingredient.id == null ? Icons.add : Icons.call_made),
                 title: Text(ingredient.name),
               );
             },
@@ -74,7 +76,6 @@ class _IngredientSelectionTextFieldState
 
               widget.onIngredientSelected(selectedIngredient);
             },
-
           ),
         ),
       ],
@@ -85,7 +86,7 @@ class _IngredientSelectionTextFieldState
     final availableIngredients = Provider.of<IngredientsProvider>(
       context,
       listen: false,
-    ).getIngredients;
+    ).ingredients;
 
     var suggestions = availableIngredients
         .where((r) =>
@@ -96,7 +97,8 @@ class _IngredientSelectionTextFieldState
         availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
+      suggestions
+          .add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
     }
 
     return suggestions;

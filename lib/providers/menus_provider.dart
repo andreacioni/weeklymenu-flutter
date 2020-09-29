@@ -15,8 +15,6 @@ const String MENU_BOX = 'menus';
 class MenusProvider with ChangeNotifier {
   final log = Logger((MenusProvider).toString());
 
-  static final _dateParser = DateFormat('y-MM-dd');
-
   LazyBox<DailyMenu> _dailyMenuBox = Hive.lazyBox(MENU_BOX);
 
   Future<DailyMenu> fetchDailyMenu(DateTime day) => _dailyMenuBox.get(day);

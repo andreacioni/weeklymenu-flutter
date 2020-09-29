@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../models/ingredient.dart';
 
@@ -10,7 +11,7 @@ class IngredientsProvider with ChangeNotifier {
 
   List<Ingredient> get ingredients => _ingredientsBox.values.toList();
 
-  Ingredient getById(String id) => _ingredientsBox.get(id);
+  Ingredient getById(Id id) => _ingredientsBox.get(id);
 
   Future<void> addIngredient(Ingredient ingredient) async {
     await _ingredientsBox.put(ingredient.id.offlineId, ingredient);

@@ -37,9 +37,9 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
 
   @override
   void didChangeDependencies() {
-    if (widget.shoppingListItem.item != null) {
+    if (widget.shoppingListItem.ingredientId != null) {
       _ingredient = Provider.of<IngredientsProvider>(context)
-          .getById(widget.shoppingListItem.item);
+          .getById(widget.shoppingListItem.ingredientId);
     } else {
       _editingMode = true;
     }

@@ -111,7 +111,7 @@ class DailyMenu
     notifyListeners();
   }
 
-  List<String> getRecipeIdsByMeal(Meal meal) {
+  List<Id> getRecipeIdsByMeal(Meal meal) {
     return this.recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
   }
 

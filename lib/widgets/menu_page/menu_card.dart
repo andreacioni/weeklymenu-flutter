@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
@@ -19,7 +20,7 @@ class MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dailyMenu = Provider.of<DailyMenu>(context);
-    
+
     final divider = Divider(
       color: Colors.grey.shade500,
       height: 0,
@@ -100,7 +101,8 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 5,
                   ),
-                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
+                  _recipesRow(
+                      context, dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
                 ],
               ),
             ),
@@ -128,7 +130,8 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 30,
                   ),
-                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
+                  _recipesRow(
+                      context, dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
                 ],
               ),
             ),
@@ -157,7 +160,8 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 28,
                   ),
-                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
+                  _recipesRow(
+                      context, dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
                 ],
               ),
             ),
@@ -167,7 +171,7 @@ class MenuCard extends StatelessWidget {
     );
   }
 
-  Widget _recipesRow(BuildContext context, List<String> recipesIds) {
+  Widget _recipesRow(BuildContext context, List<Id> recipesIds) {
     return Expanded(
       child: Row(
         children: <Widget>[
@@ -185,7 +189,7 @@ class MenuCard extends StatelessWidget {
     );
   }
 
-  Widget _listToText(BuildContext context, List<String> mealEntry) {
+  Widget _listToText(BuildContext context, List<Id> mealEntry) {
     final recipes = mealEntry
         .map((recipeId) => Provider.of<RecipesProvider>(
               context,

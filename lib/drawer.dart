@@ -75,7 +75,7 @@ class AppDrawer extends StatelessWidget {
                   .remove(SharedPreferencesKeys.emailSharedPreferencesKey);
               sharedPreferences
                   .remove(SharedPreferencesKeys.passwordSharedPreferencesKey);
-              Provider.of<RestProvider>(context, listen: false).logout();
+              Provider.of<AuthProvider>(context, listen: false).logout();
               Navigator.pop(context);
               SplashScreen.goToLogin(context);
             },

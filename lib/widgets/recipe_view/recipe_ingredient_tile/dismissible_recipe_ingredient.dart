@@ -16,7 +16,7 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
     RecipeIngredient recipeIngredient = Provider.of<RecipeIngredient>(context);
     return editEnabled
         ? Dismissible(
-            key: Key(recipeIngredient.ingredientId),
+            key: Key(recipeIngredient.ingredientId.offlineId),
             direction: DismissDirection.endToStart,
             background: Container(
               color: Colors.red,
