@@ -64,14 +64,14 @@ class _SignInFormState extends State<SignInForm> {
   void _doSignIn() {
     _form.validateAndSave(() async {
       final sharedPreferences = await SharedPreferences.getInstance();
-      var restProvider = Provider.of<AuthProvider>(context, listen: false);
+      var authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       showProgressDialog(context, dismissible: false);
       try {
-        var auth = await restProvider.login(_email, _password);
+        var auth = await authProvider.login(_email, _password);
         final token =
             JWTToken.fromBase64Json(AuthToken.fromJson(auth).accessToken);
-        restProvider.updateToken(token);
+        authProvider.updateToken(token);
 
         //Email & Password
         sharedPreferences.setString(

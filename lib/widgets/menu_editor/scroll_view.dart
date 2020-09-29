@@ -161,6 +161,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
       await Provider.of<MenusProvider>(context, listen: false).createMenu(
         Menu(
+          Id.newInstance(),
           date: widget._dailyMenu.day,
           recipes: [],
           meal: meal,
@@ -179,7 +180,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       try {
         RecipeOriginator recipe =
             await Provider.of<RecipesProvider>(context, listen: false)
-                .addRecipe(Recipe(name: recipeName));
+                .addRecipe(Recipe(Id.newInstance(), name: recipeName));
         await _addRecipeToMeal(meal, recipe);
       } catch (e) {
         hideProgressDialog(context);
@@ -251,8 +252,8 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       onAccept: (mealRecipe) {
         print('onAccept - $meal');
         if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-          widget._dailyMenu.addMenu(
-              MenuOriginator(Menu(date: widget._dailyMenu.day, meal: meal)));
+          widget._dailyMenu.addMenu(MenuOriginator(
+              Menu(Id.newInstance(), date: widget._dailyMenu.day, meal: meal)));
         }
         widget._dailyMenu
             .moveRecipeToMeal(mealRecipe.meal, meal, mealRecipe.recipe.id);

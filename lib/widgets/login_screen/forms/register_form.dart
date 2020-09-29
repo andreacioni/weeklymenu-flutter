@@ -65,11 +65,11 @@ class _RegisterFormState extends State<RegisterForm> {
 
   void _doRegistration() {
     _form.validateAndSave(() async {
-      var restProvider = Provider.of<AuthProvider>(context, listen: false);
+      var authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       showProgressDialog(context, dismissible: false);
       try {
-        await restProvider.register(_name, _email, _password);
+        await authProvider.register(_name, _email, _password);
 
         hideProgressDialog(context);
 

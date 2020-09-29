@@ -1,3 +1,4 @@
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:flutter/foundation.dart';
@@ -6,14 +7,17 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 
 @JsonSerializable()
+@HiveType(typeId: 1)
 class Id {
   static final RegExp _uuidRegExp = RegExp(
       '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$');
 
   @JsonKey(name: '_id')
+  @HiveField(0)
   String _onlineId;
 
   @JsonKey(name: 'offline_id')
+  @HiveField(1)
   String _offlineId;
 
   Id({String onlineId, String offlineId})
@@ -42,12 +46,15 @@ class Id {
 }
 
 abstract class BaseModel<T> with ChangeNotifier implements Cloneable<T> {
+  @HiveField(0)
   Id id;
 
   @JsonKey(name: 'insert_timestamp')
+  @HiveField(1)
   String _insertTimestamp;
 
   @JsonKey(name: 'update_timestamp')
+  @HiveField(2)
   String _updateTimestamp;
 
   BaseModel(this.id);

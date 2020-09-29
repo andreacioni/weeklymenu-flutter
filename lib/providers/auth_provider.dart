@@ -10,7 +10,7 @@ import 'package:weekly_menu_app/datastore/abstract_datastore.dart';
 
 import 'package:weekly_menu_app/globals/constants.dart' as consts;
 
-class AuthProvider {
+class AuthProvider with ChangeNotifier {
   final _log = Logger();
 
   final Dio _dio = Dio(

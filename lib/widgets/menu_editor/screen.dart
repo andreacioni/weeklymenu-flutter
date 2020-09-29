@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/models/enums/meals.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/globals/constants.dart' as consts;
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 import '../../globals/errors_handlers.dart';
 import '../../models/menu.dart';
 import './scroll_view.dart';
@@ -249,6 +250,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         _destinationMenu.menus.isEmpty) {
       _log.i("No menus in destination day, creating menu");
       _newMenu = Menu(
+        Id.newInstance(),
         meal: destinationMeal,
         date: destinationDay,
         recipes: dailyMenu.selectedRecipes,
@@ -262,6 +264,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
       if (alreadyDefinedMenu == null) {
         _log.i("Destination menu is not already defined, creating menu");
         _newMenu = Menu(
+          Id.newInstance(),
           meal: destinationMeal,
           date: destinationDay,
           recipes: dailyMenu.selectedRecipes,

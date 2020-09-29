@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
@@ -151,6 +152,7 @@ class RecipeOriginator extends Originator<Recipe> {
 }
 
 @JsonSerializable(explicitToJson: true)
+@HiveType(typeId: 2)
 class Recipe extends BaseModel<Recipe> {
   String name;
 

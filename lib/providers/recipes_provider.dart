@@ -11,6 +11,8 @@ const String RECIPES_BOX = 'recipes';
 class RecipesProvider with ChangeNotifier {
   final Box<RecipeOriginator> _recipesBox = Hive.box(RECIPES_BOX);
 
+  Future<void> fetchRecipes() async {}
+
   List<RecipeOriginator> get recipes => _recipesBox.values;
 
   List<String> get recipeTags {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
@@ -54,6 +55,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
 }
 
 @JsonSerializable()
+@HiveType(typeId: 3)
 class ShoppingListItem with ChangeNotifier {
   final Id ingredientId;
   bool checked;

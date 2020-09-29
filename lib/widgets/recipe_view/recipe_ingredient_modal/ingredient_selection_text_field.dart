@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import '../../../providers/ingredients_provider.dart';
 import '../../../models/ingredient.dart';
@@ -97,8 +98,12 @@ class _IngredientSelectionTextFieldState
         availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions
-          .add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
+      suggestions.add(
+        Ingredient(
+          Id.newInstance(),
+          name: 'Add "${_typeAheadController.text}" ...',
+        ),
+      );
     }
 
     return suggestions;

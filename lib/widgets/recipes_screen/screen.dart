@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 import 'package:weekly_menu_app/widgets/recipe_view/recipe_view.dart';
 
 import '../../globals/utils.dart';
@@ -38,7 +39,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final recipes = Provider.of<RecipesProvider>(context).getRecipes;
+    final recipes = Provider.of<RecipesProvider>(context).recipes;
 
     var body = _buildScreenBody(
         recipes, (recipe) => !stringContains(recipe.name, _searchText));
@@ -317,7 +318,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
               setState(() => _isLoading = true);
               if (textController.text.trim().isNotEmpty) {
                 await Provider.of<RecipesProvider>(context, listen: false)
-                    .addRecipe(Recipe(name: textController.text));
+                    .addRecipe(
+                  Recipe(Id.newInstance(), name: textController.text),
+                );
                 setState(() => _isLoading = false);
               }
               setState(() => _isLoading = false);

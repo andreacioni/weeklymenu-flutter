@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:weekly_menu_app/models/recipe.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 class RecipeSelectionTextField extends StatefulWidget {
   final Function onRecipeSelected;
@@ -33,8 +34,8 @@ class _RecipeSelectionTextFieldState extends State<RecipeSelectionTextField> {
         widget._availableRecipes.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(RecipeOriginator(
-          Recipe('NONE', name: "Add ${_typeAheadController.text} ...")));
+      suggestions.add(RecipeOriginator(Recipe(Id.newInstance(),
+          name: "Add ${_typeAheadController.text} ...")));
     }
 
     return suggestions.reversed.toList();

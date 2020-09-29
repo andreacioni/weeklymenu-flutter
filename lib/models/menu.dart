@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:provider/provider.dart';
@@ -84,6 +85,7 @@ class Menu extends BaseModel<Menu> {
   static DateTime dateFromJson(String date) => _dateParser.parse(date);
 }
 
+@HiveType(typeId: 4)
 class DailyMenu
     with ChangeNotifier
     implements Revertable<List<MenuOriginator>> {

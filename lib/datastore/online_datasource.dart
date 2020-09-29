@@ -28,7 +28,7 @@ class OnlineDatasource extends AbstractDatastore {
     ),
   );
 
-  RestProvider() {
+  authProvider() {
     _dio.interceptors.add(InterceptorsWrapper(
       onError: (e) {
         switch (e.type) {

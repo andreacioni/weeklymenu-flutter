@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 import 'package:weekly_menu_app/providers/shopping_list_provider.dart';
+import 'package:weekly_menu_app/syncronizer/syncro.dart';
 
 import './shopping_list_tile.dart';
 import '../../globals/errors_handlers.dart';
@@ -241,7 +242,10 @@ class _ShoppingListScrollViewState extends State<ShoppingListScrollView> {
     IngredientsProvider ingredientsProvider =
         Provider.of<IngredientsProvider>(context, listen: false);
 
-    Ingredient newIngredient = Ingredient(name: ingredientName);
+    Ingredient newIngredient = Ingredient(
+      Id.newInstance(),
+      name: ingredientName,
+    );
 
     setState(() => _loading = true);
     await ingredientsProvider.addIngredient(newIngredient);

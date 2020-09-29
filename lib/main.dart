@@ -15,38 +15,25 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final AuthProvider initialRestProvider = AuthProvider();
-
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: initialRestProvider),
-        ChangeNotifierProxyProvider<RestProvider, IngredientsProvider>(
+        ChangeNotifierProvider.value(value: AuthProvider()),
+        ChangeNotifierProvider.value(value: IngredientsProvider()),
+        ChangeNotifierProxyProvider<IngredientsProvider, ShoppingListProvider>(
           create: (_) =>
-              IngredientsProvider(initialRestProvider), //It depends on auth
-          update: (_, restProvider, ingredientsProvider) =>
-              ingredientsProvider..update(restProvider),
+              ShoppingListProvider(), //It depends on ingredients & auth
+          update: (_, ingredientsProvider, shoppingListProvider) =>
+              shoppingListProvider..update(ingredientsProvider),
         ),
-        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider,
-            ShoppingListProvider>(
-          create: (_) => ShoppingListProvider(
-              initialRestProvider), //It depends on ingredients & auth
-          update: (_, restProvider, ingredientsProvider,
-                  shoppingListProvider) =>
-              shoppingListProvider..update(restProvider, ingredientsProvider),
+        ChangeNotifierProxyProvider<IngredientsProvider, RecipesProvider>(
+          create: (_) => RecipesProvider(), //It depends on ingredients & auth
+          update: (_, ingredientsProvider, recipesProvider) =>
+              recipesProvider..update(ingredientsProvider),
         ),
-        ChangeNotifierProxyProvider2<RestProvider, IngredientsProvider,
-            RecipesProvider>(
-          create: (_) => RecipesProvider(
-              initialRestProvider), //It depends on ingredients & auth
-          update: (_, restProvider, ingredientsProvider, recipesProvider) =>
-              recipesProvider..update(restProvider, ingredientsProvider),
-        ),
-        ChangeNotifierProxyProvider2<RestProvider, RecipesProvider,
-            MenusProvider>(
-          create: (_) => MenusProvider(
-              initialRestProvider), //It depends on ingredients & auth
-          update: (_, restProvider, recipesProvider, menusProvider) =>
-              menusProvider..update(restProvider, recipesProvider),
+        ChangeNotifierProxyProvider<RecipesProvider, MenusProvider>(
+          create: (_) => MenusProvider(), //It depends on ingredients & auth
+          update: (_, recipesProvider, menusProvider) =>
+              menusProvider..update(recipesProvider),
         ),
       ],
       child: MaterialApp(

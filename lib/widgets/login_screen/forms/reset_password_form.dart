@@ -48,11 +48,11 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
 
   void _doResetPassword() {
     _form.validateAndSave(() async {
-      var restProvider = Provider.of<AuthProvider>(context, listen: false);
+      var authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       showProgressDialog(context, dismissible: false);
       try {
-        await restProvider.resetPassword(_email);
+        await authProvider.resetPassword(_email);
 
         hideProgressDialog(context);
 

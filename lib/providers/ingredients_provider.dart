@@ -9,6 +9,8 @@ const String INGREDIENTS_BOX = 'ingredients';
 class IngredientsProvider with ChangeNotifier {
   Box<Ingredient> _ingredientsBox = Hive.box(INGREDIENTS_BOX);
 
+  Future<void> fetchIngredients() async {}
+
   List<Ingredient> get ingredients => _ingredientsBox.values.toList();
 
   Ingredient getById(Id id) => _ingredientsBox.get(id);

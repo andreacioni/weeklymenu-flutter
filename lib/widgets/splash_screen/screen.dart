@@ -13,9 +13,9 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final restProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    Future.delayed(Duration.zero, () => tryLogin(context, restProvider));
+    Future.delayed(Duration.zero, () => tryLogin(context, authProvider));
 
     return Scaffold(
       body: Stack(
@@ -28,13 +28,13 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  void tryLogin(BuildContext context, AuthProvider restProvider) async {
+  void tryLogin(BuildContext context, AuthProvider authProvider) async {
     JWTToken jwt;
     final sharedPreferences = await SharedPreferences.getInstance();
 
     try {
       if ((jwt = tryUseOldToken(sharedPreferences)) != null) {
-        restProvider.updateToken(jwt);
+        authProvider.updateToken(jwt);
         goToHomepage(context);
         return;
       } else {
@@ -45,9 +45,9 @@ class SplashScreen extends StatelessWidget {
     }
 
     try {
-      if ((jwt = await tryUseCredentials(restProvider, sharedPreferences)) !=
+      if ((jwt = await tryUseCredentials(authProvider, sharedPreferences)) !=
           null) {
-        restProvider.updateToken(jwt);
+        authProvider.updateToken(jwt);
         goToHomepage(context);
         return;
       } else {
@@ -81,14 +81,14 @@ class SplashScreen extends StatelessWidget {
   }
 
   Future<JWTToken> tryUseCredentials(
-      AuthProvider restProvider, SharedPreferences sharedPreferences) async {
+      AuthProvider authProvider, SharedPreferences sharedPreferences) async {
     final username = sharedPreferences
         .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
     final password = sharedPreferences
         .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
 
     if (password != null && username != null) {
-      final authReponse = await restProvider.login(username, password);
+      final authReponse = await authProvider.login(username, password);
       return JWTToken.fromBase64Json(
           AuthToken.fromJson(authReponse).accessToken);
     }
