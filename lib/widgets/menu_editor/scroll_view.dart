@@ -202,7 +202,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     final mealRecipe = MealRecipe(meal, recipe);
     final recipeTile = RecipeTile(
       editEnable: widget.editingMode,
-      isChecked: false,
+      isChecked: dailyMenu.selectedRecipes.contains(id),
       onPressed: !widget.editingMode ? () => _openRecipeView(recipe) : null,
       onCheckChange: (c) => _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
       key: ValueKey(mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
