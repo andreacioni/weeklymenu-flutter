@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/recipe.dart';
 
-class RecipeTile extends StatefulWidget {
+class RecipeTile extends StatelessWidget {
   final bool editEnable;
   final bool isChecked;
   final void Function() onPressed;
@@ -19,39 +19,21 @@ class RecipeTile extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RecipeTileState createState() => _RecipeTileState();
-}
-
-class _RecipeTileState extends State<RecipeTile> {
-  bool isChecked;
-
-  @override
-  void initState() {
-    isChecked = widget.isChecked;
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final recipe = Provider.of<RecipeOriginator>(context);
 
     return InkWell(
-      onTap: widget.onPressed,
+      onTap: onPressed,
       child: ListTile(
-        leading: widget.editEnable ? Icon(Icons.drag_handle) : null,
+        leading: editEnable ? Icon(Icons.drag_handle) : null,
         title: Text(recipe.name),
-        trailing: widget.editEnable
+        trailing: editEnable
             ? Checkbox(
                 value: isChecked,
-                onChanged: (checked) => _handleCheckChange(checked),
+                onChanged: onCheckChange,
               )
             : null,
       ),
     );
-  }
-
-  void _handleCheckChange(bool checked) {
-    setState(() => isChecked = !isChecked);
-    widget.onCheckChange(checked);
   }
 }

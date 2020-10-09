@@ -200,6 +200,7 @@ class DailyMenu
 
     recipesList.add(mealRecipe.recipe.id);
     _selectedRecipesByMeal[mealRecipe.meal] = recipesList;
+    notifyListeners();
   }
 
   void removeSelectedRecipe(MealRecipe mealRecipe) {
@@ -208,6 +209,7 @@ class DailyMenu
     if (recipesList != null) {
       recipesList.removeWhere((recId) => mealRecipe.recipe.id == recId);
     }
+    notifyListeners();
   }
 
   void clearSelected() {
