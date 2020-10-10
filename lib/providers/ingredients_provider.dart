@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import 'package:weekly_menu_app/providers/rest_provider.dart';
 
-import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
 class IngredientsProvider with ChangeNotifier {
@@ -29,7 +27,7 @@ class IngredientsProvider with ChangeNotifier {
       _ingredients.firstWhere((ing) => ing.id == id, orElse: () => null);
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
-    var resp = await _restProvider.createIngredient(ingredient.toJSON());
+    var resp = await _restProvider.createIngredient(ingredient.toJson());
     var newIngredient = Ingredient.fromJson(resp);
 
     _ingredients.add(newIngredient);

@@ -8,7 +8,6 @@ part of 'shopping_list.dart';
 
 ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
   return ShoppingList(
-    id: json['_id'] as String,
     items: (json['items'] as List)
             ?.map((e) => e == null
                 ? null
@@ -16,12 +15,12 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
             ?.toList() ??
         [],
     name: json['name'] as String,
-  );
+  )..id = json['offline_id'] as String;
 }
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
-    '_id': instance.id,
+    'offline_id': instance.id,
     'items': instance.items?.map((e) => e?.toJson())?.toList(),
   };
 

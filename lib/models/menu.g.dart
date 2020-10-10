@@ -8,16 +8,15 @@ part of 'menu.dart';
 
 Menu _$MenuFromJson(Map<String, dynamic> json) {
   return Menu(
-    id: json['_id'] as String,
     date: Menu.dateFromJson(json['date'] as String),
     meal: _$enumDecodeNullable(_$MealEnumMap, json['meal']),
     recipes: (json['recipes'] as List)?.map((e) => e as String)?.toList() ?? [],
-  );
+  )..id = json['offline_id'] as String;
 }
 
 Map<String, dynamic> _$MenuToJson(Menu instance) {
   final val = <String, dynamic>{
-    '_id': instance.id,
+    'offline_id': instance.id,
     'date': Menu.dateToJson(instance.date),
     'meal': _$MealEnumMap[instance.meal],
   };

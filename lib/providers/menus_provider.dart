@@ -4,9 +4,7 @@ import 'package:logging/logging.dart';
 
 import './recipes_provider.dart';
 import '../models/menu.dart';
-import '../models/enums/meals.dart';
 import '../models/recipe.dart';
-import '../datasource/network.dart';
 import 'rest_provider.dart';
 
 class MenusProvider with ChangeNotifier {

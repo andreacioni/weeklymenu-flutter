@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
+import 'package:weekly_menu_app/models/base_model.dart';
 
 import '../globals/memento.dart';
-import '../datasource/network.dart';
 import './enums/meals.dart';
 
 part 'recipe.g.dart';
@@ -151,10 +152,7 @@ class RecipeOriginator extends Originator<Recipe> {
 }
 
 @JsonSerializable(explicitToJson: true)
-class Recipe extends Cloneable<Recipe> {
-  @JsonKey(name: '_id')
-  String id;
-
+class Recipe extends BaseModel<Recipe> {
   String name;
 
   @JsonKey(includeIfNull: false)
@@ -193,7 +191,6 @@ class Recipe extends Cloneable<Recipe> {
   String owner;
 
   Recipe({
-    this.id,
     this.name,
     this.description,
     this.ingredients = const <RecipeIngredient>[],
@@ -210,7 +207,7 @@ class Recipe extends Cloneable<Recipe> {
     this.recipeUrl,
     this.note,
     this.owner,
-  });
+  }) : super(Uuid().v4());
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
@@ -227,7 +224,7 @@ class Recipe extends Cloneable<Recipe> {
 }
 
 @JsonSerializable()
-class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
+class RecipeIngredient extends Cloneable with ChangeNotifier {
   @JsonKey(ignore: true)
   String recipeId;
 

@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import '../datasource/network.dart';
+import 'package:uuid/uuid.dart';
+import 'package:weekly_menu_app/models/base_model.dart';
 
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class ShoppingList with ChangeNotifier {
-  @JsonKey(name: '_id')
-  String id;
-
+class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(defaultValue: [])
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)
   String name;
 
-  ShoppingList({@required this.id, this.items, this.name});
+  ShoppingList({this.items, this.name}) : super(Uuid().v4());
 
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
@@ -52,6 +49,9 @@ class ShoppingList with ChangeNotifier {
   bool containsItem(String itemId) {
     return items.map((item) => item.item).contains(itemId);
   }
+
+  @override
+  ShoppingList clone() => ShoppingList.fromJson(this.toJson());
 }
 
 @JsonSerializable()
