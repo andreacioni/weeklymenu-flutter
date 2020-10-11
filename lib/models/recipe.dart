@@ -191,6 +191,10 @@ class Recipe extends BaseModel<Recipe> {
   String owner;
 
   Recipe({
+    String id,
+    String onlineId,
+    int insertTimestamp,
+    int updateTimestamp,
     this.name,
     this.description,
     this.ingredients = const <RecipeIngredient>[],
@@ -207,7 +211,12 @@ class Recipe extends BaseModel<Recipe> {
     this.recipeUrl,
     this.note,
     this.owner,
-  }) : super(Uuid().v4());
+  }) : super(
+          id: id,
+          onlineId: onlineId,
+          insertTimestamp: insertTimestamp,
+          updateTimestamp: updateTimestamp,
+        );
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 

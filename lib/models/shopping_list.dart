@@ -13,7 +13,19 @@ class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(includeIfNull: false)
   String name;
 
-  ShoppingList({this.items, this.name}) : super(Uuid().v4());
+  ShoppingList({
+    String id,
+    String onlineId,
+    int insertTimestamp,
+    int updateTimestamp,
+    this.items,
+    this.name,
+  }) : super(
+          id: id,
+          onlineId: onlineId,
+          insertTimestamp: insertTimestamp,
+          updateTimestamp: updateTimestamp,
+        );
 
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);

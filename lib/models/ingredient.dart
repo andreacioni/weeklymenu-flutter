@@ -11,7 +11,18 @@ class Ingredient extends BaseModel<Ingredient> {
   @JsonKey()
   String name;
 
-  Ingredient({this.name}) : super(Uuid().v4());
+  Ingredient({
+    String id,
+    String onlineId,
+    int insertTimestamp,
+    int updateTimestamp,
+    this.name,
+  }) : super(
+          id: id,
+          onlineId: onlineId,
+          insertTimestamp: insertTimestamp,
+          updateTimestamp: updateTimestamp,
+        );
 
   factory Ingredient.fromJson(Map<String, dynamic> json) =>
       _$IngredientFromJson(json);

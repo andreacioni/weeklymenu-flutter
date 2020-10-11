@@ -71,7 +71,20 @@ class Menu extends BaseModel<Menu> {
   @JsonKey(includeIfNull: false, defaultValue: [])
   List<String> recipes;
 
-  Menu({this.date, this.meal, this.recipes}) : super(Uuid().v4());
+  Menu({
+    String id,
+    String onlineId,
+    int insertTimestamp,
+    int updateTimestamp,
+    this.date,
+    this.meal,
+    this.recipes,
+  }) : super(
+          id: id,
+          onlineId: onlineId,
+          insertTimestamp: insertTimestamp,
+          updateTimestamp: updateTimestamp,
+        );
 
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
 
