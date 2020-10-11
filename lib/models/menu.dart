@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
+import 'package:weekly_menu_app/models/id.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
 import '../globals/utils.dart' as utils;
@@ -72,8 +73,7 @@ class Menu extends BaseModel<Menu> {
   List<String> recipes;
 
   Menu({
-    String id,
-    String onlineId,
+    Id id,
     int insertTimestamp,
     int updateTimestamp,
     this.date,
@@ -81,7 +81,6 @@ class Menu extends BaseModel<Menu> {
     this.recipes,
   }) : super(
           id: id,
-          onlineId: onlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

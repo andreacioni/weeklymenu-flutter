@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
+import 'package:weekly_menu_app/models/id.dart';
 
 part 'shopping_list.g.dart';
 
@@ -14,15 +15,13 @@ class ShoppingList extends BaseModel<ShoppingList> {
   String name;
 
   ShoppingList({
-    String id,
-    String onlineId,
+    Id id,
     int insertTimestamp,
     int updateTimestamp,
     this.items,
     this.name,
   }) : super(
           id: id,
-          onlineId: onlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

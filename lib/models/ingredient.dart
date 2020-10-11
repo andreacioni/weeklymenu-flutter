@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:weekly_menu_app/models/base_model.dart';
+import 'package:weekly_menu_app/models/id.dart';
 
 part 'ingredient.g.dart';
 
@@ -11,15 +12,13 @@ class Ingredient extends BaseModel<Ingredient> {
   @JsonKey()
   String name;
 
-  Ingredient({
-    String id,
-    String onlineId,
+  Ingredient(
+    Id id, {
     int insertTimestamp,
     int updateTimestamp,
     this.name,
   }) : super(
           id: id,
-          onlineId: onlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

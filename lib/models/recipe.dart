@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
+import 'package:weekly_menu_app/models/id.dart';
 
 import '../globals/memento.dart';
 import './enums/meals.dart';
@@ -191,8 +192,7 @@ class Recipe extends BaseModel<Recipe> {
   String owner;
 
   Recipe({
-    String id,
-    String onlineId,
+    Id id,
     int insertTimestamp,
     int updateTimestamp,
     this.name,
@@ -213,7 +213,6 @@ class Recipe extends BaseModel<Recipe> {
     this.owner,
   }) : super(
           id: id,
-          onlineId: onlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );
