@@ -192,7 +192,7 @@ class Recipe extends BaseModel<Recipe> {
   String owner;
 
   Recipe({
-    Id id,
+    Id idx,
     int insertTimestamp,
     int updateTimestamp,
     this.name,
@@ -212,7 +212,7 @@ class Recipe extends BaseModel<Recipe> {
     this.note,
     this.owner,
   }) : super(
-          id: id,
+          idx: idx,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

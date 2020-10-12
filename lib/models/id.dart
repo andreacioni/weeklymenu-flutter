@@ -10,4 +10,8 @@ class Id {
   String onlineId;
 
   Id(this.offlineId, {this.onlineId});
+
+  factory Id.none() => Id('NONE');
+
+  bool get isNone => offlineId == 'NONE';
 }

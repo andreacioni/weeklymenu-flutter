@@ -73,14 +73,14 @@ class Menu extends BaseModel<Menu> {
   List<String> recipes;
 
   Menu({
-    Id id,
+    Id idx,
     int insertTimestamp,
     int updateTimestamp,
     this.date,
     this.meal,
     this.recipes,
   }) : super(
-          id: id,
+          idx: idx,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

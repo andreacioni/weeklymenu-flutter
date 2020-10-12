@@ -8,7 +8,7 @@ part of 'ingredient.dart';
 
 Ingredient _$IngredientFromJson(Map<String, dynamic> json) {
   return Ingredient(
-    BaseModel.idFromJson(json['offline_id']),
+    idx: BaseModel.idFromJson(json['offline_id']),
     insertTimestamp: json['insert_timestamp'] as int,
     updateTimestamp: json['update_timestamp'] as int,
     name: json['name'] as String,
@@ -17,7 +17,7 @@ Ingredient _$IngredientFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$IngredientToJson(Ingredient instance) =>
     <String, dynamic>{
-      'offline_id': BaseModel.idToJson(instance.id),
+      'offline_id': BaseModel.idToJson(instance.idx),
       'insert_timestamp': instance.insertTimestamp,
       'update_timestamp': instance.updateTimestamp,
       'name': instance.name,

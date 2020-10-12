@@ -12,13 +12,13 @@ class Ingredient extends BaseModel<Ingredient> {
   @JsonKey()
   String name;
 
-  Ingredient(
-    Id id, {
+  Ingredient({
+    Id idx,
     int insertTimestamp,
     int updateTimestamp,
     this.name,
   }) : super(
-          id: id,
+          idx: idx,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

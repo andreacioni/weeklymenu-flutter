@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/models/id.dart';
 
 import '../../../providers/ingredients_provider.dart';
 import '../../../models/ingredient.dart';
@@ -12,7 +13,12 @@ class IngredientSelectionTextField extends StatefulWidget {
   final bool enabled;
   final bool autofocus;
 
-  IngredientSelectionTextField({@required this.onIngredientSelected, this.onSubmitted, this.value, this.enabled = true, this.autofocus=false});
+  IngredientSelectionTextField(
+      {@required this.onIngredientSelected,
+      this.onSubmitted,
+      this.value,
+      this.enabled = true,
+      this.autofocus = false});
 
   @override
   _IngredientSelectionTextFieldState createState() =>
@@ -26,7 +32,7 @@ class _IngredientSelectionTextFieldState
 
   @override
   Widget build(BuildContext context) {
-    if(widget.value != null) {
+    if (widget.value != null) {
       _typeAheadController.text = widget.value.name;
     }
 
@@ -36,24 +42,21 @@ class _IngredientSelectionTextFieldState
           child: TypeAheadField<Ingredient>(
             direction: AxisDirection.down,
             textFieldConfiguration: TextFieldConfiguration(
-              autofocus: widget.autofocus,
-              enabled: widget.enabled,
-              controller: _typeAheadController,
-              decoration: InputDecoration(
-                hintText: "Ingredient",
+                autofocus: widget.autofocus,
                 enabled: widget.enabled,
-                border: InputBorder.none
-              ),
-              onSubmitted: (text) {
-
-              }
-            ),
+                controller: _typeAheadController,
+                decoration: InputDecoration(
+                    hintText: "Ingredient",
+                    enabled: widget.enabled,
+                    border: InputBorder.none),
+                onSubmitted: (text) {}),
             suggestionsCallback: (pattern) async {
               return getIngredientsSuggestion(pattern);
             },
             itemBuilder: (context, ingredient) {
               return ListTile(
-                trailing: Icon(ingredient.id == null ? Icons.add : Icons.call_made),
+                trailing:
+                    Icon(ingredient.id == null ? Icons.add : Icons.call_made),
                 title: Text(ingredient.name),
               );
             },
@@ -63,7 +66,7 @@ class _IngredientSelectionTextFieldState
               );
             },
             onSuggestionSelected: (selectedIngredient) {
-              if (selectedIngredient.id == null) {
+              if (selectedIngredient.id == 'NONE') {
                 selectedIngredient.name = RegExp(r'^Add "(.*)" \.\.\.')
                     .firstMatch(selectedIngredient.name)
                     .group(1);
@@ -74,7 +77,6 @@ class _IngredientSelectionTextFieldState
 
               widget.onIngredientSelected(selectedIngredient);
             },
-
           ),
         ),
       ],
@@ -96,7 +98,10 @@ class _IngredientSelectionTextFieldState
         availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
+      suggestions.add(Ingredient(
+        idx: Id.none(),
+        name: 'Add "${_typeAheadController.text}" ...',
+      ));
     }
 
     return suggestions;

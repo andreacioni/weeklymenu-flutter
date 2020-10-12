@@ -15,13 +15,13 @@ class ShoppingList extends BaseModel<ShoppingList> {
   String name;
 
   ShoppingList({
-    Id id,
+    Id idx,
     int insertTimestamp,
     int updateTimestamp,
     this.items,
     this.name,
   }) : super(
-          id: id,
+          idx: idx,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

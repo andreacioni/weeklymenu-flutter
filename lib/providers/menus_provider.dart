@@ -34,14 +34,11 @@ class MenusProvider with ChangeNotifier {
   }
 
   Future<MenuOriginator> createMenu(Menu menu) async {
-    assert(menu.id == null);
-
     try {
       var toJson = menu.toJson();
-      toJson.remove('_id');
 
       var resp = await _restProvider.createMenu(toJson);
-      menu.id = resp['_id'];
+      menu.onlineId = resp['_id'];
 
       final originator = MenuOriginator(menu);
 
