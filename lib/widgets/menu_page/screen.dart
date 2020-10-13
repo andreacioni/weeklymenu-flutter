@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
+import 'package:weekly_menu_app/widgets/menu_page/app_bar.dart';
 
 import '../menu_editor/screen.dart';
 import '../../providers/menus_provider.dart';
@@ -33,9 +34,6 @@ class _MenuScreenState extends State<MenuScreen> {
       keepScrollOffset: true,
     );
 
-    //_scrollController.addListener(
-    //    () => _onPageChanged(_scrollController.offset ~/ _itemExtent));
-
     _day = _today;
     super.initState();
   }
@@ -43,7 +41,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: MenuAppBar(_day, _scrollController, _itemExtent),
       floatingActionButton: FloatingActionButton(
         onPressed: _showDateRangePicker,
         child: Icon(Icons.lightbulb_outline),
@@ -101,85 +99,6 @@ class _MenuScreenState extends State<MenuScreen> {
         },
       ),
     );
-  }
-
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      title: Text("Weekly Menu"),
-      centerTitle: true,
-      bottom: AppBar(
-        automaticallyImplyLeading: false,
-        title: FlatButton(
-          color: Colors.white.withOpacity(0.5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.calendar_today),
-              SizedBox(
-                width: 5,
-              ),
-              Text(DateFormat.MMMEd().format(_day)),
-            ],
-          ),
-          onPressed: () => _openDatePicker(context),
-        ),
-      ),
-      leading: IconButton(
-        icon: Icon(
-          Icons.menu,
-          size: 30.0,
-          color: Colors.black,
-        ),
-        onPressed: () => Scaffold.of(context).openDrawer(),
-      ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.refresh,
-            size: 30.0,
-            color: Colors.black,
-          ),
-          onPressed: () => () {},
-        ),
-      ],
-    );
-  }
-
-  void _openDatePicker(BuildContext ctx) async {
-    DateTime dt = await showDatePicker(
-      context: ctx,
-      initialDate: _day,
-      firstDate: DateTime.now()
-          .subtract(Duration(days: (pageViewLimitDays / 2).truncate())),
-      lastDate: DateTime.now()
-          .add((Duration(days: (pageViewLimitDays / 2).truncate()))),
-    );
-    if (dt != null) {
-      _setNewDate(dt);
-    }
-  }
-
-  void _onPageChanged(int newPageIndex) {
-    print("page changed to $newPageIndex");
-    setState(() {
-      var now = DateTime.now();
-      _day = DateTime(now.year, now.month, now.day).add(
-          Duration(days: newPageIndex - (pageViewLimitDays / 2).truncate()));
-    });
-  }
-
-  void _setNewDate(DateTime selectedDate) {
-    setState(() {
-      var oldPageIndex = _scrollController.offset ~/ _itemExtent;
-      if (selectedDate.compareTo(_day) != 0) {
-        print(
-            "jump length: ${selectedDate.difference(_day).inDays}, from page: ${oldPageIndex} (${_day} to ${selectedDate})");
-        var newPageIndex = oldPageIndex + selectedDate.difference(_day).inDays;
-        print("jumping to page: $newPageIndex");
-        _scrollController.jumpTo(newPageIndex.toDouble() * _itemExtent);
-      }
-      _day = selectedDate;
-    });
   }
 
   void _showDateRangePicker() {
