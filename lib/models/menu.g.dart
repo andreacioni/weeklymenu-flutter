@@ -8,18 +8,19 @@ part of 'menu.dart';
 
 Menu _$MenuFromJson(Map<String, dynamic> json) {
   return Menu(
-    idx: BaseModel.idFromJson(json['offline_id']),
+    json['offline_id'] as String,
     insertTimestamp: json['insert_timestamp'] as int,
     updateTimestamp: json['update_timestamp'] as int,
     date: Menu.dateFromJson(json['date'] as String),
     meal: _$enumDecodeNullable(_$MealEnumMap, json['meal']),
     recipes: (json['recipes'] as List)?.map((e) => e as String)?.toList() ?? [],
-  );
+  )..onlineId = json['onlineId'] as String;
 }
 
 Map<String, dynamic> _$MenuToJson(Menu instance) {
   final val = <String, dynamic>{
-    'offline_id': BaseModel.idToJson(instance.idx),
+    'onlineId': instance.onlineId,
+    'offline_id': instance.offlineId,
     'insert_timestamp': instance.insertTimestamp,
     'update_timestamp': instance.updateTimestamp,
     'date': Menu.dateToJson(instance.date),

@@ -8,7 +8,7 @@ part of 'recipe.dart';
 
 Recipe _$RecipeFromJson(Map<String, dynamic> json) {
   return Recipe(
-    idx: BaseModel.idFromJson(json['offline_id']),
+    json['offline_id'] as String,
     insertTimestamp: json['insert_timestamp'] as int,
     updateTimestamp: json['update_timestamp'] as int,
     name: json['name'] as String,
@@ -32,12 +32,13 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
     preparation: json['preparation'] as String,
     recipeUrl: json['recipeUrl'] as String,
     note: json['note'] as String,
-  );
+  )..onlineId = json['onlineId'] as String;
 }
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   final val = <String, dynamic>{
-    'offline_id': BaseModel.idToJson(instance.idx),
+    'onlineId': instance.onlineId,
+    'offline_id': instance.offlineId,
     'insert_timestamp': instance.insertTimestamp,
     'update_timestamp': instance.updateTimestamp,
     'name': instance.name,

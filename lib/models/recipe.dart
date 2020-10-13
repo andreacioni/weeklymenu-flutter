@@ -191,8 +191,8 @@ class Recipe extends BaseModel<Recipe> {
   @JsonKey(ignore: true)
   String owner;
 
-  Recipe({
-    Id idx,
+  Recipe(
+    String offlineId, {
     int insertTimestamp,
     int updateTimestamp,
     this.name,
@@ -212,7 +212,7 @@ class Recipe extends BaseModel<Recipe> {
     this.note,
     this.owner,
   }) : super(
-          idx: idx,
+          offlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );

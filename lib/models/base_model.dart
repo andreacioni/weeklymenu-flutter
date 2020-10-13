@@ -8,8 +8,11 @@ import 'package:weekly_menu_app/models/id.dart';
 
 @JsonSerializable()
 abstract class BaseModel<T> with ChangeNotifier implements Cloneable<T> {
-  @JsonKey(name: 'offline_id', toJson: idToJson, fromJson: idFromJson)
-  final Id idx;
+  @JsonKey()
+  String onlineId;
+
+  @JsonKey(name: 'offline_id')
+  final String offlineId;
 
   @JsonKey(name: 'insert_timestamp')
   int insertTimestamp;
@@ -17,19 +20,13 @@ abstract class BaseModel<T> with ChangeNotifier implements Cloneable<T> {
   @JsonKey(name: 'update_timestamp')
   int updateTimestamp;
 
-  BaseModel({
-    this.idx,
+  BaseModel(
+    this.offlineId, {
+    this.onlineId,
     this.insertTimestamp,
     this.updateTimestamp,
   });
 
   @JsonKey(ignore: true)
-  String get onlineId => this.onlineId;
-  set onlineId(String id) => this.onlineId = id;
-
-  @JsonKey(ignore: true)
-  String get id => idx.onlineId;
-
-  static idToJson(Id id) => id.offlineId;
-  static idFromJson(dynamic id) => Id(id as String);
+  String get id => offlineId;
 }

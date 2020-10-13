@@ -8,7 +8,7 @@ part of 'shopping_list.dart';
 
 ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
   return ShoppingList(
-    idx: BaseModel.idFromJson(json['offline_id']),
+    json['offline_id'] as String,
     insertTimestamp: json['insert_timestamp'] as int,
     updateTimestamp: json['update_timestamp'] as int,
     items: (json['items'] as List)
@@ -18,12 +18,13 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
             ?.toList() ??
         [],
     name: json['name'] as String,
-  );
+  )..onlineId = json['onlineId'] as String;
 }
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
-    'offline_id': BaseModel.idToJson(instance.idx),
+    'onlineId': instance.onlineId,
+    'offline_id': instance.offlineId,
     'insert_timestamp': instance.insertTimestamp,
     'update_timestamp': instance.updateTimestamp,
     'items': instance.items?.map((e) => e?.toJson())?.toList(),

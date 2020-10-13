@@ -72,15 +72,15 @@ class Menu extends BaseModel<Menu> {
   @JsonKey(includeIfNull: false, defaultValue: [])
   List<String> recipes;
 
-  Menu({
-    Id idx,
+  Menu(
+    String offlineId, {
     int insertTimestamp,
     int updateTimestamp,
     this.date,
     this.meal,
     this.recipes,
   }) : super(
-          idx: idx,
+          offlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );
@@ -327,6 +327,10 @@ class DailyMenu
 
     return ret;
   }
+
+  bool get isEmpty => _menus.isEmpty;
+
+  bool get isNotEmpty => !isEmpty;
 
   List<MenuOriginator> get menus => [..._menus];
 

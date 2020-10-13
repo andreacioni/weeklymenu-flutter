@@ -14,14 +14,14 @@ class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(includeIfNull: false)
   String name;
 
-  ShoppingList({
-    Id idx,
+  ShoppingList(
+    String offlineId, {
     int insertTimestamp,
     int updateTimestamp,
     this.items,
     this.name,
   }) : super(
-          idx: idx,
+          offlineId,
           insertTimestamp: insertTimestamp,
           updateTimestamp: updateTimestamp,
         );
