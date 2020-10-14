@@ -19,7 +19,9 @@ class MenuFloatingActinoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () => _showDateRangePicker(context),
-      child: Icon(Icons.lightbulb_outline),
+      child: day.isToday
+          ? Icon(Icons.lightbulb_outline)
+          : Icon(Icons.today_outlined),
     );
   }
 

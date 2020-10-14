@@ -45,6 +45,7 @@ class _MenuScreenState extends State<MenuScreen> {
         _day,
         _scrollController,
         _itemExtent,
+        onDayChanged: _onDayChanged,
       ),
       floatingActionButton:
           MenuFloatingActinoButton(day: _day, onGoTodayPressed: null),
@@ -63,18 +64,25 @@ class _MenuScreenState extends State<MenuScreen> {
       days: index - _todayOffset.toInt(),
     ));
 
+    final key = ValueKey(day);
+
     return FutureBuilder<DailyMenu>(
+      key: key,
       future: Provider.of<MenusProvider>(context, listen: false)
           .fetchDailyMenu(day),
       builder: (ctx, snapshot) {
         if (snapshot.hasError) {
-          return Container();
+          return Container(
+            key: key,
+          );
         }
+
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            return _buildMenuCard(day, snapshot.data);
+            return _buildMenuCard(key, day, snapshot.data);
           default:
             return Center(
+              key: key,
               child: CircularProgressIndicator(),
             );
         }
@@ -82,8 +90,9 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  Widget _buildMenuCard(Date day, DailyMenu dailyMenu) {
+  Widget _buildMenuCard(Key key, Date day, DailyMenu dailyMenu) {
     return ChangeNotifierProvider.value(
+      key: key,
       value: dailyMenu,
       child: MenuCard(
         onTap: () {
@@ -91,7 +100,7 @@ class _MenuScreenState extends State<MenuScreen> {
             MaterialPageRoute(
               builder: (_) => ChangeNotifierProvider.value(
                 value: dailyMenu,
-                child: MenuEditorScreen(),
+                child: MenuEditorScreen(key: key),
               ),
             ),
           );
@@ -99,6 +108,9 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
     );
   }
+
+  // Don't call setState here, you don't want to rebuild all the cards
+  void _onDayChanged(Date date) => setState(() => _day = date);
 
   @override
   void dispose() {

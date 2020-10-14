@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
       child: CircularProgressIndicator(),
     );
   }
-  
+
   Future<void> _fetchAndSetData() async {
     await Provider.of<IngredientsProvider>(context, listen: false)
         .fetchIngredients()
@@ -84,11 +84,17 @@ class _HomePageState extends State<HomePage> {
       //type: BottomNavigationBarType.fixed,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_view_day), title: Text('Menu')),
+          icon: Icon(Icons.calendar_view_day),
+          label: 'Menu',
+        ),
         BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant), title: Text('Recipes')),
+          icon: Icon(Icons.restaurant),
+          label: 'Recipes',
+        ),
         BottomNavigationBarItem(
-            icon: Icon(Icons.receipt), title: Text('Shop. List')),
+          icon: Icon(Icons.receipt),
+          label: 'Shop. List',
+        ),
       ],
     );
   }

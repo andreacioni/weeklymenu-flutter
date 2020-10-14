@@ -11,7 +11,7 @@ import '../../models/menu.dart';
 import './scroll_view.dart';
 
 class MenuEditorScreen extends StatefulWidget {
-  MenuEditorScreen();
+  MenuEditorScreen({Key key}) : super(key: key);
 
   @override
   _MenuEditorScreenState createState() => _MenuEditorScreenState();

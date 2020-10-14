@@ -11,12 +11,14 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ScrollController _scrollController;
   final double _itemExtent;
   final Date _day;
+  final void Function(Date) onDayChanged;
 
   MenuAppBar(
     this._day,
     this._scrollController,
-    this._itemExtent,
-  );
+    this._itemExtent, {
+    this.onDayChanged,
+  });
 
   @override
   _MenuAppBarState createState() => _MenuAppBarState();
@@ -94,6 +96,7 @@ class _MenuAppBarState extends State<MenuAppBar> {
     */
     if (newDay != _day) {
       setState(() => _day = newDay);
+      widget.onDayChanged(newDay);
     }
   }
 
