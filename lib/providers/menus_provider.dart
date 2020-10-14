@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
+import 'package:weekly_menu_app/globals/date.dart';
 
 import './recipes_provider.dart';
 import '../models/menu.dart';
@@ -15,15 +16,15 @@ class MenusProvider with ChangeNotifier {
 
   static final _dateParser = DateFormat('y-MM-dd');
 
-  Map<DateTime, DailyMenu> _dayToMenus = {};
+  Map<Date, DailyMenu> _dayToMenus = {};
 
   MenusProvider(this._restProvider);
 
-  Future<DailyMenu> fetchDailyMenu(DateTime day) async {
+  Future<DailyMenu> fetchDailyMenu(Date day) async {
     if (_dayToMenus[day] == null) {
       //TODO handle pagination
       final jsonPage =
-          await _restProvider.getMenusByDay(_dateParser.format(day));
+          await _restProvider.getMenusByDay(day.format(_dateParser));
       final List<MenuOriginator> menuList = jsonPage['results']
           .map((jsonMenu) => MenuOriginator(Menu.fromJson(jsonMenu)))
           .toList()

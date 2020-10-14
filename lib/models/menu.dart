@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
@@ -48,7 +49,7 @@ class MenuOriginator extends Originator<Menu> {
 
   String get id => instance.id;
 
-  DateTime get date => instance.date;
+  Date get date => instance.date;
 
   Meal get meal => instance.meal;
 
@@ -66,7 +67,7 @@ class Menu implements Cloneable<Menu> {
   @JsonKey(name: '_id')
   String id;
   @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
-  DateTime date;
+  Date date;
   Meal meal;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
@@ -81,15 +82,15 @@ class Menu implements Cloneable<Menu> {
   @override
   Menu clone() => Menu.fromJson(this.toJson());
 
-  static String dateToJson(DateTime date) => _dateParser.format(date);
+  static String dateToJson(Date date) => date.format(_dateParser);
 
-  static DateTime dateFromJson(String date) => _dateParser.parse(date);
+  static Date dateFromJson(String date) => Date.parse(_dateParser, date);
 }
 
 class DailyMenu
     with ChangeNotifier
     implements Revertable<List<MenuOriginator>> {
-  final DateTime day;
+  final Date day;
 
   List<MenuOriginator> _menus;
 
@@ -319,10 +320,7 @@ class DailyMenu
 
   List<MenuOriginator> get menus => [..._menus];
 
-  bool get isToday => utils.dateTimeToDate(DateTime.now()) == day;
+  bool get isToday => day.isToday;
 
-  bool get isPast => (utils
-      .dateTimeToDate(day)
-      .add(Duration(days: 1))
-      .isBefore(DateTime.now()));
+  bool get isPast => day.isPast;
 }

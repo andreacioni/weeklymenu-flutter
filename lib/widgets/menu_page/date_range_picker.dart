@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
+import 'package:weekly_menu_app/globals/date.dart';
 import '../../globals/utils.dart' as utils;
 
 class DateRangePicker extends StatefulWidget {
   final DatePeriod selectedPeriod;
   final Function(DatePeriod) onChanged;
   final DatePickerRangeStyles datePickerStyles;
-  final DateTime firstDate;
-  final DateTime lastDate;
+  final Date firstDate;
+  final Date lastDate;
 
   DateRangePicker({
     this.datePickerStyles,
@@ -42,13 +43,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
         });
         widget.onChanged(dp);
       },
-      firstDate: utils.dateTimeToDate(widget.firstDate),
-      lastDate: utils.dateTimeToDate(widget.lastDate),
+      firstDate: widget.firstDate.toDateTime,
+      lastDate: widget.lastDate.toDateTime,
       datePickerStyles: widget.datePickerStyles,
     );
   }
 
   DatePeriod _dateTimePeriodToDatePeriod(DatePeriod dp) {
-    return DatePeriod(utils.dateTimeToDate(dp.start), utils.dateTimeToDate(dp.end));
+    return DatePeriod(dp.start, dp.end);
   }
 }

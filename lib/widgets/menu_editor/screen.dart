@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/enums/meals.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/globals/constants.dart' as consts;
@@ -66,7 +67,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => _handleBackButton(dailyMenu),
             ),
-            title: Text(_dateParser.format(dailyMenu.day).toString()),
+            title: Text(dailyMenu.day.format(_dateParser)),
             actions: <Widget>[
               if (dailyMenu.isPast)
                 IconButton(
@@ -201,13 +202,17 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   void _handleSwapRecipes(DailyMenu dailyMenu, {bool cut = true}) async {
     //Ask for destination day
-    final destinationDay = await showDatePicker(
-      context: context,
-      initialDate: dailyMenu.day,
-      firstDate: DateTime.now()
-          .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate())),
-      lastDate: DateTime.now()
-          .add((Duration(days: (consts.pageViewLimitDays / 2).truncate()))),
+    final destinationDay = Date(
+      await showDatePicker(
+        context: context,
+        initialDate: dailyMenu.day.toDateTime,
+        firstDate: Date.now()
+            .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate()))
+            .toDateTime,
+        lastDate: Date.now()
+            .add((Duration(days: (consts.pageViewLimitDays / 2).truncate())))
+            .toDateTime,
+      ),
     );
 
     if (destinationDay == null) {

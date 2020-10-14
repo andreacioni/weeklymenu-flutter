@@ -19,7 +19,7 @@ class MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dailyMenu = Provider.of<DailyMenu>(context);
-    
+
     final divider = Divider(
       color: Colors.grey.shade500,
       height: 0,
@@ -56,7 +56,7 @@ class MenuCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    _dateParser.format(dailyMenu.day),
+                    dailyMenu.day.format(_dateParser),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   if (dailyMenu.isToday)
@@ -100,7 +100,8 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 5,
                   ),
-                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
+                  _recipesRow(
+                      context, dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
                 ],
               ),
             ),
@@ -128,7 +129,8 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 30,
                   ),
-                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
+                  _recipesRow(
+                      context, dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
                 ],
               ),
             ),
@@ -157,7 +159,8 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 28,
                   ),
-                  _recipesRow(context, dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
+                  _recipesRow(
+                      context, dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
                 ],
               ),
             ),

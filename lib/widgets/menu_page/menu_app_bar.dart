@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
+import 'package:weekly_menu_app/globals/date.dart';
 
 import '../../globals/constants.dart' as consts;
 import './date_range_picker.dart';
@@ -9,7 +10,7 @@ import './date_range_picker.dart';
 class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ScrollController _scrollController;
   final double _itemExtent;
-  final DateTime _day;
+  final Date _day;
 
   MenuAppBar(
     this._day,
@@ -25,7 +26,7 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MenuAppBarState extends State<MenuAppBar> {
-  DateTime _day;
+  Date _day;
 
   @override
   void initState() {
@@ -52,7 +53,7 @@ class _MenuAppBarState extends State<MenuAppBar> {
               SizedBox(
                 width: 5,
               ),
-              Text(DateFormat.MMMEd().format(_day)),
+              Text(_day.format(DateFormat.MMMEd())),
             ],
           ),
           onPressed: () => _openDatePicker(context),
@@ -84,37 +85,41 @@ class _MenuAppBarState extends State<MenuAppBar> {
 
   void _onOffsetChanged(int newPageIndex) {
     //print("page changed to $newPageIndex");
-    var now = DateTime.now();
-    final newDay = DateTime(now.year, now.month, now.day).add(Duration(
+    final newDay = Date.now().add(Duration(
         days: newPageIndex - (consts.pageViewLimitDays / 2).truncate()));
 
     /*
     * This check aims to limit the number of times setState is called. Could be
     * improved...
     */
-    if (newDay.day != _day.day) {
+    if (newDay != _day) {
       setState(() => _day = newDay);
     }
   }
 
   void _openDatePicker(BuildContext ctx) async {
-    DateTime dt = await showDatePicker(
-      context: ctx,
-      initialDate: _day,
-      firstDate: DateTime.now()
-          .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate())),
-      lastDate: DateTime.now()
-          .add((Duration(days: (consts.pageViewLimitDays / 2).truncate()))),
+    Date dt = Date(
+      await showDatePicker(
+        context: ctx,
+        initialDate: _day.toDateTime,
+        firstDate: Date.now()
+            .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate()))
+            .toDateTime,
+        lastDate: Date.now()
+            .add((Duration(days: (consts.pageViewLimitDays / 2).truncate())))
+            .toDateTime,
+      ),
     );
+
     if (dt != null) {
       _setNewDate(dt);
     }
   }
 
-  void _setNewDate(DateTime selectedDate) {
+  void _setNewDate(Date selectedDate) {
     setState(() {
       var oldPageIndex = widget._scrollController.offset ~/ widget._itemExtent;
-      if (selectedDate.compareTo(_day) != 0) {
+      if (selectedDate != _day) {
         //print(
         //    "jump length: ${selectedDate.difference(_day).inDays}, from page: $oldPageIndex (${_day} to $selectedDate)");
         var newPageIndex = oldPageIndex + selectedDate.difference(_day).inDays;

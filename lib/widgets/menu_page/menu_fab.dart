@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
+import 'package:weekly_menu_app/globals/date.dart';
 
 import './date_range_picker.dart';
 
 class MenuFloatingActinoButton extends StatelessWidget {
   final void Function() onGoTodayPressed;
 
-  final DateTime day;
+  final Date day;
 
   const MenuFloatingActinoButton({
     Key key,
@@ -49,12 +50,13 @@ class MenuFloatingActinoButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               DateRangePicker(
-                selectedPeriod: DatePeriod(DateTime.now(), DateTime.now()),
+                selectedPeriod:
+                    DatePeriod(Date.now().toDateTime, Date.now().toDateTime),
                 onChanged: (dp) {
                   print("${dp.start} - ${dp.end}");
                 },
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(Duration(days: 30)),
+                firstDate: Date.now(),
+                lastDate: Date.now().add(Duration(days: 30)),
                 datePickerStyles: styles,
               ),
             ],

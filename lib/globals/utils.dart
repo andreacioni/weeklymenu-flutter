@@ -30,10 +30,6 @@ void removeNullEntriesFromMap(Map map) {
   }
 }
 
-DateTime dateTimeToDate(DateTime dt) {
-  return DateTime(dt.year, dt.month, dt.day);
-}
-
 String decodeBase64(String str) {
   //'-', '+' 62nd char of encoding,  '_', '/' 63rd char of encoding
   String output = str.replaceAll('-', '+').replaceAll('_', '/');
