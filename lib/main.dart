@@ -72,6 +72,11 @@ class App extends StatelessWidget {
             color: Colors.white,
           ),
 
+          //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
+          colorScheme: ColorScheme.light(
+            primary: Colors.amber,
+          ),
+
           // Define the default TextTheme. Use this to specify the default
           // text styling for headlines, titles, bodies of text, and more.
           textTheme: TextTheme(
