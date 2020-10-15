@@ -7,6 +7,11 @@ import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';
 import 'package:weekly_menu_app/widgets/menu_page/menu_card.dart';
 
+/*
+* Added this class to prevent FutureBuilder to fire every time a setState in 
+* the parent widget is called. See: https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
+* for more details.
+*/
 class DailyMenuFutureWrapper extends StatefulWidget {
   final Date _day;
 
