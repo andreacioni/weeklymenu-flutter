@@ -48,7 +48,7 @@ class _MenuScreenState extends State<MenuScreen> {
         _itemExtent,
         onDayChanged: _onDayChanged,
       ),
-      floatingActionButton: MenuFloatingActinoButton(
+      floatingActionButton: MenuFloatingActionButton(
         day: _day,
         onGoTodayPressed: _goToToday,
       ),

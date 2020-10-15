@@ -4,12 +4,12 @@ import 'package:weekly_menu_app/globals/date.dart';
 
 import './date_range_picker.dart';
 
-class MenuFloatingActinoButton extends StatelessWidget {
+class MenuFloatingActionButton extends StatelessWidget {
   final void Function() onGoTodayPressed;
 
   final Date day;
 
-  const MenuFloatingActinoButton({
+  const MenuFloatingActionButton({
     Key key,
     @required this.day,
     @required this.onGoTodayPressed,

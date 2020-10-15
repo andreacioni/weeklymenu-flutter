@@ -24,7 +24,7 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
   _MenuAppBarState createState() => _MenuAppBarState();
 
   @override
-  Size get preferredSize => Size.fromHeight(56 * 2.0);
+  Size get preferredSize => Size.fromHeight(60 * 2.0);
 }
 
 class _MenuAppBarState extends State<MenuAppBar> {
@@ -67,18 +67,15 @@ class _MenuAppBarState extends State<MenuAppBar> {
           size: 30.0,
           color: Colors.black,
         ),
-        onPressed: () => Scaffold.of(context).openDrawer(),
+        onPressed: () {
+          /*
+          * We need the root Scaffold so we need the above context. If we don't
+          * do this the  InherithedWidget will look into first parent Scaffold 
+          * that not contains any Drawer.
+          */
+          Scaffold.of(Scaffold.of(context).context).openDrawer();
+        },
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.refresh,
-            size: 30.0,
-            color: Colors.black,
-          ),
-          onPressed: () => () {},
-        ),
-      ],
     );
   }
 
