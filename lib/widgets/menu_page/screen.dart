@@ -48,8 +48,10 @@ class _MenuScreenState extends State<MenuScreen> {
         _itemExtent,
         onDayChanged: _onDayChanged,
       ),
-      floatingActionButton:
-          MenuFloatingActinoButton(day: _day, onGoTodayPressed: null),
+      floatingActionButton: MenuFloatingActinoButton(
+        day: _day,
+        onGoTodayPressed: _goToToday,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: ListView.builder(
         itemExtent: _itemExtent,
@@ -60,6 +62,17 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
+  void _goToToday() {
+    setState(() {
+      var oldPageIndex = _scrollController.offset ~/ _itemExtent;
+      if (_today != _day) {
+        var newPageIndex = oldPageIndex + _today.difference(_day).inDays;
+        _scrollController.jumpTo(newPageIndex.toDouble() * _itemExtent);
+      }
+      _day = _today;
+    });
+  }
+
   Widget _buildListItem(BuildContext context, int index) {
     final day = _today.add(Duration(
       days: index - _todayOffset.toInt(),
@@ -68,7 +81,6 @@ class _MenuScreenState extends State<MenuScreen> {
     return DailyMenuFutureWrapper(day);
   }
 
-  // Don't call setState here, you don't want to rebuild all the cards
   void _onDayChanged(Date date) => setState(() => _day = date);
 
   @override
