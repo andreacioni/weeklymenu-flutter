@@ -33,5 +33,8 @@ class Date {
   @override
   int get hashCode => _dateTime.hashCode;
 
+  @override
+  String toString() => _dateTime.toString();
+
   static Date toDate(DateTime dt) => Date(dt);
 }

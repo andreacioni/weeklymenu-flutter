@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/widgets/menu_page/daily_menu_future_wrapper.dart';
 
 import 'package:weekly_menu_app/widgets/menu_page/menu_app_bar.dart';
 import 'package:weekly_menu_app/widgets/menu_page/menu_fab.dart';
@@ -64,49 +65,7 @@ class _MenuScreenState extends State<MenuScreen> {
       days: index - _todayOffset.toInt(),
     ));
 
-    final key = ValueKey(day);
-
-    return FutureBuilder<DailyMenu>(
-      key: key,
-      future: Provider.of<MenusProvider>(context, listen: false)
-          .fetchDailyMenu(day),
-      builder: (ctx, snapshot) {
-        if (snapshot.hasError) {
-          return Container(
-            key: key,
-          );
-        }
-
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            return _buildMenuCard(key, day, snapshot.data);
-          default:
-            return Center(
-              key: key,
-              child: CircularProgressIndicator(),
-            );
-        }
-      },
-    );
-  }
-
-  Widget _buildMenuCard(Key key, Date day, DailyMenu dailyMenu) {
-    return ChangeNotifierProvider.value(
-      key: key,
-      value: dailyMenu,
-      child: MenuCard(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => ChangeNotifierProvider.value(
-                value: dailyMenu,
-                child: MenuEditorScreen(key: key),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+    return DailyMenuFutureWrapper(day);
   }
 
   // Don't call setState here, you don't want to rebuild all the cards
