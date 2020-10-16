@@ -68,6 +68,7 @@ class RecipesProvider with ChangeNotifier {
       recipe.revert();
       throw e;
     }
+    notifyListeners();
   }
 
   void update(

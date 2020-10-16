@@ -215,6 +215,7 @@ class DailyMenu
 
   void clearSelected() {
     _selectedRecipesByMeal.clear();
+    notifyListeners();
   }
 
   Future<void> save(BuildContext context, MenusProvider menusProvider) async {

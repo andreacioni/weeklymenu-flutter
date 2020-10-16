@@ -62,7 +62,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       child: CustomScrollView(
         slivers: Meal.values
             .map((m) =>
-                _buildAppBarForMeal(m, widget._dailyMenu.getMenuByMeal(m)))
+                _buildSliversForMeal(m, widget._dailyMenu.getMenuByMeal(m)))
             .expand((element) => element)
             .toList(),
       ),
@@ -73,7 +73,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   * We can't pass only the menu object because it could be null if there isn't any recipe defined
   * for that (day, meal)
   **/
-  List<Widget> _buildAppBarForMeal(Meal meal, MenuOriginator menu) {
+  List<Widget> _buildSliversForMeal(Meal meal, MenuOriginator menu) {
     return <Widget>[
       SliverAppBar(
         pinned: true,
@@ -193,7 +193,6 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   }
 
   void _stopMealEditing(DailyMenu dailyMenu) {
-    dailyMenu.clearSelected();
     setState(() => _addRecipeMealTarget = null);
   }
 

@@ -1,25 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/widgets/menu_page/menu_app_bar.dart';
 
 import './date_range_picker.dart';
 
-class MenuFloatingActionButton extends StatelessWidget {
-  final void Function() onGoTodayPressed;
+class MenuFloatingActionButton extends StatefulWidget {
+  final MenuAppBar _menuAppBar;
+  final ScrollController _scrollController;
+  final double _itemExtent;
 
-  final Date day;
+  final Date _day;
 
-  const MenuFloatingActionButton({
+  const MenuFloatingActionButton(
+    this._day,
+    this._menuAppBar,
+    this._scrollController,
+    this._itemExtent, {
     Key key,
-    @required this.day,
-    @required this.onGoTodayPressed,
   }) : super(key: key);
+
+  @override
+  _MenuFloatingActionButtonState createState() =>
+      _MenuFloatingActionButtonState();
+}
+
+class _MenuFloatingActionButtonState extends State<MenuFloatingActionButton> {
+  Date day;
+
+  @override
+  void initState() {
+    day = widget._day;
+
+    widget._menuAppBar.addListener(_onDayChanged);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () =>
-          day.isToday ? _showDateRangePicker(context) : onGoTodayPressed(),
+          day.isToday ? _showDateRangePicker(context) : _goToToday(),
       child: day.isToday
           ? Icon(Icons.lightbulb_outline)
           : Icon(Icons.today_outlined),
@@ -84,4 +106,20 @@ class MenuFloatingActionButton extends StatelessWidget {
       ),
     );
   }
+
+  void _goToToday() {
+    final today = Date.now();
+
+    setState(() {
+      var oldPageIndex = widget._scrollController.offset ~/ widget._itemExtent;
+      if (today != day) {
+        var newPageIndex = oldPageIndex + today.difference(day).inDays;
+        widget._scrollController
+            .jumpTo(newPageIndex.toDouble() * widget._itemExtent);
+      }
+      day = today;
+    });
+  }
+
+  void _onDayChanged(Date date) => setState(() => day = date);
 }

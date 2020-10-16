@@ -22,10 +22,8 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   final _todayOffset = (pageViewLimitDays / 2);
-  final _today = Date.now();
   final _itemExtent = MenuCard.extent;
 
-  Date _day;
   ScrollController _scrollController;
 
   @override
@@ -35,22 +33,29 @@ class _MenuScreenState extends State<MenuScreen> {
       keepScrollOffset: true,
     );
 
-    _day = _today;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    /*
+    * NOTE: we must avoid using setState in this widget to increase render 
+    * performances. The AppBar and the FAB are taking to each other directly 
+    * (via listeners) to avoid that.
+    */
+    final day = Date.now();
+    final appBar = MenuAppBar(
+      day,
+      _scrollController,
+      _itemExtent,
+    );
     return Scaffold(
-      appBar: MenuAppBar(
-        _day,
+      appBar: appBar,
+      floatingActionButton: MenuFloatingActionButton(
+        day,
+        appBar,
         _scrollController,
         _itemExtent,
-        onDayChanged: _onDayChanged,
-      ),
-      floatingActionButton: MenuFloatingActionButton(
-        day: _day,
-        onGoTodayPressed: _goToToday,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: ListView.builder(
@@ -62,26 +67,13 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  void _goToToday() {
-    setState(() {
-      var oldPageIndex = _scrollController.offset ~/ _itemExtent;
-      if (_today != _day) {
-        var newPageIndex = oldPageIndex + _today.difference(_day).inDays;
-        _scrollController.jumpTo(newPageIndex.toDouble() * _itemExtent);
-      }
-      _day = _today;
-    });
-  }
-
   Widget _buildListItem(BuildContext context, int index) {
-    final day = _today.add(Duration(
+    final day = Date.now().add(Duration(
       days: index - _todayOffset.toInt(),
     ));
 
     return DailyMenuFutureWrapper(day);
   }
-
-  void _onDayChanged(Date date) => setState(() => _day = date);
 
   @override
   void dispose() {

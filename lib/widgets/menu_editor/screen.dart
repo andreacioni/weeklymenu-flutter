@@ -166,6 +166,8 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
       hideProgressDialog(context);
     }
 
+    dailyMenu.clearSelected();
+
     setState(() => _editingMode = false);
   }
 
@@ -196,6 +198,8 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     } else {
       _log.d("No changes made, not save action is necessary");
     }
+
+    dailyMenu.clearSelected();
 
     Navigator.of(context).pop();
   }
@@ -302,7 +306,8 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
             _log.i("Overwriting recipes");
             _destinationMenu.removeAllRecipesFromMeal(destinationMeal);
           }
-          alreadyDefinedMenu.addRecipesByIdList(dailyMenu.selectedRecipes);
+          _destinationMenu.addRecipeIdListToMeal(
+              destinationMeal, dailyMenu.selectedRecipes);
         } else {
           _log.i(
               "Destination menu is present, do you want to swap or move recipes?");
@@ -331,7 +336,8 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
             dailyMenu.addRecipeIdListToMeal(sameMeal, destinationRecipes);
             _destinationMenu.removeAllRecipesFromMeal(destinationMeal);
           }
-          alreadyDefinedMenu.addRecipesByIdList(dailyMenu.selectedRecipes);
+          _destinationMenu.addRecipeIdListToMeal(
+              destinationMeal, dailyMenu.selectedRecipes);
         }
       }
     }

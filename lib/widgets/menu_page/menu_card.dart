@@ -8,6 +8,7 @@ import '../../models/enums/meals.dart';
 
 import '../../providers/recipes_provider.dart';
 
+//TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends StatelessWidget {
   static final extent = 150.0;
   static final _dateParser = DateFormat('EEEE, MMMM dd');
@@ -100,8 +101,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 5,
                   ),
-                  _recipesRow(
-                      context, dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
+                  _recipesRow(dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
                 ],
               ),
             ),
@@ -129,8 +129,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 30,
                   ),
-                  _recipesRow(
-                      context, dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
+                  _recipesRow(dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
                 ],
               ),
             ),
@@ -159,8 +158,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 28,
                   ),
-                  _recipesRow(
-                      context, dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
+                  _recipesRow(dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
                 ],
               ),
             ),
@@ -170,7 +168,8 @@ class MenuCard extends StatelessWidget {
     );
   }
 
-  Widget _recipesRow(BuildContext context, List<String> recipesIds) {
+  Widget _recipesRow(List<String> recipesIds) {
+    //TODO recipe rows could be moved to a new separated widget and use a provided Menu to improve performance (changes to a menu/meal won't the entire card)
     return Expanded(
       child: Row(
         children: <Widget>[
@@ -182,18 +181,23 @@ class MenuCard extends StatelessWidget {
                   TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
             ),
           if (recipesIds != null && recipesIds.isNotEmpty)
-            _listToText(context, recipesIds)
+            MenuRecipesText(recipesIds)
         ],
       ),
     );
   }
+}
 
-  Widget _listToText(BuildContext context, List<String> mealEntry) {
-    final recipes = mealEntry
-        .map((recipeId) => Provider.of<RecipesProvider>(
-              context,
-              listen: false,
-            ).getById(recipeId).name)
+class MenuRecipesText extends StatelessWidget {
+  final List<String> recipesIds;
+
+  const MenuRecipesText(this.recipesIds, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final recipesProvider = Provider.of<RecipesProvider>(context);
+    final recipes = recipesIds
+        .map((recipeId) => recipesProvider.getById(recipeId).name)
         .toList();
 
     return Expanded(

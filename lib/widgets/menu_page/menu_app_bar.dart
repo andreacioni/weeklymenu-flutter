@@ -12,6 +12,7 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
   final double _itemExtent;
   final Date _day;
   final void Function(Date) onDayChanged;
+  final List<void Function(Date)> _listeners = [];
 
   MenuAppBar(
     this._day,
@@ -24,7 +25,11 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
   _MenuAppBarState createState() => _MenuAppBarState();
 
   @override
-  Size get preferredSize => Size.fromHeight(60 * 2.0);
+  Size get preferredSize => Size.fromHeight(56 * 2.0);
+
+  void addListener(void Function(Date) listener) => _listeners.add(listener);
+  void removeListener(void Function(Date) listener) =>
+      _listeners.remove(listener);
 }
 
 class _MenuAppBarState extends State<MenuAppBar> {
@@ -71,7 +76,7 @@ class _MenuAppBarState extends State<MenuAppBar> {
           /*
           * We need the root Scaffold so we need the above context. If we don't
           * do this the  InherithedWidget will look into first parent Scaffold 
-          * that not contains any Drawer.
+          * that does not contains any Drawer.
           */
           Scaffold.of(Scaffold.of(context).context).openDrawer();
         },
@@ -93,7 +98,10 @@ class _MenuAppBarState extends State<MenuAppBar> {
     */
     if (newDay != _day) {
       setState(() => _day = newDay);
-      widget.onDayChanged(newDay);
+      widget.onDayChanged?.call(newDay);
+      for (final listener in widget._listeners) {
+        listener(newDay);
+      }
     }
   }
 
