@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:spinner_input/spinner_input.dart';
+import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
 
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
@@ -150,13 +150,11 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        SpinnerInput(
-          spinnerValue: _quantity,
-          fractionDigits: 0,
+        NumberTextFormField(
+          initialValue: _quantity.toDouble(),
           minValue: 0,
           maxValue: 9999,
-          step: 1,
-          onChange: (newValue) => setState(() => _quantity = newValue),
+          onChanged: (newValue) => setState(() => _quantity = newValue),
         ),
         DropdownButton<String>(
           value: _unitOfMeasure,

@@ -69,6 +69,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
   void _openRecipeIngredientUpdateModal() async {
     RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
+      barrierDismissible: true,
       builder: (_) => RecipeIngredientModal(
         widget._recipeIngredient.recipeId,
         recipeIngredient: widget._recipeIngredient,

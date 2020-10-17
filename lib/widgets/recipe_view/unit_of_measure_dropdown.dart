@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:spinner_input/spinner_input.dart';
+
+import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
 
 import '../../models/enums/unit_of_measure.dart';
 
@@ -25,14 +26,11 @@ class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        SpinnerInput(
-          spinnerValue: _spinnerValue,
-          fractionDigits: 0,
-          disabledPopup: true,
+        NumberTextFormField(
+          initialValue: _spinnerValue,
           minValue: 0,
           maxValue: 9999,
-          step: 1,
-          onChange: (newValue) => _spinnerValue = newValue,
+          onChanged: (newValue) => _spinnerValue = newValue,
         ),
         DropdownButton<String>(
           value: _uomDropdownValue,

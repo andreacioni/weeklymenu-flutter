@@ -5,7 +5,7 @@ import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/providers/recipes_provider.dart';
 
 import '../../globals/errors_handlers.dart';
-import '../recipe_view/recipe_view.dart';
+import '../recipe_view/screen.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
 import '../../models/enums/meals.dart';

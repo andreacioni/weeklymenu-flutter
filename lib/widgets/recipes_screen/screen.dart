@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
-import 'package:weekly_menu_app/widgets/recipe_view/recipe_view.dart';
+import 'package:weekly_menu_app/widgets/recipe_view/screen.dart';
 
 import '../../globals/utils.dart';
 import '../../providers/recipes_provider.dart';

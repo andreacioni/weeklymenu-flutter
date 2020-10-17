@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:spinner_input/spinner_input.dart';
+import 'package:auto_size_text_field/auto_size_text_field.dart';
+
+import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
 
 import '../../models/enums/difficulty.dart';
-import '../../models/ingredient.dart';
-import '../../providers/recipes_provider.dart';
 import '../../models/recipe.dart';
 
 class RecipeInformationTiles extends StatelessWidget {
   final RecipeOriginator _recipe;
   final bool editEnabled;
+  final GlobalKey formKey;
 
-  RecipeInformationTiles(this._recipe, {this.editEnabled});
+  RecipeInformationTiles(this._recipe, {this.editEnabled, this.formKey});
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +20,21 @@ class RecipeInformationTiles extends StatelessWidget {
         ListTile(
           title: Text("Servs"),
           leading: Icon(Icons.people),
-          trailing: _buildSpinner(_recipe.servs, "ppl",
+          trailing: _buildNumberField(_recipe.servs, "ppl",
               minValue: 1,
               onChange: (newValue) => _recipe.updateServs(newValue.truncate())),
         ),
         ListTile(
           title: Text("Preparation time"),
           leading: Icon(Icons.timer),
-          trailing: _buildSpinner(_recipe.estimatedPreparationTime, "min",
+          trailing: _buildNumberField(_recipe.estimatedPreparationTime, "min",
               onChange: (newValue) =>
                   _recipe.updatePreparationTime(newValue.truncate())),
         ),
         ListTile(
           title: Text("Cooking time"),
           leading: Icon(Icons.timelapse),
-          trailing: _buildSpinner(_recipe.estimatedCookingTime, "min",
+          trailing: _buildNumberField(_recipe.estimatedCookingTime, "min",
               onChange: (newValue) {
             _recipe.updateCookingTime(newValue.truncate());
           }),
@@ -66,19 +66,16 @@ class RecipeInformationTiles extends StatelessWidget {
     );
   }
 
-  Widget _buildSpinner(int val, String suffix,
-      {Function(double) onChange, double minValue = 0.0, double step = 1.0}) {
+  Widget _buildNumberField(int val, String suffix,
+      {Function(double) onChange, double minValue = 0.0}) {
     if (val == null) {
       val = 0;
     }
     return editEnabled
-        ? SpinnerInput(
-            spinnerValue: val.toDouble(),
+        ? NumberTextFormField(
+            initialValue: val.toDouble(),
             fractionDigits: 0,
-            disabledPopup: true,
             minValue: minValue,
-            step: step,
-            onChange: onChange,
           )
         : Text(
             "${val.toInt()} $suffix",
