@@ -17,18 +17,43 @@ class RecipeInformationTiles extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        ListTile(
-          title: Text("Servs"),
-          leading: Icon(
-            Icons.people,
-            color: Colors.black,
+        EditableInformationTile(
+          _recipe.servs?.toDouble(),
+          "Servings",
+          minValue: 1,
+          icon: Icon(
+            Icons.timer,
+            color: Colors.blueAccent,
           ),
-          trailing: _buildNumberField(_recipe.servs, "ppl",
-              minValue: 1,
-              onChanged: (newValue) =>
-                  _recipe.updateServs(newValue.truncate())),
+          editingEnabled: editEnabled,
+          suffix: "ppl",
+          onChanged: (newValue) => _recipe.updateServs(newValue.truncate()),
         ),
-        ListTile(
+        EditableInformationTile(
+          _recipe.estimatedPreparationTime?.toDouble(),
+          "Preparation time",
+          icon: Icon(
+            Icons.timer,
+            color: Colors.blueAccent,
+          ),
+          editingEnabled: editEnabled,
+          suffix: "min",
+          onChanged: (newValue) =>
+              _recipe.updatePreparationTime(newValue.truncate()),
+        ),
+        EditableInformationTile(
+          _recipe.estimatedCookingTime?.toDouble(),
+          "Cooking time",
+          icon: Icon(
+            Icons.timelapse,
+            color: Colors.blue,
+          ),
+          editingEnabled: editEnabled,
+          suffix: "min",
+          onChanged: (newValue) =>
+              _recipe.updateCookingTime(newValue.truncate()),
+        ),
+        /* ListTile(
           title: Text("Preparation time"),
           leading: Icon(
             Icons.timer,
@@ -48,7 +73,7 @@ class RecipeInformationTiles extends StatelessWidget {
               onChanged: (newValue) {
             _recipe.updateCookingTime(newValue.truncate());
           }),
-        ),
+        ),*/
         ListTile(
           title: Text("Difficulty"),
           leading: Icon(Icons.work, color: Colors.brown.shade400),
@@ -74,24 +99,6 @@ class RecipeInformationTiles extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Widget _buildNumberField(int val, String suffix,
-      {Function(double) onChanged, double minValue = 0}) {
-    if (val == null) {
-      val = 0;
-    }
-    return editEnabled
-        ? NumberFormField(
-            initialValue: val.toDouble(),
-            fractionDigits: 0,
-            minValue: minValue,
-            onChanged: onChanged,
-          )
-        : Text(
-            "${val.toInt()} $suffix",
-            style: TextStyle(fontSize: 18),
-          );
   }
 
   Widget _buildDifficultyDropdown(BuildContext context) {
@@ -187,5 +194,47 @@ class RecipeInformationLevelSelectState
       _level = newLevel;
       widget.onLevelUpdate(newLevel);
     });
+  }
+}
+
+class EditableInformationTile extends StatelessWidget {
+  final double value;
+  final double minValue;
+  final String title;
+  final Icon icon;
+  final String suffix;
+  final bool editingEnabled;
+  final void Function(double) onChanged;
+
+  EditableInformationTile(
+    this.value,
+    this.title, {
+    this.icon,
+    this.suffix,
+    this.editingEnabled,
+    this.onChanged,
+    this.minValue = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: editingEnabled
+          ? NumberFormField(
+              initialValue: value?.toDouble(),
+              fractionDigits: 0,
+              labelText: title,
+              minValue: minValue,
+              onChanged: onChanged,
+            )
+          : Text(title),
+      leading: icon,
+      trailing: !editingEnabled
+          ? Text(
+              "${value ?? '-'} $suffix",
+              style: TextStyle(fontSize: 18),
+            )
+          : null,
+    );
   }
 }

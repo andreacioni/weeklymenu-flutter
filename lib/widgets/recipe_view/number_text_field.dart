@@ -5,6 +5,7 @@ import 'package:weekly_menu_app/globals/autosize_form_field.dart';
 
 class NumberFormField extends StatefulWidget {
   final String hintText;
+  final String labelText;
   final double minValue;
   final double maxValue;
   final double initialValue;
@@ -16,6 +17,7 @@ class NumberFormField extends StatefulWidget {
   NumberFormField({
     this.initialValue,
     this.hintText,
+    this.labelText,
     this.minValue = 0,
     this.maxValue = 10000,
     this.allowEmpty = true,
@@ -44,7 +46,22 @@ class _NumberFormFieldState extends State<NumberFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return AutoSizeFormField<double>(
+    return Container(
+      width: 100,
+      child: TextFormField(
+          decoration: InputDecoration(
+              hintText: widget.hintText, labelText: widget.labelText),
+          controller: _controller,
+          focusNode: _focusNode,
+          validator: _validateNumber,
+          onChanged: (v) => widget.onChanged(double.tryParse(v)),
+          maxLines: 1,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))
+          ]),
+    );
+    /* return AutoSizeFormField<double>(
       converter: (value) =>
           value != null && value.isNotEmpty ? double.tryParse(value) : null,
       keyboardType: TextInputType.number,
@@ -59,7 +76,7 @@ class _NumberFormFieldState extends State<NumberFormField> {
       textDirection: TextDirection.rtl,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))],
       decoration: InputDecoration(counterText: "", errorText: null),
-    );
+    ); */
   }
 
   void _onFocusChange() {
@@ -70,7 +87,7 @@ class _NumberFormFieldState extends State<NumberFormField> {
   }
 
   String _validateNumber(String value) {
-    if (widget.allowEmpty && value == null)
+    if (widget.allowEmpty && (value == null || value.isEmpty))
       return null;
     else if (value == null) return "Invalid number";
 
