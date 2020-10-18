@@ -231,7 +231,7 @@ class EditableInformationTile extends StatelessWidget {
       leading: icon,
       trailing: !editingEnabled
           ? Text(
-              "${value ?? '-'} $suffix",
+              "${value?.truncate() ?? '-'} $suffix",
               style: TextStyle(fontSize: 18),
             )
           : null,
