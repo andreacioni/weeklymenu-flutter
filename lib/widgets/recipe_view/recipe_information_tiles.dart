@@ -22,8 +22,8 @@ class RecipeInformationTiles extends StatelessWidget {
           "Servings",
           minValue: 1,
           icon: Icon(
-            Icons.timer,
-            color: Colors.blueAccent,
+            Icons.people,
+            color: Colors.black,
           ),
           editingEnabled: editEnabled,
           suffix: "ppl",
