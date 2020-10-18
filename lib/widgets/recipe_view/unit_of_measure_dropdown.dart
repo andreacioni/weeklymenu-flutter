@@ -26,7 +26,7 @@ class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        NumberTextFormField(
+        NumberFormField(
           initialValue: _spinnerValue,
           minValue: 0,
           maxValue: 9999,

@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:weekly_menu_app/globals/autosize_form_field.dart';
 
-class NumberTextFormField extends StatefulWidget {
+class NumberFormField extends StatefulWidget {
   final String hintText;
-  final AutovalidateMode autovalidateMode;
-  final TextDirection textDirection;
-  final TextEditingController controller;
   final double minValue;
   final double maxValue;
   final double initialValue;
@@ -15,28 +12,23 @@ class NumberTextFormField extends StatefulWidget {
   final int fractionDigits;
   final void Function(double) onChanged;
   final void Function(double) onSaved;
-  final String Function(double) validator;
 
-  NumberTextFormField({
+  NumberFormField({
     this.initialValue,
     this.hintText,
-    this.autovalidateMode = AutovalidateMode.always,
-    this.textDirection = TextDirection.rtl,
-    this.controller,
     this.minValue = 0,
     this.maxValue = 10000,
     this.allowEmpty = true,
     this.fractionDigits = 0,
     this.onChanged,
     this.onSaved,
-    this.validator,
   });
 
   @override
-  _NumberTextFormFieldState createState() => _NumberTextFormFieldState();
+  _NumberFormFieldState createState() => _NumberFormFieldState();
 }
 
-class _NumberTextFormFieldState extends State<NumberTextFormField> {
+class _NumberFormFieldState extends State<NumberFormField> {
   TextEditingController _controller;
   FocusNode _focusNode;
 
@@ -45,44 +37,44 @@ class _NumberTextFormFieldState extends State<NumberTextFormField> {
     _controller = new TextEditingController(
         text: widget.initialValue?.toStringAsFixed(widget.fractionDigits));
     _focusNode = new FocusNode();
+
+    _focusNode.addListener(_onFocusChange);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return AutoSizeFormField<double>(
-      converter: (value) => double.tryParse(value),
+      converter: (value) =>
+          value != null && value.isNotEmpty ? double.tryParse(value) : null,
       keyboardType: TextInputType.number,
       maxLength: 5,
       maxLengthEnforment: true,
       minWidth: 20,
       controller: _controller,
       focusNode: _focusNode,
-      validator: validateNumber,
+      validator: _validateNumber,
       onChanged: widget.onChanged,
       onSaved: widget.onSaved,
+      textDirection: TextDirection.rtl,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))],
+      decoration: InputDecoration(counterText: "", errorText: null),
     );
   }
 
-  @override
-  void dispose() {
-    _focusNode?.dispose();
-    _focusNode = null;
-
-    _controller.dispose();
-    _controller = null;
-
-    super.dispose();
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      _controller.selection =
+          TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
+    }
   }
 
-  String validateNumber(String value) {
+  String _validateNumber(String value) {
     if (widget.allowEmpty && value == null)
       return null;
     else if (value == null) return "Invalid number";
 
-    var number;
-
-    number = double.tryParse(value);
+    var number = double.tryParse(value);
 
     if (number == null) return "Not a number";
 
@@ -91,5 +83,17 @@ class _NumberTextFormFieldState extends State<NumberTextFormField> {
     if (number > widget.maxValue) return "Value too high";
 
     return null;
+  }
+
+  @override
+  void dispose() {
+    _focusNode?.removeListener(_onFocusChange);
+    _focusNode?.dispose();
+    _focusNode = null;
+
+    _controller?.dispose();
+    _controller = null;
+
+    super.dispose();
   }
 }

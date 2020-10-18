@@ -150,7 +150,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        NumberTextFormField(
+        NumberFormField(
           initialValue: _quantity.toDouble(),
           minValue: 0,
           maxValue: 9999,

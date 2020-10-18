@@ -18,10 +18,17 @@ class AutoSizeFormField<T> extends FormField<String> {
     int maxLength,
     bool maxLengthEnforment,
     double minWidth,
+    List<TextInputFormatter> inputFormatters,
+    InputDecoration decoration,
   }) : super(
             autovalidateMode: autovalidateMode,
-            onSaved: (value) => onSaved(converter(value)),
+            validator: validator,
+            onSaved:
+                onSaved != null ? (value) => onSaved(converter(value)) : null,
             builder: (FormFieldState<String> field) {
+              final InputDecoration effectiveDecoration = (decoration ??
+                      const InputDecoration())
+                  .applyDefaults(Theme.of(field.context).inputDecorationTheme);
               void onChangedHandler(String value) {
                 final v = converter(value);
                 if (onChanged != null && v != null) {
@@ -31,15 +38,18 @@ class AutoSizeFormField<T> extends FormField<String> {
               }
 
               return AutoSizeTextField(
+                controller: controller,
+                decoration:
+                    effectiveDecoration.copyWith(errorText: field.errorText),
                 fullwidth: false,
                 maxLines: 1,
                 focusNode: focusNode,
                 onChanged: onChangedHandler,
                 keyboardType: keyboardType,
-                controller: controller,
                 maxLength: maxLength,
                 maxLengthEnforced: maxLengthEnforment,
                 minWidth: minWidth,
+                inputFormatters: inputFormatters,
               );
             });
 }

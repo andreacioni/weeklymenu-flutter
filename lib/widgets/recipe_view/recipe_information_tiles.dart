@@ -19,34 +19,44 @@ class RecipeInformationTiles extends StatelessWidget {
       children: <Widget>[
         ListTile(
           title: Text("Servs"),
-          leading: Icon(Icons.people),
+          leading: Icon(
+            Icons.people,
+            color: Colors.black,
+          ),
           trailing: _buildNumberField(_recipe.servs, "ppl",
               minValue: 1,
-              onChange: (newValue) => _recipe.updateServs(newValue.truncate())),
+              onChanged: (newValue) =>
+                  _recipe.updateServs(newValue.truncate())),
         ),
         ListTile(
           title: Text("Preparation time"),
-          leading: Icon(Icons.timer),
+          leading: Icon(
+            Icons.timer,
+            color: Colors.blueAccent,
+          ),
           trailing: _buildNumberField(_recipe.estimatedPreparationTime, "min",
-              onChange: (newValue) =>
+              onChanged: (newValue) =>
                   _recipe.updatePreparationTime(newValue.truncate())),
         ),
         ListTile(
           title: Text("Cooking time"),
-          leading: Icon(Icons.timelapse),
+          leading: Icon(
+            Icons.timelapse,
+            color: Colors.blue,
+          ),
           trailing: _buildNumberField(_recipe.estimatedCookingTime, "min",
-              onChange: (newValue) {
+              onChanged: (newValue) {
             _recipe.updateCookingTime(newValue.truncate());
           }),
         ),
         ListTile(
           title: Text("Difficulty"),
-          leading: Icon(Icons.work),
+          leading: Icon(Icons.work, color: Colors.brown.shade400),
           trailing: _buildDifficultyDropdown(context),
         ),
         RecipeInformationLevelSelect(
           "Affinity",
-          Icons.favorite,
+          Icon(Icons.favorite, color: Colors.red.shade300),
           _recipe.rating,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.3),
@@ -55,7 +65,7 @@ class RecipeInformationTiles extends StatelessWidget {
         ),
         RecipeInformationLevelSelect(
           "Cost",
-          Icons.attach_money,
+          Icon(Icons.attach_money, color: Colors.green.shade300),
           _recipe.cost,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.5),
@@ -67,15 +77,16 @@ class RecipeInformationTiles extends StatelessWidget {
   }
 
   Widget _buildNumberField(int val, String suffix,
-      {Function(double) onChange, double minValue = 0.0}) {
+      {Function(double) onChanged, double minValue = 0}) {
     if (val == null) {
       val = 0;
     }
     return editEnabled
-        ? NumberTextFormField(
+        ? NumberFormField(
             initialValue: val.toDouble(),
             fractionDigits: 0,
             minValue: minValue,
+            onChanged: onChanged,
           )
         : Text(
             "${val.toInt()} $suffix",
@@ -111,7 +122,7 @@ class RecipeInformationLevelSelect extends StatefulWidget {
 
   final int _initialLevel;
   final String _label;
-  final IconData _icon;
+  final Icon _icon;
   final bool editEnabled;
   final Color activeColor;
   final Color inactiveColor;
@@ -138,7 +149,7 @@ class RecipeInformationLevelSelectState
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(widget._label),
-      leading: Icon(widget._icon),
+      leading: widget._icon,
       trailing: SizedBox(
         width: 200,
         child: Row(
@@ -163,7 +174,7 @@ class RecipeInformationLevelSelectState
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Icon(
-        widget._icon,
+        widget._icon.icon,
         color: (_level != null && index < _level)
             ? widget.activeColor
             : widget.inactiveColor,

@@ -213,12 +213,17 @@ class _RecipeViewState extends State<RecipeView> {
   }
 
   void _handleEditToggle(RecipeOriginator recipe, bool editEnabled) async {
-    if (!_formKey.currentState.validate()) {
-      _log.w("Can't save recipe form");
-    } else {
-      if (!editEnabled && recipe.isEdited) {
-        //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
+    if (!editEnabled && recipe.isEdited) {
+      //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
+
+      if (!_formKey.currentState.validate()) {
+        _log.w("Can't save recipe form");
+        return;
+      } else {
         _log.i("Saving all recipe changes");
+
+        //This call save the form's state not the recipe
+        _formKey.currentState.save();
 
         showProgressDialog(context);
 
@@ -232,9 +237,8 @@ class _RecipeViewState extends State<RecipeView> {
           hideProgressDialog(context);
         }
       }
-
-      setState(() => _editEnabled = editEnabled);
     }
+    setState(() => _editEnabled = editEnabled);
   }
 
   void _handleBackButton(BuildContext context, RecipeOriginator recipe) async {
