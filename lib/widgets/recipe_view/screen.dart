@@ -213,29 +213,30 @@ class _RecipeViewState extends State<RecipeView> {
   }
 
   void _handleEditToggle(RecipeOriginator recipe, bool editEnabled) async {
+    if (!_formKey.currentState.validate()) {
+      _log.w("Validation faield");
+      return;
+    }
+
+    //This call save the form's state not the recipe. This operation must be done
+    // here to trigger all the onSaved callback of the form fields
+    _formKey.currentState.save();
+
     if (!editEnabled && recipe.isEdited) {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
 
-      if (!_formKey.currentState.validate()) {
-        _log.w("Can't save recipe form");
+      _log.i("Saving all recipe changes");
+
+      showProgressDialog(context);
+
+      try {
+        await Provider.of<RecipesProvider>(context, listen: false)
+            .saveRecipe(recipe);
+      } catch (e) {
+        showAlertErrorMessage(context);
         return;
-      } else {
-        _log.i("Saving all recipe changes");
-
-        //This call save the form's state not the recipe
-        _formKey.currentState.save();
-
-        showProgressDialog(context);
-
-        try {
-          await Provider.of<RecipesProvider>(context, listen: false)
-              .saveRecipe(recipe);
-        } catch (e) {
-          showAlertErrorMessage(context);
-          return;
-        } finally {
-          hideProgressDialog(context);
-        }
+      } finally {
+        hideProgressDialog(context);
       }
     }
     setState(() => _editEnabled = editEnabled);

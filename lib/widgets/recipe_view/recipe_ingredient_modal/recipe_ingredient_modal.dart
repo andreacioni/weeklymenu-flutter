@@ -24,11 +24,14 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   double _quantity = 0;
   String _unitOfMeasure;
   bool _isFreezed = false;
+  bool _expandMore;
 
   bool _updateMode;
 
   @override
   void initState() {
+    _expandMore = false;
+
     if (widget.recipeIngredient == null) {
       _updateMode = false;
     } else {
@@ -54,10 +57,22 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
         margin: EdgeInsets.symmetric(horizontal: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            _buildIngredientSelectionTextField(),
-            _buildQuantityAndUomRow(),
-            _buildFreezedRow(),
+            Row(
+              children: [
+                _buildIngredientSelectionTextField(),
+                IconButton(
+                    icon: Icon(
+                        _expandMore ? Icons.expand_less : Icons.expand_more),
+                    onPressed: () =>
+                        setState(() => _expandMore = !_expandMore)),
+              ],
+            ),
+            if (_expandMore) ...[
+              _buildQuantityAndUomRow(),
+              _buildFreezedRow(),
+            ],
             SizedBox(
               height: 10,
             ),
@@ -113,11 +128,13 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   }
 
   Widget _buildIngredientSelectionTextField() {
-    return IngredientSelectionTextField(
-      value: _selectedIngredient,
-      enabled: _selectedIngredient == null,
-      onIngredientSelected: (ingredient) =>
-          setState(() => _selectedIngredient = ingredient),
+    return Flexible(
+      child: IngredientSelectionTextField(
+        value: _selectedIngredient,
+        enabled: _selectedIngredient == null,
+        onIngredientSelected: (ingredient) =>
+            setState(() => _selectedIngredient = ingredient),
+      ),
     );
   }
 
@@ -148,20 +165,26 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
 
   Widget _buildQuantityAndUomRow() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
-        NumberFormField(
-          initialValue: _quantity.toDouble(),
-          minValue: 0,
-          maxValue: 9999,
-          onChanged: (newValue) => setState(() => _quantity = newValue),
+        Flexible(
+          child: NumberFormField(
+            initialValue: _quantity?.toDouble(),
+            minValue: 0,
+            maxValue: 9999,
+            onChanged: (newValue) => setState(() => _quantity = newValue),
+          ),
         ),
-        DropdownButton<String>(
-          value: _unitOfMeasure,
-          hint: Text('Unit of Measure'),
-          items: UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
-          onChanged: (newValue) => setState(
-            () => _unitOfMeasure = newValue,
+        Flexible(
+          child: DropdownButton<String>(
+            value: _unitOfMeasure,
+            hint: Text('Unit of Measure'),
+            items:
+                UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
+            onChanged: (newValue) => setState(
+              () => _unitOfMeasure = newValue,
+            ),
           ),
         ),
       ],

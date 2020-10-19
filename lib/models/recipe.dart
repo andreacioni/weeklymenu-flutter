@@ -25,13 +25,13 @@ class RecipeOriginator extends Originator<Recipe> {
   void updatePreparationTime(int newValue) {
     setEdited();
     instance.estimatedPreparationTime = newValue;
-    notifyListeners();
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateCookingTime(int newValue) {
     setEdited();
     instance.estimatedCookingTime = newValue;
-    notifyListeners();
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateRating(int newValue) {
@@ -110,7 +110,7 @@ class RecipeOriginator extends Originator<Recipe> {
   void updateServs(int newValue) {
     setEdited();
     instance.servs = newValue;
-    notifyListeners();
+    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   String get id => instance.id;

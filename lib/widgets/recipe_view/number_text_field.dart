@@ -1,7 +1,5 @@
-import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:weekly_menu_app/globals/autosize_form_field.dart';
 
 class NumberFormField extends StatefulWidget {
   final String hintText;
@@ -46,21 +44,19 @@ class _NumberFormFieldState extends State<NumberFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      child: TextFormField(
-          decoration: InputDecoration(
-              hintText: widget.hintText, labelText: widget.labelText),
-          controller: _controller,
-          focusNode: _focusNode,
-          validator: _validateNumber,
-          onChanged: (v) => widget.onChanged(double.tryParse(v)),
-          maxLines: 1,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))
-          ]),
-    );
+    return TextFormField(
+        decoration: InputDecoration(
+            hintText: widget.hintText, labelText: widget.labelText),
+        controller: _controller,
+        focusNode: _focusNode,
+        validator: _validateNumber,
+        onChanged: (v) => widget.onChanged(double.tryParse(v)),
+        onSaved: (v) => widget.onSaved(double.tryParse(v)),
+        maxLines: 1,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))
+        ]);
     /* return AutoSizeFormField<double>(
       converter: (value) =>
           value != null && value.isNotEmpty ? double.tryParse(value) : null,

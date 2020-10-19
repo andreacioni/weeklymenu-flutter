@@ -12,7 +12,12 @@ class IngredientSelectionTextField extends StatefulWidget {
   final bool enabled;
   final bool autofocus;
 
-  IngredientSelectionTextField({@required this.onIngredientSelected, this.onSubmitted, this.value, this.enabled = true, this.autofocus=false});
+  IngredientSelectionTextField(
+      {@required this.onIngredientSelected,
+      this.onSubmitted,
+      this.value,
+      this.enabled = true,
+      this.autofocus = false});
 
   @override
   _IngredientSelectionTextFieldState createState() =>
@@ -26,58 +31,47 @@ class _IngredientSelectionTextFieldState
 
   @override
   Widget build(BuildContext context) {
-    if(widget.value != null) {
+    if (widget.value != null) {
       _typeAheadController.text = widget.value.name;
     }
 
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: TypeAheadField<Ingredient>(
-            direction: AxisDirection.down,
-            textFieldConfiguration: TextFieldConfiguration(
-              autofocus: widget.autofocus,
-              enabled: widget.enabled,
-              controller: _typeAheadController,
-              decoration: InputDecoration(
-                hintText: "Ingredient",
-                enabled: widget.enabled,
-                border: InputBorder.none
-              ),
-              onSubmitted: (text) {
-
-              }
-            ),
-            suggestionsCallback: (pattern) async {
-              return getIngredientsSuggestion(pattern);
-            },
-            itemBuilder: (context, ingredient) {
-              return ListTile(
-                trailing: Icon(ingredient.id == null ? Icons.add : Icons.call_made),
-                title: Text(ingredient.name),
-              );
-            },
-            noItemsFoundBuilder: (_) {
-              return ListTile(
-                title: Text("Type a new ingredient name"),
-              );
-            },
-            onSuggestionSelected: (selectedIngredient) {
-              if (selectedIngredient.id == null) {
-                selectedIngredient.name = RegExp(r'^Add "(.*)" \.\.\.')
-                    .firstMatch(selectedIngredient.name)
-                    .group(1);
-                print('Add Ingredient: ${selectedIngredient.name}');
-              } else {
-                this._typeAheadController.text = selectedIngredient.name;
-              }
-
-              widget.onIngredientSelected(selectedIngredient);
-            },
-
+    return TypeAheadField<Ingredient>(
+      direction: AxisDirection.down,
+      textFieldConfiguration: TextFieldConfiguration(
+          autofocus: widget.autofocus,
+          enabled: widget.enabled,
+          controller: _typeAheadController,
+          decoration: InputDecoration(
+            labelText: "Ingredient",
+            enabled: widget.enabled,
           ),
-        ),
-      ],
+          onSubmitted: (text) {}),
+      suggestionsCallback: (pattern) async {
+        return getIngredientsSuggestion(pattern);
+      },
+      itemBuilder: (context, ingredient) {
+        return ListTile(
+          trailing: Icon(ingredient.id == null ? Icons.add : Icons.call_made),
+          title: Text(ingredient.name),
+        );
+      },
+      noItemsFoundBuilder: (_) {
+        return ListTile(
+          title: Text("Type a new ingredient name"),
+        );
+      },
+      onSuggestionSelected: (selectedIngredient) {
+        if (selectedIngredient.id == null) {
+          selectedIngredient.name = RegExp(r'^Add "(.*)" \.\.\.')
+              .firstMatch(selectedIngredient.name)
+              .group(1);
+          print('Add Ingredient: ${selectedIngredient.name}');
+        } else {
+          this._typeAheadController.text = selectedIngredient.name;
+        }
+
+        widget.onIngredientSelected(selectedIngredient);
+      },
     );
   }
 
@@ -96,7 +90,8 @@ class _IngredientSelectionTextFieldState
         availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
+      suggestions
+          .add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
     }
 
     return suggestions;

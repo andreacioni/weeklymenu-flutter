@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:auto_size_text_field/auto_size_text_field.dart';
 
 import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
 
@@ -27,7 +26,8 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "ppl",
-          onChanged: (newValue) => _recipe.updateServs(newValue.truncate()),
+          onChanged: () => _recipe.setEdited(),
+          onSaved: (newValue) => _recipe.updateServs(newValue?.truncate()),
         ),
         EditableInformationTile(
           _recipe.estimatedPreparationTime?.toDouble(),
@@ -38,8 +38,9 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
-          onChanged: (newValue) =>
-              _recipe.updatePreparationTime(newValue.truncate()),
+          onChanged: () => _recipe.setEdited(),
+          onSaved: (newValue) =>
+              _recipe.updatePreparationTime(newValue?.truncate()),
         ),
         EditableInformationTile(
           _recipe.estimatedCookingTime?.toDouble(),
@@ -50,30 +51,10 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
-          onChanged: (newValue) =>
-              _recipe.updateCookingTime(newValue.truncate()),
+          onChanged: () => _recipe.setEdited(),
+          onSaved: (newValue) =>
+              _recipe.updateCookingTime(newValue?.truncate()),
         ),
-        /* ListTile(
-          title: Text("Preparation time"),
-          leading: Icon(
-            Icons.timer,
-            color: Colors.blueAccent,
-          ),
-          trailing: _buildNumberField(_recipe.estimatedPreparationTime, "min",
-              onChanged: (newValue) =>
-                  _recipe.updatePreparationTime(newValue.truncate())),
-        ),
-        ListTile(
-          title: Text("Cooking time"),
-          leading: Icon(
-            Icons.timelapse,
-            color: Colors.blue,
-          ),
-          trailing: _buildNumberField(_recipe.estimatedCookingTime, "min",
-              onChanged: (newValue) {
-            _recipe.updateCookingTime(newValue.truncate());
-          }),
-        ),*/
         ListTile(
           title: Text("Difficulty"),
           leading: Icon(Icons.work, color: Colors.brown.shade400),
@@ -204,7 +185,8 @@ class EditableInformationTile extends StatelessWidget {
   final Icon icon;
   final String suffix;
   final bool editingEnabled;
-  final void Function(double) onChanged;
+  final void Function(double) onSaved;
+  final void Function() onChanged;
 
   EditableInformationTile(
     this.value,
@@ -212,6 +194,7 @@ class EditableInformationTile extends StatelessWidget {
     this.icon,
     this.suffix,
     this.editingEnabled,
+    this.onSaved,
     this.onChanged,
     this.minValue = 0,
   });
@@ -225,7 +208,8 @@ class EditableInformationTile extends StatelessWidget {
               fractionDigits: 0,
               labelText: title,
               minValue: minValue,
-              onChanged: onChanged,
+              onChanged: (_) => onChanged(),
+              onSaved: onSaved,
             )
           : Text(title),
       leading: icon,

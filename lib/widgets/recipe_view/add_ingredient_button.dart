@@ -42,6 +42,7 @@ class AddIngredientButton extends StatelessWidget {
   void _openAddIngredientModal(BuildContext context) async {
     var newRecipeIngredient = await showDialog<RecipeIngredient>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => RecipeIngredientModal(_recipe.id),
     );
 
