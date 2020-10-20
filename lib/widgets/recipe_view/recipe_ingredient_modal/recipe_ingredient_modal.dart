@@ -71,6 +71,9 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
             ),
             if (_expandMore) ...[
               _buildQuantityAndUomRow(),
+              SizedBox(
+                height: 10,
+              ),
               _buildFreezedRow(),
             ],
             SizedBox(
@@ -174,17 +177,20 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
             minValue: 0,
             maxValue: 9999,
             onChanged: (newValue) => setState(() => _quantity = newValue),
+            labelText: "Quantity",
           ),
         ),
-        Flexible(
-          child: DropdownButton<String>(
-            value: _unitOfMeasure,
-            hint: Text('Unit of Measure'),
-            items:
-                UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
-            onChanged: (newValue) => setState(
-              () => _unitOfMeasure = newValue,
-            ),
+        SizedBox(
+          width: 10,
+        ),
+        DropdownButton<String>(
+          value: _unitOfMeasure,
+          hint: Text('Unit of Measure'),
+          underline: null,
+          isDense: true,
+          items: UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
+          onChanged: (newValue) => setState(
+            () => _unitOfMeasure = newValue,
           ),
         ),
       ],
