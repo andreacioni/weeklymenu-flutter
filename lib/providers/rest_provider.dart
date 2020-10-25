@@ -8,8 +8,7 @@ import 'package:weekly_menu_app/models/auth_token.dart';
 class RestProvider with ChangeNotifier {
   final _log = Logger();
 
-  static final String BASE_URL =
-      'https://heroku-weeklymenu.herokuapp.com/api/v1';
+  static final String BASE_URL = 'http://10.0.2.2:5000/api/v1';
 
   static final BASE_HEADERS = <String, dynamic>{};
 
@@ -101,7 +100,6 @@ class RestProvider with ChangeNotifier {
 
   Future<void> patchRecipe(
       String recipeId, Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k == '_id');
     var resp = await _dio.patch('$BASE_URL/recipes/$recipeId', data: jsonMap);
 
     return resp.data;
@@ -158,7 +156,6 @@ class RestProvider with ChangeNotifier {
 
   Future<Map<String, dynamic>> patchShoppingList(
       String shoppingListId, Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k == '_id');
     var resp = await _dio.patch('$BASE_URL/shopping-lists/$shoppingListId',
         data: jsonMap);
 
@@ -180,7 +177,6 @@ class RestProvider with ChangeNotifier {
 
   Future<Map<String, dynamic>> createRecipe(
       Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k == '_id');
     var resp = await _dio.post(
       '$BASE_URL/recipes',
       data: jsonMap,
@@ -190,7 +186,6 @@ class RestProvider with ChangeNotifier {
   }
 
   Future<void> putMenu(String id, Map<String, dynamic> jsonMap) async {
-    jsonMap.removeWhere((k, _) => k == '_id');
     await _dio.put(
       '$BASE_URL/menus/$id',
       data: jsonMap,

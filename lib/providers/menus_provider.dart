@@ -1,8 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
+import 'package:objectid/objectid.dart';
+
 import 'package:weekly_menu_app/globals/date.dart';
 
 import './recipes_provider.dart';
@@ -39,13 +39,10 @@ class MenusProvider with ChangeNotifier {
 
   Future<MenuOriginator> createMenu(Menu menu) async {
     assert(menu.id == null);
+    menu.id = ObjectId().hexString;
 
     try {
-      var toJson = menu.toJson();
-      toJson.remove('_id');
-
-      var resp = await _restProvider.createMenu(toJson);
-      menu.id = resp['_id'];
+      await _restProvider.createMenu(menu.toJson());
 
       final originator = MenuOriginator(menu);
 

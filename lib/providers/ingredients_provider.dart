@@ -29,13 +29,13 @@ class IngredientsProvider with ChangeNotifier {
       _ingredients.firstWhere((ing) => ing.id == id, orElse: () => null);
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
-    var resp = await _restProvider.createIngredient(ingredient.toJSON());
-    var newIngredient = Ingredient.fromJson(resp);
+    assert(ingredient.id == null);
+    await _restProvider.createIngredient(ingredient.toJSON());
 
-    _ingredients.add(newIngredient);
+    _ingredients.add(ingredient);
     notifyListeners();
 
-    return newIngredient;
+    return ingredient;
   }
 
   Future<void> deleteIngredient(Ingredient ingredient) async {

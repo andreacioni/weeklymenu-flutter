@@ -149,11 +149,11 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     showProgressDialog(context);
     try {
       await _addRecipeToMeal(meal, recipe);
+      hideProgressDialog(context);
     } catch (e) {
       hideProgressDialog(context);
       showAlertErrorMessage(context);
     }
-    hideProgressDialog(context);
   }
 
   Future<void> _addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {

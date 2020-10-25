@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:objectid/objectid.dart';
+
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
@@ -42,6 +44,7 @@ class RecipesProvider with ChangeNotifier {
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);
+    newRecipe.id = ObjectId().hexString;
 
     var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
     var postedRecipe = Recipe.fromJson(recipeJson);
