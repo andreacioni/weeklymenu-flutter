@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
+import 'package:weekly_menu_app/models/base_model.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
 import '../globals/utils.dart' as utils;
@@ -61,11 +62,9 @@ class MenuOriginator extends Originator<Menu> {
 }
 
 @JsonSerializable()
-class Menu implements Cloneable<Menu> {
+class Menu extends BaseModel<Menu> {
   static final _dateParser = DateFormat('y-M-d');
 
-  @JsonKey(name: '_id')
-  String id;
   @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
   Date date;
   Meal meal;
@@ -73,7 +72,7 @@ class Menu implements Cloneable<Menu> {
   @JsonKey(includeIfNull: false, defaultValue: [])
   List<String> recipes;
 
-  Menu({this.id, this.date, this.meal, this.recipes});
+  Menu({String id, this.date, this.meal, this.recipes}) : super(id: id);
 
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
 

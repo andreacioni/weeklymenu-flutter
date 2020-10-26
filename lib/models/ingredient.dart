@@ -1,21 +1,24 @@
 import 'package:flutter/foundation.dart';
+import 'package:objectid/objectid.dart';
+import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-class Ingredient with ChangeNotifier {
-  String id;
+import 'package:weekly_menu_app/models/base_model.dart';
+
+part 'ingredient.g.dart';
+
+@JsonSerializable()
+class Ingredient extends BaseModel<Ingredient> {
+  @JsonKey()
   String name;
 
-  Ingredient({this.id, this.name});
+  Ingredient({String id, this.name}) : super(id: id);
 
-  factory Ingredient.fromJson(Map<String, dynamic> jsonMap) {
-    return Ingredient(
-      id: jsonMap['_id'],
-      name: jsonMap['name'],
-    );
-  }
+  factory Ingredient.fromJson(Map<String, dynamic> json) =>
+      _$IngredientFromJson(json);
 
-  Map<String, dynamic> toJSON() {
-    return {
-      'name': name,
-    };
-  }
+  Map<String, dynamic> toJson() => _$IngredientToJson(this);
+
+  @override
+  Ingredient clone() => Ingredient.fromJson(this.toJson());
 }

@@ -16,12 +16,16 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
             ?.toList() ??
         [],
     name: json['name'] as String,
-  );
+  )
+    ..insertTimestamp = json['insert_timestamp'] as int
+    ..updateTimestamp = json['update_timestamp'] as int;
 }
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
+    'insert_timestamp': instance.insertTimestamp,
+    'update_timestamp': instance.updateTimestamp,
     'items': instance.items?.map((e) => e?.toJson())?.toList(),
   };
 

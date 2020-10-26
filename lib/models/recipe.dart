@@ -1,11 +1,145 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/models/base_model.dart';
 
 import '../globals/memento.dart';
-import '../datasource/network.dart';
 import './enums/meals.dart';
 
 part 'recipe.g.dart';
+
+@JsonSerializable(explicitToJson: true)
+class Recipe extends BaseModel<Recipe> {
+  String name;
+
+  @JsonKey(includeIfNull: false)
+  String description;
+  @JsonKey(includeIfNull: false)
+  int rating;
+  @JsonKey(includeIfNull: false)
+  int cost;
+  @JsonKey(includeIfNull: false)
+  String difficulty;
+  @JsonKey(includeIfNull: false)
+  List<int> availabilityMonths;
+  @JsonKey(includeIfNull: false)
+  int servs;
+  @JsonKey(includeIfNull: false)
+  int estimatedCookingTime;
+  @JsonKey(includeIfNull: false)
+  int estimatedPreparationTime;
+
+  @JsonKey(includeIfNull: false, defaultValue: [])
+  List<RecipeIngredient> ingredients;
+
+  @JsonKey(includeIfNull: false)
+  String preparation;
+  @JsonKey(includeIfNull: false)
+  String note;
+
+  @JsonKey(includeIfNull: false)
+  String imgUrl;
+  @JsonKey(includeIfNull: false)
+  String recipeUrl;
+  @JsonKey(includeIfNull: false)
+  List<String> tags;
+
+  @JsonKey(ignore: true)
+  String owner;
+
+  Recipe({
+    String id,
+    this.name,
+    this.description,
+    this.ingredients = const <RecipeIngredient>[],
+    this.difficulty,
+    this.rating,
+    this.cost,
+    this.availabilityMonths,
+    this.servs,
+    this.estimatedPreparationTime,
+    this.estimatedCookingTime,
+    this.imgUrl,
+    this.tags = const <String>[],
+    this.preparation,
+    this.recipeUrl,
+    this.note,
+    this.owner,
+  }) : super(id: id);
+
+  factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RecipeToJson(this);
+
+  Recipe clone() => Recipe.fromJson(this.toJson());
+
+  @override
+  String toString() => name;
+  @override
+  bool operator ==(o) => o is Recipe && o.id == this.id;
+  @override
+  int get hashCode => id.hashCode;
+}
+
+@JsonSerializable()
+class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
+  @JsonKey(ignore: true)
+  String recipeId;
+
+  @JsonKey(name: 'ingredient')
+  String ingredientId;
+
+  @JsonKey(includeIfNull: false)
+  double quantity;
+  @JsonKey(includeIfNull: false)
+  String unitOfMeasure;
+  @JsonKey(includeIfNull: false)
+  bool freezed;
+
+  RecipeIngredient(
+      {@required this.ingredientId,
+      this.quantity = 0,
+      this.unitOfMeasure,
+      this.freezed = false}) {
+    if (quantity == null) {
+      this.quantity = 0;
+    }
+
+    if (freezed == null) {
+      this.freezed = false;
+    }
+  }
+
+  factory RecipeIngredient.fromJson(Map<String, dynamic> json) =>
+      _$RecipeIngredientFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
+
+  void update(
+      {double quantity = -1, String unitOfMeasure, bool freezed = false}) {
+    if (quantity > 0) {
+      this.quantity = quantity;
+    }
+
+    if (unitOfMeasure != null) {
+      this.unitOfMeasure = unitOfMeasure;
+    }
+
+    if (freezed != null) {
+      this.freezed = freezed;
+    }
+
+    notifyListeners();
+  }
+
+  @override
+  RecipeIngredient clone() => RecipeIngredient.fromJson(this.toJson());
+
+  @override
+  bool operator ==(o) =>
+      o is RecipeIngredient && o.ingredientId == this.ingredientId;
+  @override
+  int get hashCode => ingredientId.hashCode;
+}
 
 class RecipeOriginator extends Originator<Recipe> {
   RecipeOriginator(Recipe original) : super(original);
@@ -148,143 +282,6 @@ class RecipeOriginator extends Originator<Recipe> {
   String get owner => instance.owner;
 
   Map<String, dynamic> toJson() => instance.toJson();
-}
-
-@JsonSerializable(explicitToJson: true)
-class Recipe extends Cloneable<Recipe> {
-  @JsonKey(name: '_id')
-  String id;
-
-  String name;
-
-  @JsonKey(includeIfNull: false)
-  String description;
-  @JsonKey(includeIfNull: false)
-  int rating;
-  @JsonKey(includeIfNull: false)
-  int cost;
-  @JsonKey(includeIfNull: false)
-  String difficulty;
-  @JsonKey(includeIfNull: false)
-  List<int> availabilityMonths;
-  @JsonKey(includeIfNull: false)
-  int servs;
-  @JsonKey(includeIfNull: false)
-  int estimatedCookingTime;
-  @JsonKey(includeIfNull: false)
-  int estimatedPreparationTime;
-
-  @JsonKey(includeIfNull: false, defaultValue: [])
-  List<RecipeIngredient> ingredients;
-
-  @JsonKey(includeIfNull: false)
-  String preparation;
-  @JsonKey(includeIfNull: false)
-  String note;
-
-  @JsonKey(includeIfNull: false)
-  String imgUrl;
-  @JsonKey(includeIfNull: false)
-  String recipeUrl;
-  @JsonKey(includeIfNull: false)
-  List<String> tags;
-
-  @JsonKey(ignore: true)
-  String owner;
-
-  Recipe({
-    this.id,
-    this.name,
-    this.description,
-    this.ingredients = const <RecipeIngredient>[],
-    this.difficulty,
-    this.rating,
-    this.cost,
-    this.availabilityMonths,
-    this.servs,
-    this.estimatedPreparationTime,
-    this.estimatedCookingTime,
-    this.imgUrl,
-    this.tags = const <String>[],
-    this.preparation,
-    this.recipeUrl,
-    this.note,
-    this.owner,
-  });
-
-  factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RecipeToJson(this);
-
-  Recipe clone() => Recipe.fromJson(this.toJson());
-
-  @override
-  String toString() => name;
-  @override
-  bool operator ==(o) => o is Recipe && o.id == this.id;
-  @override
-  int get hashCode => id.hashCode;
-}
-
-@JsonSerializable()
-class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
-  @JsonKey(ignore: true)
-  String recipeId;
-
-  @JsonKey(name: 'ingredient')
-  String ingredientId;
-
-  @JsonKey(includeIfNull: false)
-  double quantity;
-  @JsonKey(includeIfNull: false)
-  String unitOfMeasure;
-  @JsonKey(includeIfNull: false)
-  bool freezed;
-
-  RecipeIngredient(
-      {@required this.ingredientId,
-      this.quantity = 0,
-      this.unitOfMeasure,
-      this.freezed = false}) {
-    if (quantity == null) {
-      this.quantity = 0;
-    }
-
-    if (freezed == null) {
-      this.freezed = false;
-    }
-  }
-
-  factory RecipeIngredient.fromJson(Map<String, dynamic> json) =>
-      _$RecipeIngredientFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
-
-  void update(
-      {double quantity = -1, String unitOfMeasure, bool freezed = false}) {
-    if (quantity > 0) {
-      this.quantity = quantity;
-    }
-
-    if (unitOfMeasure != null) {
-      this.unitOfMeasure = unitOfMeasure;
-    }
-
-    if (freezed != null) {
-      this.freezed = freezed;
-    }
-
-    notifyListeners();
-  }
-
-  @override
-  RecipeIngredient clone() => RecipeIngredient.fromJson(this.toJson());
-
-  @override
-  bool operator ==(o) =>
-      o is RecipeIngredient && o.ingredientId == this.ingredientId;
-  @override
-  int get hashCode => ingredientId.hashCode;
 }
 
 class MealRecipe {

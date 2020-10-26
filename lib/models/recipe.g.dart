@@ -30,12 +30,16 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
     preparation: json['preparation'] as String,
     recipeUrl: json['recipeUrl'] as String,
     note: json['note'] as String,
-  );
+  )
+    ..insertTimestamp = json['insert_timestamp'] as int
+    ..updateTimestamp = json['update_timestamp'] as int;
 }
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
+    'insert_timestamp': instance.insertTimestamp,
+    'update_timestamp': instance.updateTimestamp,
     'name': instance.name,
   };
 

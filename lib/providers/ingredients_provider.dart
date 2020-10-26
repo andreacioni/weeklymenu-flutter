@@ -30,7 +30,7 @@ class IngredientsProvider with ChangeNotifier {
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
     assert(ingredient.id == null);
-    await _restProvider.createIngredient(ingredient.toJSON());
+    await _restProvider.createIngredient(ingredient.toJson());
 
     _ingredients.add(ingredient);
     notifyListeners();

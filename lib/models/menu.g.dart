@@ -12,12 +12,16 @@ Menu _$MenuFromJson(Map<String, dynamic> json) {
     date: Menu.dateFromJson(json['date'] as String),
     meal: _$enumDecodeNullable(_$MealEnumMap, json['meal']),
     recipes: (json['recipes'] as List)?.map((e) => e as String)?.toList() ?? [],
-  );
+  )
+    ..insertTimestamp = json['insert_timestamp'] as int
+    ..updateTimestamp = json['update_timestamp'] as int;
 }
 
 Map<String, dynamic> _$MenuToJson(Menu instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
+    'insert_timestamp': instance.insertTimestamp,
+    'update_timestamp': instance.updateTimestamp,
     'date': Menu.dateToJson(instance.date),
     'meal': _$MealEnumMap[instance.meal],
   };
