@@ -8,7 +8,8 @@ import 'package:weekly_menu_app/models/auth_token.dart';
 class RestProvider with ChangeNotifier {
   final _log = Logger();
 
-  static final String BASE_URL = 'http://10.0.2.2:5000/api/v1';
+  static final String BASE_URL =
+      'https://heroku-weeklymenu.herokuapp.com/api/v1';
 
   static final BASE_HEADERS = <String, dynamic>{};
 
