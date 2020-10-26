@@ -84,7 +84,7 @@ class MenusProvider with ChangeNotifier {
   }
 
   void update(RestProvider restProvider, RecipesProvider recipesProvider) {
-    List<RecipeOriginator> recipesList = recipesProvider.getRecipes;
+    List<RecipeOriginator> recipesList = recipesProvider.recipes;
     List<MenuOriginator> menusToBeRemoved = [];
     if (recipesList != null) {
       _dayToMenus.forEach(

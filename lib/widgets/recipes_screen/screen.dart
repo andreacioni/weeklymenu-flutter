@@ -38,7 +38,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final recipes = Provider.of<RecipesProvider>(context).getRecipes;
+    final recipes = Provider.of<RecipesProvider>(context).recipes;
 
     var body = _buildScreenBody(
         recipes, (recipe) => !stringContains(recipe.name, _searchText));

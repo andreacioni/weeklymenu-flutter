@@ -91,8 +91,10 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     final recipesProvider =
         Provider.of<RecipesProvider>(context, listen: false);
     final dailyMenu = Provider.of<DailyMenu>(context, listen: false);
-    final availableRecipes = recipesProvider.getRecipes;
-    final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal) == null ? <RecipeOriginator>[] : dailyMenu.getMenuByMeal(widget.meal).recipes;
+    final availableRecipes = recipesProvider.recipes;
+    final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal) == null
+        ? <RecipeOriginator>[]
+        : dailyMenu.getMenuByMeal(widget.meal).recipes;
     final List<RecipeOriginator> suggestions = [];
 
     suggestions.addAll(availableRecipes

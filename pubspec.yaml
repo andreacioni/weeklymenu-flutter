@@ -51,6 +51,7 @@ dev_dependencies:
   json_serializable: ^3.3.0
   lombok: ^0.0.5
   meta: ^1.1.8
+  hive_generator: ^0.8.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

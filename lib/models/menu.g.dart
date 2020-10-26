@@ -3,6 +3,56 @@
 part of 'menu.dart';
 
 // **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class MenuAdapter extends TypeAdapter<Menu> {
+  @override
+  final int typeId = 2;
+
+  @override
+  Menu read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Menu(
+      date: fields[1] as Date,
+      meal: fields[2] as Meal,
+    )
+      ..id = fields[254] as String
+      ..insertTimestamp = fields[253] as int
+      ..updateTimestamp = fields[252] as int;
+  }
+
+  @override
+  void write(BinaryWriter writer, Menu obj) {
+    writer
+      ..writeByte(5)
+      ..writeByte(1)
+      ..write(obj.date)
+      ..writeByte(2)
+      ..write(obj.meal)
+      ..writeByte(254)
+      ..write(obj.id)
+      ..writeByte(253)
+      ..write(obj.insertTimestamp)
+      ..writeByte(252)
+      ..write(obj.updateTimestamp);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MenuAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 

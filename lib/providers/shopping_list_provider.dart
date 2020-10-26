@@ -32,7 +32,7 @@ class ShoppingListProvider with ChangeNotifier {
 
   void update(
       RestProvider restProvider, IngredientsProvider ingredientsProvider) {
-    List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
+    List<Ingredient> ingredientsList = ingredientsProvider.ingredients;
 
     if (ingredientsList != null) {
       for (ShoppingList shoppingList in _shoppingList) {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 import 'package:weekly_menu_app/providers/rest_provider.dart';
 
@@ -6,43 +8,34 @@ import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
 class IngredientsProvider with ChangeNotifier {
-  RestProvider _restProvider;
+  Box<Ingredient> _box;
 
-  List<Ingredient> _ingredients = [];
-
-  List<Ingredient> get getIngredients => [..._ingredients];
+  //TOOD remove this
+  var _restProvider;
 
   IngredientsProvider(this._restProvider);
 
   Future<void> fetchIngredients() async {
-    //TODO handle pagination
-    final jsonPage = await _restProvider.getIngredients();
-    _ingredients = jsonPage['results']
-        .map((jsonMenu) => Ingredient.fromJson(jsonMenu))
-        .toList()
-        .cast<Ingredient>();
-
+    _box = await Hive.openBox<Ingredient>("ingredients");
     notifyListeners();
   }
 
-  Ingredient getById(String id) =>
-      _ingredients.firstWhere((ing) => ing.id == id, orElse: () => null);
+  List<Ingredient> get ingredients => _box.values.toList();
+
+  Ingredient getById(String id) => _box.get(id);
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
     assert(ingredient.id == null);
-    await _restProvider.createIngredient(ingredient.toJson());
 
-    _ingredients.add(ingredient);
+    await _box.add(ingredient);
+
     notifyListeners();
-
     return ingredient;
   }
 
   Future<void> deleteIngredient(Ingredient ingredient) async {
-    _ingredients.removeWhere((ing) => ing.id == ingredient.id);
+    _box.delete(ingredient.id);
     notifyListeners();
-
-    _restProvider.deleteIngredient(ingredient.id);
   }
 
   void update(RestProvider restProvider) {

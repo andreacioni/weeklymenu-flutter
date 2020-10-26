@@ -79,7 +79,7 @@ class _IngredientSelectionTextFieldState
     final availableIngredients = Provider.of<IngredientsProvider>(
       context,
       listen: false,
-    ).getIngredients;
+    ).ingredients;
 
     var suggestions = availableIngredients
         .where((r) =>

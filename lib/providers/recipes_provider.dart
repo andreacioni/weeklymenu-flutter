@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:objectid/objectid.dart';
 
 import 'package:weekly_menu_app/models/ingredient.dart';
@@ -9,6 +10,8 @@ import '../models/recipe.dart';
 import 'rest_provider.dart';
 
 class RecipesProvider with ChangeNotifier {
+  Box _box;
+
   RestProvider _restApi;
 
   List<RecipeOriginator> _recipes = [];
@@ -16,21 +19,16 @@ class RecipesProvider with ChangeNotifier {
   RecipesProvider(this._restApi);
 
   Future<void> fetchRecipes() async {
-    //TODO handle pagination
-    final jsonPage = await _restApi.getRecipes();
-    _recipes = jsonPage['results']
-        .map((jsonMenu) => RecipeOriginator(Recipe.fromJson(jsonMenu)))
-        .toList()
-        .cast<RecipeOriginator>();
+    _box = await Hive.openBox("recipes");
 
     notifyListeners();
   }
 
-  List<RecipeOriginator> get getRecipes => [..._recipes];
+  List<RecipeOriginator> get recipes => _box.values.toList();
 
   List<String> get getAllRecipeTags {
     List<String> tags = [];
-    _recipes.forEach((recipe) {
+    recipes.forEach((recipe) {
       if (recipe.tags != null) {
         tags.addAll(recipe.tags);
       }
@@ -39,8 +37,7 @@ class RecipesProvider with ChangeNotifier {
     return tags;
   }
 
-  RecipeOriginator getById(String id) =>
-      _recipes.firstWhere((recipe) => recipe.id == id, orElse: () => null);
+  RecipeOriginator getById(String id) => _box.get(id);
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);
@@ -76,7 +73,7 @@ class RecipesProvider with ChangeNotifier {
 
   void update(
       RestProvider restProvider, IngredientsProvider ingredientsProvider) {
-    List<Ingredient> ingredientsList = ingredientsProvider.getIngredients;
+    List<Ingredient> ingredientsList = ingredientsProvider.ingredients;
     if (ingredientsList != null) {
       for (RecipeOriginator recipe in _recipes) {
         if (recipe.ingredients != null) {

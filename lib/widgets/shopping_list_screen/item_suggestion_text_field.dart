@@ -105,7 +105,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
       context,
       listen: false,
     );
-    final availableIngredients = ingredientProvider.getIngredients;
+    final availableIngredients = ingredientProvider.ingredients;
 
     List<dynamic> suggestions = [];
 

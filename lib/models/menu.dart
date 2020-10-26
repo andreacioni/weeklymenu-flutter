@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:provider/provider.dart';
@@ -62,11 +63,15 @@ class MenuOriginator extends Originator<Menu> {
 }
 
 @JsonSerializable()
+@HiveType(typeId: 2)
 class Menu extends BaseModel<Menu> {
   static final _dateParser = DateFormat('y-M-d');
 
   @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
+  @HiveField(1)
   Date date;
+
+  @HiveField(2)
   Meal meal;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
