@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:logger/logger.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
@@ -7,27 +9,23 @@ import '../models/shopping_list.dart';
 import 'rest_provider.dart';
 
 class ShoppingListProvider with ChangeNotifier {
-  RestProvider _restProvider;
+  final _log = Logger();
 
-  List<ShoppingList> _shoppingList = [];
+  Box<ShoppingList> _box;
+
+  RestProvider _restProvider;
 
   ShoppingListProvider(this._restProvider);
 
   Future<void> fetchShoppingListItems() async {
-    //TODO handle pagination
-    final jsonPage = await _restProvider.getShoppingList();
-    _shoppingList = jsonPage['results']
-        .map((jsonMenu) => ShoppingList.fromJson(jsonMenu))
-        .toList()
-        .cast<ShoppingList>();
-
+    _box = await Hive.openBox("shopping-lists");
     notifyListeners();
   }
 
-  List<ShoppingList> get getShoppingLists => [..._shoppingList];
+  List<ShoppingList> get shoppingLists => _box.values.toList();
 
   Future<void> updateShoppingList(ShoppingList shoppingList) async {
-    _restProvider.patchShoppingList(shoppingList.id, shoppingList.toJson());
+    _box.put(shoppingList.id, shoppingList);
   }
 
   void update(
@@ -35,7 +33,7 @@ class ShoppingListProvider with ChangeNotifier {
     List<Ingredient> ingredientsList = ingredientsProvider.ingredients;
 
     if (ingredientsList != null) {
-      for (ShoppingList shoppingList in _shoppingList) {
+      for (ShoppingList shoppingList in shoppingLists) {
         if (shoppingList.items != null) {
           //This is a list but hopefully we expect only one item to be removed
           var toBeRemovedList = shoppingList.items

@@ -10,11 +10,9 @@ import '../models/recipe.dart';
 import 'rest_provider.dart';
 
 class RecipesProvider with ChangeNotifier {
-  Box _box;
+  Box<Recipe> _box;
 
   RestProvider _restApi;
-
-  List<RecipeOriginator> _recipes = [];
 
   RecipesProvider(this._restApi);
 
@@ -24,7 +22,8 @@ class RecipesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  List<RecipeOriginator> get recipes => _box.values.toList();
+  List<RecipeOriginator> get recipes =>
+      _box.values.map((recipe) => RecipeOriginator(recipe));
 
   List<String> get getAllRecipeTags {
     List<String> tags = [];
@@ -37,45 +36,35 @@ class RecipesProvider with ChangeNotifier {
     return tags;
   }
 
-  RecipeOriginator getById(String id) => _box.get(id);
+  RecipeOriginator getById(String id) => RecipeOriginator(_box.get(id));
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);
     newRecipe.id = ObjectId().hexString;
 
-    var recipeJson = await _restApi.createRecipe(newRecipe.toJson());
-    var postedRecipe = Recipe.fromJson(recipeJson);
+    _box.add(newRecipe);
 
-    final RecipeOriginator recipeOriginator = RecipeOriginator(postedRecipe);
-
-    _recipes.add(recipeOriginator);
     notifyListeners();
-    return recipeOriginator;
+    return RecipeOriginator(newRecipe);
   }
 
   Future<void> removeRecipe(RecipeOriginator recipe) async {
-    await _restApi.deleteRecipe(recipe.id);
-    _recipes.removeWhere((rec) => rec.id == recipe.id);
+    await _box.delete(recipe.id);
     notifyListeners();
   }
 
   Future<void> saveRecipe(RecipeOriginator recipe) async {
     assert(recipe.id != null);
-    try {
-      await _restApi.patchRecipe(recipe.id, recipe.toJson());
-      recipe.save();
-    } catch (e) {
-      recipe.revert();
-      throw e;
-    }
+    await _box.put(recipe.id, recipe.save());
     notifyListeners();
   }
 
   void update(
       RestProvider restProvider, IngredientsProvider ingredientsProvider) {
     List<Ingredient> ingredientsList = ingredientsProvider.ingredients;
+
     if (ingredientsList != null) {
-      for (RecipeOriginator recipe in _recipes) {
+      for (RecipeOriginator recipe in recipes) {
         if (recipe.ingredients != null) {
           //This is a list but hopefully we expect only one item to be removed
           var toBeRemovedList = recipe.ingredients

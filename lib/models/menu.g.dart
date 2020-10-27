@@ -19,6 +19,7 @@ class MenuAdapter extends TypeAdapter<Menu> {
     return Menu(
       date: fields[1] as Date,
       meal: fields[2] as Meal,
+      recipes: (fields[3] as List)?.cast<String>(),
     )
       ..id = fields[254] as String
       ..insertTimestamp = fields[253] as int
@@ -28,11 +29,13 @@ class MenuAdapter extends TypeAdapter<Menu> {
   @override
   void write(BinaryWriter writer, Menu obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(1)
       ..write(obj.date)
       ..writeByte(2)
       ..write(obj.meal)
+      ..writeByte(3)
+      ..write(obj.recipes)
       ..writeByte(254)
       ..write(obj.id)
       ..writeByte(253)

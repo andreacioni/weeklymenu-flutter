@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 import 'package:objectid/objectid.dart';
 
 import 'package:weekly_menu_app/globals/date.dart';
@@ -13,7 +13,8 @@ import '../datasource/network.dart';
 import 'rest_provider.dart';
 
 class MenusProvider with ChangeNotifier {
-  final log = Logger((MenusProvider).toString());
+  final _log = Logger();
+
   RestProvider _restProvider;
 
   static final _dateParser = DateFormat('y-MM-dd');
@@ -118,7 +119,7 @@ class MenusProvider with ChangeNotifier {
           try {
             removeMenu(menu);
           } catch (e) {
-            log.warning("Failed to remove empty menu ${menu.id}", e);
+            _log.w("Failed to remove empty menu ${menu.id}", e);
           }
         }
       },

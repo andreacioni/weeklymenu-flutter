@@ -75,6 +75,7 @@ class Menu extends BaseModel<Menu> {
   Meal meal;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
+  @HiveField(3)
   List<String> recipes;
 
   Menu({String id, this.date, this.meal, this.recipes}) : super(id: id);
