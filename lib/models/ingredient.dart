@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:weekly_menu_app/models/base_model.dart';
@@ -8,10 +7,8 @@ import 'package:weekly_menu_app/models/base_model.dart';
 part 'ingredient.g.dart';
 
 @JsonSerializable()
-@HiveType(typeId: 1)
 class Ingredient extends BaseModel<Ingredient> {
   @JsonKey()
-  @HiveField(1)
   String name;
 
   Ingredient({String id, this.name}) : super(id: id);

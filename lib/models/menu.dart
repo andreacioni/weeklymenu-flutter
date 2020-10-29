@@ -1,15 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
 
-import '../globals/utils.dart' as utils;
-import '../datasource/network.dart';
 import './enums/meals.dart';
 import './recipe.dart';
 
@@ -63,19 +58,15 @@ class MenuOriginator extends Originator<Menu> {
 }
 
 @JsonSerializable()
-@HiveType(typeId: 2)
 class Menu extends BaseModel<Menu> {
   static final _dateParser = DateFormat('y-M-d');
 
   @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
-  @HiveField(1)
   Date date;
 
-  @HiveField(2)
   Meal meal;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
-  @HiveField(3)
   List<String> recipes;
 
   Menu({String id, this.date, this.meal, this.recipes}) : super(id: id);
@@ -223,15 +214,15 @@ class DailyMenu
     notifyListeners();
   }
 
-  Future<void> save(BuildContext context, MenusProvider menusProvider) async {
+  Future<void> save(BuildContext context) async {
     for (MenuOriginator menu in menus) {
       if (menu.recipes.isEmpty) {
         // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        await Provider.of<MenusProvider>(context, listen: false)
-            .removeMenu(menu);
+        //await Provider.of<MenusProvider>(context, listen: false)
+        //    .removeMenu(menu);
         removeMenu(menu);
       } else {
-        await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
+        //await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
       }
     }
   }
