@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 import 'package:objectid/objectid.dart';
-import 'package:uuid/uuid.dart';
+import 'package:sembast/sembast.dart';
+import 'package:sembast/sembast_io.dart';
+
 import 'package:weekly_menu_app/providers/rest_provider.dart';
 
-import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
 class IngredientsProvider with ChangeNotifier {
   final _log = Logger();
 
-  Box<Ingredient> _box;
+  Database _db;
+  StoreRef<int, Map<String, dynamic>> _store;
 
   //TOOD remove this
   var _restProvider;
@@ -19,25 +20,37 @@ class IngredientsProvider with ChangeNotifier {
   IngredientsProvider(this._restProvider);
 
   Future<void> fetchIngredients() async {
-    _box = await Hive.openBox<Ingredient>("ingredients");
+    _db = await databaseFactoryIo.openDatabase("ingredients.db");
+    _store = intMapStoreFactory.store("ingredients");
     notifyListeners();
   }
 
-  List<Ingredient> get ingredients => _box.values.toList();
+  List<Ingredient> get ingredients => _store
+      .stream(_db)
+      .asyncMap((event) => Ingredient.fromJson(event.value))
+      .toList();
 
-  Ingredient getById(String id) => _box.get(id);
+  Future<Ingredient> getById(String id) async {
+    final snapshot = await _store.findFirst(
+      _db,
+      finder: Finder(filter: Filter.equals("id", id)),
+    );
+
+    return Ingredient.fromJson(snapshot.value);
+  }
 
   Future<Ingredient> addIngredient(Ingredient ingredient) async {
     assert(ingredient.id == null);
+    ingredient.id = ObjectId().hexString;
 
-    await _box.add(ingredient);
+    await _store.add(_db, ingredient.toJson());
 
     notifyListeners();
     return ingredient;
   }
 
   Future<void> deleteIngredient(Ingredient ingredient) async {
-    _box.delete(ingredient.id);
+    await _store.delete(_db, finder: Finder(filter: Filter.byKey(key)));
     notifyListeners();
   }
 
