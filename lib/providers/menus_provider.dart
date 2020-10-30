@@ -9,7 +9,6 @@ import './recipes_provider.dart';
 import '../models/menu.dart';
 import '../models/enums/meals.dart';
 import '../models/recipe.dart';
-import '../datasource/network.dart';
 import 'rest_provider.dart';
 
 class MenusProvider with ChangeNotifier {
@@ -40,7 +39,7 @@ class MenusProvider with ChangeNotifier {
 
   Future<MenuOriginator> createMenu(Menu menu) async {
     assert(menu.id == null);
-    menu.id = ObjectId().hexString;
+    //menu.id = ObjectId().hexString;
 
     try {
       await _restProvider.createMenu(menu.toJson());

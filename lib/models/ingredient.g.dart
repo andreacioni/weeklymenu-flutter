@@ -3,53 +3,6 @@
 part of 'ingredient.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
-
-class IngredientAdapter extends TypeAdapter<Ingredient> {
-  @override
-  final int typeId = 1;
-
-  @override
-  Ingredient read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Ingredient(
-      name: fields[1] as String,
-    )
-      ..id = fields[254] as String
-      ..insertTimestamp = fields[253] as int
-      ..updateTimestamp = fields[252] as int;
-  }
-
-  @override
-  void write(BinaryWriter writer, Ingredient obj) {
-    writer
-      ..writeByte(4)
-      ..writeByte(1)
-      ..write(obj.name)
-      ..writeByte(254)
-      ..write(obj.id)
-      ..writeByte(253)
-      ..write(obj.insertTimestamp)
-      ..writeByte(252)
-      ..write(obj.updateTimestamp);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is IngredientAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -69,3 +22,67 @@ Map<String, dynamic> _$IngredientToJson(Ingredient instance) =>
       'update_timestamp': instance.updateTimestamp,
       'name': instance.name,
     };
+
+// **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
+
+mixin $IngredientLocalAdapter on LocalAdapter<Ingredient> {
+  @override
+  Map<String, Map<String, Object>> relationshipsFor([Ingredient model]) => {};
+
+  @override
+  Ingredient deserialize(map) {
+    for (final key in relationshipsFor().keys) {
+      map[key] = {
+        '_': [map[key], !map.containsKey(key)],
+      };
+    }
+    return Ingredient.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model) => model.toJson();
+}
+
+// ignore: must_be_immutable
+class $IngredientHiveLocalAdapter = HiveLocalAdapter<Ingredient>
+    with $IngredientLocalAdapter;
+
+class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
+    with MyJSONServerAdapter;
+
+//
+
+final ingredientLocalAdapterProvider =
+    RiverpodAlias.provider<LocalAdapter<Ingredient>>((ref) =>
+        $IngredientHiveLocalAdapter(
+            ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+
+final ingredientRemoteAdapterProvider =
+    RiverpodAlias.provider<RemoteAdapter<Ingredient>>((ref) =>
+        $IngredientRemoteAdapter(ref.read(ingredientLocalAdapterProvider)));
+
+final ingredientRepositoryProvider =
+    RiverpodAlias.provider<Repository<Ingredient>>(
+        (ref) => Repository<Ingredient>(ref));
+
+extension IngredientX on Ingredient {
+  /// Initializes "fresh" models (i.e. manually instantiated) to use
+  /// [save], [delete] and so on.
+  ///
+  /// Pass:
+  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
+  ///  - Nothing if using Flutter with GetIt
+  ///  - A Riverpod `ProviderContainer` if using pure Dart
+  ///  - Its own [Repository<Ingredient>]
+  Ingredient init(context) {
+    final repository = context is Repository<Ingredient>
+        ? context
+        : internalLocatorFn(ingredientRepositoryProvider, context);
+    return repository.internalAdapter.initializeModel(this, save: true)
+        as Ingredient;
+  }
+}

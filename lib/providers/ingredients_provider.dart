@@ -5,7 +5,6 @@ import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 import 'package:weekly_menu_app/providers/rest_provider.dart';
 
-import '../datasource/network.dart';
 import '../models/ingredient.dart';
 
 class IngredientsProvider with ChangeNotifier {

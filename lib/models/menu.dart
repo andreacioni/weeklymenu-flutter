@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_data/flutter_data.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -9,11 +10,37 @@ import 'package:weekly_menu_app/models/base_model.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
 import '../globals/utils.dart' as utils;
-import '../datasource/network.dart';
 import './enums/meals.dart';
 import './recipe.dart';
 
 part 'menu.g.dart';
+
+@JsonSerializable()
+@DataRepository([MyJSONServerAdapter])
+class Menu extends BaseModel<Menu> {
+  static final _dateParser = DateFormat('y-M-d');
+
+  @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
+  Date date;
+
+  Meal meal;
+
+  @JsonKey(includeIfNull: false, defaultValue: [])
+  List<String> recipes;
+
+  Menu({String id, this.date, this.meal, this.recipes}) : super(id: id);
+
+  factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MenuToJson(this);
+
+  @override
+  Menu clone() => Menu.fromJson(this.toJson());
+
+  static String dateToJson(Date date) => date.format(_dateParser);
+
+  static Date dateFromJson(String date) => Date.parse(_dateParser, date);
+}
 
 class MenuOriginator extends Originator<Menu> {
   MenuOriginator(Menu original) : super(original);
@@ -60,36 +87,6 @@ class MenuOriginator extends Originator<Menu> {
   bool get isEmpty => instance.recipes == null || instance.recipes.isEmpty;
 
   Map<String, dynamic> toJson() => instance.toJson();
-}
-
-@JsonSerializable()
-@HiveType(typeId: 2)
-class Menu extends BaseModel<Menu> {
-  static final _dateParser = DateFormat('y-M-d');
-
-  @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
-  @HiveField(1)
-  Date date;
-
-  @HiveField(2)
-  Meal meal;
-
-  @JsonKey(includeIfNull: false, defaultValue: [])
-  @HiveField(3)
-  List<String> recipes;
-
-  Menu({String id, this.date, this.meal, this.recipes}) : super(id: id);
-
-  factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MenuToJson(this);
-
-  @override
-  Menu clone() => Menu.fromJson(this.toJson());
-
-  static String dateToJson(Date date) => date.format(_dateParser);
-
-  static Date dateFromJson(String date) => Date.parse(_dateParser, date);
 }
 
 class DailyMenu
@@ -329,4 +326,9 @@ class DailyMenu
   bool get isToday => day.isToday;
 
   bool get isPast => day.isPast;
+}
+
+mixin MyJSONServerAdapter on RemoteAdapter<Menu> {
+  @override
+  String get baseUrl => "https://heroku-weeklymenu.herokuapp.com/api/v1/menus";
 }

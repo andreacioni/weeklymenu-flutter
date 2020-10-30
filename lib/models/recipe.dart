@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
+import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 
@@ -9,69 +9,53 @@ import './enums/meals.dart';
 part 'recipe.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-@HiveType(typeId: 3)
+@DataRepository([MyJSONServerAdapter])
 class Recipe extends BaseModel<Recipe> {
-  @HiveField(1)
   String name;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(2)
   String description;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(3)
   int rating;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(4)
   int cost;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(5)
   String difficulty;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(6)
   List<int> availabilityMonths;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(7)
   int servs;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(8)
   int estimatedCookingTime;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(9)
   int estimatedPreparationTime;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
-  @HiveField(10)
   List<RecipeIngredient> ingredients;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(11)
   String preparation;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(12)
   String note;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(13)
   String imgUrl;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(14)
   String recipeUrl;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(15)
   List<String> tags;
 
   @JsonKey(ignore: true)
-  @HiveField(16)
   String owner;
 
   Recipe({
@@ -109,7 +93,6 @@ class Recipe extends BaseModel<Recipe> {
 }
 
 @JsonSerializable()
-@HiveType(typeId: 5)
 class RecipeIngredient extends Cloneable<RecipeIngredient> with ChangeNotifier {
   @JsonKey(ignore: true)
   String recipeId;
@@ -317,4 +300,10 @@ class MealRecipe {
   final Meal meal;
   final RecipeOriginator recipe;
   MealRecipe(this.meal, this.recipe);
+}
+
+mixin MyJSONServerAdapter on RemoteAdapter<Recipe> {
+  @override
+  String get baseUrl =>
+      "https://heroku-weeklymenu.herokuapp.com/api/v1/recipes";
 }

@@ -5,7 +5,6 @@ import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
-import '../datasource/network.dart';
 import '../models/recipe.dart';
 import 'rest_provider.dart';
 
@@ -40,7 +39,6 @@ class RecipesProvider with ChangeNotifier {
 
   Future<RecipeOriginator> addRecipe(Recipe newRecipe) async {
     assert(newRecipe.id == null);
-    newRecipe.id = ObjectId().hexString;
 
     _box.add(newRecipe);
 

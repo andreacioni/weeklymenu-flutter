@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
-
-import '../datasource/network.dart';
 
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-@HiveType(typeId: 4)
 class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(defaultValue: [])
-  @HiveField(1)
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(2)
   String name;
 
   ShoppingList({String id, this.items, this.name}) : super(id: id);
@@ -60,28 +54,21 @@ class ShoppingList extends BaseModel<ShoppingList> {
 }
 
 @JsonSerializable()
-@HiveType(typeId: 6)
 class ShoppingListItem with ChangeNotifier {
-  @HiveField(1)
   String item;
 
-  @HiveField(2)
   bool checked;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(3)
   double quantity;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(4)
   String unitOfMeasure;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(5)
   String supermarketSection;
 
   @JsonKey(includeIfNull: false)
-  @HiveField(6)
   int listPosition;
 
   ShoppingListItem(

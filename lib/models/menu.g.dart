@@ -3,59 +3,6 @@
 part of 'menu.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
-
-class MenuAdapter extends TypeAdapter<Menu> {
-  @override
-  final int typeId = 2;
-
-  @override
-  Menu read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Menu(
-      date: fields[1] as Date,
-      meal: fields[2] as Meal,
-      recipes: (fields[3] as List)?.cast<String>(),
-    )
-      ..id = fields[254] as String
-      ..insertTimestamp = fields[253] as int
-      ..updateTimestamp = fields[252] as int;
-  }
-
-  @override
-  void write(BinaryWriter writer, Menu obj) {
-    writer
-      ..writeByte(6)
-      ..writeByte(1)
-      ..write(obj.date)
-      ..writeByte(2)
-      ..write(obj.meal)
-      ..writeByte(3)
-      ..write(obj.recipes)
-      ..writeByte(254)
-      ..write(obj.id)
-      ..writeByte(253)
-      ..write(obj.insertTimestamp)
-      ..writeByte(252)
-      ..write(obj.updateTimestamp);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MenuAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -126,3 +73,61 @@ const _$MealEnumMap = {
   Meal.Lunch: 'Lunch',
   Meal.Dinner: 'Dinner',
 };
+
+// **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
+
+mixin $MenuLocalAdapter on LocalAdapter<Menu> {
+  @override
+  Map<String, Map<String, Object>> relationshipsFor([Menu model]) => {};
+
+  @override
+  Menu deserialize(map) {
+    for (final key in relationshipsFor().keys) {
+      map[key] = {
+        '_': [map[key], !map.containsKey(key)],
+      };
+    }
+    return Menu.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model) => model.toJson();
+}
+
+// ignore: must_be_immutable
+class $MenuHiveLocalAdapter = HiveLocalAdapter<Menu> with $MenuLocalAdapter;
+
+class $MenuRemoteAdapter = RemoteAdapter<Menu> with MyJSONServerAdapter;
+
+//
+
+final menuLocalAdapterProvider = RiverpodAlias.provider<LocalAdapter<Menu>>(
+    (ref) => $MenuHiveLocalAdapter(
+        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+
+final menuRemoteAdapterProvider = RiverpodAlias.provider<RemoteAdapter<Menu>>(
+    (ref) => $MenuRemoteAdapter(ref.read(menuLocalAdapterProvider)));
+
+final menuRepositoryProvider =
+    RiverpodAlias.provider<Repository<Menu>>((ref) => Repository<Menu>(ref));
+
+extension MenuX on Menu {
+  /// Initializes "fresh" models (i.e. manually instantiated) to use
+  /// [save], [delete] and so on.
+  ///
+  /// Pass:
+  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
+  ///  - Nothing if using Flutter with GetIt
+  ///  - A Riverpod `ProviderContainer` if using pure Dart
+  ///  - Its own [Repository<Menu>]
+  Menu init(context) {
+    final repository = context is Repository<Menu>
+        ? context
+        : internalLocatorFn(menuRepositoryProvider, context);
+    return repository.internalAdapter.initializeModel(this, save: true) as Menu;
+  }
+}

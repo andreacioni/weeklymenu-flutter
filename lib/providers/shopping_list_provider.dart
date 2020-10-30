@@ -4,7 +4,6 @@ import 'package:logger/logger.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
-import '../datasource/network.dart';
 import '../models/shopping_list.dart';
 import 'rest_provider.dart';
 

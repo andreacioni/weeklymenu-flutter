@@ -3,127 +3,6 @@
 part of 'recipe.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
-
-class RecipeAdapter extends TypeAdapter<Recipe> {
-  @override
-  final int typeId = 3;
-
-  @override
-  Recipe read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Recipe(
-      name: fields[1] as String,
-      description: fields[2] as String,
-      ingredients: (fields[10] as List)?.cast<RecipeIngredient>(),
-      difficulty: fields[5] as String,
-      rating: fields[3] as int,
-      cost: fields[4] as int,
-      availabilityMonths: (fields[6] as List)?.cast<int>(),
-      servs: fields[7] as int,
-      estimatedPreparationTime: fields[9] as int,
-      estimatedCookingTime: fields[8] as int,
-      imgUrl: fields[13] as String,
-      tags: (fields[15] as List)?.cast<String>(),
-      preparation: fields[11] as String,
-      recipeUrl: fields[14] as String,
-      note: fields[12] as String,
-      owner: fields[16] as String,
-    )
-      ..id = fields[254] as String
-      ..insertTimestamp = fields[253] as int
-      ..updateTimestamp = fields[252] as int;
-  }
-
-  @override
-  void write(BinaryWriter writer, Recipe obj) {
-    writer
-      ..writeByte(19)
-      ..writeByte(1)
-      ..write(obj.name)
-      ..writeByte(2)
-      ..write(obj.description)
-      ..writeByte(3)
-      ..write(obj.rating)
-      ..writeByte(4)
-      ..write(obj.cost)
-      ..writeByte(5)
-      ..write(obj.difficulty)
-      ..writeByte(6)
-      ..write(obj.availabilityMonths)
-      ..writeByte(7)
-      ..write(obj.servs)
-      ..writeByte(8)
-      ..write(obj.estimatedCookingTime)
-      ..writeByte(9)
-      ..write(obj.estimatedPreparationTime)
-      ..writeByte(10)
-      ..write(obj.ingredients)
-      ..writeByte(11)
-      ..write(obj.preparation)
-      ..writeByte(12)
-      ..write(obj.note)
-      ..writeByte(13)
-      ..write(obj.imgUrl)
-      ..writeByte(14)
-      ..write(obj.recipeUrl)
-      ..writeByte(15)
-      ..write(obj.tags)
-      ..writeByte(16)
-      ..write(obj.owner)
-      ..writeByte(254)
-      ..write(obj.id)
-      ..writeByte(253)
-      ..write(obj.insertTimestamp)
-      ..writeByte(252)
-      ..write(obj.updateTimestamp);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RecipeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class RecipeIngredientAdapter extends TypeAdapter<RecipeIngredient> {
-  @override
-  final int typeId = 5;
-
-  @override
-  RecipeIngredient read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return RecipeIngredient();
-  }
-
-  @override
-  void write(BinaryWriter writer, RecipeIngredient obj) {
-    writer..writeByte(0);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RecipeIngredientAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -212,4 +91,65 @@ Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
   writeNotNull('unitOfMeasure', instance.unitOfMeasure);
   writeNotNull('freezed', instance.freezed);
   return val;
+}
+
+// **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
+
+mixin $RecipeLocalAdapter on LocalAdapter<Recipe> {
+  @override
+  Map<String, Map<String, Object>> relationshipsFor([Recipe model]) => {};
+
+  @override
+  Recipe deserialize(map) {
+    for (final key in relationshipsFor().keys) {
+      map[key] = {
+        '_': [map[key], !map.containsKey(key)],
+      };
+    }
+    return Recipe.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model) => model.toJson();
+}
+
+// ignore: must_be_immutable
+class $RecipeHiveLocalAdapter = HiveLocalAdapter<Recipe>
+    with $RecipeLocalAdapter;
+
+class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with MyJSONServerAdapter;
+
+//
+
+final recipeLocalAdapterProvider = RiverpodAlias.provider<LocalAdapter<Recipe>>(
+    (ref) => $RecipeHiveLocalAdapter(
+        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+
+final recipeRemoteAdapterProvider =
+    RiverpodAlias.provider<RemoteAdapter<Recipe>>(
+        (ref) => $RecipeRemoteAdapter(ref.read(recipeLocalAdapterProvider)));
+
+final recipeRepositoryProvider = RiverpodAlias.provider<Repository<Recipe>>(
+    (ref) => Repository<Recipe>(ref));
+
+extension RecipeX on Recipe {
+  /// Initializes "fresh" models (i.e. manually instantiated) to use
+  /// [save], [delete] and so on.
+  ///
+  /// Pass:
+  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
+  ///  - Nothing if using Flutter with GetIt
+  ///  - A Riverpod `ProviderContainer` if using pure Dart
+  ///  - Its own [Repository<Recipe>]
+  Recipe init(context) {
+    final repository = context is Repository<Recipe>
+        ? context
+        : internalLocatorFn(recipeRepositoryProvider, context);
+    return repository.internalAdapter.initializeModel(this, save: true)
+        as Recipe;
+  }
 }
