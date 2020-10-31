@@ -52,22 +52,61 @@ class $IngredientHiveLocalAdapter = HiveLocalAdapter<Ingredient>
     with $IngredientLocalAdapter;
 
 class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
-    with MyJSONServerAdapter;
+    with BaseAdapter<Ingredient>;
 
 //
 
-final ingredientLocalAdapterProvider =
-    RiverpodAlias.provider<LocalAdapter<Ingredient>>((ref) =>
-        $IngredientHiveLocalAdapter(
-            ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+final ingredientLocalAdapterProvider = Provider<LocalAdapter<Ingredient>>(
+    (ref) => $IngredientHiveLocalAdapter(
+        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
 
-final ingredientRemoteAdapterProvider =
-    RiverpodAlias.provider<RemoteAdapter<Ingredient>>((ref) =>
+final ingredientRemoteAdapterProvider = Provider<RemoteAdapter<Ingredient>>(
+    (ref) =>
         $IngredientRemoteAdapter(ref.read(ingredientLocalAdapterProvider)));
 
 final ingredientRepositoryProvider =
-    RiverpodAlias.provider<Repository<Ingredient>>(
-        (ref) => Repository<Ingredient>(ref));
+    Provider<Repository<Ingredient>>((ref) => Repository<Ingredient>(ref));
+
+final _watchIngredient = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<Ingredient>, WatchArgs<Ingredient>>((ref, args) {
+  return ref.watch(ingredientRepositoryProvider).watchOne(args.id,
+      remote: args.remote,
+      params: args.params,
+      headers: args.headers,
+      alsoWatch: args.alsoWatch);
+});
+
+AutoDisposeStateNotifierStateProvider<DataState<Ingredient>> watchIngredient(
+    dynamic id,
+    {bool remote = true,
+    Map<String, dynamic> params = const {},
+    Map<String, String> headers = const {},
+    AlsoWatch<Ingredient> alsoWatch}) {
+  return _watchIngredient(WatchArgs(
+          id: id,
+          remote: remote,
+          params: params,
+          headers: headers,
+          alsoWatch: alsoWatch))
+      .state;
+}
+
+final _watchIngredients = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<List<Ingredient>>, WatchArgs<Ingredient>>(
+        (ref, args) {
+  return ref.watch(ingredientRepositoryProvider).watchAll(
+      remote: args.remote, params: args.params, headers: args.headers);
+});
+
+AutoDisposeStateNotifierStateProvider<DataState<List<Ingredient>>>
+    watchIngredients(
+        {bool remote,
+        Map<String, dynamic> params,
+        Map<String, String> headers}) {
+  return _watchIngredients(
+          WatchArgs(remote: remote, params: params, headers: headers))
+      .state;
+}
 
 extension IngredientX on Ingredient {
   /// Initializes "fresh" models (i.e. manually instantiated) to use

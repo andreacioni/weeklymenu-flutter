@@ -5,7 +5,7 @@
 
 import 'package:flutter_data/flutter_data.dart';
 
-
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart' as p hide ReadContext;
 import 'package:provider/single_child_widget.dart';
 
@@ -17,8 +17,8 @@ import 'package:weekly_menu_app/models/recipe.dart';
 
 ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<String> baseDirFn, List<int> encryptionKey, bool clear}) {
   // ignore: unnecessary_statements
-  baseDirFn;
-  return hiveLocalStorageProvider.overrideWithProvider(RiverpodAlias.provider(
+  baseDirFn ??= () => getApplicationDocumentsDirectory().then((dir) => dir.path);
+  return hiveLocalStorageProvider.overrideWithProvider(Provider(
         (_) => HiveLocalStorage(baseDirFn: baseDirFn, encryptionKey: encryptionKey, clear: clear)));
 };
 
@@ -30,7 +30,7 @@ RepositoryInitializerProvider repositoryInitializerProvider = (
 };
 
 final _repositoryInitializerProviderFamily =
-  RiverpodAlias.futureProviderFamily<RepositoryInitializer, RepositoryInitializerArgs>((ref, args) async {
+  FutureProvider.family<RepositoryInitializer, RepositoryInitializerArgs>((ref, args) async {
     final graphs = <String, Map<String, RemoteAdapter>>{'ingredients': {'ingredients': ref.read(ingredientRemoteAdapterProvider)}, 'menus': {'menus': ref.read(menuRemoteAdapterProvider)}, 'recipes': {'recipes': ref.read(recipeRemoteAdapterProvider)}};
     
 
@@ -51,6 +51,14 @@ final _repositoryInitializerProviderFamily =
         verbose: args?.verbose,
         adapters: graphs['recipes'],
       );
+
+    ref.onDispose(() {
+            ref.read(ingredientRepositoryProvider).dispose();
+      ref.read(menuRepositoryProvider).dispose();
+      ref.read(recipeRepositoryProvider).dispose();
+
+    });
+
     return RepositoryInitializer();
 });
 

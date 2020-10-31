@@ -101,19 +101,55 @@ mixin $MenuLocalAdapter on LocalAdapter<Menu> {
 // ignore: must_be_immutable
 class $MenuHiveLocalAdapter = HiveLocalAdapter<Menu> with $MenuLocalAdapter;
 
-class $MenuRemoteAdapter = RemoteAdapter<Menu> with MyJSONServerAdapter;
+class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 
 //
 
-final menuLocalAdapterProvider = RiverpodAlias.provider<LocalAdapter<Menu>>(
-    (ref) => $MenuHiveLocalAdapter(
+final menuLocalAdapterProvider = Provider<LocalAdapter<Menu>>((ref) =>
+    $MenuHiveLocalAdapter(
         ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
 
-final menuRemoteAdapterProvider = RiverpodAlias.provider<RemoteAdapter<Menu>>(
+final menuRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
     (ref) => $MenuRemoteAdapter(ref.read(menuLocalAdapterProvider)));
 
 final menuRepositoryProvider =
-    RiverpodAlias.provider<Repository<Menu>>((ref) => Repository<Menu>(ref));
+    Provider<Repository<Menu>>((ref) => Repository<Menu>(ref));
+
+final _watchMenu = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<Menu>, WatchArgs<Menu>>((ref, args) {
+  return ref.watch(menuRepositoryProvider).watchOne(args.id,
+      remote: args.remote,
+      params: args.params,
+      headers: args.headers,
+      alsoWatch: args.alsoWatch);
+});
+
+AutoDisposeStateNotifierStateProvider<DataState<Menu>> watchMenu(dynamic id,
+    {bool remote = true,
+    Map<String, dynamic> params = const {},
+    Map<String, String> headers = const {},
+    AlsoWatch<Menu> alsoWatch}) {
+  return _watchMenu(WatchArgs(
+          id: id,
+          remote: remote,
+          params: params,
+          headers: headers,
+          alsoWatch: alsoWatch))
+      .state;
+}
+
+final _watchMenus = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<List<Menu>>, WatchArgs<Menu>>((ref, args) {
+  return ref.watch(menuRepositoryProvider).watchAll(
+      remote: args.remote, params: args.params, headers: args.headers);
+});
+
+AutoDisposeStateNotifierStateProvider<DataState<List<Menu>>> watchMenus(
+    {bool remote, Map<String, dynamic> params, Map<String, String> headers}) {
+  return _watchMenus(
+          WatchArgs(remote: remote, params: params, headers: headers))
+      .state;
+}
 
 extension MenuX on Menu {
   /// Initializes "fresh" models (i.e. manually instantiated) to use

@@ -121,20 +121,55 @@ mixin $RecipeLocalAdapter on LocalAdapter<Recipe> {
 class $RecipeHiveLocalAdapter = HiveLocalAdapter<Recipe>
     with $RecipeLocalAdapter;
 
-class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with MyJSONServerAdapter;
+class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
 
 //
 
-final recipeLocalAdapterProvider = RiverpodAlias.provider<LocalAdapter<Recipe>>(
-    (ref) => $RecipeHiveLocalAdapter(
+final recipeLocalAdapterProvider = Provider<LocalAdapter<Recipe>>((ref) =>
+    $RecipeHiveLocalAdapter(
         ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
 
-final recipeRemoteAdapterProvider =
-    RiverpodAlias.provider<RemoteAdapter<Recipe>>(
-        (ref) => $RecipeRemoteAdapter(ref.read(recipeLocalAdapterProvider)));
+final recipeRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
+    (ref) => $RecipeRemoteAdapter(ref.read(recipeLocalAdapterProvider)));
 
-final recipeRepositoryProvider = RiverpodAlias.provider<Repository<Recipe>>(
-    (ref) => Repository<Recipe>(ref));
+final recipeRepositoryProvider =
+    Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref));
+
+final _watchRecipe = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<Recipe>, WatchArgs<Recipe>>((ref, args) {
+  return ref.watch(recipeRepositoryProvider).watchOne(args.id,
+      remote: args.remote,
+      params: args.params,
+      headers: args.headers,
+      alsoWatch: args.alsoWatch);
+});
+
+AutoDisposeStateNotifierStateProvider<DataState<Recipe>> watchRecipe(dynamic id,
+    {bool remote = true,
+    Map<String, dynamic> params = const {},
+    Map<String, String> headers = const {},
+    AlsoWatch<Recipe> alsoWatch}) {
+  return _watchRecipe(WatchArgs(
+          id: id,
+          remote: remote,
+          params: params,
+          headers: headers,
+          alsoWatch: alsoWatch))
+      .state;
+}
+
+final _watchRecipes = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<List<Recipe>>, WatchArgs<Recipe>>((ref, args) {
+  return ref.watch(recipeRepositoryProvider).watchAll(
+      remote: args.remote, params: args.params, headers: args.headers);
+});
+
+AutoDisposeStateNotifierStateProvider<DataState<List<Recipe>>> watchRecipes(
+    {bool remote, Map<String, dynamic> params, Map<String, String> headers}) {
+  return _watchRecipes(
+          WatchArgs(remote: remote, params: params, headers: headers))
+      .state;
+}
 
 extension RecipeX on Recipe {
   /// Initializes "fresh" models (i.e. manually instantiated) to use

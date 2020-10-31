@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
+import 'package:weekly_menu_app/models/shopping_list.dart';
 import 'package:weekly_menu_app/providers/ingredients_provider.dart';
 
-import '../models/shopping_list.dart';
 import 'rest_provider.dart';
 
 class ShoppingListProvider with ChangeNotifier {

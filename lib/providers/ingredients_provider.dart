@@ -3,9 +3,8 @@ import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/rest_provider.dart';
-
-import '../models/ingredient.dart';
 
 class IngredientsProvider with ChangeNotifier {
   final _log = Logger();

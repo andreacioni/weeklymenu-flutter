@@ -1,22 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_data/flutter_data.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/date.dart';
-import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 import 'package:weekly_menu_app/providers/menus_provider.dart';
 
-import '../globals/utils.dart' as utils;
-import './enums/meals.dart';
+import '../globals/memento.dart';
 import './recipe.dart';
+import 'enums/meals.dart';
 
 part 'menu.g.dart';
 
 @JsonSerializable()
-@DataRepository([MyJSONServerAdapter])
+@DataRepository([BaseAdapter])
 class Menu extends BaseModel<Menu> {
   static final _dateParser = DateFormat('y-M-d');
 
@@ -224,11 +221,11 @@ class DailyMenu
     for (MenuOriginator menu in menus) {
       if (menu.recipes.isEmpty) {
         // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        await Provider.of<MenusProvider>(context, listen: false)
-            .removeMenu(menu);
+        //await Provider.of<MenusProvider>(context, listen: false)
+        //    .removeMenu(menu);
         removeMenu(menu);
       } else {
-        await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
+        //await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
       }
     }
   }
@@ -326,9 +323,4 @@ class DailyMenu
   bool get isToday => day.isToday;
 
   bool get isPast => day.isPast;
-}
-
-mixin MyJSONServerAdapter on RemoteAdapter<Menu> {
-  @override
-  String get baseUrl => "https://heroku-weeklymenu.herokuapp.com/api/v1/menus";
 }

@@ -4,11 +4,10 @@ import 'package:logger/logger.dart';
 import 'package:objectid/objectid.dart';
 
 import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/models/menu.dart';
+import 'package:weekly_menu_app/models/recipe.dart';
 
 import './recipes_provider.dart';
-import '../models/menu.dart';
-import '../models/enums/meals.dart';
-import '../models/recipe.dart';
 import 'rest_provider.dart';
 
 class MenusProvider with ChangeNotifier {

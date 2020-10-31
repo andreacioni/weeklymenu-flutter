@@ -1,15 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
-
-import '../globals/memento.dart';
-import './enums/meals.dart';
+import 'package:weekly_menu_app/models/enums/meals.dart';
 
 part 'recipe.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-@DataRepository([MyJSONServerAdapter])
+@DataRepository([BaseAdapter])
 class Recipe extends BaseModel<Recipe> {
   String name;
 
@@ -300,10 +299,4 @@ class MealRecipe {
   final Meal meal;
   final RecipeOriginator recipe;
   MealRecipe(this.meal, this.recipe);
-}
-
-mixin MyJSONServerAdapter on RemoteAdapter<Recipe> {
-  @override
-  String get baseUrl =>
-      "https://heroku-weeklymenu.herokuapp.com/api/v1/recipes";
 }
