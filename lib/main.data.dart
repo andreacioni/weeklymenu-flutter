@@ -14,6 +14,7 @@ import 'package:provider/single_child_widget.dart';
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/models/menu.dart';
 import 'package:weekly_menu_app/models/recipe.dart';
+import 'package:weekly_menu_app/models/shopping_list.dart';
 
 ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<String> baseDirFn, List<int> encryptionKey, bool clear}) {
   // ignore: unnecessary_statements
@@ -31,7 +32,7 @@ RepositoryInitializerProvider repositoryInitializerProvider = (
 
 final _repositoryInitializerProviderFamily =
   FutureProvider.family<RepositoryInitializer, RepositoryInitializerArgs>((ref, args) async {
-    final graphs = <String, Map<String, RemoteAdapter>>{'ingredients': {'ingredients': ref.read(ingredientRemoteAdapterProvider)}, 'menus': {'menus': ref.read(menuRemoteAdapterProvider)}, 'recipes': {'recipes': ref.read(recipeRemoteAdapterProvider)}};
+    final graphs = <String, Map<String, RemoteAdapter>>{'ingredients': {'ingredients': ref.read(ingredientRemoteAdapterProvider)}, 'menus': {'menus': ref.read(menuRemoteAdapterProvider)}, 'recipes': {'recipes': ref.read(recipeRemoteAdapterProvider)}, 'shoppingLists': {'shoppingLists': ref.read(shoppingListRemoteAdapterProvider)}};
     
 
       await ref.read(ingredientRepositoryProvider).initialize(
@@ -52,10 +53,17 @@ final _repositoryInitializerProviderFamily =
         adapters: graphs['recipes'],
       );
 
+      await ref.read(shoppingListRepositoryProvider).initialize(
+        remote: args?.remote,
+        verbose: args?.verbose,
+        adapters: graphs['shoppingLists'],
+      );
+
     ref.onDispose(() {
             ref.read(ingredientRepositoryProvider).dispose();
       ref.read(menuRepositoryProvider).dispose();
       ref.read(recipeRepositoryProvider).dispose();
+      ref.read(shoppingListRepositoryProvider).dispose();
 
     });
 
@@ -95,6 +103,11 @@ List<SingleChildWidget> repositoryProviders({FutureFn<String> baseDirFn, List<in
     p.ProxyProvider<RepositoryInitializer, Repository<Recipe>>(
       lazy: false,
       update: (context, i, __) => i == null ? null : p.Provider.of<ProviderContainer>(context, listen: false).read(recipeRepositoryProvider),
+      dispose: (_, r) => r?.dispose(),
+    ),
+    p.ProxyProvider<RepositoryInitializer, Repository<ShoppingList>>(
+      lazy: false,
+      update: (context, i, __) => i == null ? null : p.Provider.of<ProviderContainer>(context, listen: false).read(shoppingListRepositoryProvider),
       dispose: (_, r) => r?.dispose(),
     ),]; }
 

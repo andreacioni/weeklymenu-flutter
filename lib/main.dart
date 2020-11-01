@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/widgets/ingredients_screen/screen.dart';
 import 'package:weekly_menu_app/widgets/login_screen/screen.dart';
 import 'package:weekly_menu_app/widgets/recipes_screen/screen.dart';
+import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
 import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
 
 import 'providers/rest_provider.dart';
@@ -21,11 +22,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ...repositoryProviders(clear: false, verbose: true),
+        ...repositoryProviders(clear: true, verbose: true),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',
-        home: RecipesScreen(),
+        home: ShoppingListScreen(),
         theme: ThemeData(
           // Define the default brightness and colors.
           brightness: Brightness.light,

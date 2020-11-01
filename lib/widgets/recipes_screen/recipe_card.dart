@@ -20,7 +20,7 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(10);
-    final recipe = Provider.of<RecipeOriginator>(context);
+    final recipe = Provider.of<Recipe>(context);
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(

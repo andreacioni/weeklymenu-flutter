@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 
+import 'package:flutter_data/flutter_data.dart';
+
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
+@DataRepository([BaseAdapter])
 class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(defaultValue: [])
   List<ShoppingListItem> items;
@@ -83,4 +86,10 @@ class ShoppingListItem with ChangeNotifier {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
+}
+
+mixin ShoppingListAdapter<T extends DataModel<T>>
+    on RemoteAdapter<ShoppingList> {
+  @override
+  String get type => 'shopping-lists';
 }

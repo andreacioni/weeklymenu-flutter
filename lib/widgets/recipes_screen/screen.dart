@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
@@ -20,6 +21,8 @@ class RecipesScreen extends StatefulWidget {
 }
 
 class _RecipesScreenState extends State<RecipesScreen> {
+  final _log = Logger();
+
   bool _searchModeEnabled;
   String _searchText;
 
@@ -321,9 +324,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
             onPressed: () async {
               Navigator.of(context).pop();
               if (textController.text.trim().isNotEmpty) {
-                await Provider.of<RecipesProvider>(context, listen: false)
-                    .addRecipe(Recipe(name: textController.text));
-                setState(() => _isLoading = false);
+                await Provider.of<Repository<Recipe>>(context, listen: false)
+                    .save(Recipe(name: textController.text));
+              } else {
+                _log.w("No name supplied");
               }
             },
           )
