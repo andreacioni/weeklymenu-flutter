@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_data/flutter_data.dart';
 import 'package:provider/provider.dart';
+
 import './drawer.dart';
 import './widgets/menu_page/screen.dart';
 import './widgets/recipes_screen/screen.dart';
@@ -8,6 +9,7 @@ import './widgets/shopping_list_screen/screen.dart';
 import './providers/ingredients_provider.dart';
 import './providers/shopping_list_provider.dart';
 import './providers/recipes_provider.dart';
+import 'models/ingredient.dart';
 
 class HomePage extends StatefulWidget {
   HomePage();
@@ -34,7 +36,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _fetchAndSetData();
     super.initState();
   }
 
@@ -45,37 +46,13 @@ class _HomePageState extends State<HomePage> {
       length: 4,
       child: Scaffold(
         bottomNavigationBar: _buildBottomAppBar(context),
-        body: RefreshIndicator(
-          child: (!_recipesLoaded || !_ingredientLoaded || !_shoppingListLoaded)
-              ? _buildCircularLoadingIndicator()
-              : PageStorage(
-                  child: _screens[_activeScreenIndex],
-                  bucket: bucket,
-                ),
-          onRefresh: _fetchAndSetData,
-          displacement: 90,
+        body: PageStorage(
+          child: _screens[_activeScreenIndex],
+          bucket: bucket,
         ),
         drawer: AppDrawer(),
       ),
     );
-  }
-
-  Center _buildCircularLoadingIndicator() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
-  Future<void> _fetchAndSetData() async {
-    await Provider.of<IngredientsProvider>(context, listen: false)
-        .fetchIngredients()
-        .then((_) => setState(() => _ingredientLoaded = true));
-    await Provider.of<RecipesProvider>(context, listen: false)
-        .fetchRecipes()
-        .then((_) => setState(() => _recipesLoaded = true));
-    await Provider.of<ShoppingListProvider>(context, listen: false)
-        .fetchShoppingListItems()
-        .then((_) => setState(() => _shoppingListLoaded = true));
   }
 
   BottomNavigationBar _buildBottomAppBar(BuildContext context) {
