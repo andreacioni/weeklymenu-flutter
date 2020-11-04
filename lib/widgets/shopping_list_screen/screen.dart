@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_data_state/flutter_data_state.dart';
 
 import '../../models/ingredient.dart';
 import '../../providers/ingredients_provider.dart';
@@ -33,37 +34,36 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   @override
   Widget build(BuildContext context) {
     final repository = context.watch<Repository<ShoppingList>>();
+
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: FutureBuilder<List<ShoppingList>>(
-        future: repository.findAll(),
-        builder: (bCtx, snapshot) {
-          if (snapshot.hasError) {
-            return Text("Error occurred"); //TODO improve
+      body: DataStateBuilder<List<ShoppingList>>(
+        notifier: () => repository.watchAll(),
+        builder: (context, state, notifier, _) {
+          if (state.isLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state.hasException) {
+            return Text("Error occurred");
           }
 
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              final shoppingList = snapshot.data[0];
-              final allItems = snapshot.data[0].getAllItems;
-              return allItems.isEmpty && !_newItemMode
-                  ? _buildNoElementsPage()
-                  : CustomScrollView(
-                      slivers: <Widget>[
-                        //if (allItems.isEmpty) _buildNoElementsPage(),
-                        if (_loading) _buildLoadingItem(),
-                        if (_newItemMode) _buildAddItem(shoppingList),
-                        //_buildFloatingHeader('Unckecked'),
-                        if (allItems.isNotEmpty)
-                          ..._buildUncheckedList(shoppingList),
-                        //_buildFloatingHeader('Checked'),
-                        if (allItems.isNotEmpty)
-                          ..._buildCheckedList(shoppingList),
-                      ],
-                    );
-            default:
-              return Center(child: CircularProgressIndicator());
-          }
+          //Get only the first element, by now only one list per user is supported
+          final shoppingList = notifier.data.model[0];
+          final allItems = shoppingList.getAllItems;
+
+          return allItems.isEmpty && !_newItemMode
+              ? _buildNoElementsPage()
+              : CustomScrollView(
+                  slivers: <Widget>[
+                    //if (allItems.isEmpty) _buildNoElementsPage(),
+                    if (_loading) _buildLoadingItem(),
+                    if (_newItemMode) _buildAddItem(shoppingList),
+                    //_buildFloatingHeader('Unckecked'),
+                    if (allItems.isNotEmpty)
+                      ..._buildUncheckedList(shoppingList),
+                    //_buildFloatingHeader('Checked'),
+                    if (allItems.isNotEmpty) ..._buildCheckedList(shoppingList),
+                  ],
+                );
         },
       ),
     );

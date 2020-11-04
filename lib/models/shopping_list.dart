@@ -7,7 +7,7 @@ import 'package:flutter_data/flutter_data.dart';
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-@DataRepository([BaseAdapter])
+@DataRepository([BaseAdapter, ShoppingListAdapter])
 class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(defaultValue: [])
   List<ShoppingListItem> items;
@@ -88,8 +88,17 @@ class ShoppingListItem with ChangeNotifier {
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
 }
 
-mixin ShoppingListAdapter<T extends DataModel<T>>
+mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
     on RemoteAdapter<ShoppingList> {
   @override
-  String get type => 'shopping-lists';
+  String urlForFindAll(Map<String, dynamic> params) => dashCaseType;
+
+  @override
+  String urlForFindOne(id, Map<String, dynamic> params) => '$dashCaseType/$id';
+
+  @override
+  String urlForSave(id, Map<String, dynamic> params) => '$dashCaseType/$id';
+
+  String get dashCaseType =>
+      type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
 }

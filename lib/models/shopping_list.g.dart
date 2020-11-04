@@ -98,7 +98,7 @@ class $ShoppingListHiveLocalAdapter = HiveLocalAdapter<ShoppingList>
     with $ShoppingListLocalAdapter;
 
 class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
-    with BaseAdapter<ShoppingList>;
+    with BaseAdapter<ShoppingList>, ShoppingListAdapter<ShoppingList>;
 
 //
 

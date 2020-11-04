@@ -38,14 +38,14 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
         'Authorization':
             'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDI1MzQwNDcsIm5iZiI6MTYwMjUzNDA0NywianRpIjoiNjE3ZjRiNTYtNzg2Ny00Mzg4LWE1ZTAtMDYxZjc4N2JhMTg1IiwiZXhwIjoyNjAyNTM0OTQ3LCJpZGVudGl0eSI6ImNpb25pQGZsdXRvLmNvbSIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.GQv-m0crSn4_CgdeemzYH6u9afSmM6TobYb-mDappZI'
       };
+
   @override
-  String get type => 'shopping-lists';
-  @override
-  DeserializedData<T, DataModel<T>> deserialize(data, {String key, bool init}) {
+  DeserializedData<T, DataModel<dynamic>> deserialize(data,
+      {String key, bool init}) {
     final json = data as Map<String, dynamic>;
-    return super.deserialize(
-        json.containsKey('results') ? json['results'] : json,
-        key: key,
-        init: init);
+    return super
+        .deserialize(json.containsKey('results') ? json['results'] : json,
+            //key: type,
+            init: init);
   }
 }
