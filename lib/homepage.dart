@@ -19,10 +19,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _ingredientLoaded = false;
-  bool _recipesLoaded = false;
-  bool _shoppingListLoaded = false;
-
   final PageStorageBucket bucket = PageStorageBucket();
   final List<Widget> _screens = [
     MenuScreen(key: PageStorageKey('menuPage')),

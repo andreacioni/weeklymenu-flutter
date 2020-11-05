@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:weekly_menu_app/models/recipe.dart';
 
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../../models/enums/meals.dart';
-
-import '../../providers/recipes_provider.dart';
 
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends StatelessWidget {
@@ -189,20 +190,39 @@ class MenuCard extends StatelessWidget {
 }
 
 class MenuRecipesText extends StatelessWidget {
-  final List<String> recipesIds;
+  final Logger _log = Logger();
 
-  const MenuRecipesText(this.recipesIds, {Key key}) : super(key: key);
+  final List<String> _recipesIds;
+
+  MenuRecipesText(this._recipesIds, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final recipesProvider = Provider.of<RecipesProvider>(context);
-    final recipes = recipesIds
-        .map((recipeId) => recipesProvider.getById(recipeId).name)
-        .toList();
+    final repository = context.watch<Repository<Recipe>>();
+    return FutureBuilder(
+      future: _getRecipeNames(repository),
+      initialData: const <String>[],
+      builder: (context, snapshot) {},
+    );
+  }
 
+  Future<List<String>> _getRecipeNames(Repository<Recipe> repository) async {
+    List<String> recipesNames = const <String>[];
+    for (String recipeId in _recipesIds) {
+      try {
+        final recipe = await repository.findOne(recipeId);
+        recipesNames.add(recipe?.name ?? '???');
+      } catch (e) {
+        _log.e("There was an error while looking for recipe id: {}", recipeId);
+        recipesNames.add('!!!');
+      }
+    }
+  }
+
+  Widget _buildTextEntry([List<String> recipesNames = const <String>[]]) {
     return Expanded(
       child: Text(
-        recipes.join(', '),
+        recipesNames.join(', '),
         style: TextStyle(fontStyle: FontStyle.normal, color: Colors.black),
         overflow: TextOverflow.ellipsis,
         softWrap: false,
