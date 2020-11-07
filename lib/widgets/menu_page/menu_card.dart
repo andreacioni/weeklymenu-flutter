@@ -199,24 +199,27 @@ class MenuRecipesText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repository = context.watch<Repository<Recipe>>();
-    return FutureBuilder(
+    return FutureBuilder<List<String>>(
       future: _getRecipeNames(repository),
       initialData: const <String>[],
-      builder: (context, snapshot) {},
+      builder: (_, snapshot) =>
+          _buildTextEntry(snapshot.data ?? ['Loading...']),
     );
   }
 
   Future<List<String>> _getRecipeNames(Repository<Recipe> repository) async {
-    List<String> recipesNames = const <String>[];
+    List<String> recipesNames = <String>[];
     for (String recipeId in _recipesIds) {
       try {
         final recipe = await repository.findOne(recipeId);
         recipesNames.add(recipe?.name ?? '???');
       } catch (e) {
-        _log.e("There was an error while looking for recipe id: {}", recipeId);
+        _log.e("There was an error while looking for recipe id: $recipeId", e);
         recipesNames.add('!!!');
       }
     }
+
+    return recipesNames;
   }
 
   Widget _buildTextEntry([List<String> recipesNames = const <String>[]]) {
