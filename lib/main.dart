@@ -22,7 +22,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ...repositoryProviders(clear: true, verbose: true),
+        ...repositoryProviders(clear: false, verbose: true),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

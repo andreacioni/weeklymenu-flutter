@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/menu.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';
 import 'package:weekly_menu_app/widgets/menu_page/menu_card.dart';
 
