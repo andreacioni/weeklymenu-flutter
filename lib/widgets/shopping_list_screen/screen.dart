@@ -4,8 +4,6 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
 
 import '../../models/ingredient.dart';
-import '../../providers/ingredients_provider.dart';
-import '../../providers/shopping_list_provider.dart';
 import './shopping_list_tile.dart';
 import '../../globals/errors_handlers.dart';
 import '../../models/shopping_list.dart';

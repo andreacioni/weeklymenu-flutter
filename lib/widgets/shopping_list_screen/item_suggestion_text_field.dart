@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
 import '../../globals/utils.dart';
 import '../../models/ingredient.dart';
 import '../../models/shopping_list.dart';
-import '../../providers/ingredients_provider.dart';
-import '../../providers/shopping_list_provider.dart';
 
 class ItemSuggestionTextField extends StatefulWidget {
   final Ingredient value;
@@ -101,7 +100,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
 
   Future<List> _suggestionsCallback(
       BuildContext context, String pattern) async {
-    final ingredientProvider = Provider.of<IngredientsProvider>(
+    final ingredientProvider = Provider.of<Repository<Ingredient>>(
       context,
       listen: false,
     );
@@ -152,7 +151,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
 
   Ingredient _resolveShoppingListItemIngredient(
       ShoppingListItem shoppingListItem) {
-    return Provider.of<IngredientsProvider>(
+    return Provider.of<Repository<Ingredient>>(
       context,
       listen: false,
     ).getById(shoppingListItem.item);

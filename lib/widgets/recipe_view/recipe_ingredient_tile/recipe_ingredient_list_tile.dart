@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/recipe.dart';
-import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientListTile extends StatefulWidget {
   final RecipeOriginator _recipe;
@@ -25,9 +25,26 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
 
   @override
   Widget build(BuildContext context) {
-    Ingredient ingredient =
-        Provider.of<IngredientsProvider>(context, listen: false)
-            .getById(widget._recipeIngredient.ingredientId);
+    return FutureBuilder<Ingredient>(
+      future: Provider.of<Repository<Ingredient>>(context, listen: false)
+          .findOne(widget._recipeIngredient.ingredientId),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text("Error occurred");
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        final ingredient = snapshot.data;
+
+        return buildListTile(ingredient);
+      },
+    );
+  }
+
+  Widget buildListTile(Ingredient ingredient) {
     return Card(
       child: ListTile(
         leading: Padding(
@@ -38,7 +55,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
         trailing: widget.editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
-                onPressed: _openRecipeIngredientUpdateModal,
+                onPressed: openRecipeIngredientUpdateModal,
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +83,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
     );
   }
 
-  void _openRecipeIngredientUpdateModal() async {
+  void openRecipeIngredientUpdateModal() async {
     RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
       barrierDismissible: true,

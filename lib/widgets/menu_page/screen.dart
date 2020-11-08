@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/widgets/menu_page/daily_menu_future_wrapper.dart';
 
-import 'package:weekly_menu_app/widgets/menu_page/menu_app_bar.dart';
-import 'package:weekly_menu_app/widgets/menu_page/menu_fab.dart';
-
-import '../menu_editor/screen.dart';
-import '../../providers/menus_provider.dart';
+import 'menu_app_bar.dart';
+import 'menu_fab.dart';
 import '../../globals/constants.dart';
 import './menu_card.dart';
-import '../../models/menu.dart';
-import '../../globals/utils.dart' as utils;
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({Key key}) : super(key: key);

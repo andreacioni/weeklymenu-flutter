@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/enums/meals.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
 import 'package:weekly_menu_app/globals/constants.dart' as consts;
 import '../../globals/errors_handlers.dart';
 import '../../models/menu.dart';
@@ -125,7 +125,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         try {
           await dailyMenu.save(
             context,
-            Provider.of<MenusProvider>(context, listen: false),
+            Provider.of<Repository<Menu>>(context, listen: false),
           );
         } catch (e) {
           _log.e("Error saving currently menu", e);
@@ -136,8 +136,8 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
       if (_newMenu != null) {
         _log.d("New menu was defined. Store it!");
         try {
-          await Provider.of<MenusProvider>(context, listen: false)
-              .createMenu(_newMenu);
+          await Provider.of<Repository<Menu>>(context, listen: false)
+              .save(_newMenu);
         } catch (e) {
           _log.e("Error saving new menu", e);
           hideProgressDialog(context);
@@ -152,7 +152,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         try {
           _destinationMenu.save(
             context,
-            Provider.of<MenusProvider>(context, listen: false),
+            Provider.of<Repository<Menu>>(context, listen: false),
           );
         } catch (e) {
           _log.e("Error saving destination menu ", e);
@@ -245,8 +245,10 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     }
 
     //Check for empty/notEmpty destination menu
-    final menusProvider = Provider.of<MenusProvider>(context, listen: false);
-    _destinationMenu = await menusProvider.fetchDailyMenu(destinationDay);
+    final menuRepository =
+        Provider.of<Repository<Menu>>(context, listen: false);
+    //_destinationMenu =
+    //    await menuRepository.findAll(param: {'day': destinationDay}); //TODO fix me
 
     /* 
       Ask action to be performed if there are recipes already 

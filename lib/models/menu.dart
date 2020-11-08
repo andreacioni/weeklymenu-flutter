@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
 
 import '../globals/memento.dart';
 import './recipe.dart';
@@ -42,7 +41,7 @@ class Menu extends BaseModel<Menu> {
 class MenuOriginator extends Originator<Menu> {
   MenuOriginator(Menu original) : super(original);
 
-  void addRecipe(RecipeOriginator recipe) {
+  void addRecipe(Recipe recipe) {
     if (recipe != null) {
       addRecipeById(recipe.id);
     }
@@ -134,7 +133,7 @@ class DailyMenu
     notifyListeners();
   }
 
-  void addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
+  void addRecipeToMeal(Meal meal, Recipe recipe) {
     var menu = getMenuByMeal(meal);
 
     assert(menu != null);
@@ -217,15 +216,15 @@ class DailyMenu
     notifyListeners();
   }
 
-  Future<void> save(BuildContext context, MenusProvider menusProvider) async {
+  Future<void> save(
+      BuildContext context, Repository<Menu> menuRepository) async {
     for (MenuOriginator menu in menus) {
       if (menu.recipes.isEmpty) {
         // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        //await Provider.of<MenusProvider>(context, listen: false)
-        //    .removeMenu(menu);
+        await menuRepository.delete(menu);
         removeMenu(menu);
       } else {
-        //await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
+        await menuRepository.save(menu.instance);
       }
     }
   }

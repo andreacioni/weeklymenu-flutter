@@ -6,10 +6,6 @@ import './drawer.dart';
 import './widgets/menu_page/screen.dart';
 import './widgets/recipes_screen/screen.dart';
 import './widgets/shopping_list_screen/screen.dart';
-import './providers/ingredients_provider.dart';
-import './providers/shopping_list_provider.dart';
-import './providers/recipes_provider.dart';
-import 'models/ingredient.dart';
 
 class HomePage extends StatefulWidget {
   HomePage();

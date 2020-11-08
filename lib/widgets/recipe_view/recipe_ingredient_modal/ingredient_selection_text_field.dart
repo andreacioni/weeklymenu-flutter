@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
-import '../../../providers/ingredients_provider.dart';
 import '../../../models/ingredient.dart';
 
 class IngredientSelectionTextField extends StatefulWidget {
@@ -75,11 +75,11 @@ class _IngredientSelectionTextFieldState
     );
   }
 
-  List<Ingredient> getIngredientsSuggestion(String pattern) {
-    final availableIngredients = Provider.of<IngredientsProvider>(
+  Future<List<Ingredient>> getIngredientsSuggestion(String pattern) async {
+    final availableIngredients = await Provider.of<Repository<Ingredient>>(
       context,
       listen: false,
-    ).ingredients;
+    ).findAll();
 
     var suggestions = availableIngredients
         .where((r) =>

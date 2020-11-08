@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
 
@@ -7,7 +8,6 @@ import '../../../models/ingredient.dart';
 import '../../../models/enums/unit_of_measure.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
-import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientModal extends StatefulWidget {
   final String recipeId;
@@ -36,12 +36,6 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
       _updateMode = false;
     } else {
       _updateMode = true;
-
-      Ingredient ingredient =
-          Provider.of<IngredientsProvider>(context, listen: false)
-              .getById(widget.recipeIngredient.ingredientId);
-
-      _selectedIngredient = ingredient;
       _quantity = widget.recipeIngredient.quantity;
       _isFreezed = widget.recipeIngredient.freezed;
       _unitOfMeasure = widget.recipeIngredient.unitOfMeasure;
@@ -98,8 +92,8 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
 
     if (ingredientToAddId == null) {
       ingredientToAddId =
-          (await Provider.of<IngredientsProvider>(context, listen: false)
-                  .addIngredient(_selectedIngredient))
+          (await Provider.of<Repository<Ingredient>>(context, listen: false)
+                  .save(_selectedIngredient))
               .id;
     }
     Navigator.of(context).pop(

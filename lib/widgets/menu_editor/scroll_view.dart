@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
-import 'package:weekly_menu_app/providers/recipes_provider.dart';
 
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/screen.dart';
@@ -145,7 +144,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     });
   }
 
-  void _handleAddRecipe(Meal meal, RecipeOriginator recipe) async {
+  void _handleAddRecipe(Meal meal, Recipe recipe) async {
     showProgressDialog(context);
     try {
       await _addRecipeToMeal(meal, recipe);
@@ -156,9 +155,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     }
   }
 
-  Future<void> _addRecipeToMeal(Meal meal, RecipeOriginator recipe) async {
+  Future<void> _addRecipeToMeal(Meal meal, Recipe recipe) async {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-      await Provider.of<MenusProvider>(context, listen: false).createMenu(
+      await Provider.of<Repository<Menu>>(context, listen: false).save(
         Menu(
           date: widget._dailyMenu.day,
           recipes: [],
@@ -176,9 +175,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       showProgressDialog(context);
 
       try {
-        RecipeOriginator recipe =
-            await Provider.of<RecipesProvider>(context, listen: false)
-                .addRecipe(Recipe(name: recipeName));
+        Recipe recipe =
+            await Provider.of<Repository<Recipe>>(context, listen: false)
+                .save(Recipe(name: recipeName));
         await _addRecipeToMeal(meal, recipe);
       } catch (e) {
         hideProgressDialog(context);
@@ -197,44 +196,63 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   }
 
   Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id) {
-    final recipe = Provider.of<RecipesProvider>(context).getById(id);
-    final mealRecipe = MealRecipe(meal, recipe);
-    final recipeTile = RecipeTile(
-      editEnable: widget.editingMode,
-      isChecked: dailyMenu.selectedRecipes.contains(id),
-      onPressed: !widget.editingMode ? () => _openRecipeView(recipe) : null,
-      onCheckChange: (c) => _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
-      key: ValueKey(mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
-    );
-    return ChangeNotifierProvider.value(
-      value: recipe,
-      child: Column(
-        //key: ,
-        children: <Widget>[
-          if (!widget.editingMode)
-            recipeTile
-          else
-            Draggable<MealRecipe>(
-              child: recipeTile,
-              feedback: Material(
-                child: Text(recipe.name),
-              ),
-              childWhenDragging: Container(),
-              data: mealRecipe,
-              onDragStarted: () => setState(() {
-                _dragMode = true;
-                _fromMeal = meal;
-              }),
-              onDragCompleted: () => setState(() => _dragMode = false),
-              onDragEnd: (_) => setState(() => _dragMode = false),
-              onDraggableCanceled: (_, __) => setState(() => _dragMode = false),
+    return FutureBuilder<Recipe>(
+        future:
+            Provider.of<Repository<Recipe>>(context, listen: false).findOne(id),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Error occurred');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final recipe = snapshot.data;
+
+          final mealRecipe = MealRecipe(meal, recipe);
+          final recipeTile = RecipeTile(
+            editEnable: widget.editingMode,
+            isChecked: dailyMenu.selectedRecipes.contains(id),
+            onPressed:
+                !widget.editingMode ? () => _openRecipeView(recipe) : null,
+            onCheckChange: (c) =>
+                _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
+            key: ValueKey(
+                mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
+          );
+
+          return ChangeNotifierProvider.value(
+            value: recipe,
+            child: Column(
+              //key: ,
+              children: <Widget>[
+                if (!widget.editingMode)
+                  recipeTile
+                else
+                  Draggable<MealRecipe>(
+                    child: recipeTile,
+                    feedback: Material(
+                      child: Text(recipe.name),
+                    ),
+                    childWhenDragging: Container(),
+                    data: mealRecipe,
+                    onDragStarted: () => setState(() {
+                      _dragMode = true;
+                      _fromMeal = meal;
+                    }),
+                    onDragCompleted: () => setState(() => _dragMode = false),
+                    onDragEnd: (_) => setState(() => _dragMode = false),
+                    onDraggableCanceled: (_, __) =>
+                        setState(() => _dragMode = false),
+                  ),
+                Divider(
+                  height: 0,
+                ),
+              ],
             ),
-          Divider(
-            height: 0,
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 
   DragTarget<MealRecipe> _buildDragTarget(Meal meal) {
@@ -282,7 +300,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     }
   }
 
-  void _openRecipeView(RecipeOriginator recipe) {
+  void _openRecipeView(Recipe recipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(

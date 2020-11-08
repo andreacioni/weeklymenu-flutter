@@ -7,8 +7,6 @@ import 'package:flutter_data_state/flutter_data_state.dart';
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/screen.dart';
 import '../../globals/utils.dart';
-import '../../providers/recipes_provider.dart';
-import '../app_bar.dart';
 import '../../models/recipe.dart';
 import './recipe_card.dart';
 import '../../presentation/custom_icons_icons.dart';

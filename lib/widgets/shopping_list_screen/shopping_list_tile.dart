@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:provider/provider.dart';
 
-import '../../providers/ingredients_provider.dart';
 import '../../models/shopping_list.dart';
 import '../../models/ingredient.dart';
 import './item_suggestion_text_field.dart';
@@ -36,47 +36,51 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
   }
 
   @override
-  void didChangeDependencies() {
-    if (widget.shoppingListItem.item != null) {
-      _ingredient = Provider.of<IngredientsProvider>(context)
-          .getById(widget.shoppingListItem.item);
-    } else {
-      _editingMode = true;
-    }
-
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: widget.formKey,
-      onDismissed: widget.onDismiss,
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            leading: Icon(Icons.drag_handle),
-            trailing: _editingMode == true
-                ? IconButton(icon: Icon(Icons.edit), onPressed: null)
-                : Checkbox(
-                    value: widget.shoppingListItem.checked,
-                    onChanged: onCheckChange,
-                  ),
-            title: ItemSuggestionTextField(
-              value: _ingredient,
-              enabled: widget.editable,
-              showShoppingItemSuggestions: false,
-              onIngredientSelected: _onIngredientSelected,
-              onSubmitted: _getOrCreateIngredientByName,
-              //onTap: _onTap,
-              onFocusChanged: _onFocusChanged,
-            ),
+    return FutureBuilder(
+      future: Provider.of<Repository<Ingredient>>(context, listen: false)
+          .findOne(widget.shoppingListItem.item),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text("Error occurred");
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        return Dismissible(
+          key: widget.formKey,
+          onDismissed: widget.onDismiss,
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.drag_handle),
+                trailing: _editingMode == true
+                    ? IconButton(icon: Icon(Icons.edit), onPressed: null)
+                    : Checkbox(
+                        value: widget.shoppingListItem.checked,
+                        onChanged: onCheckChange,
+                      ),
+                title: ItemSuggestionTextField(
+                  value: _ingredient,
+                  enabled: widget.editable,
+                  showShoppingItemSuggestions: false,
+                  onIngredientSelected: _onIngredientSelected,
+                  onSubmitted: _getOrCreateIngredientByName,
+                  //onTap: _onTap,
+                  onFocusChanged: _onFocusChanged,
+                ),
+              ),
+              Divider(
+                height: 0,
+              )
+            ],
           ),
-          Divider(
-            height: 0,
-          )
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -90,12 +94,6 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
         _editingMode = true;
       });
     }
-  }
-
-  void _onTap() {
-    setState(() {
-      _editingMode = true;
-    });
   }
 
   void _onIngredientSelected(Ingredient newIngredient) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/providers/recipes_provider.dart';
 
 import '../../globals/errors_handlers.dart';
 import 'add_ingredient_button.dart';
@@ -230,8 +230,8 @@ class _RecipeViewState extends State<RecipeView> {
       showProgressDialog(context);
 
       try {
-        await Provider.of<RecipesProvider>(context, listen: false)
-            .saveRecipe(recipe);
+        await Provider.of<Repository<Recipe>>(context, listen: false)
+            .save(recipe.save());
       } catch (e) {
         showAlertErrorMessage(context);
         return;

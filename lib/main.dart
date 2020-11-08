@@ -1,17 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:weekly_menu_app/widgets/ingredients_screen/screen.dart';
-import 'package:weekly_menu_app/widgets/login_screen/screen.dart';
-import 'package:weekly_menu_app/widgets/recipes_screen/screen.dart';
-import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
-import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
-
-import 'providers/rest_provider.dart';
-import './providers/recipes_provider.dart';
-import './providers/menus_provider.dart';
-import './providers/ingredients_provider.dart';
-import './providers/shopping_list_provider.dart';
 import './homepage.dart';
 import 'main.data.dart';
 

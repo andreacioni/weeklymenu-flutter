@@ -4,7 +4,6 @@ import 'package:flutter_data_state/flutter_data_state.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/ingredient.dart';
-import '../../providers/ingredients_provider.dart';
 
 class IngredientsScreen extends StatelessWidget {
   @override

@@ -7,7 +7,6 @@ import '../../models/ingredient.dart';
 import './recipe_ingredient_modal/recipe_ingredient_modal.dart';
 
 import '../../models/recipe.dart';
-import '../../providers/recipes_provider.dart';
 
 class AddIngredientButton extends StatelessWidget {
   final log = Logger((AddIngredientButton).toString());

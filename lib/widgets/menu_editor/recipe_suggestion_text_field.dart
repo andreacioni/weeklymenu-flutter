@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/models/menu.dart';
@@ -6,15 +7,13 @@ import 'package:weekly_menu_app/models/menu.dart';
 import '../../globals/utils.dart';
 import '../../models/recipe.dart';
 import '../../models/enums/meals.dart';
-import '../../providers/recipes_provider.dart';
-import '../../providers/shopping_list_provider.dart';
 
 class RecipeSuggestionTextField extends StatefulWidget {
   final Recipe value;
   final String hintText;
   final bool autofocus;
   final bool showSuggestions;
-  final void Function(RecipeOriginator) onRecipeSelected;
+  final void Function(Recipe) onRecipeSelected;
   final void Function(dynamic) onSubmitted;
   final Function onTap;
   final Function(bool) onFocusChanged;
@@ -61,7 +60,7 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     if (widget.value != null) {
       textEditingController.text = widget.value.name;
     }
-    return TypeAheadField<RecipeOriginator>(
+    return TypeAheadField<Recipe>(
       textFieldConfiguration: TextFieldConfiguration(
         controller: textEditingController,
         enabled: widget.enabled,
@@ -81,21 +80,21 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     );
   }
 
-  void _onSuggestionSelected(RecipeOriginator item) {
+  void _onSuggestionSelected(Recipe item) {
     if (widget.onRecipeSelected != null) {
       widget.onRecipeSelected(item);
     }
   }
 
-  Future<List<RecipeOriginator>> _suggestionsCallback(String pattern) async {
+  Future<List<Recipe>> _suggestionsCallback(String pattern) async {
     final recipesProvider =
-        Provider.of<RecipesProvider>(context, listen: false);
+        Provider.of<Repository<Recipe>>(context, listen: false);
     final dailyMenu = Provider.of<DailyMenu>(context, listen: false);
-    final availableRecipes = recipesProvider.recipes;
+    final availableRecipes = await recipesProvider.findAll();
     final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal) == null
-        ? <RecipeOriginator>[]
+        ? <Recipe>[]
         : dailyMenu.getMenuByMeal(widget.meal).recipes;
-    final List<RecipeOriginator> suggestions = [];
+    final List<Recipe> suggestions = [];
 
     suggestions.addAll(availableRecipes
         .where((ing) => stringContains(ing.name, pattern))
@@ -109,7 +108,7 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
     return suggestions;
   }
 
-  Widget _itemBuilder(BuildContext buildContext, RecipeOriginator recipe) {
+  Widget _itemBuilder(BuildContext buildContext, Recipe recipe) {
     return ListTile(
       title: Text(recipe.name),
       trailing: Icon(Icons.check_box),

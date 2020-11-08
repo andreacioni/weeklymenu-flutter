@@ -297,6 +297,6 @@ class RecipeOriginator extends Originator<Recipe> {
 
 class MealRecipe {
   final Meal meal;
-  final RecipeOriginator recipe;
+  final Recipe recipe;
   MealRecipe(this.meal, this.recipe);
 }

@@ -1,32 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/recipe.dart';
-import '../../providers/recipes_provider.dart';
 import '../../globals/utils.dart';
 
 class RecipeTags extends StatelessWidget {
+  final RecipeOriginator recipe;
+  final bool editEnabled;
+
   const RecipeTags({
     @required this.recipe,
     @required this.editEnabled,
   });
 
-  final RecipeOriginator recipe;
-  final bool editEnabled;
-
-  List<String> _availableTags(BuildContext context) {
-    List<String> recipesTags =
-        Provider.of<RecipesProvider>(context, listen: false).getAllRecipeTags;
-    if (recipe.tags != null) {
-      recipesTags.removeWhere((tag) => recipe.tags.contains(tag));
-    }
-
-    return recipesTags;
-  }
-
   @override
   Widget build(BuildContext context) {
+    Repository<Recipe> recipeRepo =
+        Provider.of<Repository<Recipe>>(context, listen: false);
+    return FutureBuilder<List<Recipe>>(
+      future: recipeRepo.findAll(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text("Error occurred");
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        return buildTagsRow(snapshot.data);
+      },
+    );
+  }
+
+  Widget buildTagsRow(List<Recipe> recipes) {
+    final tags = getAllRecipeTags(recipes);
+
+    if (recipe.tags != null) {
+      tags.removeWhere((tag) => recipe.tags.contains(tag));
+    }
+
     return Tags(
       itemBuilder: (index) => ItemTags(
         image: ItemTagsImage(
@@ -55,7 +70,7 @@ class RecipeTags extends StatelessWidget {
           ? TagsTextField(
               autofocus: false,
               helperText: 'Add',
-              suggestions: _availableTags(context),
+              suggestions: tags,
               textCapitalization: TextCapitalization.words,
               maxLength: 20,
               onSubmitted: (newTag) => recipe.addTag(newTag),
@@ -63,5 +78,16 @@ class RecipeTags extends StatelessWidget {
             )
           : null,
     );
+  }
+
+  List<String> getAllRecipeTags(List<Recipe> recipes) {
+    List<String> tags = [];
+    recipes.forEach((recipe) {
+      if (recipe.tags != null) {
+        tags.addAll(recipe.tags);
+      }
+    });
+
+    return tags;
   }
 }
