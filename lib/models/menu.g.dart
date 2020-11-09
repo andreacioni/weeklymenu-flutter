@@ -12,16 +12,12 @@ Menu _$MenuFromJson(Map<String, dynamic> json) {
     date: Menu.dateFromJson(json['date'] as String),
     meal: _$enumDecodeNullable(_$MealEnumMap, json['meal']),
     recipes: (json['recipes'] as List)?.map((e) => e as String)?.toList() ?? [],
-  )
-    ..insertTimestamp = json['insert_timestamp'] as int
-    ..updateTimestamp = json['update_timestamp'] as int;
+  );
 }
 
 Map<String, dynamic> _$MenuToJson(Menu instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
     'date': Menu.dateToJson(instance.date),
     'meal': _$MealEnumMap[instance.meal],
   };
@@ -140,15 +136,15 @@ AutoDisposeStateNotifierStateProvider<DataState<Menu>> watchMenu(dynamic id,
 
 final _watchMenus = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Menu>>, WatchArgs<Menu>>((ref, args) {
+  ref.maintainState = false;
   return ref.watch(menuRepositoryProvider).watchAll(
       remote: args.remote, params: args.params, headers: args.headers);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<List<Menu>>> watchMenus(
+AutoDisposeStateNotifierProvider<DataStateNotifier<List<Menu>>> watchMenus(
     {bool remote, Map<String, dynamic> params, Map<String, String> headers}) {
   return _watchMenus(
-          WatchArgs(remote: remote, params: params, headers: headers))
-      .state;
+      WatchArgs(remote: remote, params: params, headers: headers));
 }
 
 extension MenuX on Menu {

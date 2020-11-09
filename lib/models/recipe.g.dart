@@ -30,16 +30,12 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
     preparation: json['preparation'] as String,
     recipeUrl: json['recipeUrl'] as String,
     note: json['note'] as String,
-  )
-    ..insertTimestamp = json['insert_timestamp'] as int
-    ..updateTimestamp = json['update_timestamp'] as int;
+  );
 }
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
     'name': instance.name,
   };
 
@@ -160,15 +156,15 @@ AutoDisposeStateNotifierStateProvider<DataState<Recipe>> watchRecipe(dynamic id,
 
 final _watchRecipes = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Recipe>>, WatchArgs<Recipe>>((ref, args) {
+  ref.maintainState = false;
   return ref.watch(recipeRepositoryProvider).watchAll(
       remote: args.remote, params: args.params, headers: args.headers);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<List<Recipe>>> watchRecipes(
+AutoDisposeStateNotifierProvider<DataStateNotifier<List<Recipe>>> watchRecipes(
     {bool remote, Map<String, dynamic> params, Map<String, String> headers}) {
   return _watchRecipes(
-          WatchArgs(remote: remote, params: params, headers: headers))
-      .state;
+      WatchArgs(remote: remote, params: params, headers: headers));
 }
 
 extension RecipeX on Recipe {

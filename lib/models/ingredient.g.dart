@@ -10,16 +10,12 @@ Ingredient _$IngredientFromJson(Map<String, dynamic> json) {
   return Ingredient(
     id: json['_id'] as String,
     name: json['name'] as String,
-  )
-    ..insertTimestamp = json['insert_timestamp'] as int
-    ..updateTimestamp = json['update_timestamp'] as int;
+  );
 }
 
 Map<String, dynamic> _$IngredientToJson(Ingredient instance) =>
     <String, dynamic>{
       '_id': instance.id,
-      'insert_timestamp': instance.insertTimestamp,
-      'update_timestamp': instance.updateTimestamp,
       'name': instance.name,
     };
 
@@ -94,18 +90,18 @@ AutoDisposeStateNotifierStateProvider<DataState<Ingredient>> watchIngredient(
 final _watchIngredients = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Ingredient>>, WatchArgs<Ingredient>>(
         (ref, args) {
+  ref.maintainState = false;
   return ref.watch(ingredientRepositoryProvider).watchAll(
       remote: args.remote, params: args.params, headers: args.headers);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<List<Ingredient>>>
+AutoDisposeStateNotifierProvider<DataStateNotifier<List<Ingredient>>>
     watchIngredients(
         {bool remote,
         Map<String, dynamic> params,
         Map<String, String> headers}) {
   return _watchIngredients(
-          WatchArgs(remote: remote, params: params, headers: headers))
-      .state;
+      WatchArgs(remote: remote, params: params, headers: headers));
 }
 
 extension IngredientX on Ingredient {

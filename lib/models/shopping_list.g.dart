@@ -16,16 +16,12 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) {
             ?.toList() ??
         [],
     name: json['name'] as String,
-  )
-    ..insertTimestamp = json['insert_timestamp'] as int
-    ..updateTimestamp = json['update_timestamp'] as int;
+  );
 }
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
     'items': instance.items?.map((e) => e?.toJson())?.toList(),
   };
 
@@ -141,18 +137,18 @@ AutoDisposeStateNotifierStateProvider<DataState<ShoppingList>>
 final _watchShoppingLists = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<ShoppingList>>, WatchArgs<ShoppingList>>(
         (ref, args) {
+  ref.maintainState = false;
   return ref.watch(shoppingListRepositoryProvider).watchAll(
       remote: args.remote, params: args.params, headers: args.headers);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<List<ShoppingList>>>
+AutoDisposeStateNotifierProvider<DataStateNotifier<List<ShoppingList>>>
     watchShoppingLists(
         {bool remote,
         Map<String, dynamic> params,
         Map<String, String> headers}) {
   return _watchShoppingLists(
-          WatchArgs(remote: remote, params: params, headers: headers))
-      .state;
+      WatchArgs(remote: remote, params: params, headers: headers));
 }
 
 extension ShoppingListX on ShoppingList {

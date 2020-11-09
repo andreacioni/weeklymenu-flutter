@@ -20,7 +20,7 @@ class RecipeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recipe = Provider.of<RecipeOriginator>(context);
+    final recipe = Provider.of<Recipe>(context);
 
     return InkWell(
       onTap: onPressed,

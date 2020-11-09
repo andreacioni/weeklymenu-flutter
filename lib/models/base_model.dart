@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_data/flutter_data.dart';
-import 'package:hive/hive.dart';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:objectid/objectid.dart';
@@ -15,10 +14,10 @@ abstract class BaseModel<T extends DataModel<T>>
   @JsonKey(name: '_id')
   final String id;
 
-  @JsonKey(name: 'insert_timestamp')
+  @JsonKey(name: 'insert_timestamp', ignore: true)
   int insertTimestamp;
 
-  @JsonKey(name: 'update_timestamp')
+  @JsonKey(name: 'update_timestamp', ignore: true)
   int updateTimestamp;
 
   BaseModel({
