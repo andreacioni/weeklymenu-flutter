@@ -243,8 +243,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     shoppingList.addShoppingListItem(item);
 
     try {
-      await Provider.of<ShoppingListProvider>(context, listen: false)
-          .updateShoppingList(shoppingList);
+      await Provider.of<Repository<ShoppingList>>(context, listen: false)
+          .save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.removeItemFromList(item);
@@ -253,11 +253,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   void _createNewIngredientAndShopItem(
       ShoppingList shoppingList, String ingredientName) async {
-    IngredientsProvider ingredientsProvider =
-        Provider.of<IngredientsProvider>(context, listen: false);
+    Repository<Ingredient> ingredientsRepo =
+        Provider.of<Repository<Ingredient>>(context, listen: false);
     setState(() => _loading = true);
-    Ingredient newIngredient = await ingredientsProvider
-        .addIngredient(Ingredient(name: ingredientName));
+    Ingredient newIngredient =
+        await ingredientsRepo.save(Ingredient(name: ingredientName));
     setState(() => _loading = false);
     _createShopItemForIngredient(shoppingList, newIngredient);
   }
@@ -266,8 +266,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       ShoppingList shoppingList, ShoppingListItem shoppingListItem) async {
     shoppingList.removeItemFromList(shoppingListItem);
     try {
-      await Provider.of<ShoppingListProvider>(context, listen: false)
-          .updateShoppingList(shoppingList);
+      await Provider.of<Repository<ShoppingList>>(context, listen: false)
+          .save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.addShoppingListItem(shoppingListItem);
@@ -282,8 +282,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
 
     try {
-      await Provider.of<ShoppingListProvider>(context, listen: false)
-          .updateShoppingList(shoppingList);
+      await Provider.of<Repository<ShoppingList>>(context, listen: false)
+          .save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.setChecked(

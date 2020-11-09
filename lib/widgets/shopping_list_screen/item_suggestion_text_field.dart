@@ -38,6 +38,7 @@ class ItemSuggestionTextField extends StatefulWidget {
 }
 
 class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
+  List<Ingredient> availableIngredients = [];
   FocusNode focusNode;
 
   @override
@@ -72,15 +73,15 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
         focusNode: focusNode,
         autofocus: widget.autofocus,
       ),
-      itemBuilder: _itemBuilder,
+      itemBuilder: itemBuilder,
       onSuggestionSelected: (suggestion) =>
-          _onSuggestionSelected(textEditingController, suggestion),
-      suggestionsCallback: (pattern) => _suggestionsCallback(context, pattern),
+          onSuggestionSelected(textEditingController, suggestion),
+      suggestionsCallback: (pattern) => suggestionsCallback(context, pattern),
       hideOnEmpty: true,
     );
   }
 
-  void _onSuggestionSelected(
+  void onSuggestionSelected(
       TextEditingController textEditingController, dynamic item) {
     if (item is Ingredient) {
       textEditingController.text = item.name;
@@ -89,7 +90,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
         widget.onIngredientSelected(item);
       }
     } else {
-      var ingredient = _resolveShoppingListItemIngredient(item);
+      var ingredient = resolveShoppingListItemIngredient(item);
       textEditingController.text = ingredient.name;
 
       if (widget.onShoppingItemSelected != null) {
@@ -98,13 +99,12 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     }
   }
 
-  Future<List> _suggestionsCallback(
-      BuildContext context, String pattern) async {
+  Future<List> suggestionsCallback(BuildContext context, String pattern) async {
     final ingredientProvider = Provider.of<Repository<Ingredient>>(
       context,
       listen: false,
     );
-    final availableIngredients = ingredientProvider.ingredients;
+    availableIngredients = await ingredientProvider.findAll();
 
     List<dynamic> suggestions = [];
 
@@ -114,7 +114,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
         listen: false,
       );
       final checkedItems = shoppingList.getCheckedItems.where((item) {
-        var ing = ingredientProvider.getById(item.item);
+        var ing = resolveShoppingListItemIngredient(item);
         return ing != null ? stringContains(ing.name, pattern) : false;
       });
 
@@ -133,14 +133,14 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     return suggestions;
   }
 
-  Widget _itemBuilder(BuildContext buildContext, dynamic item) {
+  Widget itemBuilder(BuildContext buildContext, dynamic item) {
     if (item is Ingredient) {
       return ListTile(
         title: Text(item.name),
         subtitle: Text('Igredient'),
       );
     } else {
-      var ing = _resolveShoppingListItemIngredient(item);
+      var ing = resolveShoppingListItemIngredient(item);
       return ListTile(
         title: Text(ing.name),
         subtitle: Text('Shopping List'),
@@ -149,11 +149,9 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     }
   }
 
-  Ingredient _resolveShoppingListItemIngredient(
-      ShoppingListItem shoppingListItem) {
-    return Provider.of<Repository<Ingredient>>(
-      context,
-      listen: false,
-    ).getById(shoppingListItem.item);
+  Ingredient resolveShoppingListItemIngredient(ShoppingListItem item) {
+    return availableIngredients.firstWhere(
+        (ingredient) => ingredient.id == item.item,
+        orElse: () => null);
   }
 }
