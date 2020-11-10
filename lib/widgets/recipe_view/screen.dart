@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_data_state/flutter_data_state.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
@@ -13,9 +14,10 @@ import 'recipe_tags.dart';
 import 'editable_text_field.dart';
 
 class RecipeView extends StatefulWidget {
+  final String recipeId;
   final Object heroTag;
 
-  RecipeView({this.heroTag});
+  RecipeView(this.recipeId, {this.heroTag});
 
   @override
   _RecipeViewState createState() => _RecipeViewState();
@@ -37,8 +39,18 @@ class _RecipeViewState extends State<RecipeView> {
 
   @override
   Widget build(BuildContext context) {
-    RecipeOriginator recipe = Provider.of<RecipeOriginator>(context);
+    final recipesRepo = context.watch<Repository<Recipe>>();
 
+    DataStateBuilder<Recipe>(
+      notifier: () => recipesRepo.watchOne(widget.recipeId, remote: false),
+      builder: (context, state, notifier, _) {
+        if (state.isLoading) {}
+      },
+    );
+    return buildMainScrollView(recipe);
+  }
+
+  WillPopScope buildMainScrollView(RecipeOriginator recipe) {
     return WillPopScope(
       onWillPop: () async {
         _handleBackButton(context, recipe);
