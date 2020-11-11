@@ -22,8 +22,9 @@ class RecipeIngredientListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final ingredientsRepo = context.watch<Repository<Ingredient>>();
     return DataStateBuilder<Ingredient>(
-      notifier: () => ingredientsRepo.watchOne(recipeIngredient.ingredientId,
-          remote: false),
+      notifier: () => ingredientsRepo.watchOne(
+        recipeIngredient.ingredientId,
+      ),
       builder: (context, state, notifier, _) {
         if (state.hasException) {
           return Text("Error occurred");
@@ -34,7 +35,6 @@ class RecipeIngredientListTile extends StatelessWidget {
         }
 
         final ingredient = state.model;
-        notifier.reload();
         return buildListTile(context, ingredient);
       },
     );

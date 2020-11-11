@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 import 'package:weekly_menu_app/models/enums/meals.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
 
 part 'recipe.g.dart';
 

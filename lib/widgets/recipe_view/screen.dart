@@ -41,185 +41,197 @@ class _RecipeViewState extends State<RecipeView> {
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
 
-    DataStateBuilder<Recipe>(
-      notifier: () => recipesRepo.watchOne(widget.recipeId, remote: false),
+    return DataStateBuilder<Recipe>(
+      notifier: () => recipesRepo.watchOne(widget.recipeId),
       builder: (context, state, notifier, _) {
-        if (state.isLoading) {}
+        if (state.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (state.hasException) {
+          return Text("Error occurred");
+        }
+
+        final recipe = RecipeOriginator(state.model);
+
+        return WillPopScope(
+          onWillPop: () async {
+            _handleBackButton(context, recipe);
+            return true;
+          },
+          child: Scaffold(
+            body: RefreshIndicator(
+              onRefresh: () async => notifier.reload(),
+              child: buildForm(recipe),
+            ),
+          ),
+        );
       },
     );
-    return buildMainScrollView(recipe);
   }
 
-  WillPopScope buildMainScrollView(RecipeOriginator recipe) {
-    return WillPopScope(
-      onWillPop: () async {
-        _handleBackButton(context, recipe);
-        return true;
-      },
-      child: Scaffold(
-        body: Form(
-          key: _formKey,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              RecipeAppBar(
-                recipe,
-                heroTag: widget.heroTag,
-                editModeEnabled: _editEnabled,
-                onRecipeEditEnabled: (editEnabled) =>
-                    _handleEditToggle(recipe, editEnabled),
-                onBackPressed: () => _handleBackButton(context, recipe),
-              ),
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  SizedBox(
-                    height: 5,
-                  ),
-                  EditableTextField(
-                    recipe.description,
-                    editEnabled: _editEnabled,
-                    hintText: "Description",
-                    onSubmitted: (newDescription) =>
-                        recipe.updateDescription(newDescription),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                      "Information",
-                      style: TextStyle(
-                        fontFamily: 'Rubik',
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Card(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      child: RecipeInformationTiles(
-                        recipe,
-                        editEnabled: _editEnabled,
-                        formKey: _formKey,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                      "Ingredients",
-                      style: TextStyle(
-                        fontFamily: 'Rubik',
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  if (recipe.ingredients.isEmpty && !_editEnabled)
-                    EditableTextField(
-                      "",
-                      editEnabled: false,
-                      hintText: "No ingredients",
-                    ),
-                  if (recipe.ingredients.isNotEmpty)
-                    ...recipe.ingredients
-                        .map(
-                          (recipeIng) => ChangeNotifierProvider.value(
-                            value: recipeIng,
-                            child: DismissibleRecipeIngredientTile(
-                              recipe,
-                              _editEnabled,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  if (_editEnabled)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: AddIngredientButton(recipe),
-                    ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                      "Prepation",
-                      style: TextStyle(
-                        fontFamily: 'Rubik',
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  EditableTextField(
-                    recipe.preparation,
-                    editEnabled: _editEnabled,
-                    hintText: "Add preparation steps...",
-                    maxLines: 1000,
-                    onChanged: (text) => recipe.updatePreparation(text),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                      "Notes",
-                      style: TextStyle(
-                        fontFamily: 'Rubik',
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  EditableTextField(
-                    recipe.note,
-                    editEnabled: _editEnabled,
-                    hintText: "Add note...",
-                    maxLines: 1000,
-                    onChanged: (text) => recipe.updateNote(text),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Text(
-                      "Tags",
-                      style: TextStyle(
-                        fontFamily: 'Rubik',
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  RecipeTags(
-                    recipe: recipe,
-                    editEnabled: _editEnabled,
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                ]),
-              ),
-            ],
+  Form buildForm(RecipeOriginator recipe) {
+    return Form(
+      key: _formKey,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          RecipeAppBar(
+            recipe,
+            heroTag: widget.heroTag,
+            editModeEnabled: _editEnabled,
+            onRecipeEditEnabled: (editEnabled) =>
+                _handleEditToggle(recipe, editEnabled),
+            onBackPressed: () => _handleBackButton(context, recipe),
           ),
-        ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              SizedBox(
+                height: 5,
+              ),
+              EditableTextField(
+                recipe.description,
+                editEnabled: _editEnabled,
+                hintText: "Description",
+                onSubmitted: (newDescription) =>
+                    recipe.updateDescription(newDescription),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Information",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Card(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child: RecipeInformationTiles(
+                    recipe,
+                    editEnabled: _editEnabled,
+                    formKey: _formKey,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Ingredients",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              if (recipe.ingredients.isEmpty && !_editEnabled)
+                EditableTextField(
+                  "",
+                  editEnabled: false,
+                  hintText: "No ingredients",
+                ),
+              if (recipe.ingredients.isNotEmpty)
+                ...recipe.ingredients
+                    .map(
+                      (recipeIng) => ChangeNotifierProvider.value(
+                        value: recipeIng,
+                        child: DismissibleRecipeIngredientTile(
+                          recipe,
+                          _editEnabled,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              if (_editEnabled)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AddIngredientButton(recipe),
+                ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Prepation",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              EditableTextField(
+                recipe.preparation,
+                editEnabled: _editEnabled,
+                hintText: "Add preparation steps...",
+                maxLines: 1000,
+                onChanged: (text) => recipe.updatePreparation(text),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Notes",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              EditableTextField(
+                recipe.note,
+                editEnabled: _editEnabled,
+                hintText: "Add note...",
+                maxLines: 1000,
+                onChanged: (text) => recipe.updateNote(text),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Text(
+                  "Tags",
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              RecipeTags(
+                recipe: recipe,
+                editEnabled: _editEnabled,
+              ),
+              SizedBox(
+                height: 5,
+              ),
+            ]),
+          ),
+        ],
       ),
     );
   }

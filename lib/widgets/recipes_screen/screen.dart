@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
@@ -50,24 +51,52 @@ class _RecipesScreenState extends State<RecipesScreen> {
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: DataStateBuilder<List<Recipe>>(
-        notifier: () => repository.watchAll(),
-        builder: (context, state, notifier, _) {
-          if (state.isLoading) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return RefreshIndicator(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _buildScreenBody(
-                state.model,
-                filter: (recipe) => !stringContains(recipe.name, _searchText),
+      body: OfflineBuilder(
+        connectivityBuilder: (context, connectivity, child) {
+          final bool connected = connectivity != ConnectivityResult.none;
+          return new Stack(
+            fit: StackFit.expand,
+            children: [
+              Positioned(
+                height: 24.0,
+                left: 0.0,
+                right: 0.0,
+                child: Container(
+                  color: connected ? Color(0xFF00EE44) : Color(0xFFEE4400),
+                  child: Center(
+                    child: Text("${connected ? 'ONLINE' : 'OFFLINE'}"),
+                  ),
+                ),
               ),
-            ),
-            onRefresh: () => notifier.reload(),
+              buildDataStateBuilder(repository, online: connected)
+            ],
           );
         },
+        child: Text("Pippo"),
       ),
+    );
+  }
+
+  DataStateBuilder<List<Recipe>> buildDataStateBuilder(
+      Repository<Recipe> repository,
+      {bool online = true}) {
+    return DataStateBuilder<List<Recipe>>(
+      notifier: () => repository.watchAll(remote: online),
+      builder: (context, state, notifier, _) {
+        if (state.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+        return RefreshIndicator(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: _buildScreenBody(
+              state.model,
+              filter: (recipe) => !stringContains(recipe.name, _searchText),
+            ),
+          ),
+          onRefresh: () => notifier.reload(),
+        );
+      },
     );
   }
 
@@ -153,10 +182,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openRecipeView(List<Recipe> recipes, int index, Object heroTag) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider.value(
-          value: RecipeOriginator(recipes[index]),
-          child: RecipeView(heroTag: heroTag),
-        ),
+        builder: (_) => RecipeView(recipes[index].id, heroTag: heroTag),
       ),
     );
   }
@@ -341,10 +367,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openNewRecipeScreen(RecipeOriginator newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider.value(
-          value: newRecipe,
-          child: RecipeView(),
-        ),
+        builder: (_) => RecipeView(newRecipe.id),
       ),
     );
   }
