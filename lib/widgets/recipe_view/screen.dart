@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
@@ -41,32 +42,40 @@ class _RecipeViewState extends State<RecipeView> {
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
 
-    return DataStateBuilder<Recipe>(
-      notifier: () => recipesRepo.watchOne(widget.recipeId),
-      builder: (context, state, notifier, _) {
-        if (state.isLoading) {
-          return Center(child: CircularProgressIndicator());
-        }
+    return OfflineBuilder(
+      connectivityBuilder: (context, connectivity, _) {
+        final bool connected = connectivity != ConnectivityResult.none;
 
-        if (state.hasException) {
-          return Text("Error occurred");
-        }
+        return DataStateBuilder<Recipe>(
+          notifier: () =>
+              recipesRepo.watchOne(widget.recipeId, remote: connected),
+          builder: (context, state, notifier, _) {
+            if (state.isLoading) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-        final recipe = RecipeOriginator(state.model);
+            if (state.hasException) {
+              return Text("Error occurred");
+            }
 
-        return WillPopScope(
-          onWillPop: () async {
-            _handleBackButton(context, recipe);
-            return true;
+            final recipe = RecipeOriginator(state.model);
+
+            return WillPopScope(
+              onWillPop: () async {
+                _handleBackButton(context, recipe);
+                return true;
+              },
+              child: Scaffold(
+                body: RefreshIndicator(
+                  onRefresh: () async => notifier.reload(),
+                  child: buildForm(recipe),
+                ),
+              ),
+            );
           },
-          child: Scaffold(
-            body: RefreshIndicator(
-              onRefresh: () async => notifier.reload(),
-              child: buildForm(recipe),
-            ),
-          ),
         );
       },
+      child: Container(),
     );
   }
 

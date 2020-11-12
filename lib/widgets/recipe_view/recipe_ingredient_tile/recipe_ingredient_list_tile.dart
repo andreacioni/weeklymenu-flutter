@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
@@ -21,23 +22,27 @@ class RecipeIngredientListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ingredientsRepo = context.watch<Repository<Ingredient>>();
-    return DataStateBuilder<Ingredient>(
-      notifier: () => ingredientsRepo.watchOne(
-        recipeIngredient.ingredientId,
-      ),
-      builder: (context, state, notifier, _) {
-        if (state.hasException) {
-          return Text("Error occurred");
-        }
+    return OfflineBuilder(
+        connectivityBuilder: (context, connectivity, _) {
+          final bool connected = connectivity != ConnectivityResult.none;
+          return DataStateBuilder<Ingredient>(
+            notifier: () => ingredientsRepo
+                .watchOne(recipeIngredient.ingredientId, remote: connected),
+            builder: (context, state, notifier, _) {
+              if (state.hasException) {
+                return Text("Error occurred");
+              }
 
-        if (state.isLoading) {
-          return Center(child: CircularProgressIndicator());
-        }
+              if (state.isLoading) {
+                return Center(child: CircularProgressIndicator());
+              }
 
-        final ingredient = state.model;
-        return buildListTile(context, ingredient);
-      },
-    );
+              final ingredient = state.model;
+              return buildListTile(context, ingredient);
+            },
+          );
+        },
+        child: Container());
     /* return FutureBuilder<Ingredient>(
       future: Provider.of<Repository<Ingredient>>(context, listen: false)
           .findOne(widget._recipeIngredient.ingredientId, remote: false),

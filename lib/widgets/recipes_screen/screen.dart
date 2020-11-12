@@ -52,27 +52,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: OfflineBuilder(
-        connectivityBuilder: (context, connectivity, child) {
+        connectivityBuilder: (context, connectivity, _) {
           final bool connected = connectivity != ConnectivityResult.none;
-          return new Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned(
-                height: 24.0,
-                left: 0.0,
-                right: 0.0,
-                child: Container(
-                  color: connected ? Color(0xFF00EE44) : Color(0xFFEE4400),
-                  child: Center(
-                    child: Text("${connected ? 'ONLINE' : 'OFFLINE'}"),
-                  ),
-                ),
-              ),
-              buildDataStateBuilder(repository, online: connected)
-            ],
-          );
+          return buildDataStateBuilder(repository, online: connected);
         },
-        child: Text("Pippo"),
+        child: Container(),
       ),
     );
   }
@@ -215,7 +199,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
     return AppBar(
       title: _searchModeEnabled == false
-          ? Text('Recipes')
+          ? buildAppBarTitle()
           : TextField(
               autofocus: true,
               decoration: InputDecoration(
@@ -247,6 +231,26 @@ class _RecipesScreenState extends State<RecipesScreen> {
           onPressed: _openOrderingDialog,
         )
       ],
+    );
+  }
+
+  Widget buildAppBarTitle() {
+    return OfflineBuilder(
+      connectivityBuilder: (_, connectivity, __) {
+        final bool connected = connectivity != ConnectivityResult.none;
+        return Row(
+          children: [
+            Text('Recipes'),
+            if (!connected) ...[
+              SizedBox(
+                width: 10,
+              ),
+              Icon(Icons.cloud_off)
+            ],
+          ],
+        );
+      },
+      child: Container(),
     );
   }
 
