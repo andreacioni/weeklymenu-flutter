@@ -60,7 +60,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     return DataStateBuilder<List<Recipe>>(
       notifier: () => repository.watchAll(),
       builder: (context, state, notifier, _) {
-        if (state.isLoading) {
+        if (state.isLoading && !state.hasModel) {
           return Center(child: CircularProgressIndicator());
         }
         return RefreshIndicator(

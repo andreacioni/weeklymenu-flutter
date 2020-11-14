@@ -22,27 +22,21 @@ class RecipeIngredientListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ingredientsRepo = context.watch<Repository<Ingredient>>();
-    return OfflineBuilder(
-        connectivityBuilder: (context, connectivity, _) {
-          final bool connected = connectivity != ConnectivityResult.none;
-          return DataStateBuilder<Ingredient>(
-            notifier: () => ingredientsRepo
-                .watchOne(recipeIngredient.ingredientId, remote: connected),
-            builder: (context, state, notifier, _) {
-              if (state.hasException) {
-                return Text("Error occurred");
-              }
+    return DataStateBuilder<Ingredient>(
+      notifier: () => ingredientsRepo.watchOne(recipeIngredient.ingredientId),
+      builder: (context, state, notifier, _) {
+        if (state.hasException) {
+          return Text("Error occurred");
+        }
 
-              if (state.isLoading) {
-                return Center(child: CircularProgressIndicator());
-              }
+        if (state.isLoading && !state.hasModel) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-              final ingredient = state.model;
-              return buildListTile(context, ingredient);
-            },
-          );
-        },
-        child: Container());
+        final ingredient = state.model;
+        return buildListTile(context, ingredient);
+      },
+    );
     /* return FutureBuilder<Ingredient>(
       future: Provider.of<Repository<Ingredient>>(context, listen: false)
           .findOne(widget._recipeIngredient.ingredientId, remote: false),

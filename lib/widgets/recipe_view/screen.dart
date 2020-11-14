@@ -42,40 +42,32 @@ class _RecipeViewState extends State<RecipeView> {
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
 
-    return OfflineBuilder(
-      connectivityBuilder: (context, connectivity, _) {
-        final bool connected = connectivity != ConnectivityResult.none;
+    return DataStateBuilder<Recipe>(
+      notifier: () => recipesRepo.watchOne(widget.recipeId),
+      builder: (context, state, notifier, _) {
+        if (state.isLoading && !state.hasModel) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-        return DataStateBuilder<Recipe>(
-          notifier: () =>
-              recipesRepo.watchOne(widget.recipeId, remote: connected),
-          builder: (context, state, notifier, _) {
-            if (state.isLoading) {
-              return Center(child: CircularProgressIndicator());
-            }
+        if (state.hasException) {
+          return Text("Error occurred");
+        }
 
-            if (state.hasException) {
-              return Text("Error occurred");
-            }
+        final recipe = RecipeOriginator(state.model);
 
-            final recipe = RecipeOriginator(state.model);
-
-            return WillPopScope(
-              onWillPop: () async {
-                _handleBackButton(context, recipe);
-                return true;
-              },
-              child: Scaffold(
-                body: RefreshIndicator(
-                  onRefresh: () async => notifier.reload(),
-                  child: buildForm(recipe),
-                ),
-              ),
-            );
+        return WillPopScope(
+          onWillPop: () async {
+            _handleBackButton(context, recipe);
+            return true;
           },
+          child: Scaffold(
+            body: RefreshIndicator(
+              onRefresh: () async => notifier.reload(),
+              child: buildForm(recipe),
+            ),
+          ),
         );
       },
-      child: Container(),
     );
   }
 
