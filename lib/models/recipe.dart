@@ -8,7 +8,7 @@ import 'package:weekly_menu_app/models/ingredient.dart';
 
 part 'recipe.g.dart';
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable(explicitToJson: true, anyMap: true)
 @DataRepository([BaseAdapter])
 class Recipe extends BaseModel<Recipe> {
   String name;

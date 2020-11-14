@@ -6,7 +6,7 @@ part of 'recipe.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Recipe _$RecipeFromJson(Map<String, dynamic> json) {
+Recipe _$RecipeFromJson(Map json) {
   return Recipe(
     id: json['_id'] as String,
     name: json['name'] as String,
@@ -14,7 +14,9 @@ Recipe _$RecipeFromJson(Map<String, dynamic> json) {
     ingredients: (json['ingredients'] as List)
             ?.map((e) => e == null
                 ? null
-                : RecipeIngredient.fromJson(e as Map<String, dynamic>))
+                : RecipeIngredient.fromJson((e as Map)?.map(
+                    (k, e) => MapEntry(k as String, e),
+                  )))
             ?.toList() ??
         [],
     difficulty: json['difficulty'] as String,
