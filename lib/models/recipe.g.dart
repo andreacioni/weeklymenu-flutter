@@ -121,9 +121,8 @@ class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
 
 //
 
-final recipeLocalAdapterProvider = Provider<LocalAdapter<Recipe>>((ref) =>
-    $RecipeHiveLocalAdapter(
-        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+final recipeLocalAdapterProvider =
+    Provider<LocalAdapter<Recipe>>((ref) => $RecipeHiveLocalAdapter(ref));
 
 final recipeRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
     (ref) => $RecipeRemoteAdapter(ref.read(recipeLocalAdapterProvider)));

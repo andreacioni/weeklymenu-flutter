@@ -99,8 +99,7 @@ class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
 //
 
 final shoppingListLocalAdapterProvider = Provider<LocalAdapter<ShoppingList>>(
-    (ref) => $ShoppingListHiveLocalAdapter(
-        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+    (ref) => $ShoppingListHiveLocalAdapter(ref));
 
 final shoppingListRemoteAdapterProvider = Provider<RemoteAdapter<ShoppingList>>(
     (ref) =>

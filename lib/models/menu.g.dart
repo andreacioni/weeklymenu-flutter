@@ -101,9 +101,8 @@ class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 
 //
 
-final menuLocalAdapterProvider = Provider<LocalAdapter<Menu>>((ref) =>
-    $MenuHiveLocalAdapter(
-        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+final menuLocalAdapterProvider =
+    Provider<LocalAdapter<Menu>>((ref) => $MenuHiveLocalAdapter(ref));
 
 final menuRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
     (ref) => $MenuRemoteAdapter(ref.read(menuLocalAdapterProvider)));

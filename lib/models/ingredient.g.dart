@@ -53,8 +53,7 @@ class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
 //
 
 final ingredientLocalAdapterProvider = Provider<LocalAdapter<Ingredient>>(
-    (ref) => $IngredientHiveLocalAdapter(
-        ref.read(hiveLocalStorageProvider), ref.read(graphProvider)));
+    (ref) => $IngredientHiveLocalAdapter(ref));
 
 final ingredientRemoteAdapterProvider = Provider<RemoteAdapter<Ingredient>>(
     (ref) =>

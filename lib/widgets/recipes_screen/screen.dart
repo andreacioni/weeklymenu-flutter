@@ -51,21 +51,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: OfflineBuilder(
-        connectivityBuilder: (context, connectivity, _) {
-          final bool connected = connectivity != ConnectivityResult.none;
-          return buildDataStateBuilder(repository, online: connected);
-        },
-        child: Container(),
-      ),
+      body: buildDataStateBuilder(repository),
     );
   }
 
   DataStateBuilder<List<Recipe>> buildDataStateBuilder(
-      Repository<Recipe> repository,
-      {bool online = true}) {
+      Repository<Recipe> repository) {
     return DataStateBuilder<List<Recipe>>(
-      notifier: () => repository.watchAll(remote: online),
+      notifier: () => repository.watchAll(),
       builder: (context, state, notifier, _) {
         if (state.isLoading) {
           return Center(child: CircularProgressIndicator());

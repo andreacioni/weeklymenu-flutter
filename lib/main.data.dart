@@ -60,11 +60,13 @@ final _repositoryInitializerProviderFamily =
       );
 
     ref.onDispose(() {
-            ref.read(ingredientRepositoryProvider).dispose();
+      if (ref.mounted) {
+              ref.read(ingredientRepositoryProvider).dispose();
       ref.read(menuRepositoryProvider).dispose();
       ref.read(recipeRepositoryProvider).dispose();
       ref.read(shoppingListRepositoryProvider).dispose();
 
+      }
     });
 
     return RepositoryInitializer();
