@@ -49,7 +49,7 @@ class _RecipeViewState extends State<RecipeView> {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (state.hasException) {
+        if (state.hasException && !state.hasModel) {
           return Text("Error occurred");
         }
 

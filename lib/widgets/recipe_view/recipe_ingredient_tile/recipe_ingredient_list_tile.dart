@@ -25,7 +25,7 @@ class RecipeIngredientListTile extends StatelessWidget {
     return DataStateBuilder<Ingredient>(
       notifier: () => ingredientsRepo.watchOne(recipeIngredient.ingredientId),
       builder: (context, state, notifier, _) {
-        if (state.hasException) {
+        if (state.hasException && !state.hasModel) {
           return Text("Error occurred");
         }
 
