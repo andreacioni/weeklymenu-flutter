@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
+import 'package:weekly_menu_app/models/ingredient.dart';
 
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/screen.dart';

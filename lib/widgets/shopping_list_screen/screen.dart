@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
@@ -38,9 +39,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       body: DataStateBuilder<List<ShoppingList>>(
         notifier: () => repository.watchAll(),
         builder: (context, state, notifier, _) {
-          if (state.isLoading) {
+          if (state.isLoading && !state.hasModel) {
             return Center(child: CircularProgressIndicator());
-          } else if (state.hasException) {
+          }
+
+          if (state.hasException && !state.hasModel) {
             return Text("Error occurred");
           }
 
@@ -216,7 +219,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       elevation: 5,
-      title: Text('Shopping List'),
+      title: OfflineBuilder(
+        connectivityBuilder: (context, connectivity, _) => Row(
+          children: [
+            Text('Shopping List'),
+          ],
+        ),
+      ),
       leading: IconButton(
         icon: Icon(
           Icons.menu,

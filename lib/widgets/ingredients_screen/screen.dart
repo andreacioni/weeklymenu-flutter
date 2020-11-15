@@ -15,9 +15,14 @@ class IngredientsScreen extends StatelessWidget {
       body: DataStateBuilder<List<Ingredient>>(
           notifier: () => repository.watchAll(),
           builder: (context, state, notifier, _) {
-            if (state.isLoading) {
+            if (state.isLoading && !state.hasModel) {
               return Center(child: CircularProgressIndicator());
             }
+
+            if (state.hasException && !state.hasModel) {
+              return Text("Error occurred");
+            }
+
             return RefreshIndicator(
               onRefresh: () async => notifier.reload(),
               child: ListView.builder(

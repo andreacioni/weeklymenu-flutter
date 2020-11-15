@@ -48,11 +48,11 @@ class DailyMenuFutureWrapper extends StatelessWidget {
         params: {'day': _day.format(_dateParser)},
       ),
       builder: (context, state, notifier, _) {
-        if (state.hasException) {
+        if (state.hasException && !state.hasModel) {
           return Container(child: Text("Error occurred"));
         }
 
-        if (state.isLoading) {
+        if (state.isLoading && !state.hasModel) {
           return Center(child: CircularProgressIndicator());
         }
 
