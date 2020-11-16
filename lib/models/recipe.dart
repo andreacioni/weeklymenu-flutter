@@ -159,37 +159,31 @@ class RecipeOriginator extends Originator<Recipe> {
   void updateName(String newRecipeName) {
     setEdited();
     instance.name = newRecipeName;
-    notifyListeners();
   }
 
   void updateDifficulty(String newValue) {
     setEdited();
     instance.difficulty = newValue;
-    notifyListeners();
   }
 
   void updatePreparationTime(int newValue) {
     setEdited();
     instance.estimatedPreparationTime = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateCookingTime(int newValue) {
     setEdited();
     instance.estimatedCookingTime = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateRating(int newValue) {
     setEdited();
     instance.rating = newValue;
-    notifyListeners();
   }
 
   void updateCost(int newValue) {
     setEdited();
     instance.cost = newValue;
-    notifyListeners();
   }
 
   void addRecipeIngredient(RecipeIngredient recipeIngredient) {
@@ -199,7 +193,6 @@ class RecipeOriginator extends Originator<Recipe> {
     } else {
       instance.ingredients.add(recipeIngredient);
     }
-    notifyListeners();
   }
 
   void deleteRecipeIngredient(String recipeIngredientId) {
@@ -207,7 +200,6 @@ class RecipeOriginator extends Originator<Recipe> {
       setEdited();
       instance.ingredients.removeWhere((recipeIngredient) =>
           recipeIngredient.ingredientId == recipeIngredientId);
-      notifyListeners();
     }
   }
 
@@ -218,45 +210,38 @@ class RecipeOriginator extends Originator<Recipe> {
     } else {
       instance.tags.add(newTag);
     }
-    notifyListeners();
   }
 
   void removeTag(String tagToRemove) {
     setEdited();
     if (instance.tags != null) {
       instance.tags.removeWhere((tag) => tag == tagToRemove);
-      notifyListeners();
     }
   }
 
   void updateDescription(String newValue) {
     setEdited();
     instance.description = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateImgUrl(String newValue) {
     setEdited();
     instance.imgUrl = newValue;
-    notifyListeners();
   }
 
   void updatePreparation(String newValue) {
     setEdited();
     instance.preparation = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateNote(String newValue) {
     setEdited();
     instance.note = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   void updateServs(int newValue) {
     setEdited();
     instance.servs = newValue;
-    //notifyListeners(); NOTE: not needed because this field is controlled by TextEditorController
   }
 
   String get id => instance.id;

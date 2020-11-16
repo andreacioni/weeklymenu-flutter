@@ -255,8 +255,8 @@ class _RecipeViewState extends State<RecipeView> {
       showProgressDialog(context);
 
       try {
-        await Provider.of<Repository<Recipe>>(context, listen: false)
-            .save(recipe.save());
+        final r = await context.read<Repository<Recipe>>().save(recipe.save());
+        print(r);
       } catch (e) {
         showAlertErrorMessage(context);
         return;

@@ -15,7 +15,6 @@ abstract class Revertable<T> {
 abstract class CloneableAndSaveable<T> implements Cloneable<T>, Saveable<T> {}
 
 abstract class Originator<T extends Cloneable<T>>
-    with ChangeNotifier
     implements Saveable<T>, Revertable<T> {
   T _backup, _original;
 
@@ -32,7 +31,6 @@ abstract class Originator<T extends Cloneable<T>>
     _original = _backup;
     _backup = _original.clone();
     _edited = false;
-    notifyListeners();
     return _original;
   }
 
@@ -40,7 +38,6 @@ abstract class Originator<T extends Cloneable<T>>
   T revert() {
     _backup = _original.clone();
     _edited = false;
-    notifyListeners();
     return _backup;
   }
 

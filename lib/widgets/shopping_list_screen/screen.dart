@@ -220,11 +220,21 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     return AppBar(
       elevation: 5,
       title: OfflineBuilder(
-        connectivityBuilder: (context, connectivity, _) => Row(
-          children: [
-            Text('Shopping List'),
-          ],
-        ),
+        connectivityBuilder: (context, connectivity, child) {
+          final connected = connectivity != ConnectivityResult.none;
+          return Row(
+            children: [
+              child,
+              if (!connected) ...[
+                SizedBox(
+                  width: 10,
+                ),
+                Icon(Icons.cloud_off)
+              ]
+            ],
+          );
+        },
+        child: const Text('Shopping List'),
       ),
       leading: IconButton(
         icon: Icon(

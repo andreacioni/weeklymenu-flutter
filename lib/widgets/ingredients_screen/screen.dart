@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:flutter_data_state/flutter_data_state.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/ingredient.dart';
@@ -90,7 +91,23 @@ class IngredientsScreen extends StatelessWidget {
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text('Ingredients'),
+      title: OfflineBuilder(
+        connectivityBuilder: (context, connectivity, child) {
+          final connected = connectivity != ConnectivityResult.none;
+          return Row(
+            children: [
+              child,
+              if (!connected) ...[
+                SizedBox(
+                  width: 10,
+                ),
+                Icon(Icons.cloud_off)
+              ]
+            ],
+          );
+        },
+        child: const Text('Ingredients'),
+      ),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.add),
