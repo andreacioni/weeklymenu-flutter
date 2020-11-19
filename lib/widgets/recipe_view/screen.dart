@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
@@ -41,10 +40,11 @@ class _RecipeViewState extends State<RecipeView> {
   @override
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
-
+    print("BUILLLDDDDDD");
     return DataStateBuilder<Recipe>(
       notifier: () => recipesRepo.watchOne(widget.recipeId),
       builder: (context, state, notifier, _) {
+        print("notify");
         if (state.isLoading && !state.hasModel) {
           return Center(child: CircularProgressIndicator());
         }
@@ -256,7 +256,7 @@ class _RecipeViewState extends State<RecipeView> {
 
       try {
         final r = await context.read<Repository<Recipe>>().save(recipe.save());
-        print(r);
+        print("afterSave");
       } catch (e) {
         showAlertErrorMessage(context);
         return;

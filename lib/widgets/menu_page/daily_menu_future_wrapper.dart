@@ -24,25 +24,11 @@ class DailyMenuFutureWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repository = context.watch<Repository<Menu>>();
-/*     return FutureBuilder<List<Menu>>(
-      future: repository.findAll(),
-      initialData: [],
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Container(child: Text("Error occurred"));
-        }
 
-        if (snapshot.connectionState != ConnectionState.done) {
-          return Center(child: CircularProgressIndicator());
-        } else {
-          final dailyMenu = DailyMenu(
-            _day,
-            snapshot.data.map((menu) => MenuOriginator(menu)).toList(),
-          ); //TODO to be reviewed
-          return _buildMenuCard(context, _day, dailyMenu);
-        }
-      },
-    ); */
+    if (repository == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return DataStateBuilder<List<Menu>>(
       notifier: () => repository.watchAll(
         params: {'day': _day.format(_dateParser)},
@@ -53,7 +39,7 @@ class DailyMenuFutureWrapper extends StatelessWidget {
         }
 
         if (state.isLoading && !state.hasModel) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         final dailyMenu = DailyMenu(

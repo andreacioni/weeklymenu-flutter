@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
@@ -55,10 +56,12 @@ class ShoppingList extends BaseModel<ShoppingList> {
 
   @override
   ShoppingList clone() => ShoppingList.fromJson(this.toJson());
+
+  List<Object> get props => [...super.props, name, items];
 }
 
 @JsonSerializable()
-class ShoppingListItem with ChangeNotifier {
+class ShoppingListItem extends Equatable with ChangeNotifier {
   String item;
 
   bool checked;
@@ -87,6 +90,15 @@ class ShoppingListItem with ChangeNotifier {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
+
+  List<Object> get props => [
+        item,
+        supermarketSection,
+        checked,
+        quantity,
+        unitOfMeasure,
+        listPosition
+      ];
 }
 
 mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>

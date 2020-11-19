@@ -41,8 +41,8 @@ dependencies:
     path: ./flutter_data
   flutter_data_state: ^0.3.1
   flutter_offline: "^0.3.0"
-
-
+  equatable: ^1.2.3
+  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
