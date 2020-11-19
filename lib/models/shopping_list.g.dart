@@ -167,3 +167,9 @@ extension ShoppingListX on ShoppingList {
         as ShoppingList;
   }
 }
+
+extension ShoppingListRepositoryX on Repository<ShoppingList> {
+  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
+      (internalAdapter as BaseAdapter<ShoppingList>)
+          .tryUseOldToken(sharedPreferences);
+}

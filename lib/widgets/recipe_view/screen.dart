@@ -40,11 +40,9 @@ class _RecipeViewState extends State<RecipeView> {
   @override
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
-    print("BUILLLDDDDDD");
     return DataStateBuilder<Recipe>(
       notifier: () => recipesRepo.watchOne(widget.recipeId),
       builder: (context, state, notifier, _) {
-        print("notify");
         if (state.isLoading && !state.hasModel) {
           return Center(child: CircularProgressIndicator());
         }
@@ -255,8 +253,7 @@ class _RecipeViewState extends State<RecipeView> {
       showProgressDialog(context);
 
       try {
-        final r = await context.read<Repository<Recipe>>().save(recipe.save());
-        print("afterSave");
+        await context.read<Repository<Recipe>>().save(recipe.save());
       } catch (e) {
         showAlertErrorMessage(context);
         return;

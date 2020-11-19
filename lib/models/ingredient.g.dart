@@ -120,3 +120,9 @@ extension IngredientX on Ingredient {
         as Ingredient;
   }
 }
+
+extension IngredientRepositoryX on Repository<Ingredient> {
+  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
+      (internalAdapter as BaseAdapter<Ingredient>)
+          .tryUseOldToken(sharedPreferences);
+}

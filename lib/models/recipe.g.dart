@@ -185,3 +185,9 @@ extension RecipeX on Recipe {
         as Recipe;
   }
 }
+
+extension RecipeRepositoryX on Repository<Recipe> {
+  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
+      (internalAdapter as BaseAdapter<Recipe>)
+          .tryUseOldToken(sharedPreferences);
+}

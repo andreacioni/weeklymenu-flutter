@@ -162,3 +162,8 @@ extension MenuX on Menu {
     return repository.internalAdapter.initializeModel(this, save: true) as Menu;
   }
 }
+
+extension MenuRepositoryX on Repository<Menu> {
+  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
+      (internalAdapter as BaseAdapter<Menu>).tryUseOldToken(sharedPreferences);
+}
