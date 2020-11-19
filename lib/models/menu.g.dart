@@ -164,6 +164,12 @@ extension MenuX on Menu {
 }
 
 extension MenuRepositoryX on Repository<Menu> {
+  void tryLogin(RestProvider restProvider) =>
+      (internalAdapter as BaseAdapter<Menu>).tryLogin(restProvider);
   JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
       (internalAdapter as BaseAdapter<Menu>).tryUseOldToken(sharedPreferences);
+  Future<JWTToken> tryUseCredentials(
+          RestProvider restProvider, SharedPreferences sharedPreferences) =>
+      (internalAdapter as BaseAdapter<Menu>)
+          .tryUseCredentials(restProvider, sharedPreferences);
 }

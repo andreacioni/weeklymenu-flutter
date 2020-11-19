@@ -187,7 +187,13 @@ extension RecipeX on Recipe {
 }
 
 extension RecipeRepositoryX on Repository<Recipe> {
+  void tryLogin(RestProvider restProvider) =>
+      (internalAdapter as BaseAdapter<Recipe>).tryLogin(restProvider);
   JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
       (internalAdapter as BaseAdapter<Recipe>)
           .tryUseOldToken(sharedPreferences);
+  Future<JWTToken> tryUseCredentials(
+          RestProvider restProvider, SharedPreferences sharedPreferences) =>
+      (internalAdapter as BaseAdapter<Recipe>)
+          .tryUseCredentials(restProvider, sharedPreferences);
 }
