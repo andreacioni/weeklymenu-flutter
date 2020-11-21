@@ -41,11 +41,8 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
   String get baseUrl => "https://heroku-weeklymenu.herokuapp.com/api/v1/";
 
   @override
-  FutureOr<Map<String, String>> get defaultHeaders => {
-        'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDI1MzQwNDcsIm5iZiI6MTYwMjUzNDA0NywianRpIjoiNjE3ZjRiNTYtNzg2Ny00Mzg4LWE1ZTAtMDYxZjc4N2JhMTg1IiwiZXhwIjoyNjAyNTM0OTQ3LCJpZGVudGl0eSI6ImNpb25pQGZsdXRvLmNvbSIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.GQv-m0crSn4_CgdeemzYH6u9afSmM6TobYb-mDappZI'
-      };
+  FutureOr<Map<String, String>> get defaultHeaders =>
+      {'Content-Type': 'application/json'};
 
   @override
   DeserializedData<T, DataModel<dynamic>> deserialize(data,
@@ -55,73 +52,5 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
         .deserialize(json.containsKey('results') ? json['results'] : json,
             //key: type,
             init: init);
-  }
-
-  void tryLogin(RestProvider restProvider) async {
-    JWTToken jwt;
-    final sharedPreferences = await SharedPreferences.getInstance();
-
-    try {
-      if ((jwt = tryUseOldToken(sharedPreferences)) != null) {
-        restProvider.updateToken(jwt);
-        //goToHomepage(context);
-        return;
-      } else {
-        log.e("Can't login with previous token");
-      }
-    } catch (e) {
-      log.w("Invalid token saved in shared preference", e);
-    }
-
-    try {
-      if ((jwt = await tryUseCredentials(restProvider, sharedPreferences)) !=
-          null) {
-        restProvider.updateToken(jwt);
-        //goToHomepage(context);
-        return;
-      } else {
-        log.e("Can't login with saved credentials");
-      }
-    } catch (e) {
-      log.w("Invalid credentials saved in shared preference", e);
-    }
-
-    //goToLogin(context);
-  }
-
-  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) {
-    final token = sharedPreferences
-        .getString(SharedPreferencesKeys.tokenSharedPreferencesKey);
-
-    if (token != null) {
-      JWTToken jwt = JWTToken.fromBase64Json(token);
-
-      if (!jwt.isValid()) {
-        log.w("Old token is not valid anymore");
-        return null;
-      }
-
-      return jwt;
-    } else {
-      log.i("No token saved previusly");
-    }
-
-    return null;
-  }
-
-  Future<JWTToken> tryUseCredentials(
-      RestProvider restProvider, SharedPreferences sharedPreferences) async {
-    final username = sharedPreferences
-        .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
-    final password = sharedPreferences
-        .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
-
-    if (password != null && username != null) {
-      final authReponse = await restProvider.login(username, password);
-      return JWTToken.fromBase64Json(
-          AuthToken.fromJson(authReponse).accessToken);
-    }
-
-    return null;
   }
 }
