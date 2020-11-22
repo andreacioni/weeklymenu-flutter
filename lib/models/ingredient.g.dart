@@ -120,15 +120,3 @@ extension IngredientX on Ingredient {
         as Ingredient;
   }
 }
-
-extension IngredientRepositoryX on Repository<Ingredient> {
-  void tryLogin(RestProvider restProvider) =>
-      (internalAdapter as BaseAdapter<Ingredient>).tryLogin(restProvider);
-  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
-      (internalAdapter as BaseAdapter<Ingredient>)
-          .tryUseOldToken(sharedPreferences);
-  Future<JWTToken> tryUseCredentials(
-          RestProvider restProvider, SharedPreferences sharedPreferences) =>
-      (internalAdapter as BaseAdapter<Ingredient>)
-          .tryUseCredentials(restProvider, sharedPreferences);
-}
