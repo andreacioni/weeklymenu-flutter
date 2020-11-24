@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weekly_menu_app/globals/constants.dart';
-import 'package:weekly_menu_app/globals/errors_handlers.dart';
-import 'package:weekly_menu_app/homepage.dart';
-import 'package:weekly_menu_app/models/auth_token.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
-import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
 
+import '../../../services/auth_service.dart';
+import '../../../globals/errors_handlers.dart';
+
+import '../screen.dart';
 import 'base_login_form.dart';
 
 class ResetPasswordForm extends StatefulWidget {
@@ -48,11 +44,11 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
 
   void _doResetPassword() {
     _form.validateAndSave(() async {
-      var restProvider = Provider.of<RestProvider>(context, listen: false);
+      final authService = AuthService.getInstance();
 
       showProgressDialog(context, dismissible: false);
       try {
-        await restProvider.resetPassword(_email);
+        await authService.resetPassword(_email);
 
         hideProgressDialog(context);
 
@@ -69,12 +65,17 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
               ],
             ));
 
-        SplashScreen.goToLogin(context);
+        goToLogin();
       } catch (e) {
         hideProgressDialog(context);
         showAlertErrorMessage(context,
             errorMessage: "Password reset failed. Try again later");
       }
     });
+  }
+
+  void goToLogin() {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
   }
 }

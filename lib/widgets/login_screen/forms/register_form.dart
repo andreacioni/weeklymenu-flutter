@@ -4,9 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weekly_menu_app/globals/constants.dart';
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
-import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
+import 'package:weekly_menu_app/services/auth_service.dart';
 
+import '../screen.dart';
 import 'base_login_form.dart';
 
 class RegisterForm extends StatefulWidget {
@@ -65,11 +65,11 @@ class _RegisterFormState extends State<RegisterForm> {
 
   void _doRegistration() {
     _form.validateAndSave(() async {
-      var restProvider = Provider.of<RestProvider>(context, listen: false);
+      final authService = AuthService.getInstance();
 
       showProgressDialog(context, dismissible: false);
       try {
-        await restProvider.register(_name, _email, _password);
+        await authService.register(_name, _email, _password);
 
         hideProgressDialog(context);
 
@@ -86,12 +86,17 @@ class _RegisterFormState extends State<RegisterForm> {
               ],
             ));
 
-        SplashScreen.goToLogin(context);
+        goToLogin();
       } catch (e) {
         hideProgressDialog(context);
         showAlertErrorMessage(context,
             errorMessage: "New user registration failed. Try again later");
       }
     });
+  }
+
+  void goToLogin() {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
   }
 }

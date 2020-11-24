@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:http/http.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +11,7 @@ import 'package:objectid/objectid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weekly_menu_app/globals/constants.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
-import 'package:weekly_menu_app/providers/rest_provider.dart';
+import 'package:weekly_menu_app/services/auth_service.dart';
 
 import 'auth_token.dart';
 
@@ -37,12 +38,19 @@ abstract class BaseModel<T extends DataModel<T>> extends Equatable
 }
 
 mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
+  static final AuthService _authService = AuthService.getInstance();
+
   @override
   String get baseUrl => "https://heroku-weeklymenu.herokuapp.com/api/v1/";
 
   @override
-  FutureOr<Map<String, String>> get defaultHeaders =>
-      {'Content-Type': 'application/json'};
+  FutureOr<Map<String, String>> get defaultHeaders async {
+    final token = await _authService.token;
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': token.toJwtString
+    };
+  }
 
   @override
   DeserializedData<T, DataModel<dynamic>> deserialize(data,
@@ -52,5 +60,11 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
         .deserialize(json.containsKey('results') ? json['results'] : json,
             //key: type,
             init: init);
+  }
+
+  @override
+  FutureOr<R> onError<R>(DataException e) async {
+    //If we get a 401 the token could be no more valid
+    if (e.statusCode == 401) {}
   }
 }

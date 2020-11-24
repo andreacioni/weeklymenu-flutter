@@ -167,15 +167,3 @@ extension ShoppingListX on ShoppingList {
         as ShoppingList;
   }
 }
-
-extension ShoppingListRepositoryX on Repository<ShoppingList> {
-  void tryLogin(RestProvider restProvider) =>
-      (internalAdapter as BaseAdapter<ShoppingList>).tryLogin(restProvider);
-  JWTToken tryUseOldToken(SharedPreferences sharedPreferences) =>
-      (internalAdapter as BaseAdapter<ShoppingList>)
-          .tryUseOldToken(sharedPreferences);
-  Future<JWTToken> tryUseCredentials(
-          RestProvider restProvider, SharedPreferences sharedPreferences) =>
-      (internalAdapter as BaseAdapter<ShoppingList>)
-          .tryUseCredentials(restProvider, sharedPreferences);
-}
