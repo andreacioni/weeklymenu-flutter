@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
@@ -219,22 +218,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       elevation: 5,
-      title: OfflineBuilder(
-        connectivityBuilder: (context, connectivity, child) {
-          final connected = connectivity != ConnectivityResult.none;
-          return Row(
-            children: [
-              child,
-              if (!connected) ...[
-                SizedBox(
-                  width: 10,
-                ),
-                Icon(Icons.cloud_off)
-              ]
-            ],
-          );
-        },
-        child: const Text('Shopping List'),
+      title: Row(
+        children: [
+          const Text('Shopping List'),
+        ],
       ),
       leading: IconButton(
         icon: Icon(

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/widgets/recipes_screen/screen.dart';
 
-import './homepage.dart';
+import 'widgets/splash_screen/screen.dart';
 import 'main.data.dart';
 
 void main() => runApp(App());
@@ -16,7 +15,7 @@ class App extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Weekly Menu',
-        home: HomePage(),
+        home: SplashScreen(),
         theme: ThemeData(
           // Define the default brightness and colors.
           brightness: Brightness.light,

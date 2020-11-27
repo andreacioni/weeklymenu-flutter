@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:flutter_data_state/flutter_data_state.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
 
+import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/screen.dart';
 import '../../globals/utils.dart';
@@ -56,23 +54,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  DataStateBuilder<List<Recipe>> buildDataStateBuilder(
+  FlutterDataStateBuilder<List<Recipe>> buildDataStateBuilder(
       Repository<Recipe> repository) {
-    return DataStateBuilder<List<Recipe>>(
+    return FlutterDataStateBuilder<List<Recipe>>(
       notifier: () => repository.watchAll(),
       builder: (context, state, notifier, _) {
-        if (state.isLoading && !state.hasModel) {
-          return Center(child: CircularProgressIndicator());
-        }
-        return RefreshIndicator(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: _buildScreenBody(
-              state.model,
-              filter: (recipe) => !stringContains(recipe.name, _searchText),
-            ),
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: _buildScreenBody(
+            state.model,
+            filter: (recipe) => !stringContains(recipe.name, _searchText),
           ),
-          onRefresh: () => notifier.reload(),
         );
       },
     );
@@ -229,22 +221,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget buildAppBarTitle() {
-    return OfflineBuilder(
-      connectivityBuilder: (_, connectivity, __) {
-        final bool connected = connectivity != ConnectivityResult.none;
-        return Row(
-          children: [
-            Text('Recipes'),
-            if (!connected) ...[
-              SizedBox(
-                width: 10,
-              ),
-              Icon(Icons.cloud_off)
-            ],
-          ],
-        );
-      },
-      child: Container(),
+    return Row(
+      children: [
+        Text('Recipes'),
+      ],
     );
   }
 

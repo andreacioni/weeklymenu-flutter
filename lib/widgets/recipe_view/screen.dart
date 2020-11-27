@@ -3,6 +3,7 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_data_state/flutter_data_state.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../globals/errors_handlers.dart';
 import 'add_ingredient_button.dart';
@@ -40,17 +41,9 @@ class _RecipeViewState extends State<RecipeView> {
   @override
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
-    return DataStateBuilder<Recipe>(
+    return FlutterDataStateBuilder<Recipe>(
       notifier: () => recipesRepo.watchOne(widget.recipeId),
       builder: (context, state, notifier, _) {
-        if (state.isLoading && !state.hasModel) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (state.hasException && !state.hasModel) {
-          return Text("Error occurred");
-        }
-
         final recipe = RecipeOriginator(state.model);
 
         return WillPopScope(
@@ -59,10 +52,7 @@ class _RecipeViewState extends State<RecipeView> {
             return true;
           },
           child: Scaffold(
-            body: RefreshIndicator(
-              onRefresh: () async => notifier.reload(),
-              child: buildForm(recipe),
-            ),
+            body: buildForm(recipe),
           ),
         );
       },

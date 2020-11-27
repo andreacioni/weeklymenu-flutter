@@ -43,6 +43,8 @@ class JWTToken {
   });
 
   factory JWTToken.fromBase64Json(String token) {
+    if (token == null) return null;
+
     final jsonString = utils.decodeBase64(token.split(".")[1]);
     final jsonMap = utils.jsonMapFromString(jsonString);
 

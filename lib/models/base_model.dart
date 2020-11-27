@@ -46,10 +46,8 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {
     final token = await _authService.token;
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': token.toJwtString
-    };
+    final bearerToken = 'Bearer ' + token.toJwtString;
+    return {'Content-Type': 'application/json', 'Authorization': bearerToken};
   }
 
   @override
@@ -60,11 +58,5 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
         .deserialize(json.containsKey('results') ? json['results'] : json,
             //key: type,
             init: init);
-  }
-
-  @override
-  FutureOr<R> onError<R>(DataException e) async {
-    //If we get a 401 the token could be no more valid
-    if (e.statusCode == 401) {}
   }
 }

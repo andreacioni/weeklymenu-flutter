@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/menu.dart';
+import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';
 import 'package:weekly_menu_app/widgets/menu_page/menu_card.dart';
 
@@ -29,19 +30,11 @@ class DailyMenuFutureWrapper extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return DataStateBuilder<List<Menu>>(
+    return FlutterDataStateBuilder<List<Menu>>(
       notifier: () => repository.watchAll(
         params: {'day': _day.format(_dateParser)},
       ),
       builder: (context, state, notifier, _) {
-        if (state.hasException && !state.hasModel) {
-          return Container(child: Text("Error occurred"));
-        }
-
-        if (state.isLoading && !state.hasModel) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
         final dailyMenu = DailyMenu(
           _day,
           state.model

@@ -18,6 +18,9 @@ class AuthService {
     BaseOptions(
       baseUrl: BASE_URL,
       contentType: 'application/json',
+      connectTimeout: 2000,
+      receiveTimeout: 2000,
+      sendTimeout: 2000,
     ),
   );
 
@@ -31,7 +34,9 @@ class AuthService {
 
   bool _initialized;
 
-  AuthService._internal();
+  AuthService._internal() {
+    _initialized = false;
+  }
 
   Future<void> register(String name, String email, String password) async {
     await _dio.post('$BASE_URL/auth/register',
@@ -44,7 +49,7 @@ class AuthService {
     var authResp = await _dio.post('$BASE_URL/auth/token',
         data: {'email': email, 'password': password});
 
-    _storeUserInformation(
+    await _storeUserInformation(
         email, password, AuthToken.fromJson(authResp.data).accessToken);
 
     return _token;
@@ -52,12 +57,12 @@ class AuthService {
 
   Future<void> logout() async {
     await _dio.post('$BASE_URL/auth/logout');
-    _clearUserInformation();
+    await _clearUserInformation();
   }
 
   Future<void> resetPassword(String email) async {
     await _dio.post('$BASE_URL/auth/reset_password', data: {'email': email});
-    _clearUserInformation();
+    await _clearUserInformation();
   }
 
   Future<void> _storeUserInformation(
@@ -67,14 +72,14 @@ class AuthService {
     //Email & Password
     _email = email;
     _password = password;
-    sharedPreferences.setString(
+    await sharedPreferences.setString(
         SharedPreferencesKeys.emailSharedPreferencesKey, _email);
-    sharedPreferences.setString(
+    await sharedPreferences.setString(
         SharedPreferencesKeys.passwordSharedPreferencesKey, _password);
 
     //Token
     _token = JWTToken.fromBase64Json(token);
-    sharedPreferences.setString(
+    await sharedPreferences.setString(
         SharedPreferencesKeys.tokenSharedPreferencesKey, _token.toJwtString);
   }
 
@@ -86,7 +91,6 @@ class AuthService {
         .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
     _password = sharedPreferences
         .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
-    ;
 
     //Token
     _token = JWTToken.fromBase64Json(sharedPreferences
@@ -99,58 +103,52 @@ class AuthService {
     //Email & Password
     _email = null;
     _password = null;
-    sharedPreferences.remove(SharedPreferencesKeys.emailSharedPreferencesKey);
-    sharedPreferences
+    await sharedPreferences
+        .remove(SharedPreferencesKeys.emailSharedPreferencesKey);
+    await sharedPreferences
         .remove(SharedPreferencesKeys.passwordSharedPreferencesKey);
 
     //Token
     _token = null;
-    sharedPreferences.remove(SharedPreferencesKeys.tokenSharedPreferencesKey);
+    await sharedPreferences
+        .remove(SharedPreferencesKeys.tokenSharedPreferencesKey);
   }
 
-  Future<JWTToken> get token => _tryLogin();
-
-  Future<JWTToken> _tryLogin() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-
+  Future<JWTToken> get token async {
     if (!_initialized) {
       _log.i("Auth service not yet initialized");
-      await _loadUserInformation();
-      _initialized = true;
-    }
-
-    if (_token != null && _token.isValid()) {
-      return _token;
-    }
-
-    JWTToken tempToken;
-    _log.i("Invalid cached token, getting new one...");
-
-    try {
-      if ((tempToken = await _tryUseCredentials(sharedPreferences)) != null) {
-        _token = tempToken;
-        return tempToken;
-      } else {
-        _log.e("Can't login with saved credentials");
+      try {
+        await _loadUserInformation();
+        _initialized = true;
+      } catch (e) {
+        _log.e("There was an error loading saved credentials");
+        throw e;
       }
-    } catch (e) {
-      _log.w("Invalid credentials saved in shared preference", e);
     }
 
-    return null;
+    if (_token == null || !_token.isValid()) {
+      _log.i("Invalid cached token, getting new one...");
+
+      try {
+        await _tryLogin();
+      } on DioError catch (e) {
+        if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
+          _log.i(
+              "Failed auto login with saved credentials, password changed. Login again...");
+        } else {
+          _log.e("Unexpented failure while logging in", e);
+        }
+      } catch (e) {
+        _log.e("Generic error raised while logging in", e);
+      }
+    }
+
+    return _token;
   }
 
-  Future<JWTToken> _tryUseCredentials(
-      SharedPreferences sharedPreferences) async {
-    final username = sharedPreferences
-        .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
-    final password = sharedPreferences
-        .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
-
-    if (password != null && username != null) {
-      return await login(username, password);
+  Future<void> _tryLogin() async {
+    if (_password != null && _email != null) {
+      return await login(_email, _password);
     }
-
-    return null;
   }
 }
