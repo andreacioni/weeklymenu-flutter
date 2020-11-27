@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:flutter_data_state/flutter_data_state.dart';
+import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../models/ingredient.dart';
 import './shopping_list_tile.dart';
@@ -35,17 +35,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: DataStateBuilder<List<ShoppingList>>(
+      body: FlutterDataStateBuilder<List<ShoppingList>>(
         notifier: () => repository.watchAll(),
         builder: (context, state, notifier, _) {
-          if (state.isLoading && !state.hasModel) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (state.hasException && !state.hasModel) {
-            return Text("Error occurred");
-          }
-
           //Get only the first element, by now only one list per user is supported
           final shoppingList = notifier.data.model[0];
           final allItems = shoppingList.getAllItems;
