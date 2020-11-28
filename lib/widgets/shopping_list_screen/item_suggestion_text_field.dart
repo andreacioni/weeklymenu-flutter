@@ -100,11 +100,8 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
   }
 
   Future<List> suggestionsCallback(BuildContext context, String pattern) async {
-    final ingredientProvider = Provider.of<Repository<Ingredient>>(
-      context,
-      listen: false,
-    );
-    availableIngredients = await ingredientProvider.findAll();
+    final ingredientProvider = context.read<Repository<Ingredient>>();
+    availableIngredients = await ingredientProvider.watchAll();
 
     List<dynamic> suggestions = [];
 

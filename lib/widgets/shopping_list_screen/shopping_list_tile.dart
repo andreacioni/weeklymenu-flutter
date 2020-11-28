@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:provider/provider.dart';
+import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../models/shopping_list.dart';
 import '../../models/ingredient.dart';
@@ -37,20 +38,10 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Provider.of<Repository<Ingredient>>(context, listen: false)
-          .findOne(widget.shoppingListItem.item),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text("Error occurred");
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
+    final ingredietsRepository = context.watch<Repository<Ingredient>>();
+    return FlutterDataStateBuilder(
+      notifier: () => ingredietsRepository.watchAll(),
+      builder: (context, state, notifier, _) {
         return Dismissible(
           key: widget.formKey,
           onDismissed: widget.onDismiss,
