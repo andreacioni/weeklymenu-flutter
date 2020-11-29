@@ -27,7 +27,6 @@ class ShoppingListItemTile extends StatefulWidget {
 }
 
 class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
-  Ingredient _ingredient;
   bool _editingMode;
 
   @override
@@ -40,7 +39,8 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
   Widget build(BuildContext context) {
     final ingredietsRepository = context.watch<Repository<Ingredient>>();
     return FlutterDataStateBuilder(
-      notifier: () => ingredietsRepository.watchAll(),
+      notifier: () =>
+          ingredietsRepository.watchOne(widget.shoppingListItem.item),
       builder: (context, state, notifier, _) {
         return Dismissible(
           key: widget.formKey,
@@ -56,7 +56,7 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
                         onChanged: onCheckChange,
                       ),
                 title: ItemSuggestionTextField(
-                  value: _ingredient,
+                  value: state.model,
                   enabled: widget.editable,
                   showShoppingItemSuggestions: false,
                   onIngredientSelected: _onIngredientSelected,
@@ -89,7 +89,6 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
 
   void _onIngredientSelected(Ingredient newIngredient) {
     setState(() {
-      _ingredient = newIngredient;
       _editingMode = false;
     });
   }

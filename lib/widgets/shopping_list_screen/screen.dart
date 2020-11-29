@@ -241,8 +241,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     shoppingList.addShoppingListItem(item);
 
     try {
-      await Provider.of<Repository<ShoppingList>>(context, listen: false)
-          .save(shoppingList);
+      await context.read<Repository<ShoppingList>>().save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.removeItemFromList(item);
@@ -264,8 +263,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       ShoppingList shoppingList, ShoppingListItem shoppingListItem) async {
     shoppingList.removeItemFromList(shoppingListItem);
     try {
-      await Provider.of<Repository<ShoppingList>>(context, listen: false)
-          .save(shoppingList);
+      await context.read<Repository<ShoppingList>>().save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.addShoppingListItem(shoppingListItem);
@@ -280,8 +278,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
 
     try {
-      await Provider.of<Repository<ShoppingList>>(context, listen: false)
-          .save(shoppingList);
+      await context.read<Repository<ShoppingList>>().save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.setChecked(

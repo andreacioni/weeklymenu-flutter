@@ -100,16 +100,16 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
   }
 
   Future<List> suggestionsCallback(BuildContext context, String pattern) async {
-    final ingredientProvider = context.read<Repository<Ingredient>>();
-    availableIngredients = await ingredientProvider.watchAll();
+    final ingredientsRepo = context.read<Repository<Ingredient>>();
+    final shopListRepo = context.read<Repository<ShoppingList>>();
+
+    availableIngredients = await ingredientsRepo.findAll(remote: false);
 
     List<dynamic> suggestions = [];
 
     if (widget.showShoppingItemSuggestions) {
-      final shoppingList = Provider.of<ShoppingList>(
-        context,
-        listen: false,
-      );
+      final shoppingList = (await shopListRepo.findAll(remote: false))[0];
+
       final checkedItems = shoppingList.getCheckedItems.where((item) {
         var ing = resolveShoppingListItemIngredient(item);
         return ing != null ? stringContains(ing.name, pattern) : false;
