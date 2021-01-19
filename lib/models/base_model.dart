@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:http/http.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
