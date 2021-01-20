@@ -4,7 +4,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 
 import 'package:flutter_data/flutter_data.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
 
 part 'shopping_list.g.dart';
 
