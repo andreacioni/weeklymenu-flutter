@@ -7,7 +7,6 @@ import 'package:flutter_data/flutter_data.dart';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:objectid/objectid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
