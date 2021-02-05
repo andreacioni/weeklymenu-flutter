@@ -9,8 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
-import 'auth_token.dart';
-
 abstract class BaseModel<T extends DataModel<T>> extends Equatable
     with DataModel<T>, ChangeNotifier
     implements Cloneable<T> {
