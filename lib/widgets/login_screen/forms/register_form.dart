@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weekly_menu_app/globals/constants.dart';
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
-import 'package:weekly_menu_app/models/auth_token.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
 import '../screen.dart';
