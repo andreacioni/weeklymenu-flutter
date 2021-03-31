@@ -119,25 +119,28 @@ final _watchMenu = StateNotifierProvider.autoDispose
       alsoWatch: args.alsoWatch);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<Menu>> watchMenu(dynamic id,
+AutoDisposeStateNotifierProvider<DataStateNotifier<Menu>> watchMenu(dynamic id,
     {bool remote = true,
     Map<String, dynamic> params = const {},
     Map<String, String> headers = const {},
     AlsoWatch<Menu> alsoWatch}) {
   return _watchMenu(WatchArgs(
-          id: id,
-          remote: remote,
-          params: params,
-          headers: headers,
-          alsoWatch: alsoWatch))
-      .state;
+      id: id,
+      remote: remote,
+      params: params,
+      headers: headers,
+      alsoWatch: alsoWatch));
 }
 
 final _watchMenus = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Menu>>, WatchArgs<Menu>>((ref, args) {
   ref.maintainState = false;
   return ref.watch(menuRepositoryProvider).watchAll(
-      remote: args.remote, params: args.params, headers: args.headers);
+      remote: args.remote,
+      params: args.params,
+      headers: args.headers,
+      filterLocal: args.filterLocal,
+      syncLocal: args.syncLocal);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<Menu>>> watchMenus(

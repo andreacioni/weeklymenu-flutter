@@ -45,7 +45,7 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
   }
 
   @override
-  DeserializedData<T, DataModel<dynamic>> deserialize(data,
+  DeserializedData<T, DataModel<DataModel<dynamic>>> deserialize(data,
       {String key, bool init}) {
     final json = data as Map<String, dynamic>;
     return super

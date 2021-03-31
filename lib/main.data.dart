@@ -16,6 +16,7 @@ import 'package:weekly_menu_app/models/menu.dart';
 import 'package:weekly_menu_app/models/recipe.dart';
 import 'package:weekly_menu_app/models/shopping_list.dart';
 
+// ignore: prefer_function_declarations_over_variables
 ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<String> baseDirFn, List<int> encryptionKey, bool clear}) {
   // ignore: unnecessary_statements
   baseDirFn ??= () => getApplicationDocumentsDirectory().then((dir) => dir.path);
@@ -23,6 +24,7 @@ ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<Str
         (_) => HiveLocalStorage(baseDirFn: baseDirFn, encryptionKey: encryptionKey, clear: clear)));
 };
 
+// ignore: prefer_function_declarations_over_variables
 RepositoryInitializerProvider repositoryInitializerProvider = (
         {bool remote, bool verbose}) {
   
@@ -35,25 +37,33 @@ final _repositoryInitializerProviderFamily =
     final graphs = <String, Map<String, RemoteAdapter>>{'ingredients': {'ingredients': ref.read(ingredientRemoteAdapterProvider)}, 'menus': {'menus': ref.read(menuRemoteAdapterProvider)}, 'recipes': {'recipes': ref.read(recipeRemoteAdapterProvider)}, 'shoppingLists': {'shoppingLists': ref.read(shoppingListRemoteAdapterProvider)}};
     
 
-      await ref.read(ingredientRepositoryProvider).initialize(
+      final _ingredientRepository = ref.read(ingredientRepositoryProvider);
+      _ingredientRepository.dispose();
+      await _ingredientRepository.initialize(
         remote: args?.remote,
         verbose: args?.verbose,
         adapters: graphs['ingredients'],
       );
 
-      await ref.read(menuRepositoryProvider).initialize(
+      final _menuRepository = ref.read(menuRepositoryProvider);
+      _menuRepository.dispose();
+      await _menuRepository.initialize(
         remote: args?.remote,
         verbose: args?.verbose,
         adapters: graphs['menus'],
       );
 
-      await ref.read(recipeRepositoryProvider).initialize(
+      final _recipeRepository = ref.read(recipeRepositoryProvider);
+      _recipeRepository.dispose();
+      await _recipeRepository.initialize(
         remote: args?.remote,
         verbose: args?.verbose,
         adapters: graphs['recipes'],
       );
 
-      await ref.read(shoppingListRepositoryProvider).initialize(
+      final _shoppingListRepository = ref.read(shoppingListRepositoryProvider);
+      _shoppingListRepository.dispose();
+      await _shoppingListRepository.initialize(
         remote: args?.remote,
         verbose: args?.verbose,
         adapters: graphs['shoppingLists'],

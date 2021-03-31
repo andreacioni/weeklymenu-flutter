@@ -71,19 +71,18 @@ final _watchIngredient = StateNotifierProvider.autoDispose
       alsoWatch: args.alsoWatch);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<Ingredient>> watchIngredient(
+AutoDisposeStateNotifierProvider<DataStateNotifier<Ingredient>> watchIngredient(
     dynamic id,
     {bool remote = true,
     Map<String, dynamic> params = const {},
     Map<String, String> headers = const {},
     AlsoWatch<Ingredient> alsoWatch}) {
   return _watchIngredient(WatchArgs(
-          id: id,
-          remote: remote,
-          params: params,
-          headers: headers,
-          alsoWatch: alsoWatch))
-      .state;
+      id: id,
+      remote: remote,
+      params: params,
+      headers: headers,
+      alsoWatch: alsoWatch));
 }
 
 final _watchIngredients = StateNotifierProvider.autoDispose
@@ -91,7 +90,11 @@ final _watchIngredients = StateNotifierProvider.autoDispose
         (ref, args) {
   ref.maintainState = false;
   return ref.watch(ingredientRepositoryProvider).watchAll(
-      remote: args.remote, params: args.params, headers: args.headers);
+      remote: args.remote,
+      params: args.params,
+      headers: args.headers,
+      filterLocal: args.filterLocal,
+      syncLocal: args.syncLocal);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<Ingredient>>>

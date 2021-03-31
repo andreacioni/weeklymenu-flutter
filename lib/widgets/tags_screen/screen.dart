@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_data/flutter_data.dart'
+    hide Provider, DataStateNotifier;
 import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 

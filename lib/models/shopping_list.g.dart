@@ -118,19 +118,18 @@ final _watchShoppingList = StateNotifierProvider.autoDispose
       alsoWatch: args.alsoWatch);
 });
 
-AutoDisposeStateNotifierStateProvider<DataState<ShoppingList>>
+AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList>>
     watchShoppingList(dynamic id,
         {bool remote = true,
         Map<String, dynamic> params = const {},
         Map<String, String> headers = const {},
         AlsoWatch<ShoppingList> alsoWatch}) {
   return _watchShoppingList(WatchArgs(
-          id: id,
-          remote: remote,
-          params: params,
-          headers: headers,
-          alsoWatch: alsoWatch))
-      .state;
+      id: id,
+      remote: remote,
+      params: params,
+      headers: headers,
+      alsoWatch: alsoWatch));
 }
 
 final _watchShoppingLists = StateNotifierProvider.autoDispose
@@ -138,7 +137,11 @@ final _watchShoppingLists = StateNotifierProvider.autoDispose
         (ref, args) {
   ref.maintainState = false;
   return ref.watch(shoppingListRepositoryProvider).watchAll(
-      remote: args.remote, params: args.params, headers: args.headers);
+      remote: args.remote,
+      params: args.params,
+      headers: args.headers,
+      filterLocal: args.filterLocal,
+      syncLocal: args.syncLocal);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<ShoppingList>>>
