@@ -23,17 +23,13 @@ class AuthService {
     ),
   );
 
-  static final AuthService _singleton = AuthService._internal();
-
-  factory AuthService.getInstance() => _singleton;
-
   JWTToken _token;
 
   String _email, _password;
 
   bool _initialized;
 
-  AuthService._internal() {
+  AuthService() {
     _initialized = false;
   }
 
