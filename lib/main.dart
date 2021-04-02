@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/all.dart';
 
 import 'widgets/splash_screen/screen.dart';
 import 'main.data.dart';
@@ -9,9 +9,9 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ...repositoryProviders(clear: false, verbose: true),
+    return ProviderScope(
+      overrides: [
+        configureRepositoryLocalStorage(),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',
