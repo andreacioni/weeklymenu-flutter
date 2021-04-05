@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 
 import '../flutter_data_state_builder.dart';
@@ -39,19 +39,20 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.watch<Repository<Recipe>>();
-
-    return Scaffold(
-      appBar: _editingModeEnabled == false
-          ? _buildAppBar(context)
-          : _buildEditingAppBar(context),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showRecipeNameDialog,
-        child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: buildDataStateBuilder(repository),
-    );
+    return Consumer(builder: (context, watch, _) {
+      final repository = watch(recipesRepositoryProvider);
+      return Scaffold(
+        appBar: _editingModeEnabled == false
+            ? _buildAppBar(context)
+            : _buildEditingAppBar(context),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showRecipeNameDialog,
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: buildDataStateBuilder(repository),
+      );
+    });
   }
 
   FlutterDataStateBuilder<List<Recipe>> buildDataStateBuilder(
@@ -286,8 +287,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       showProgressDialog(context);
       for (var recipe in _selectedRecipes) {
         try {
-          await Provider.of<Repository<Recipe>>(context, listen: false)
-              .delete(recipe);
+          await context.read(recipesRepositoryProvider).delete(recipe);
         } catch (e) {
           hideProgressDialog(context);
           showAlertErrorMessage(context);
@@ -326,7 +326,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
             onPressed: () async {
               Navigator.of(context).pop();
               if (textController.text.trim().isNotEmpty) {
-                await Provider.of<Repository<Recipe>>(context, listen: false)
+                await context
+                    .read(recipesRepositoryProvider)
                     .save(Recipe(name: textController.text));
               } else {
                 _log.w("No name supplied");

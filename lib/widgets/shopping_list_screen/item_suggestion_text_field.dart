@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../globals/utils.dart';
 import '../../models/ingredient.dart';
@@ -100,8 +100,8 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
   }
 
   Future<List> suggestionsCallback(BuildContext context, String pattern) async {
-    final ingredientsRepo = context.read<Repository<Ingredient>>();
-    final shopListRepo = context.read<Repository<ShoppingList>>();
+    final ingredientsRepo = context.read(ingredientsRepositoryProvider);
+    final shopListRepo = context.read(shoppingListsRepositoryProvider);
 
     availableIngredients = await ingredientsRepo.findAll(remote: false);
 

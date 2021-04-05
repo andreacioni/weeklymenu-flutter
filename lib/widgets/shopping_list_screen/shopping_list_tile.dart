@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../flutter_data_state_builder.dart';
 import '../../models/shopping_list.dart';
 import '../../models/ingredient.dart';
 import './item_suggestion_text_field.dart';

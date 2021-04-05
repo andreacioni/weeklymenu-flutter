@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_riverpod/all.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../flutter_data_state_builder.dart';
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/recipe.dart';
 
-class RecipeIngredientListTile extends StatelessWidget {
+class RecipeIngredientListTile extends ConsumerWidget {
   final log = Logger();
 
   final RecipeOriginator _recipe;
@@ -19,8 +20,9 @@ class RecipeIngredientListTile extends StatelessWidget {
       {this.editEnabled = false});
 
   @override
-  Widget build(BuildContext context) {
-    final ingredientsRepo = context.watch<Repository<Ingredient>>();
+  Widget build(BuildContext context, ScopedReader watch) {
+    final ingredientsRepo = watch(ingredientsRepositoryProvider);
+
     return FlutterDataStateBuilder<Ingredient>(
       notifier: () => ingredientsRepo.watchOne(recipeIngredient.ingredientId),
       builder: (context, state, notifier, _) {

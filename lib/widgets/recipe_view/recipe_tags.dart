@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_tags/flutter_tags.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/recipe.dart';
 import '../../globals/utils.dart';
@@ -17,8 +17,8 @@ class RecipeTags extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Repository<Recipe> recipeRepo =
-        Provider.of<Repository<Recipe>>(context, listen: false);
+    Repository<Recipe> recipeRepo = context.read(recipesRepositoryProvider);
+
     return FutureBuilder<List<Recipe>>(
       future: recipeRepo.findAll(),
       builder: (context, snapshot) {

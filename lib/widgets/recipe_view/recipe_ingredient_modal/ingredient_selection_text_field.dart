@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models/ingredient.dart';
 
@@ -76,10 +76,9 @@ class _IngredientSelectionTextFieldState
   }
 
   Future<List<Ingredient>> getIngredientsSuggestion(String pattern) async {
-    final availableIngredients = await Provider.of<Repository<Ingredient>>(
-      context,
-      listen: false,
-    ).findAll();
+    final availableIngredients = await context
+        .read(ingredientsRepositoryProvider)
+        .findAll(remote: false);
 
     var suggestions = availableIngredients
         .where((r) =>

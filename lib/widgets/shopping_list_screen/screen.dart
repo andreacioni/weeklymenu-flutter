@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
+import '../flutter_data_state_builder.dart';
 import '../../models/ingredient.dart';
 import './shopping_list_tile.dart';
 import '../../globals/errors_handlers.dart';
@@ -31,34 +31,36 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.watch<Repository<ShoppingList>>();
+    return Consumer(builder: (context, watch, _) {
+      final repository = watch(shoppingListsRepositoryProvider);
+      return Scaffold(
+        appBar: _buildAppBar(context),
+        body: FlutterDataStateBuilder<List<ShoppingList>>(
+          notifier: () => repository.watchAll(),
+          builder: (context, state, notifier, _) {
+            //Get only the first element, by now only one list per user is supported
+            final shoppingList = notifier.data.model[0];
+            final allItems = shoppingList.getAllItems;
 
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: FlutterDataStateBuilder<List<ShoppingList>>(
-        notifier: () => repository.watchAll(),
-        builder: (context, state, notifier, _) {
-          //Get only the first element, by now only one list per user is supported
-          final shoppingList = notifier.data.model[0];
-          final allItems = shoppingList.getAllItems;
-
-          return allItems.isEmpty && !_newItemMode
-              ? _buildNoElementsPage()
-              : CustomScrollView(
-                  slivers: <Widget>[
-                    //if (allItems.isEmpty) _buildNoElementsPage(),
-                    if (_loading) _buildLoadingItem(),
-                    if (_newItemMode) _buildAddItem(shoppingList),
-                    //_buildFloatingHeader('Unckecked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildUncheckedList(shoppingList),
-                    //_buildFloatingHeader('Checked'),
-                    if (allItems.isNotEmpty) ..._buildCheckedList(shoppingList),
-                  ],
-                );
-        },
-      ),
-    );
+            return allItems.isEmpty && !_newItemMode
+                ? _buildNoElementsPage()
+                : CustomScrollView(
+                    slivers: <Widget>[
+                      //if (allItems.isEmpty) _buildNoElementsPage(),
+                      if (_loading) _buildLoadingItem(),
+                      if (_newItemMode) _buildAddItem(shoppingList),
+                      //_buildFloatingHeader('Unckecked'),
+                      if (allItems.isNotEmpty)
+                        ..._buildUncheckedList(shoppingList),
+                      //_buildFloatingHeader('Checked'),
+                      if (allItems.isNotEmpty)
+                        ..._buildCheckedList(shoppingList),
+                    ],
+                  );
+          },
+        ),
+      );
+    });
   }
 
   Widget _buildLoadingItem() {
@@ -241,7 +243,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     shoppingList.addShoppingListItem(item);
 
     try {
-      await context.read<Repository<ShoppingList>>().save(shoppingList);
+      await context.read(shoppingListsRepositoryProvider).save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.removeItemFromList(item);
@@ -251,7 +253,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   void _createNewIngredientAndShopItem(
       ShoppingList shoppingList, String ingredientName) async {
     Repository<Ingredient> ingredientsRepo =
-        Provider.of<Repository<Ingredient>>(context, listen: false);
+        context.read(ingredientsRepositoryProvider);
     setState(() => _loading = true);
     Ingredient newIngredient =
         await ingredientsRepo.save(Ingredient(name: ingredientName));
@@ -263,7 +265,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       ShoppingList shoppingList, ShoppingListItem shoppingListItem) async {
     shoppingList.removeItemFromList(shoppingListItem);
     try {
-      await context.read<Repository<ShoppingList>>().save(shoppingList);
+      await context.read(shoppingListsRepositoryProvider).save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.addShoppingListItem(shoppingListItem);
@@ -278,7 +280,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
 
     try {
-      await context.read<Repository<ShoppingList>>().save(shoppingList);
+      await context.read(shoppingListsRepositoryProvider).save(shoppingList);
     } catch (e) {
       showAlertErrorMessage(context);
       shoppingList.setChecked(

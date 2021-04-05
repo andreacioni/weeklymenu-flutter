@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../globals/errors_handlers.dart';
@@ -40,6 +40,7 @@ class _RecipeViewState extends State<RecipeView> {
   @override
   Widget build(BuildContext context) {
     final recipesRepo = context.watch<Repository<Recipe>>();
+
     return FlutterDataStateBuilder<Recipe>(
       notifier: () => recipesRepo.watchOne(widget.recipeId),
       builder: (context, state, notifier, _) {
@@ -242,7 +243,7 @@ class _RecipeViewState extends State<RecipeView> {
       showProgressDialog(context);
 
       try {
-        await context.read<Repository<Recipe>>().save(recipe.save());
+        await context.read(recipesRepositoryProvider).save(recipe.save());
       } catch (e) {
         showAlertErrorMessage(context);
         return;

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:logging/logging.dart';
-import 'package:provider/provider.dart';
 
 import '../../models/ingredient.dart';
 import './recipe_ingredient_modal/recipe_ingredient_modal.dart';
-
 import '../../models/recipe.dart';
 
 class AddIngredientButton extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../number_text_field.dart';
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/enums/unit_of_measure.dart';
@@ -91,10 +91,10 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     String ingredientToAddId = _selectedIngredient.id;
 
     if (ingredientToAddId == null) {
-      ingredientToAddId =
-          (await Provider.of<Repository<Ingredient>>(context, listen: false)
-                  .save(_selectedIngredient))
-              .id;
+      ingredientToAddId = (await context
+              .read(ingredientsRepositoryProvider)
+              .save(_selectedIngredient))
+          .id;
     }
     Navigator.of(context).pop(
       RecipeIngredient(

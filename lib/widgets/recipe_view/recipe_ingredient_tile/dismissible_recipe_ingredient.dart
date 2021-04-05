@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import './recipe_ingredient_list_tile.dart';
 import '../../../models/recipe.dart';
