@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/screen.dart';
@@ -157,13 +157,13 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
   Future<void> _addRecipeToMeal(Meal meal, Recipe recipe) async {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-      await Provider.of<Repository<Menu>>(context, listen: false).save(
-        Menu(
-          date: widget._dailyMenu.day,
-          recipes: [],
-          meal: meal,
-        ),
-      );
+      await context.read(menusRepositoryProvider).save(
+            Menu(
+              date: widget._dailyMenu.day,
+              recipes: [],
+              meal: meal,
+            ),
+          );
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
     } else {
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
@@ -175,9 +175,9 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       showProgressDialog(context);
 
       try {
-        Recipe recipe =
-            await Provider.of<Repository<Recipe>>(context, listen: false)
-                .save(Recipe(name: recipeName));
+        Recipe recipe = await context
+            .read(recipesRepositoryProvider)
+            .save(Recipe(name: recipeName));
         await _addRecipeToMeal(meal, recipe);
       } catch (e) {
         hideProgressDialog(context);
@@ -197,8 +197,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
   Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id) {
     return FutureBuilder<Recipe>(
-        future:
-            Provider.of<Repository<Recipe>>(context, listen: false).findOne(id),
+        future: context.read(recipesRepositoryProvider).findOne(id),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Error occurred');

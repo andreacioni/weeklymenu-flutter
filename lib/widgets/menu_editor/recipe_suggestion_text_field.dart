@@ -87,8 +87,7 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
   }
 
   Future<List<Recipe>> _suggestionsCallback(String pattern) async {
-    final recipesProvider =
-        Provider.of<Repository<Recipe>>(context, listen: false);
+    final recipesProvider = context.read(recipesRepositoryProvider);
     final dailyMenu = Provider.of<DailyMenu>(context, listen: false);
     final availableRecipes = await recipesProvider.findAll();
     final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal) == null

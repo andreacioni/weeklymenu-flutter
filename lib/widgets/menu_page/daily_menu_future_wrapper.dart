@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/menu.dart';
@@ -14,7 +14,7 @@ import 'package:weekly_menu_app/widgets/menu_page/menu_card.dart';
 * the parent widget is called. See: https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
 * for more details.
 */
-class DailyMenuFutureWrapper extends StatelessWidget {
+class DailyMenuFutureWrapper extends ConsumerWidget {
   static final _dateParser = DateFormat('y-MM-dd');
 
   final Date _day;
@@ -22,8 +22,8 @@ class DailyMenuFutureWrapper extends StatelessWidget {
   DailyMenuFutureWrapper(this._day);
 
   @override
-  Widget build(BuildContext context) {
-    final repository = context.watch<Repository<Menu>>();
+  Widget build(BuildContext context, ScopedReader watch) {
+    final repository = watch(menusRepositoryProvider);
 
     if (repository == null) {
       return const Center(child: CircularProgressIndicator());

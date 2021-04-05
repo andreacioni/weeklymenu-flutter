@@ -246,8 +246,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
     }
 
     //Check for empty/notEmpty destination menu
-    final menuRepository =
-        Provider.of<Repository<Menu>>(context, listen: false);
+    final menuRepository = context.read(menusRepositoryProvider);
     //_destinationMenu =
     //    await menuRepository.findAll(param: {'day': destinationDay}); //TODO fix me
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:weekly_menu_app/models/recipe.dart';
 
+import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../../models/enums/meals.dart';
@@ -189,7 +189,7 @@ class MenuCard extends StatelessWidget {
   }
 }
 
-class MenuRecipesText extends StatelessWidget {
+class MenuRecipesText extends ConsumerWidget {
   final Logger _log = Logger();
 
   final List<String> _recipesIds;
@@ -197,8 +197,9 @@ class MenuRecipesText extends StatelessWidget {
   MenuRecipesText(this._recipesIds, {Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final repository = context.watch<Repository<Recipe>>();
+  Widget build(BuildContext context, ScopedReader watch) {
+    final repository = watch(recipesRepositoryProvider);
+
     return FutureBuilder<List<String>>(
       future: _getRecipeNames(repository),
       initialData: const <String>[],
