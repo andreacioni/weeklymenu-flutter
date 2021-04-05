@@ -98,20 +98,20 @@ class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
 
 //
 
-final shoppingListLocalAdapterProvider = Provider<LocalAdapter<ShoppingList>>(
+final shoppingListsLocalAdapterProvider = Provider<LocalAdapter<ShoppingList>>(
     (ref) => $ShoppingListHiveLocalAdapter(ref));
 
-final shoppingListRemoteAdapterProvider = Provider<RemoteAdapter<ShoppingList>>(
-    (ref) =>
-        $ShoppingListRemoteAdapter(ref.read(shoppingListLocalAdapterProvider)));
+final shoppingListsRemoteAdapterProvider =
+    Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
+        ref.read(shoppingListsLocalAdapterProvider)));
 
-final shoppingListRepositoryProvider =
+final shoppingListsRepositoryProvider =
     Provider<Repository<ShoppingList>>((ref) => Repository<ShoppingList>(ref));
 
 final _watchShoppingList = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<ShoppingList>, WatchArgs<ShoppingList>>(
         (ref, args) {
-  return ref.watch(shoppingListRepositoryProvider).watchOne(args.id,
+  return ref.read(shoppingListsRepositoryProvider).watchOne(args.id,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -120,7 +120,7 @@ final _watchShoppingList = StateNotifierProvider.autoDispose
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList>>
     watchShoppingList(dynamic id,
-        {bool remote = true,
+        {bool remote,
         Map<String, dynamic> params = const {},
         Map<String, String> headers = const {},
         AlsoWatch<ShoppingList> alsoWatch}) {
@@ -136,7 +136,7 @@ final _watchShoppingLists = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<ShoppingList>>, WatchArgs<ShoppingList>>(
         (ref, args) {
   ref.maintainState = false;
-  return ref.watch(shoppingListRepositoryProvider).watchAll(
+  return ref.read(shoppingListsRepositoryProvider).watchAll(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -157,16 +157,9 @@ extension ShoppingListX on ShoppingList {
   /// Initializes "fresh" models (i.e. manually instantiated) to use
   /// [save], [delete] and so on.
   ///
-  /// Pass:
-  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
-  ///  - Nothing if using Flutter with GetIt
-  ///  - A Riverpod `ProviderContainer` if using pure Dart
-  ///  - Its own [Repository<ShoppingList>]
-  ShoppingList init(context) {
-    final repository = context is Repository<ShoppingList>
-        ? context
-        : internalLocatorFn(shoppingListRepositoryProvider, context);
-    return repository.internalAdapter.initializeModel(this, save: true)
-        as ShoppingList;
+  /// Can be obtained via `context.read`, `ref.read`, `container.read`
+  ShoppingList init(Reader read) {
+    final repository = internalLocatorFn(shoppingListsRepositoryProvider, read);
+    return repository.remoteAdapter.initializeModel(this, save: true);
   }
 }

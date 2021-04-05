@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'providers/providers.dart';
 import 'widgets/tags_screen/screen.dart';
 import './widgets/ingredients_screen/screen.dart';
 import 'services/auth_service.dart';
@@ -75,7 +77,7 @@ class AppDrawer extends StatelessWidget {
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () async {
-              AuthService.getInstance().logout();
+              context.read(authServiceProvider).logout();
               Navigator.pop(context);
               goToLogin(context);
             },

@@ -123,18 +123,18 @@ class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
 
 //
 
-final recipeLocalAdapterProvider =
+final recipesLocalAdapterProvider =
     Provider<LocalAdapter<Recipe>>((ref) => $RecipeHiveLocalAdapter(ref));
 
-final recipeRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
-    (ref) => $RecipeRemoteAdapter(ref.read(recipeLocalAdapterProvider)));
+final recipesRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
+    (ref) => $RecipeRemoteAdapter(ref.read(recipesLocalAdapterProvider)));
 
-final recipeRepositoryProvider =
+final recipesRepositoryProvider =
     Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref));
 
 final _watchRecipe = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Recipe>, WatchArgs<Recipe>>((ref, args) {
-  return ref.watch(recipeRepositoryProvider).watchOne(args.id,
+  return ref.read(recipesRepositoryProvider).watchOne(args.id,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -143,7 +143,7 @@ final _watchRecipe = StateNotifierProvider.autoDispose
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Recipe>> watchRecipe(
     dynamic id,
-    {bool remote = true,
+    {bool remote,
     Map<String, dynamic> params = const {},
     Map<String, String> headers = const {},
     AlsoWatch<Recipe> alsoWatch}) {
@@ -158,7 +158,7 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<Recipe>> watchRecipe(
 final _watchRecipes = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Recipe>>, WatchArgs<Recipe>>((ref, args) {
   ref.maintainState = false;
-  return ref.watch(recipeRepositoryProvider).watchAll(
+  return ref.read(recipesRepositoryProvider).watchAll(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -176,16 +176,9 @@ extension RecipeX on Recipe {
   /// Initializes "fresh" models (i.e. manually instantiated) to use
   /// [save], [delete] and so on.
   ///
-  /// Pass:
-  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
-  ///  - Nothing if using Flutter with GetIt
-  ///  - A Riverpod `ProviderContainer` if using pure Dart
-  ///  - Its own [Repository<Recipe>]
-  Recipe init(context) {
-    final repository = context is Repository<Recipe>
-        ? context
-        : internalLocatorFn(recipeRepositoryProvider, context);
-    return repository.internalAdapter.initializeModel(this, save: true)
-        as Recipe;
+  /// Can be obtained via `context.read`, `ref.read`, `container.read`
+  Recipe init(Reader read) {
+    final repository = internalLocatorFn(recipesRepositoryProvider, read);
+    return repository.remoteAdapter.initializeModel(this, save: true);
   }
 }

@@ -6,4 +6,4 @@ final authServiceProvider = Provider((ref) => AuthService());
 
 final jwtTokenProvider = FutureProvider((ref) {
   return ref.read(authServiceProvider).token;
-})
+});

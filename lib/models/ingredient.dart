@@ -18,6 +18,4 @@ class Ingredient extends BaseModel<Ingredient> {
   Map<String, dynamic> toJson() => _$IngredientToJson(this);
 
   Ingredient clone() => Ingredient.fromJson(this.toJson());
-
-  List<Object> get props => [...super.props, name];
 }

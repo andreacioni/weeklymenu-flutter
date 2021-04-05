@@ -86,25 +86,6 @@ class Recipe extends BaseModel<Recipe> {
 
   @override
   String toString() => name;
-
-  @override
-  List<Object> get props => [
-        ...super.props,
-        name,
-        description,
-        servs,
-        estimatedPreparationTime,
-        estimatedCookingTime,
-        difficulty,
-        rating,
-        cost,
-        ingredients,
-        preparation,
-        note,
-        tags,
-        imgUrl,
-        recipeUrl
-      ];
 }
 
 @JsonSerializable()

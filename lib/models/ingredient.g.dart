@@ -52,19 +52,19 @@ class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
 
 //
 
-final ingredientLocalAdapterProvider = Provider<LocalAdapter<Ingredient>>(
+final ingredientsLocalAdapterProvider = Provider<LocalAdapter<Ingredient>>(
     (ref) => $IngredientHiveLocalAdapter(ref));
 
-final ingredientRemoteAdapterProvider = Provider<RemoteAdapter<Ingredient>>(
+final ingredientsRemoteAdapterProvider = Provider<RemoteAdapter<Ingredient>>(
     (ref) =>
-        $IngredientRemoteAdapter(ref.read(ingredientLocalAdapterProvider)));
+        $IngredientRemoteAdapter(ref.read(ingredientsLocalAdapterProvider)));
 
-final ingredientRepositoryProvider =
+final ingredientsRepositoryProvider =
     Provider<Repository<Ingredient>>((ref) => Repository<Ingredient>(ref));
 
 final _watchIngredient = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Ingredient>, WatchArgs<Ingredient>>((ref, args) {
-  return ref.watch(ingredientRepositoryProvider).watchOne(args.id,
+  return ref.read(ingredientsRepositoryProvider).watchOne(args.id,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -73,7 +73,7 @@ final _watchIngredient = StateNotifierProvider.autoDispose
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Ingredient>> watchIngredient(
     dynamic id,
-    {bool remote = true,
+    {bool remote,
     Map<String, dynamic> params = const {},
     Map<String, String> headers = const {},
     AlsoWatch<Ingredient> alsoWatch}) {
@@ -89,7 +89,7 @@ final _watchIngredients = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Ingredient>>, WatchArgs<Ingredient>>(
         (ref, args) {
   ref.maintainState = false;
-  return ref.watch(ingredientRepositoryProvider).watchAll(
+  return ref.read(ingredientsRepositoryProvider).watchAll(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -110,16 +110,9 @@ extension IngredientX on Ingredient {
   /// Initializes "fresh" models (i.e. manually instantiated) to use
   /// [save], [delete] and so on.
   ///
-  /// Pass:
-  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
-  ///  - Nothing if using Flutter with GetIt
-  ///  - A Riverpod `ProviderContainer` if using pure Dart
-  ///  - Its own [Repository<Ingredient>]
-  Ingredient init(context) {
-    final repository = context is Repository<Ingredient>
-        ? context
-        : internalLocatorFn(ingredientRepositoryProvider, context);
-    return repository.internalAdapter.initializeModel(this, save: true)
-        as Ingredient;
+  /// Can be obtained via `context.read`, `ref.read`, `container.read`
+  Ingredient init(Reader read) {
+    final repository = internalLocatorFn(ingredientsRepositoryProvider, read);
+    return repository.remoteAdapter.initializeModel(this, save: true);
   }
 }

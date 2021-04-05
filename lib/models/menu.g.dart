@@ -101,18 +101,18 @@ class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 
 //
 
-final menuLocalAdapterProvider =
+final menusLocalAdapterProvider =
     Provider<LocalAdapter<Menu>>((ref) => $MenuHiveLocalAdapter(ref));
 
-final menuRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
-    (ref) => $MenuRemoteAdapter(ref.read(menuLocalAdapterProvider)));
+final menusRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
+    (ref) => $MenuRemoteAdapter(ref.read(menusLocalAdapterProvider)));
 
-final menuRepositoryProvider =
+final menusRepositoryProvider =
     Provider<Repository<Menu>>((ref) => Repository<Menu>(ref));
 
 final _watchMenu = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Menu>, WatchArgs<Menu>>((ref, args) {
-  return ref.watch(menuRepositoryProvider).watchOne(args.id,
+  return ref.read(menusRepositoryProvider).watchOne(args.id,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -120,7 +120,7 @@ final _watchMenu = StateNotifierProvider.autoDispose
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Menu>> watchMenu(dynamic id,
-    {bool remote = true,
+    {bool remote,
     Map<String, dynamic> params = const {},
     Map<String, String> headers = const {},
     AlsoWatch<Menu> alsoWatch}) {
@@ -135,7 +135,7 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<Menu>> watchMenu(dynamic id,
 final _watchMenus = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Menu>>, WatchArgs<Menu>>((ref, args) {
   ref.maintainState = false;
-  return ref.watch(menuRepositoryProvider).watchAll(
+  return ref.read(menusRepositoryProvider).watchAll(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -153,15 +153,9 @@ extension MenuX on Menu {
   /// Initializes "fresh" models (i.e. manually instantiated) to use
   /// [save], [delete] and so on.
   ///
-  /// Pass:
-  ///  - A `BuildContext` if using Flutter with Riverpod or Provider
-  ///  - Nothing if using Flutter with GetIt
-  ///  - A Riverpod `ProviderContainer` if using pure Dart
-  ///  - Its own [Repository<Menu>]
-  Menu init(context) {
-    final repository = context is Repository<Menu>
-        ? context
-        : internalLocatorFn(menuRepositoryProvider, context);
-    return repository.internalAdapter.initializeModel(this, save: true) as Menu;
+  /// Can be obtained via `context.read`, `ref.read`, `container.read`
+  Menu init(Reader read) {
+    final repository = internalLocatorFn(menusRepositoryProvider, read);
+    return repository.remoteAdapter.initializeModel(this, save: true);
   }
 }

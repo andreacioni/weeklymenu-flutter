@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weekly_menu_app/globals/constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
 import 'package:weekly_menu_app/homepage.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
 import 'base_login_form.dart';
@@ -62,7 +62,7 @@ class _SignInFormState extends State<SignInForm> {
 
   void _doSignIn() {
     _form.validateAndSave(() async {
-      var authService = AuthService.getInstance();
+      var authService = context.read(authServiceProvider);
 
       showProgressDialog(context, dismissible: false);
       try {

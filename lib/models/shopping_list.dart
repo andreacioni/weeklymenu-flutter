@@ -36,17 +36,14 @@ class ShoppingList extends BaseModel<ShoppingList> {
 
   void addShoppingListItem(ShoppingListItem shoppingListItem) {
     items.add(shoppingListItem);
-    notifyListeners();
   }
 
   void removeItemFromList(ShoppingListItem toBeRemoved) {
     items.removeWhere((item) => item.item == toBeRemoved.item);
-    notifyListeners();
   }
 
   void setChecked(ShoppingListItem item, bool checked) {
     item.checked = checked;
-    notifyListeners();
   }
 
   bool containsItem(String itemId) {
@@ -55,8 +52,6 @@ class ShoppingList extends BaseModel<ShoppingList> {
 
   @override
   ShoppingList clone() => ShoppingList.fromJson(this.toJson());
-
-  List<Object> get props => [...super.props, name, items];
 }
 
 @JsonSerializable()

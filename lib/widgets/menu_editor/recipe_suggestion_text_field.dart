@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/models/menu.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../models/menu.dart';
 import '../../globals/utils.dart';
 import '../../models/recipe.dart';
 import '../../models/enums/meals.dart';

@@ -33,8 +33,6 @@ class Menu extends BaseModel<Menu> {
   @override
   Menu clone() => Menu.fromJson(this.toJson());
 
-  List<Object> get props => [...super.props, date, meal, recipes];
-
   static String dateToJson(Date date) => date.format(_dateParser);
 
   static Date dateFromJson(String date) => Date.parse(_dateParser, date);

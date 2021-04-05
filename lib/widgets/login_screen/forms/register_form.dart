@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:weekly_menu_app/globals/errors_handlers.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
 import '../screen.dart';
@@ -62,7 +64,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   void _doRegistration() {
     _form.validateAndSave(() async {
-      final authService = AuthService.getInstance();
+      final authService = context.read(authServiceProvider);
 
       showProgressDialog(context, dismissible: false);
       try {

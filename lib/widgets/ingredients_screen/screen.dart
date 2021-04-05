@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:flutter_data/flutter_data.dart';
-import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../models/ingredient.dart';
 
-class IngredientsScreen extends StatelessWidget {
+class IngredientsScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    final repository = context.watch<Repository<Ingredient>>();
+  Widget build(BuildContext context, ScopedReader watch) {
+    final repository = watch(ingredientsRepositoryProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context),

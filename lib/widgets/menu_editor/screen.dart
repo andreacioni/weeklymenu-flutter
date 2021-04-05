@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/enums/meals.dart';
 import 'package:weekly_menu_app/globals/constants.dart' as consts;

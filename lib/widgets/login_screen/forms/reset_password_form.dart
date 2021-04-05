@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 
 import '../../../services/auth_service.dart';
 import '../../../globals/errors_handlers.dart';
@@ -44,7 +46,7 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
 
   void _doResetPassword() {
     _form.validateAndSave(() async {
-      final authService = AuthService.getInstance();
+      final authService = context.read(authServiceProvider);
 
       showProgressDialog(context, dismissible: false);
       try {
