@@ -39,21 +39,24 @@ class _RecipeViewState extends State<RecipeView> {
 
   @override
   Widget build(BuildContext context) {
-    final recipesRepo = context.watch<Repository<Recipe>>();
+    return Consumer(
+      builder: (context, watch, _) {
+        final recipesRepo = watch(recipesRepositoryProvider);
+        return FlutterDataStateBuilder<Recipe>(
+          notifier: () => recipesRepo.watchOne(widget.recipeId),
+          builder: (context, state, notifier, _) {
+            final recipe = RecipeOriginator(state.model);
 
-    return FlutterDataStateBuilder<Recipe>(
-      notifier: () => recipesRepo.watchOne(widget.recipeId),
-      builder: (context, state, notifier, _) {
-        final recipe = RecipeOriginator(state.model);
-
-        return WillPopScope(
-          onWillPop: () async {
-            _handleBackButton(context, recipe);
-            return true;
+            return WillPopScope(
+              onWillPop: () async {
+                _handleBackButton(context, recipe);
+                return true;
+              },
+              child: Scaffold(
+                body: buildForm(recipe),
+              ),
+            );
           },
-          child: Scaffold(
-            body: buildForm(recipe),
-          ),
         );
       },
     );
