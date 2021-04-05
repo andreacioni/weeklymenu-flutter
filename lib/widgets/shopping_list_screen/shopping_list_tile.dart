@@ -37,39 +37,43 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
 
   @override
   Widget build(BuildContext context) {
-    final ingredietsRepository = context.watch<Repository<Ingredient>>();
-    return FlutterDataStateBuilder(
-      notifier: () =>
-          ingredietsRepository.watchOne(widget.shoppingListItem.item),
-      builder: (context, state, notifier, _) {
-        return Dismissible(
-          key: widget.formKey,
-          onDismissed: widget.onDismiss,
-          child: Column(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.drag_handle),
-                trailing: _editingMode == true
-                    ? IconButton(icon: Icon(Icons.edit), onPressed: null)
-                    : Checkbox(
-                        value: widget.shoppingListItem.checked,
-                        onChanged: onCheckChange,
-                      ),
-                title: ItemSuggestionTextField(
-                  value: state.model,
-                  enabled: widget.editable,
-                  showShoppingItemSuggestions: false,
-                  onIngredientSelected: _onIngredientSelected,
-                  onSubmitted: _getOrCreateIngredientByName,
-                  //onTap: _onTap,
-                  onFocusChanged: _onFocusChanged,
-                ),
+    return Consumer(
+      builder: (context, watch, _) {
+        final ingredietsRepository = watch(ingredientsRepositoryProvider);
+        return FlutterDataStateBuilder(
+          notifier: () =>
+              ingredietsRepository.watchOne(widget.shoppingListItem.item),
+          builder: (context, state, notifier, _) {
+            return Dismissible(
+              key: widget.formKey,
+              onDismissed: widget.onDismiss,
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.drag_handle),
+                    trailing: _editingMode == true
+                        ? IconButton(icon: Icon(Icons.edit), onPressed: null)
+                        : Checkbox(
+                            value: widget.shoppingListItem.checked,
+                            onChanged: onCheckChange,
+                          ),
+                    title: ItemSuggestionTextField(
+                      value: state.model,
+                      enabled: widget.editable,
+                      showShoppingItemSuggestions: false,
+                      onIngredientSelected: _onIngredientSelected,
+                      onSubmitted: _getOrCreateIngredientByName,
+                      //onTap: _onTap,
+                      onFocusChanged: _onFocusChanged,
+                    ),
+                  ),
+                  Divider(
+                    height: 0,
+                  )
+                ],
               ),
-              Divider(
-                height: 0,
-              )
-            ],
-          ),
+            );
+          },
         );
       },
     );
