@@ -4,13 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/recipe.dart';
 
 class RecipeCard extends StatelessWidget {
+  final Recipe _recipe;
+
   final Function onLongPress;
   final Function onTap;
   final BorderSide borderSide;
   final Color shadowColorStart;
   final Color shadowColorEnd;
 
-  RecipeCard(
+  RecipeCard(this._recipe,
       {this.onLongPress,
       this.onTap,
       this.borderSide = BorderSide.none,
@@ -20,7 +22,6 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(10);
-    final recipe = Provider.of<Recipe>(context);
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
@@ -35,7 +36,7 @@ class RecipeCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: borderRadius,
-            image: _buildImageProvider(recipe.imgUrl),
+            image: _buildImageProvider(_recipe.imgUrl),
           ),
           child: Material(
             //Workaround to place the InkWell animation over the recipe image (https://github.com/flutter/flutter/issues/3782)
@@ -59,7 +60,7 @@ class RecipeCard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    recipe.name,
+                    _recipe.name,
                     textAlign: TextAlign.start,
                     style: TextStyle(
                       fontSize: 25,
