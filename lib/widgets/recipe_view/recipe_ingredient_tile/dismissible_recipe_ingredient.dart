@@ -7,16 +7,17 @@ import '../../../models/ingredient.dart';
 
 class DismissibleRecipeIngredientTile extends StatelessWidget {
   final RecipeOriginator _recipe;
+  final RecipeIngredient _recipeIngredient;
   final bool editEnabled;
 
-  DismissibleRecipeIngredientTile(this._recipe, this.editEnabled);
+  DismissibleRecipeIngredientTile(
+      this._recipe, this._recipeIngredient, this.editEnabled);
 
   @override
   Widget build(BuildContext context) {
-    RecipeIngredient recipeIngredient = Provider.of<RecipeIngredient>(context);
     return editEnabled
         ? Dismissible(
-            key: Key(recipeIngredient.ingredientId),
+            key: Key(_recipeIngredient.ingredientId),
             direction: DismissDirection.endToStart,
             background: Container(
               color: Colors.red,
@@ -37,15 +38,15 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
             ),
             child: RecipeIngredientListTile(
               _recipe,
-              recipeIngredient,
+              _recipeIngredient,
               editEnabled: editEnabled,
             ),
             onDismissed: (_) =>
-                _recipe.deleteRecipeIngredient(recipeIngredient.ingredientId),
+                _recipe.deleteRecipeIngredient(_recipeIngredient.ingredientId),
           )
         : RecipeIngredientListTile(
             _recipe,
-            recipeIngredient,
+            _recipeIngredient,
           );
   }
 }

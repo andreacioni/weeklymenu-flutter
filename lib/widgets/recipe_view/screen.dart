@@ -138,12 +138,10 @@ class _RecipeViewState extends State<RecipeView> {
               if (recipe.ingredients.isNotEmpty)
                 ...recipe.ingredients
                     .map(
-                      (recipeIng) => ChangeNotifierProvider.value(
-                        value: recipeIng,
-                        child: DismissibleRecipeIngredientTile(
-                          recipe,
-                          _editEnabled,
-                        ),
+                      (recipeIng) => DismissibleRecipeIngredientTile(
+                        recipe,
+                        recipeIng,
+                        _editEnabled,
                       ),
                     )
                     .toList(),
