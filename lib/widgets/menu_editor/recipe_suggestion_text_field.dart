@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 
 import '../../models/menu.dart';
 import '../../globals/utils.dart';
@@ -88,7 +89,8 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
 
   Future<List<Recipe>> _suggestionsCallback(String pattern) async {
     final recipesProvider = context.read(recipesRepositoryProvider);
-    final dailyMenu = Provider.of<DailyMenu>(context, listen: false);
+    final dailyMenu = ProviderScope.containerOf(context, listen: false)
+        .read(dailyMenuScopedProvider);
     final availableRecipes = await recipesProvider.findAll();
     final alreadyPresentRecipes = dailyMenu.getMenuByMeal(widget.meal) == null
         ? <Recipe>[]

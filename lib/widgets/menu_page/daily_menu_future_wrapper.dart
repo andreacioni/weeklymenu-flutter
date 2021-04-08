@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/menu.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';
 import 'package:weekly_menu_app/widgets/menu_page/menu_card.dart';
@@ -47,14 +48,16 @@ class DailyMenuFutureWrapper extends ConsumerWidget {
   }
 
   Widget _buildMenuCard(BuildContext context, Date day, DailyMenu dailyMenu) {
-    return ChangeNotifierProvider.value(
-      value: dailyMenu,
+    return ProviderScope(
+      overrides: [dailyMenuScopedProvider.overrideWithValue(dailyMenu)],
       child: MenuCard(
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => ChangeNotifierProvider.value(
-                value: dailyMenu,
+              builder: (_) => ProviderScope(
+                overrides: [
+                  dailyMenuScopedProvider.overrideWithValue(dailyMenu)
+                ],
                 child: MenuEditorScreen(),
               ),
             ),
@@ -62,5 +65,7 @@ class DailyMenuFutureWrapper extends ConsumerWidget {
         },
       ),
     );
+
+    ;
   }
 }

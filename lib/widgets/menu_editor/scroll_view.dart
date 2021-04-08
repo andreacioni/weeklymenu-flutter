@@ -211,6 +211,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
           final mealRecipe = MealRecipe(meal, recipe);
           final recipeTile = RecipeTile(
+            recipe,
             editEnable: widget.editingMode,
             isChecked: dailyMenu.selectedRecipes.contains(id),
             onPressed:
@@ -221,35 +222,32 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                 mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
           );
 
-          return ChangeNotifierProvider.value(
-            value: recipe,
-            child: Column(
-              //key: ,
-              children: <Widget>[
-                if (!widget.editingMode)
-                  recipeTile
-                else
-                  Draggable<MealRecipe>(
-                    child: recipeTile,
-                    feedback: Material(
-                      child: Text(recipe.name),
-                    ),
-                    childWhenDragging: Container(),
-                    data: mealRecipe,
-                    onDragStarted: () => setState(() {
-                      _dragMode = true;
-                      _fromMeal = meal;
-                    }),
-                    onDragCompleted: () => setState(() => _dragMode = false),
-                    onDragEnd: (_) => setState(() => _dragMode = false),
-                    onDraggableCanceled: (_, __) =>
-                        setState(() => _dragMode = false),
+          return Column(
+            //key: ,
+            children: <Widget>[
+              if (!widget.editingMode)
+                recipeTile
+              else
+                Draggable<MealRecipe>(
+                  child: recipeTile,
+                  feedback: Material(
+                    child: Text(recipe.name),
                   ),
-                Divider(
-                  height: 0,
+                  childWhenDragging: Container(),
+                  data: mealRecipe,
+                  onDragStarted: () => setState(() {
+                    _dragMode = true;
+                    _fromMeal = meal;
+                  }),
+                  onDragCompleted: () => setState(() => _dragMode = false),
+                  onDragEnd: (_) => setState(() => _dragMode = false),
+                  onDraggableCanceled: (_, __) =>
+                      setState(() => _dragMode = false),
                 ),
-              ],
-            ),
+              Divider(
+                height: 0,
+              ),
+            ],
           );
         });
   }

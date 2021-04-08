@@ -3,6 +3,7 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 
 import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
@@ -20,7 +21,8 @@ class MenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dailyMenu = Provider.of<DailyMenu>(context);
+    final dailyMenu = ProviderScope.containerOf(context, listen: false)
+        .read(dailyMenuScopedProvider);
 
     final divider = Divider(
       color: Colors.grey.shade500,

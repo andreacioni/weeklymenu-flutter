@@ -38,7 +38,9 @@ dependencies:
   logger: ^0.9.2
   shared_preferences: ^0.5.8
   objectid: ^1.1.1
-  flutter_data: ^0.7.0-rc7
+  flutter_data: 
+    git:
+      url: https://github.com/flutterdata/flutter_data
   #flutter_data_state: ^0.3.1
   #equatable: ^1.2.3
   

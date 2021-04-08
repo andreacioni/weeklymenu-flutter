@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weekly_menu_app/globals/date.dart';
 import 'package:weekly_menu_app/models/enums/meals.dart';
 import 'package:weekly_menu_app/globals/constants.dart' as consts;
+import 'package:weekly_menu_app/providers/providers.dart';
 import '../../globals/errors_handlers.dart';
 import '../../models/menu.dart';
 import './scroll_view.dart';
@@ -39,7 +40,8 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dailyMenu = Provider.of<DailyMenu>(context);
+    final dailyMenu = ProviderScope.containerOf(context, listen: false)
+        .read(dailyMenuScopedProvider);
 
     final primaryColor = dailyMenu.isPast
         ? consts.pastColor
@@ -126,7 +128,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         try {
           await dailyMenu.save(
             context,
-            Provider.of<Repository<Menu>>(context, listen: false),
+            context.read(menusRepositoryProvider),
           );
         } catch (e) {
           _log.e("Error saving currently menu", e);
@@ -137,8 +139,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
       if (_newMenu != null) {
         _log.d("New menu was defined. Store it!");
         try {
-          await Provider.of<Repository<Menu>>(context, listen: false)
-              .save(_newMenu);
+          await context.read(menusRepositoryProvider).save(_newMenu);
         } catch (e) {
           _log.e("Error saving new menu", e);
           hideProgressDialog(context);
@@ -153,7 +154,7 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
         try {
           _destinationMenu.save(
             context,
-            Provider.of<Repository<Menu>>(context, listen: false),
+            context.read(menusRepositoryProvider),
           );
         } catch (e) {
           _log.e("Error saving destination menu ", e);

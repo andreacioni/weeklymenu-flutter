@@ -4,13 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/recipe.dart';
 
 class RecipeTile extends StatelessWidget {
+  final Recipe _recipe;
   final bool editEnable;
   final bool isChecked;
   final void Function() onPressed;
   final void Function(bool) onCheckChange;
   final Key key;
 
-  RecipeTile({
+  RecipeTile(
+    this._recipe, {
     this.editEnable,
     this.isChecked,
     this.onPressed,
@@ -20,13 +22,11 @@ class RecipeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recipe = Provider.of<Recipe>(context);
-
     return InkWell(
       onTap: onPressed,
       child: ListTile(
         leading: editEnable ? Icon(Icons.drag_handle) : null,
-        title: Text(recipe.name),
+        title: Text(_recipe.name),
         trailing: editEnable
             ? Checkbox(
                 value: isChecked,
