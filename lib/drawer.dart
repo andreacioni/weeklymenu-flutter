@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/providers.dart';
 import 'widgets/tags_screen/screen.dart';
 import './widgets/ingredients_screen/screen.dart';
-import 'services/auth_service.dart';
 import 'widgets/login_screen/screen.dart';
 
 class AppDrawer extends StatelessWidget {
