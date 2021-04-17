@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weekly_menu_app/models/menu.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../globals/errors_handlers.dart';
@@ -41,10 +42,10 @@ class _RecipeViewState extends State<RecipeView> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, watch, _) {
-        final recipesRepo = watch(recipesRepositoryProvider);
+        final recipe = watch(watchMenu(widget.recipeId).state);
         return FlutterDataStateBuilder<Recipe>(
           notifier: () => recipesRepo.watchOne(widget.recipeId),
-          builder: (context, state, notifier, _) {
+          builder: (context, state, _, __) {
             final recipe = RecipeOriginator(state.model);
 
             return WillPopScope(
