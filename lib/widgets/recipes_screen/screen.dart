@@ -63,7 +63,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         return Padding(
           padding: const EdgeInsets.all(10.0),
           child: _buildScreenBody(
-            state.model,
+            [...state.model],
             filter: (recipe) => !stringContains(recipe.name, _searchText),
           ),
         );
@@ -127,7 +127,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       itemBuilder: (ctx, index) => Hero(
         tag: recipes[index].id,
         child: RecipeCard(
-          recipes[index],
+          recipes[index].id,
           borderSide: _editingModeEnabled == true &&
                   _selectedRecipes.contains(recipes[index])
               ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
@@ -178,10 +178,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    if (_searchModeEnabled) {
-      _searchText = "";
-    }
-
     return AppBar(
       title: _searchModeEnabled == false
           ? buildAppBarTitle()
@@ -209,7 +205,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         else
           IconButton(
             icon: Icon(Icons.clear),
-            onPressed: () => setState(() => _searchModeEnabled = false),
+            onPressed: () => setState(() {
+              _searchModeEnabled = false;
+              _searchText = "";
+            }),
           ),
         IconButton(
           icon: Icon(Icons.filter_list),

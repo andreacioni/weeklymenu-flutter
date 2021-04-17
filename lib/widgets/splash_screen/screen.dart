@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:weekly_menu_app/models/auth_token.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/providers/providers.dart';
 import '../../main.data.dart';
-import '../../services/auth_service.dart';
 import '../login_screen/screen.dart';
 
 import '../../homepage.dart';
-import '../../main.data.dart';
 
 class SplashScreen extends StatelessWidget {
   @override
@@ -19,7 +14,7 @@ class SplashScreen extends StatelessWidget {
       child: Consumer(builder: (context, read, child) {
         return read(repositoryInitializerProvider()).when(
             data: (_) {
-              return context.read(jwtTokenProvider).map(
+              return context.read(jwtTokenProvider).when(
                     data: (jwt) {
                       if (jwt != null) {
                         Future.delayed(
@@ -31,8 +26,8 @@ class SplashScreen extends StatelessWidget {
 
                       return loadingIndicator();
                     },
-                    loading: (_) => loadingIndicator(),
-                    error: (_) => Text('error'),
+                    loading: () => loadingIndicator(),
+                    error: (_, __) => Text('error'),
                   );
             },
             loading: loadingIndicator,
