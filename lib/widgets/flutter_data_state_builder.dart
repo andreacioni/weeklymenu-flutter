@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
+import 'package:weekly_menu_app/temp/flutter_data_state.dart';
 
 import 'login_screen/screen.dart';
 
@@ -20,7 +21,7 @@ class FlutterDataStateBuilder<T> extends StatelessWidget {
 
         if (state.hasException) {
           final ex = state.exception;
-          if (ex is DioError && (ex.response.statusCode == 401) ||
+          if (ex is DioError && (ex.statusCode == 401) ||
               (ex is DataException && ex.statusCode == 403)) {
             Future.delayed(Duration.zero, () => goToLoginPage(context));
             return Center(child: CircularProgressIndicator());
