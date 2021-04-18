@@ -17,7 +17,7 @@ class RecipeInformationTiles extends StatelessWidget {
     return Column(
       children: <Widget>[
         EditableInformationTile(
-          _recipe.servs?.toDouble(),
+          _recipe.instance.servs?.toDouble(),
           "Servings",
           minValue: 1,
           icon: Icon(
@@ -26,11 +26,12 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "ppl",
-          onChanged: () => _recipe.setEdited(),
-          onSaved: (newValue) => _recipe.updateServs(newValue?.truncate()),
+          onChanged: () => {}, //_recipe.setEdited(),
+          onSaved: (newValue) => _recipe
+              .update(_recipe.instance.copyWith(servs: newValue?.truncate())),
         ),
         EditableInformationTile(
-          _recipe.estimatedPreparationTime?.toDouble(),
+          _recipe.instance.estimatedPreparationTime?.toDouble(),
           "Preparation time",
           icon: Icon(
             Icons.timer,
@@ -38,12 +39,12 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
-          onChanged: () => _recipe.setEdited(),
-          onSaved: (newValue) =>
-              _recipe.updatePreparationTime(newValue?.truncate()),
+          onChanged: () => {}, //_recipe.setEdited(),
+          onSaved: (newValue) => _recipe.update(_recipe.instance
+              .copyWith(estimatedPreparationTime: newValue?.truncate())),
         ),
         EditableInformationTile(
-          _recipe.estimatedCookingTime?.toDouble(),
+          _recipe.instance.estimatedCookingTime?.toDouble(),
           "Cooking time",
           icon: Icon(
             Icons.timelapse,
@@ -51,9 +52,9 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
-          onChanged: () => _recipe.setEdited(),
-          onSaved: (newValue) =>
-              _recipe.updateCookingTime(newValue?.truncate()),
+          onChanged: () => {}, //_recipe.setEdited(),
+          onSaved: (newValue) => _recipe.update(_recipe.instance
+              .copyWith(estimatedCookingTime: newValue?.truncate())),
         ),
         ListTile(
           title: Text("Difficulty"),
@@ -63,20 +64,22 @@ class RecipeInformationTiles extends StatelessWidget {
         RecipeInformationLevelSelect(
           "Affinity",
           Icon(Icons.favorite, color: Colors.red.shade300),
-          _recipe.rating,
+          _recipe.instance.rating,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.3),
           activeColor: Colors.red,
-          onLevelUpdate: (newLevel) => _recipe.updateRating(newLevel),
+          onLevelUpdate: (newLevel) =>
+              _recipe.update(_recipe.instance.copyWith(rating: newLevel)),
         ),
         RecipeInformationLevelSelect(
           "Cost",
           Icon(Icons.attach_money, color: Colors.green.shade300),
-          _recipe.cost,
+          _recipe.instance.cost,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.5),
           activeColor: Colors.green,
-          onLevelUpdate: (newLevel) => _recipe.updateCost(newLevel),
+          onLevelUpdate: (newLevel) =>
+              _recipe.update(_recipe.instance.copyWith(cost: newLevel)),
         ),
       ],
     );
@@ -85,16 +88,19 @@ class RecipeInformationTiles extends StatelessWidget {
   Widget _buildDifficultyDropdown(BuildContext context) {
     return !editEnabled
         ? Text(
-            _recipe.difficulty == null ? '-' : _recipe.difficulty,
+            _recipe.instance.difficulty == null
+                ? '-'
+                : _recipe.instance.difficulty,
             style: const TextStyle(fontSize: 18),
           )
         : DropdownButton<String>(
-            value: _recipe.difficulty,
+            value: _recipe.instance.difficulty,
             hint: const Text('Choose'),
             iconSize: 24,
             elevation: 16,
             style: const TextStyle(color: Colors.black, fontSize: 18),
-            onChanged: (String newValue) => _recipe.updateDifficulty(newValue),
+            onChanged: (String newValue) =>
+                _recipe.update(_recipe.instance.copyWith(difficulty: newValue)),
             items: Difficulties.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,

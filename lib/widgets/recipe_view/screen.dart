@@ -3,6 +3,7 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weekly_menu_app/models/menu.dart';
+import 'package:weekly_menu_app/providers/providers.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../globals/errors_handlers.dart';
@@ -29,37 +30,40 @@ class _RecipeViewState extends State<RecipeView> {
   final _formKey = GlobalKey<FormState>();
 
   bool _editEnabled;
-  double spinner;
 
   @override
   void initState() {
     _editEnabled = false;
-    spinner = 0;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, watch, _) {
-        final recipeRepo = watch(recipesRepositoryProvider);
-        return FlutterDataStateBuilder<Recipe>(
-          notifier: () => recipeRepo.watchOne(widget.recipeId),
-          builder: (context, state, _, __) {
-            final recipe = RecipeOriginator(state.model);
+    return Scaffold(
+      body: Consumer(
+        builder: (context, watch, _) {
+          final recipeRepo = watch(recipesRepositoryProvider);
+          return FlutterDataStateBuilder<Recipe>(
+            notifier: () => recipeRepo.watchOne(widget.recipeId),
+            builder: (context, state, _, __) {
+              final recipe = RecipeOriginator(state.model);
 
-            return WillPopScope(
-              onWillPop: () async {
-                _handleBackButton(context, recipe);
-                return true;
-              },
-              child: Scaffold(
-                body: buildForm(recipe),
-              ),
-            );
-          },
-        );
-      },
+              return ProviderScope(
+                overrides: [
+                  recipeOriginatorScopedProvider.overrideWithValue(recipe)
+                ],
+                child: WillPopScope(
+                  onWillPop: () async {
+                    _handleBackButton(context, recipe);
+                    return true;
+                  },
+                  child: buildForm(recipe),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

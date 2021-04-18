@@ -299,7 +299,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   void _showRecipeNameDialog() async {
     final textController = TextEditingController();
-    RecipeOriginator newRecipe = await showDialog<RecipeOriginator>(
+    final newRecipe = await showDialog<Recipe>(
       context: context,
       builder: (_) => AlertDialog(
         content: TextField(
@@ -323,9 +323,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
             onPressed: () async {
               Navigator.of(context).pop();
               if (textController.text.trim().isNotEmpty) {
-                await context
+                return (await context
                     .read(recipesRepositoryProvider)
-                    .save(Recipe(name: textController.text));
+                    .save(Recipe(name: textController.text)));
               } else {
                 _log.w("No name supplied");
               }
@@ -340,7 +340,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     }
   }
 
-  void _openNewRecipeScreen(RecipeOriginator newRecipe) {
+  void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => RecipeView(newRecipe.id),

@@ -41,9 +41,13 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
               _recipeIngredient,
               editEnabled: editEnabled,
             ),
-            onDismissed: (_) =>
-                _recipe.deleteRecipeIngredient(_recipeIngredient.ingredientId),
-          )
+            onDismissed: (_) {
+              final recipeIngredients = [..._recipe.instance.ingredients]
+                ..removeWhere(
+                    (ri) => _recipeIngredient.ingredientId == ri.ingredientId);
+              _recipe.update(
+                  _recipe.instance.copyWith(ingredients: recipeIngredients));
+            })
         : RecipeIngredientListTile(
             _recipe,
             _recipeIngredient,

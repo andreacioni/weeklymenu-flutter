@@ -92,19 +92,15 @@ class RecipeIngredientListTile extends ConsumerWidget {
     RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => RecipeIngredientModal(
-        recipeIngredient.recipeId,
-        recipeIngredient: recipeIngredient,
-      ),
+      builder: (_) => RecipeIngredientModal(recipeIngredient),
     );
 
     if (updatedRecipeIng != null) {
-      _recipe.setEdited();
-      recipeIngredient.update(
-        quantity: updatedRecipeIng.quantity,
-        unitOfMeasure: updatedRecipeIng.unitOfMeasure,
-        freezed: updatedRecipeIng.freezed,
-      );
+      final recipeIngredients = [..._recipe.instance.ingredients]
+        ..removeWhere((ri) => ri.ingredientId == recipeIngredient.ingredientId)
+        ..add(updatedRecipeIng);
+
+      _recipe.update(_recipe.instance.copyWith(ingredients: recipeIngredients));
     } else {
       log.i("No update ingredient recipe returned");
     }

@@ -10,10 +10,9 @@ import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
 
 class RecipeIngredientModal extends StatefulWidget {
-  final String recipeId;
   final RecipeIngredient recipeIngredient;
 
-  RecipeIngredientModal(this.recipeId, {this.recipeIngredient});
+  RecipeIngredientModal([this.recipeIngredient]);
 
   @override
   _RecipeIngredientModalState createState() => _RecipeIngredientModalState();

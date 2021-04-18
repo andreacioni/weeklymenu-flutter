@@ -42,7 +42,9 @@ class RecipeTags extends StatelessWidget {
       tags.removeWhere((tag) => recipe.instance.tags.contains(tag));
     }
 
-    return Tags(
+    return Container();
+
+    /* return Tags(
       itemBuilder: (index) => ItemTags(
         image: ItemTagsImage(
           child: Icon(
@@ -77,7 +79,7 @@ class RecipeTags extends StatelessWidget {
               constraintSuggestion: false,
             )
           : null,
-    );
+    ); */
   }
 
   List<String> getAllRecipeTags(List<Recipe> recipes) {

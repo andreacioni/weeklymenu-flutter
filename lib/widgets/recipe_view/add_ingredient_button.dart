@@ -37,14 +37,18 @@ class AddIngredientButton extends StatelessWidget {
   }
 
   void _openAddIngredientModal(BuildContext context) async {
-    var newRecipeIngredient = await showDialog<RecipeIngredient>(
+    final newRecipeIngredient = await showDialog<RecipeIngredient>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => RecipeIngredientModal(_recipe.id),
+      builder: (_) => RecipeIngredientModal(),
     );
 
+    final recipeIngredients =
+        _recipe.instance.ingredients ?? <RecipeIngredient>[];
+
     if (newRecipeIngredient != null) {
-      _recipe.addRecipeIngredient(newRecipeIngredient);
+      _recipe.update(_recipe.instance
+          .copyWith(ingredients: [...recipeIngredients, newRecipeIngredient]));
     } else {
       log.info("No recipe ingredient to add");
     }
