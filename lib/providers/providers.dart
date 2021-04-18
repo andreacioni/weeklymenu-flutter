@@ -5,7 +5,7 @@ import '../services/auth_service.dart';
 
 final authServiceProvider = Provider((ref) => AuthService());
 
-final jwtTokenProvider = FutureProvider((ref) {
+final jwtTokenProvider = FutureProvider.autoDispose((ref) {
   return ref.read(authServiceProvider).token;
 });
 

@@ -3,6 +3,53 @@
 part of 'recipe.dart';
 
 // **************************************************************************
+// CopyWithGenerator
+// **************************************************************************
+
+extension RecipeCopyWith on Recipe {
+  Recipe copyWith({
+    List<int> availabilityMonths,
+    int cost,
+    String description,
+    String difficulty,
+    int estimatedCookingTime,
+    int estimatedPreparationTime,
+    String id,
+    String imgUrl,
+    List<RecipeIngredient> ingredients,
+    String name,
+    String note,
+    String owner,
+    String preparation,
+    int rating,
+    String recipeUrl,
+    int servs,
+    List<String> tags,
+  }) {
+    return Recipe(
+      availabilityMonths: availabilityMonths ?? this.availabilityMonths,
+      cost: cost ?? this.cost,
+      description: description ?? this.description,
+      difficulty: difficulty ?? this.difficulty,
+      estimatedCookingTime: estimatedCookingTime ?? this.estimatedCookingTime,
+      estimatedPreparationTime:
+          estimatedPreparationTime ?? this.estimatedPreparationTime,
+      id: id ?? this.id,
+      imgUrl: imgUrl ?? this.imgUrl,
+      ingredients: ingredients ?? this.ingredients,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      owner: owner ?? this.owner,
+      preparation: preparation ?? this.preparation,
+      rating: rating ?? this.rating,
+      recipeUrl: recipeUrl ?? this.recipeUrl,
+      servs: servs ?? this.servs,
+      tags: tags ?? this.tags,
+    );
+  }
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -68,9 +115,9 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
 RecipeIngredient _$RecipeIngredientFromJson(Map<String, dynamic> json) {
   return RecipeIngredient(
     ingredientId: json['ingredient'] as String,
-    quantity: (json['quantity'] as num)?.toDouble(),
     unitOfMeasure: json['unitOfMeasure'] as String,
-    freezed: json['freezed'] as bool,
+    quantity: json['quantity'],
+    freezed: json['freezed'],
   );
 }
 

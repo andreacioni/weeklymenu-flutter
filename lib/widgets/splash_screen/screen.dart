@@ -10,29 +10,28 @@ import '../../homepage.dart';
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(
-      child: Consumer(builder: (context, read, child) {
-        return read(repositoryInitializerProvider()).when(
-            data: (_) {
-              return context.read(jwtTokenProvider).when(
-                    data: (jwt) {
-                      if (jwt != null) {
-                        Future.delayed(
-                            Duration.zero, () => goToHomePage(context));
-                      } else {
-                        Future.delayed(
-                            Duration.zero, () => goToLoginPage(context));
-                      }
+    return Scaffold(
+        body: Center(
+      child: context.read(repositoryInitializerProvider()).when(
+          data: (_) {
+            return context.read(jwtTokenProvider).when(
+                  data: (jwt) {
+                    if (jwt != null) {
+                      Future.delayed(
+                          Duration.zero, () => goToHomePage(context));
+                    } else {
+                      Future.delayed(
+                          Duration.zero, () => goToLoginPage(context));
+                    }
 
-                      return loadingIndicator();
-                    },
-                    loading: () => loadingIndicator(),
-                    error: (_, __) => Text('error'),
-                  );
-            },
-            loading: loadingIndicator,
-            error: (_, __) => Text('error'));
-      }),
+                    return loadingIndicator();
+                  },
+                  loading: () => loadingIndicator(),
+                  error: (_, __) => Text('error'),
+                );
+          },
+          loading: loadingIndicator,
+          error: (_, __) => Text('error')),
     ));
   }
 

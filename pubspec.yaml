@@ -40,6 +40,7 @@ dependencies:
   objectid: ^1.1.1
   flutter_state_notifier: ^0.4.2
   flutter_data: ^0.7.0-rc7
+  copy_with_extension: ^1.4.0
   #flutter_data_state: ^0.3.1
   #equatable: ^1.2.3
   
@@ -55,6 +56,7 @@ dev_dependencies:
   json_serializable: ^3.3.0
   lombok: ^0.0.5
   meta: ^1.1.8
+  copy_with_extension_gen: ^1.4.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

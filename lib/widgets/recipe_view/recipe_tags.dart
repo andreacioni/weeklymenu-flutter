@@ -38,8 +38,8 @@ class RecipeTags extends StatelessWidget {
   Widget buildTagsRow(List<Recipe> recipes) {
     final tags = getAllRecipeTags(recipes);
 
-    if (recipe.tags != null) {
-      tags.removeWhere((tag) => recipe.tags.contains(tag));
+    if (recipe.instance.tags != null) {
+      tags.removeWhere((tag) => recipe.instance.tags.contains(tag));
     }
 
     return Tags(

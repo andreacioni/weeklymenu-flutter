@@ -1,3 +1,4 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_data/flutter_data.dart';
@@ -8,55 +9,60 @@ import 'package:weekly_menu_app/models/enums/meals.dart';
 
 part 'recipe.g.dart';
 
+class RecipeOriginator extends Originator<Recipe> {
+  RecipeOriginator(Recipe original) : super(original);
+}
+
 @JsonSerializable(explicitToJson: true, anyMap: true)
 @DataRepository([BaseAdapter])
+@CopyWith()
 class Recipe extends BaseModel<Recipe> {
-  String name;
+  final String name;
 
   @JsonKey(includeIfNull: false)
-  String description;
+  final String description;
 
   @JsonKey(includeIfNull: false)
-  int rating;
+  final int rating;
 
   @JsonKey(includeIfNull: false)
-  int cost;
+  final int cost;
 
   @JsonKey(includeIfNull: false)
-  String difficulty;
+  final String difficulty;
 
   @JsonKey(includeIfNull: false)
-  List<int> availabilityMonths;
+  final List<int> availabilityMonths;
 
   @JsonKey(includeIfNull: false)
-  int servs;
+  final int servs;
 
   @JsonKey(includeIfNull: false)
-  int estimatedCookingTime;
+  final int estimatedCookingTime;
 
   @JsonKey(includeIfNull: false)
-  int estimatedPreparationTime;
+  final int estimatedPreparationTime;
 
   @JsonKey(includeIfNull: false, defaultValue: [])
-  List<RecipeIngredient> ingredients;
+  final List<RecipeIngredient> ingredients;
 
   @JsonKey(includeIfNull: false)
-  String preparation;
+  final String preparation;
 
   @JsonKey(includeIfNull: false)
-  String note;
+  final String note;
 
   @JsonKey(includeIfNull: false)
-  String imgUrl;
+  final String imgUrl;
 
   @JsonKey(includeIfNull: false)
-  String recipeUrl;
+  final String recipeUrl;
 
   @JsonKey(includeIfNull: false)
-  List<String> tags;
+  final List<String> tags;
 
   @JsonKey(ignore: true)
-  String owner;
+  final String owner;
 
   Recipe({
     String id,
@@ -89,62 +95,29 @@ class Recipe extends BaseModel<Recipe> {
 }
 
 @JsonSerializable()
-class RecipeIngredient extends Equatable
-    with ChangeNotifier
-    implements Cloneable<RecipeIngredient> {
-  @JsonKey(ignore: true)
-  String recipeId;
-
+class RecipeIngredient {
   @JsonKey(name: 'ingredient')
-  String ingredientId;
+  final String ingredientId;
 
   @JsonKey(includeIfNull: false)
-  double quantity;
+  final double quantity;
   @JsonKey(includeIfNull: false)
-  String unitOfMeasure;
+  final String unitOfMeasure;
   @JsonKey(includeIfNull: false)
-  bool freezed;
+  final bool freezed;
 
   RecipeIngredient(
       {@required this.ingredientId,
-      this.quantity = 0,
       this.unitOfMeasure,
-      this.freezed = false}) {
-    if (quantity == null) {
-      this.quantity = 0;
-    }
-
-    if (freezed == null) {
-      this.freezed = false;
-    }
-  }
+      quantity = 0,
+      freezed = false})
+      : this.quantity = quantity ?? 0,
+        this.freezed = freezed ?? false;
 
   factory RecipeIngredient.fromJson(Map<String, dynamic> json) =>
       _$RecipeIngredientFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecipeIngredientToJson(this);
-
-  void update(
-      {double quantity = -1, String unitOfMeasure, bool freezed = false}) {
-    if (quantity > 0) {
-      this.quantity = quantity;
-    }
-
-    if (unitOfMeasure != null) {
-      this.unitOfMeasure = unitOfMeasure;
-    }
-
-    if (freezed != null) {
-      this.freezed = freezed;
-    }
-
-    notifyListeners();
-  }
-
-  @override
-  RecipeIngredient clone() => RecipeIngredient.fromJson(this.toJson());
-
-  List<Object> get props => [ingredientId, quantity, unitOfMeasure, freezed];
 }
 
 class MealRecipe {

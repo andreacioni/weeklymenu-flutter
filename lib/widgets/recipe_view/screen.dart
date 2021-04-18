@@ -42,9 +42,9 @@ class _RecipeViewState extends State<RecipeView> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, watch, _) {
-        final recipe = watch(watchMenu(widget.recipeId).state);
+        final recipeRepo = watch(recipesRepositoryProvider);
         return FlutterDataStateBuilder<Recipe>(
-          notifier: () => recipesRepo.watchOne(widget.recipeId),
+          notifier: () => recipeRepo.watchOne(widget.recipeId),
           builder: (context, state, _, __) {
             final recipe = RecipeOriginator(state.model);
 
@@ -82,11 +82,11 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                recipe.description,
+                recipe.instance.description,
                 editEnabled: _editEnabled,
                 hintText: "Description",
-                onSubmitted: (newDescription) =>
-                    recipe.updateDescription(newDescription),
+                onSubmitted: (newDescription) => recipe.update(
+                    recipe.instance.copyWith(description: newDescription)),
               ),
               SizedBox(
                 height: 5,
@@ -130,14 +130,14 @@ class _RecipeViewState extends State<RecipeView> {
               SizedBox(
                 height: 5,
               ),
-              if (recipe.ingredients.isEmpty && !_editEnabled)
+              if (recipe.instance.ingredients.isEmpty && !_editEnabled)
                 EditableTextField(
                   "",
                   editEnabled: false,
                   hintText: "No ingredients",
                 ),
-              if (recipe.ingredients.isNotEmpty)
-                ...recipe.ingredients
+              if (recipe.instance.ingredients.isNotEmpty)
+                ...recipe.instance.ingredients
                     .map(
                       (recipeIng) => DismissibleRecipeIngredientTile(
                         recipe,
@@ -168,11 +168,12 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                recipe.preparation,
+                recipe.instance.preparation,
                 editEnabled: _editEnabled,
                 hintText: "Add preparation steps...",
                 maxLines: 1000,
-                onChanged: (text) => recipe.updatePreparation(text),
+                onChanged: (text) =>
+                    recipe.update(recipe.instance.copyWith(preparation: text)),
               ),
               SizedBox(
                 height: 5,
@@ -191,11 +192,12 @@ class _RecipeViewState extends State<RecipeView> {
                 height: 5,
               ),
               EditableTextField(
-                recipe.note,
+                recipe.instance.note,
                 editEnabled: _editEnabled,
                 hintText: "Add note...",
                 maxLines: 1000,
-                onChanged: (text) => recipe.updateNote(text),
+                onChanged: (text) =>
+                    recipe.update(recipe.instance.copyWith(note: text)),
               ),
               SizedBox(
                 height: 5,
