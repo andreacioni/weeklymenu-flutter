@@ -10,8 +10,7 @@ final jwtTokenProvider = FutureProvider.autoDispose((ref) {
   return ref.read(authServiceProvider).token;
 });
 
-final dailyMenuScopedProvider =
-    ScopedProvider<DailyMenu>((_) => throw UnimplementedError());
+final dailyMenuScopedProvider = ScopedProvider<DailyMenu>(null);
 
-final recipeOriginatorScopedProvider =
-    ScopedProvider<RecipeOriginator>((_) => throw UnimplementedError());
+final recipeOriginatorChangeNotifierProvider =
+    ChangeNotifierProvider<RecipeOriginator>((_) => throw UnimplementedError());

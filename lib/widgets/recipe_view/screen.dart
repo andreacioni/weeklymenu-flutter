@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:weekly_menu_app/models/menu.dart';
 import 'package:weekly_menu_app/providers/providers.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
@@ -42,25 +40,13 @@ class _RecipeViewState extends State<RecipeView> {
     return Scaffold(
       body: Consumer(
         builder: (context, watch, _) {
-          final recipeRepo = watch(recipesRepositoryProvider);
-          return FlutterDataStateBuilder<Recipe>(
-            notifier: () => recipeRepo.watchOne(widget.recipeId),
-            builder: (context, state, _, __) {
-              final recipe = RecipeOriginator(state.model);
-
-              return ProviderScope(
-                overrides: [
-                  recipeOriginatorScopedProvider.overrideWithValue(recipe)
-                ],
-                child: WillPopScope(
-                  onWillPop: () async {
-                    _handleBackButton(context, recipe);
-                    return true;
-                  },
-                  child: buildForm(recipe),
-                ),
-              );
+          final recipe = watch(recipeOriginatorChangeNotifierProvider);
+          return WillPopScope(
+            onWillPop: () async {
+              _handleBackButton(context, recipe);
+              return true;
             },
+            child: buildForm(recipe),
           );
         },
       ),

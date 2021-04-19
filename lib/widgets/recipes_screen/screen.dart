@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:weekly_menu_app/providers/providers.dart';
 
 import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
@@ -343,7 +344,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeView(newRecipe.id),
+        builder: (_) => ProviderScope(
+          overrides: [
+            recipeOriginatorChangeNotifierProvider
+                .overrideWithValue(RecipeOriginator(newRecipe))
+          ],
+          child: RecipeView(newRecipe.id),
+        ),
       ),
     );
   }
