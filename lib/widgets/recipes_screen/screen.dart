@@ -127,32 +127,39 @@ class _RecipesScreenState extends State<RecipesScreen> {
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => Hero(
         tag: recipes[index].id,
-        child: RecipeCard(
-          recipes[index].id,
-          borderSide: _editingModeEnabled == true &&
-                  _selectedRecipes.contains(recipes[index])
-              ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
-              : BorderSide.none,
-          shadowColorStart: _editingModeEnabled == true &&
-                  _selectedRecipes.contains(recipes[index])
-              ? Theme.of(ctx).accentColor.withOpacity(0.7)
-              : Colors.black54,
-          onTap: () => _editingModeEnabled == true
-              ? _addRecipeToEditingList(recipes[index])
-              : _openRecipeView(recipes, index, recipes[index].id),
-          onLongPress: () => _editingModeEnabled == false
-              ? _enableEditingMode(recipes[index])
-              : null,
-        ),
+        child: buildRecipeCard(recipes, index, ctx),
       ),
       itemCount: recipes.length,
     );
   }
 
-  void _openRecipeView(List<Recipe> recipes, int index, Object heroTag) {
+  Widget buildRecipeCard(List<Recipe> recipes, int index, BuildContext ctx) {
+    final recipe = recipes[index];
+    return RecipeCard(
+      recipe.id,
+      borderSide: _editingModeEnabled == true &&
+              _selectedRecipes.contains(recipes[index])
+          ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
+          : BorderSide.none,
+      shadowColorStart: _editingModeEnabled == true &&
+              _selectedRecipes.contains(recipes[index])
+          ? Theme.of(ctx).accentColor.withOpacity(0.7)
+          : Colors.black54,
+      onTap: () => _editingModeEnabled == true
+          ? _addRecipeToEditingList(recipe)
+          : _openRecipeView(recipe, recipe.id),
+      onLongPress: () =>
+          _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
+    );
+  }
+
+  void _openRecipeView(Recipe recipe, Object heroTag) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeView(recipes[index].id, heroTag: heroTag),
+        builder: (_) => ProviderScope(overrides: [
+          recipeOriginatorScopedProvider
+              .overrideWithValue(RecipeOriginator(recipe))
+        ], child: RecipeView(recipe.id, heroTag: heroTag)),
       ),
     );
   }
@@ -346,7 +353,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       MaterialPageRoute(
         builder: (_) => ProviderScope(
           overrides: [
-            recipeOriginatorChangeNotifierProvider
+            recipeOriginatorScopedProvider
                 .overrideWithValue(RecipeOriginator(newRecipe))
           ],
           child: RecipeView(newRecipe.id),
