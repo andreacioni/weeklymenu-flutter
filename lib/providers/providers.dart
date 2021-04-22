@@ -11,5 +11,4 @@ final jwtTokenProvider = FutureProvider.autoDispose((ref) {
 });
 
 final dailyMenuScopedProvider = ScopedProvider<DailyMenu>(null);
-
 final recipeOriginatorScopedProvider = ScopedProvider<RecipeOriginator>(null);

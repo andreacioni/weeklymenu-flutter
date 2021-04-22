@@ -40,76 +40,79 @@ class _MenuEditorScreenState extends State<MenuEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dailyMenu = ProviderScope.containerOf(context, listen: false)
-        .read(dailyMenuScopedProvider);
+    return Consumer(
+      builder: (context, watch, _) {
+        final dailyMenu = watch(dailyMenuScopedProvider);
 
-    final primaryColor = dailyMenu.isPast
-        ? consts.pastColor
-        : (dailyMenu.isToday
-            ? consts.todayColor
-            : Theme.of(context).primaryColor);
+        final primaryColor = dailyMenu.isPast
+            ? consts.pastColor
+            : (dailyMenu.isToday
+                ? consts.todayColor
+                : Theme.of(context).primaryColor);
 
-    final theme = Theme.of(context).copyWith(
-      primaryColor: primaryColor,
-      toggleableActiveColor: primaryColor,
-      appBarTheme: AppBarTheme(
-        color: primaryColor,
-      ),
-      splashColor: primaryColor.withOpacity(0.4),
-    );
-    return Theme(
-      data: theme,
-      child: WillPopScope(
-        onWillPop: () async {
-          _handleBackButton(dailyMenu);
-          return true;
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => _handleBackButton(dailyMenu),
-            ),
-            title: Text(dailyMenu.day.format(_dateParser)),
-            actions: <Widget>[
-              if (dailyMenu.isPast)
-                IconButton(
-                  icon: Icon(Icons.archive),
-                  onPressed: () {},
-                ),
-              if (!_editingMode) ...<Widget>[
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () => setState(() => _editingMode = true),
-                ),
-              ] else ...<Widget>[
-                IconButton(
-                  icon: Icon(Icons.swap_horiz),
-                  onPressed: dailyMenu.hasSelectedRecipes
-                      ? () => _handleSwapRecipes(dailyMenu)
-                      : null,
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: dailyMenu.hasSelectedRecipes
-                      ? () => _handleDeleteRecipes(dailyMenu)
-                      : null,
-                ),
-                IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: () => _saveDailyMenu(dailyMenu),
-                ),
-              ]
-            ],
+        final theme = Theme.of(context).copyWith(
+          primaryColor: primaryColor,
+          toggleableActiveColor: primaryColor,
+          appBarTheme: AppBarTheme(
+            color: primaryColor,
           ),
-          body: Container(
-            child: MenuEditorScrollView(
-              dailyMenu,
-              editingMode: _editingMode,
+          splashColor: primaryColor.withOpacity(0.4),
+        );
+        return Theme(
+          data: theme,
+          child: WillPopScope(
+            onWillPop: () async {
+              _handleBackButton(dailyMenu);
+              return true;
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => _handleBackButton(dailyMenu),
+                ),
+                title: Text(dailyMenu.day.format(_dateParser)),
+                actions: <Widget>[
+                  if (dailyMenu.isPast)
+                    IconButton(
+                      icon: Icon(Icons.archive),
+                      onPressed: () {},
+                    ),
+                  if (!_editingMode) ...<Widget>[
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => setState(() => _editingMode = true),
+                    ),
+                  ] else ...<Widget>[
+                    IconButton(
+                      icon: Icon(Icons.swap_horiz),
+                      onPressed: dailyMenu.hasSelectedRecipes
+                          ? () => _handleSwapRecipes(dailyMenu)
+                          : null,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: dailyMenu.hasSelectedRecipes
+                          ? () => _handleDeleteRecipes(dailyMenu)
+                          : null,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.save),
+                      onPressed: () => _saveDailyMenu(dailyMenu),
+                    ),
+                  ]
+                ],
+              ),
+              body: Container(
+                child: MenuEditorScrollView(
+                  dailyMenu,
+                  editingMode: _editingMode,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

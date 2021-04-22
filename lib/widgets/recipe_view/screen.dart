@@ -40,8 +40,7 @@ class _RecipeViewState extends State<RecipeView> {
     return Scaffold(
       body: Consumer(
         builder: (context, watch, _) {
-          final recipe = ProviderScope.containerOf(context, listen: false)
-              .read(recipeOriginatorScopedProvider);
+          final recipe = watch(recipeOriginatorScopedProvider);
           return WillPopScope(
             onWillPop: () async {
               _handleBackButton(context, recipe);
