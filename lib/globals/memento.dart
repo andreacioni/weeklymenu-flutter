@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/all.dart';
 
 abstract class Saveable<T> {
   T save();
@@ -14,43 +16,41 @@ abstract class Revertable<T> {
 
 abstract class CloneableAndSaveable<T> implements Cloneable<T>, Saveable<T> {}
 
-abstract class Originator<T extends Cloneable<T>>
-    with ChangeNotifier
+abstract class Originator<T extends Cloneable<T>> extends StateNotifier<T>
     implements Saveable<T>, Revertable<T> {
-  T _backup, _original;
+  T _backup;
 
   bool _edited;
 
-  Originator(T original) : assert(original != null) {
-    _original = original;
-    _backup = _original.clone();
+  Originator(T original)
+      : assert(original != null),
+        super(original) {
+    _backup = original.clone();
     _edited = false;
   }
 
   T update(T newValue) {
     assert(newValue != null);
-    _backup = newValue;
+    state = newValue;
     setEdited();
-    notifyListeners();
-    return _backup;
+    return state;
   }
 
   @override
   T save() {
-    _original = _backup;
-    _backup = _original.clone();
+    _backup = state.clone();
     _edited = false;
-    return _original;
+    return state;
   }
 
   @override
   T revert() {
-    _backup = _original.clone();
+    state = _backup;
     _edited = false;
     return _backup;
   }
 
-  T get instance => _backup;
+  T get instance => state;
 
   @protected
   void setEdited() => _edited = true;

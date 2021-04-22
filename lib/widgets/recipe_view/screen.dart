@@ -14,10 +14,10 @@ import 'recipe_tags.dart';
 import 'editable_text_field.dart';
 
 class RecipeView extends StatefulWidget {
-  final String recipeId;
+  final Recipe recipe;
   final Object heroTag;
 
-  RecipeView(this.recipeId, {this.heroTag});
+  RecipeView(this.recipe, {this.heroTag});
 
   @override
   _RecipeViewState createState() => _RecipeViewState();
@@ -40,7 +40,7 @@ class _RecipeViewState extends State<RecipeView> {
     return Scaffold(
       body: Consumer(
         builder: (context, watch, _) {
-          final recipe = watch(recipeOriginatorProvider(widget.recipeId));
+          final recipe = watch(recipeOriginatorProvider(widget.recipe));
           return recipe != null
               ? WillPopScope(
                   onWillPop: () async {

@@ -155,8 +155,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   void _openRecipeView(Recipe recipe, Object heroTag) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-          builder: (_) => RecipeView(recipe.id, heroTag: heroTag)),
+      MaterialPageRoute(builder: (_) => RecipeView(recipe, heroTag: heroTag)),
     );
   }
 
@@ -347,7 +346,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeView(newRecipe.id),
+        builder: (_) => RecipeView(newRecipe),
       ),
     );
   }

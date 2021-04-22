@@ -301,7 +301,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => RecipeView(
-          recipe.id,
+          recipe,
           heroTag: Object(), //Just a placeholder to avoid NPE
         ),
       ),

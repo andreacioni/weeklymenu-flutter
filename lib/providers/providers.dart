@@ -12,14 +12,7 @@ final jwtTokenProvider = FutureProvider.autoDispose((ref) {
 
 final dailyMenuScopedProvider = ScopedProvider<DailyMenu>(null);
 
-final recipeFutureProvider =
-    FutureProvider.autoDispose.family<Recipe, String>((ref, recipeId) {
-  final recipeRepo = ref.read(recipesRepositoryProvider);
-  return recipeRepo.findOne(recipeId);
-});
-final recipeOriginatorProvider = ChangeNotifierProvider.autoDispose
-    .family<RecipeOriginator, String>((ref, recipeId) {
-  final asyncRecipe = ref.watch(recipeFutureProvider(recipeId));
-  final recipe = asyncRecipe.data?.value;
-  return recipe != null ? RecipeOriginator(recipe) : null;
+final recipeOriginatorProvider = StateNotifierProvider.autoDispose
+    .family<RecipeOriginator, Recipe>((ref, recipe) {
+  return RecipeOriginator(recipe);
 });
