@@ -40,14 +40,18 @@ class _RecipeViewState extends State<RecipeView> {
     return Scaffold(
       body: Consumer(
         builder: (context, watch, _) {
-          final recipe = watch(recipeOriginatorScopedProvider);
-          return WillPopScope(
-            onWillPop: () async {
-              _handleBackButton(context, recipe);
-              return true;
-            },
-            child: buildForm(recipe),
-          );
+          final recipe = watch(recipeOriginatorProvider(widget.recipeId));
+          return recipe != null
+              ? WillPopScope(
+                  onWillPop: () async {
+                    _handleBackButton(context, recipe);
+                    return true;
+                  },
+                  child: buildForm(recipe),
+                )
+              : Center(
+                  child: CircularProgressIndicator(),
+                );
         },
       ),
     );

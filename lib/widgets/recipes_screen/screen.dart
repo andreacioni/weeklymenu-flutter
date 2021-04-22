@@ -156,11 +156,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openRecipeView(Recipe recipe, Object heroTag) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ProviderScope(overrides: [
-          recipeOriginatorScopedProvider
-              .overrideWithValue(RecipeOriginator(recipe))
-        ], child: RecipeView(recipe.id, heroTag: heroTag)),
-      ),
+          builder: (_) => RecipeView(recipe.id, heroTag: heroTag)),
     );
   }
 
@@ -351,13 +347,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ProviderScope(
-          overrides: [
-            recipeOriginatorScopedProvider
-                .overrideWithValue(RecipeOriginator(newRecipe))
-          ],
-          child: RecipeView(newRecipe.id),
-        ),
+        builder: (_) => RecipeView(newRecipe.id),
       ),
     );
   }
