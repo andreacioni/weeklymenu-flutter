@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class EditableTextField extends StatefulWidget {
-  final String _text;
+  final String? _text;
   final bool editEnabled;
-  final Widget prefix;
+  final Widget? prefix;
   final String hintText;
   final int minLines;
   final int maxLines;
-  final Widget icon;
-  final String prefixText;
+  final Widget? icon;
+  final String? prefixText;
   final TextAlign textAlign;
-  final Function(String) onChanged;
-  final Function(String) onSubmitted;
+  final Function(String)? onChanged;
+  final Function(String)? onSubmitted;
 
   EditableTextField(
     this._text, {
@@ -37,7 +37,9 @@ class _EditableTextFieldState extends State<EditableTextField> {
 
   @override
   Widget build(BuildContext context) {
-    textEditingController.text = widget._text;
+    if (widget._text != null) {
+      textEditingController.text = widget._text!;
+    }
     return TextField(
       controller: textEditingController,
       enabled: widget.editEnabled,
@@ -48,13 +50,12 @@ class _EditableTextFieldState extends State<EditableTextField> {
         hintText: widget.hintText,
         prefix: widget.prefix,
         prefixText: widget.prefixText,
-
       ),
       textAlign: widget.textAlign,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
-      onChanged: widget.onChanged,  
-      onSubmitted: widget.onSubmitted, 
-      );
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+    );
   }
 }

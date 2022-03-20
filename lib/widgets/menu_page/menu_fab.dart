@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
-import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/models/date.dart';
 import 'package:weekly_menu_app/widgets/menu_page/menu_app_bar.dart';
 
 import './date_range_picker.dart';
@@ -17,7 +17,7 @@ class MenuFloatingActionButton extends StatefulWidget {
     this._menuAppBar,
     this._scrollController,
     this._itemExtent, {
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -26,7 +26,7 @@ class MenuFloatingActionButton extends StatefulWidget {
 }
 
 class _MenuFloatingActionButtonState extends State<MenuFloatingActionButton> {
-  Date day;
+  late Date day;
 
   @override
   void initState() {

@@ -15,7 +15,7 @@ Color getColorForString(String str) {
       str.codeUnitAt(0) % initialLetterToColorMap.length];
 }
 
-bool equalsIgnoreCase(String string1, String string2) {
+bool equalsIgnoreCase(String? string1, String? string2) {
   return string1?.toLowerCase() == string2?.toLowerCase();
 }
 

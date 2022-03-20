@@ -43,8 +43,7 @@ class AddIngredientButton extends StatelessWidget {
       builder: (_) => RecipeIngredientModal(),
     );
 
-    final recipeIngredients =
-        _recipe.instance.ingredients ?? <RecipeIngredient>[];
+    final recipeIngredients = _recipe.instance.ingredients;
 
     if (newRecipeIngredient != null) {
       _recipe.update(_recipe.instance

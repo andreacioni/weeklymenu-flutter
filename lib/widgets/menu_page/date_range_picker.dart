@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
-import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/models/date.dart';
 import '../../globals/utils.dart' as utils;
 
 class DateRangePicker extends StatefulWidget {
@@ -12,11 +12,11 @@ class DateRangePicker extends StatefulWidget {
   final Date lastDate;
 
   DateRangePicker({
-    this.datePickerStyles,
-    this.selectedPeriod,
-    this.onChanged,
-    this.firstDate,
-    this.lastDate,
+    required this.datePickerStyles,
+    required this.selectedPeriod,
+    required this.onChanged,
+    required this.firstDate,
+    required this.lastDate,
   });
 
   @override
@@ -24,7 +24,7 @@ class DateRangePicker extends StatefulWidget {
 }
 
 class _DateRangePickerState extends State<DateRangePicker> {
-  DatePeriod selectedPeriod;
+  late DatePeriod selectedPeriod;
 
   @override
   void initState() {

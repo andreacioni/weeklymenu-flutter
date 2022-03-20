@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:weekly_menu_app/providers/providers.dart';
+import 'package:objectid/objectid.dart';
 
 import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
@@ -13,7 +13,7 @@ import './recipe_card.dart';
 import '../../presentation/custom_icons_icons.dart';
 
 class RecipesScreen extends StatefulWidget {
-  const RecipesScreen({Key key}) : super(key: key);
+  const RecipesScreen({Key? key}) : super(key: key);
 
   @override
   _RecipesScreenState createState() => _RecipesScreenState();
@@ -22,11 +22,11 @@ class RecipesScreen extends StatefulWidget {
 class _RecipesScreenState extends State<RecipesScreen> {
   final _log = Logger();
 
-  bool _searchModeEnabled;
-  String _searchText;
+  late final bool _searchModeEnabled;
+  late final String _searchText;
 
-  bool _editingModeEnabled;
-  List<Recipe> _selectedRecipes;
+  late final bool _editingModeEnabled;
+  late final List<Recipe> _selectedRecipes;
 
   @override
   void initState() {
@@ -40,14 +40,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, _) {
-      final repository = watch(recipesRepositoryProvider);
+    return Consumer(builder: (context, ref, _) {
+      final repository = ref.watch(recipesRepositoryProvider);
       return Scaffold(
         appBar: _editingModeEnabled == false
             ? _buildAppBar(context)
-            : _buildEditingAppBar(context),
+            : _buildEditingAppBar(ref),
         floatingActionButton: FloatingActionButton(
-          onPressed: _showRecipeNameDialog,
+          onPressed: () => _showRecipeNameDialog(ref),
           child: Icon(Icons.add),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -73,7 +73,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildScreenBody(List<Recipe> recipes,
-      {bool Function(Recipe) filter}) {
+      {required bool Function(Recipe) filter}) {
     if (recipes.isNotEmpty) {
       recipes.removeWhere(filter);
 
@@ -231,7 +231,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   void _openOrderingDialog() async {}
 
-  AppBar _buildEditingAppBar(BuildContext context) {
+  AppBar _buildEditingAppBar(WidgetRef ref) {
     return AppBar(
       titleSpacing: 0,
       automaticallyImplyLeading: false,
@@ -259,13 +259,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.delete),
-          onPressed: _deleteRecipes,
+          onPressed: () => _deleteRecipes(ref),
         )
       ],
     );
   }
 
-  void _deleteRecipes() async {
+  void _deleteRecipes(WidgetRef ref) async {
     var confirmDelete = await showDialog<bool>(
         context: context,
         builder: (ctx) {
@@ -283,11 +283,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
           );
         });
 
-    if (confirmDelete) {
+    if (confirmDelete ?? false) {
       showProgressDialog(context);
       for (var recipe in _selectedRecipes) {
         try {
-          await context.read(recipesRepositoryProvider).delete(recipe);
+          await ref.read(recipesRepositoryProvider).delete(recipe);
         } catch (e) {
           hideProgressDialog(context);
           showAlertErrorMessage(context);
@@ -300,7 +300,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     setState(() => _editingModeEnabled = false);
   }
 
-  void _showRecipeNameDialog() async {
+  void _showRecipeNameDialog(WidgetRef ref) async {
     final textController = TextEditingController();
     final newRecipe = await showDialog<Recipe>(
       context: context,
@@ -326,9 +326,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
             onPressed: () async {
               Navigator.of(context).pop();
               if (textController.text.trim().isNotEmpty) {
-                return (await context
-                    .read(recipesRepositoryProvider)
-                    .save(Recipe(name: textController.text)));
+                await ref.read(recipesRepositoryProvider).save(Recipe(
+                    id: ObjectId().hexString, name: textController.text));
               } else {
                 _log.w("No name supplied");
               }

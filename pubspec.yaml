@@ -1,5 +1,5 @@
 name: weekly_menu_app
-description: A new Flutter project.
+description: Weekly Menu App
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -11,38 +11,37 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 0.0.1+1
 
 environment:
-  sdk: ">=2.6.0 <3.0.0"
+  sdk: ">=2.14.0 <3.0.0"
+  flutter: ">=2.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   
-  dio: ^3.0.10
-  flutter_tags: ^0.4.9
-  intl: ^0.16.1
-  expandable: ^2.2.3
+  ffi: ^1.0.0
+  dio: ^4.0.0
+  flutter_tags: ^0.4.0
+  intl: ^0.17.0
+  expandable: ^5.0.0
   grouped_buttons: ^1.0.4
-  dotted_border: ^1.0.4
-  flutter_typeahead: ^1.8.0
-  flutter_keyboard_visibility: ^0.7.0
+  dotted_border: ^2.0.0
+  flutter_typeahead: ^3.2.4
+  flutter_keyboard_visibility: ^5.2.0
   autocomplete_textfield: ^1.7.3
-  #provider: ^4.1.2
-  flutter_riverpod: ^0.12.2
-  path_provider: any
-  uuid: ^2.0.4
-  json_annotation: ^3.0.1
-  flutter_date_pickers: ^0.0.6
-  logger: ^0.9.2
-  shared_preferences: ^0.5.8
-  objectid: ^1.1.1
-  flutter_state_notifier: ^0.4.2 #to be removed
-  flutter_data: ^0.7.0
-  copy_with_extension: ^1.4.0
-  #flutter_data_state: ^0.3.1
-  #equatable: ^1.2.3
+  hooks_riverpod: ^1.0.3
+  path_provider: ^2.0.7
+  json_annotation: ^4.4.0
+  uuid: ^3.0.4
+  flutter_date_pickers: ^0.2.9
+  logger: ^1.1.0
+  shared_preferences: ^2.0.13
+  objectid: ^2.0.0
+  flutter_data: ^1.1.0
+  copy_with_extension: ^4.0.0
+  equatable: ^2.0.3
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -52,11 +51,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   retrofit_generator: any
-  build_runner: any
-  json_serializable: ^3.3.0
+  build_runner: ^2.0.0
+  json_serializable: ^6.0.0
   lombok: ^0.0.5
   meta: ^1.1.8
-  copy_with_extension_gen: ^1.4.0
+  copy_with_extension_gen: ^4.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

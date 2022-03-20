@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -5,7 +7,9 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
-import 'package:weekly_menu_app/models/enums/meals.dart';
+
+import 'enums/meal.dart';
+import 'menu.dart';
 
 part 'recipe.g.dart';
 
@@ -20,59 +24,59 @@ class Recipe extends BaseModel<Recipe> {
   final String name;
 
   @JsonKey(includeIfNull: false)
-  final String description;
+  final String? description;
 
   @JsonKey(includeIfNull: false)
-  final int rating;
+  final int? rating;
 
   @JsonKey(includeIfNull: false)
-  final int cost;
+  final int? cost;
 
   @JsonKey(includeIfNull: false)
-  final String difficulty;
+  final String? difficulty;
 
   @JsonKey(includeIfNull: false)
   final List<int> availabilityMonths;
 
   @JsonKey(includeIfNull: false)
-  final int servs;
+  final int? servs;
 
   @JsonKey(includeIfNull: false)
-  final int estimatedCookingTime;
+  final int? estimatedCookingTime;
 
   @JsonKey(includeIfNull: false)
-  final int estimatedPreparationTime;
+  final int? estimatedPreparationTime;
 
-  @JsonKey(includeIfNull: false, defaultValue: [])
+  @JsonKey(includeIfNull: false)
   final List<RecipeIngredient> ingredients;
 
   @JsonKey(includeIfNull: false)
-  final String preparation;
+  final String? preparation;
 
   @JsonKey(includeIfNull: false)
-  final String note;
+  final String? note;
 
   @JsonKey(includeIfNull: false)
-  final String imgUrl;
+  final String? imgUrl;
 
   @JsonKey(includeIfNull: false)
-  final String recipeUrl;
+  final String? recipeUrl;
 
   @JsonKey(includeIfNull: false)
   final List<String> tags;
 
   @JsonKey(ignore: true)
-  final String owner;
+  final String? owner;
 
   Recipe({
-    String id,
-    this.name,
+    required String id,
+    required this.name,
     this.description,
     this.ingredients = const <RecipeIngredient>[],
     this.difficulty,
     this.rating,
     this.cost,
-    this.availabilityMonths,
+    this.availabilityMonths = const <int>[],
     this.servs,
     this.estimatedPreparationTime,
     this.estimatedCookingTime,
@@ -100,14 +104,14 @@ class RecipeIngredient {
   final String ingredientId;
 
   @JsonKey(includeIfNull: false)
-  final double quantity;
+  final double? quantity;
   @JsonKey(includeIfNull: false)
-  final String unitOfMeasure;
+  final String? unitOfMeasure;
   @JsonKey(includeIfNull: false)
-  final bool freezed;
+  final bool? freezed;
 
   RecipeIngredient(
-      {@required this.ingredientId,
+      {required this.ingredientId,
       this.unitOfMeasure,
       quantity = 0,
       freezed = false})

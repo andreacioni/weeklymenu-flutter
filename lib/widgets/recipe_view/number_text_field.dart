@@ -9,33 +9,33 @@ class NumberFormField extends StatefulWidget {
   final double initialValue;
   final bool allowEmpty;
   final int fractionDigits;
-  final void Function(double) onChanged;
-  final void Function(double) onSaved;
+  final void Function(double)? onChanged;
+  final void Function(double)? onSaved;
 
   NumberFormField({
-    this.initialValue,
-    this.hintText,
-    this.labelText,
+    required this.initialValue,
+    required this.labelText,
+    String? hintText,
     this.minValue = 0,
     this.maxValue = 10000,
     this.allowEmpty = true,
     this.fractionDigits = 0,
     this.onChanged,
     this.onSaved,
-  });
+  }) : this.hintText = hintText ?? labelText;
 
   @override
   _NumberFormFieldState createState() => _NumberFormFieldState();
 }
 
 class _NumberFormFieldState extends State<NumberFormField> {
-  TextEditingController _controller;
-  FocusNode _focusNode;
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
 
   @override
   void initState() {
     _controller = new TextEditingController(
-        text: widget.initialValue?.toStringAsFixed(widget.fractionDigits));
+        text: widget.initialValue.toStringAsFixed(widget.fractionDigits));
     _focusNode = new FocusNode();
 
     _focusNode.addListener(_onFocusChange);
@@ -50,8 +50,12 @@ class _NumberFormFieldState extends State<NumberFormField> {
         controller: _controller,
         focusNode: _focusNode,
         validator: _validateNumber,
-        onChanged: (v) => widget.onChanged(double.tryParse(v)),
-        onSaved: (v) => widget.onSaved(double.tryParse(v)),
+        onChanged: widget.onChanged != null
+            ? (v) => widget.onChanged!(double.tryParse(v)!)
+            : null,
+        onSaved: widget.onSaved != null
+            ? (v) => widget.onSaved!(double.tryParse(v!)!)
+            : null,
         maxLines: 1,
         keyboardType: TextInputType.number,
         inputFormatters: [
@@ -82,14 +86,14 @@ class _NumberFormFieldState extends State<NumberFormField> {
     }
   }
 
-  String _validateNumber(String value) {
+  String? _validateNumber(String? value) {
     if (widget.allowEmpty && (value == null || value.isEmpty))
       return null;
     else if (value == null) return "Invalid number";
 
     var number = double.tryParse(value);
 
-    if (number == null) return "Not a number";
+    if (number == null || number.isNaN) return "Not a number";
 
     if (number < widget.minValue) return "Value is too low";
 
@@ -100,12 +104,10 @@ class _NumberFormFieldState extends State<NumberFormField> {
 
   @override
   void dispose() {
-    _focusNode?.removeListener(_onFocusChange);
-    _focusNode?.dispose();
-    _focusNode = null;
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
 
-    _controller?.dispose();
-    _controller = null;
+    _controller.dispose();
 
     super.dispose();
   }

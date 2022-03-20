@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart'
     hide Provider, DataStateNotifier;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../models/recipe.dart';
 
-class TagsScreen extends ConsumerWidget {
+class TagsScreen extends HookConsumerWidget {
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    final Repository<Recipe> repository = watch(recipesRepositoryProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Repository<Recipe> repository = ref.watch(recipesRepositoryProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context),

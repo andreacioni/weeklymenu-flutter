@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:objectid/objectid.dart';
 
 import '../../globals/errors_handlers.dart';
+import '../../models/enums/meal.dart';
 import '../recipe_view/screen.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
-import '../../models/enums/meals.dart';
 import './recipe_tile.dart';
 import './recipe_suggestion_text_field.dart';
 
@@ -15,7 +17,7 @@ class MenuEditorScrollView extends StatefulWidget {
   final DailyMenu _dailyMenu;
   final bool editingMode;
 
-  MenuEditorScrollView(this._dailyMenu, {this.editingMode});
+  MenuEditorScrollView(this._dailyMenu, {this.editingMode = false});
 
   @override
   _MenuEditorScrollViewState createState() => _MenuEditorScrollViewState();
@@ -24,13 +26,13 @@ class MenuEditorScrollView extends StatefulWidget {
 class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   final _log = Logger();
 
-  bool _initialized;
-  ThemeData _theme;
+  late bool _initialized;
+  late ThemeData _theme;
 
-  bool _dragMode;
-  Meal _fromMeal;
+  late bool _dragMode;
+  Meal? _fromMeal;
 
-  Meal _addRecipeMealTarget;
+  Meal? _addRecipeMealTarget;
 
   @override
   void initState() {
@@ -56,23 +58,34 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: _theme,
-      child: CustomScrollView(
-        slivers: Meal.values
-            .map((m) =>
-                _buildSliversForMeal(m, widget._dailyMenu.getMenuByMeal(m)))
-            .expand((element) => element)
-            .toList(),
-      ),
-    );
+    return HookConsumer(builder: (context, ref, _) {
+      final recipeRepository = ref.read(recipesRepositoryProvider);
+      final menuRepository = ref.read(menusRepositoryProvider);
+
+      return Theme(
+        data: _theme,
+        child: CustomScrollView(
+          slivers: Meal.values
+              .map((m) => _buildSliversForMeal(
+                  m,
+                  widget._dailyMenu.getMenuByMeal(m),
+                  recipeRepository,
+                  menuRepository))
+              .expand((element) => element)
+              .toList(),
+        ),
+      );
+    });
   }
 
   /**
   * We can't pass only the menu object because it could be null if there isn't any recipe defined
   * for that (day, meal)
   **/
-  List<Widget> _buildSliversForMeal(Meal meal, MenuOriginator menu) {
+  List<Widget> _buildSliversForMeal(Meal meal, MenuOriginator? menu,
+      Repository<Recipe> recipeRepository, Repository<Menu> menuRepository) {
+    assert(meal.value != null);
+
     return <Widget>[
       SliverAppBar(
         pinned: true,
@@ -86,7 +99,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
               width: 10,
             ),
             Text(
-              meal.value,
+              meal.value!,
               textAlign: TextAlign.right,
             ),
           ],
@@ -114,6 +127,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
             if (_addRecipeMealTarget == meal)
               RecipeSuggestionTextField(
                 meal,
+                dailyMenu: widget._dailyMenu,
                 autofocus: true,
                 enabled: true,
                 hintText: 'Recipe',
@@ -123,13 +137,15 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                     _stopMealEditing(widget._dailyMenu);
                   }
                 },
-                onRecipeSelected: (recipe) => _handleAddRecipe(meal, recipe),
-                onSubmitted: (recipeName) =>
-                    _createNewRecipeByName(meal, recipeName),
+                onRecipeSelected: (recipe) =>
+                    _handleAddRecipe(meal, recipe, menuRepository),
+                onSubmitted: (recipeName) => _createNewRecipeByName(
+                    meal, recipeName, recipeRepository, menuRepository),
               ),
             if (menu != null && menu.recipes.isNotEmpty)
               ...menu.recipes
-                  .map((id) => _buildRecipeTile(widget._dailyMenu, meal, id))
+                  .map((id) => _buildRecipeTile(
+                      widget._dailyMenu, meal, id, recipeRepository))
                   .toList(),
             _buildDragTarget(meal),
           ],
@@ -144,10 +160,11 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     });
   }
 
-  void _handleAddRecipe(Meal meal, Recipe recipe) async {
+  void _handleAddRecipe(
+      Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
     showProgressDialog(context);
     try {
-      await _addRecipeToMeal(meal, recipe);
+      await _addRecipeToMeal(meal, recipe, menuRepository);
       hideProgressDialog(context);
     } catch (e) {
       hideProgressDialog(context);
@@ -155,30 +172,35 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     }
   }
 
-  Future<void> _addRecipeToMeal(Meal meal, Recipe recipe) async {
+  Future<void> _addRecipeToMeal(
+      Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
     if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-      await context.read(menusRepositoryProvider).save(
-            Menu(
-              date: widget._dailyMenu.day,
-              recipes: [],
-              meal: meal,
-            ),
-          );
+      await menuRepository.save(
+        Menu(
+          id: ObjectId().hexString,
+          date: widget._dailyMenu.day,
+          recipes: [],
+          meal: meal,
+        ),
+      );
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
     } else {
       widget._dailyMenu.addRecipeToMeal(meal, recipe);
     }
   }
 
-  void _createNewRecipeByName(Meal meal, String recipeName) async {
+  void _createNewRecipeByName(
+      Meal meal,
+      String recipeName,
+      Repository<Recipe> recipeRepository,
+      Repository<Menu> menuRepository) async {
     if (recipeName != null && recipeName.trim().isNotEmpty) {
       showProgressDialog(context);
 
       try {
-        Recipe recipe = await context
-            .read(recipesRepositoryProvider)
-            .save(Recipe(name: recipeName));
-        await _addRecipeToMeal(meal, recipe);
+        Recipe recipe = await recipeRepository
+            .save(Recipe(id: ObjectId().hexString, name: recipeName));
+        await _addRecipeToMeal(meal, recipe, menuRepository);
       } catch (e) {
         hideProgressDialog(context);
         showAlertErrorMessage(context);
@@ -195,9 +217,10 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     setState(() => _addRecipeMealTarget = null);
   }
 
-  Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id) {
-    return FutureBuilder<Recipe>(
-        future: context.read(recipesRepositoryProvider).findOne(id),
+  Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id,
+      Repository<Recipe> recipeRepository) {
+    return FutureBuilder<Recipe?>(
+        future: recipeRepository.findOne(id),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Error occurred');
@@ -207,7 +230,11 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
             return Center(child: CircularProgressIndicator());
           }
 
-          final recipe = snapshot.data;
+          if (snapshot.data == null) {
+            return Text('Recipe not found!');
+          }
+
+          final recipe = snapshot.data!;
 
           final mealRecipe = MealRecipe(meal, recipe);
           final recipeTile = RecipeTile(
@@ -217,7 +244,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
             onPressed:
                 !widget.editingMode ? () => _openRecipeView(recipe) : null,
             onCheckChange: (c) =>
-                _hadleRecipeCheckChange(dailyMenu, mealRecipe, c),
+                _handleRecipeCheckChange(dailyMenu, mealRecipe, c ?? false),
             key: ValueKey(
                 mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
           );
@@ -263,8 +290,10 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
       onAccept: (mealRecipe) {
         print('onAccept - $meal');
         if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-          widget._dailyMenu.addMenu(
-              MenuOriginator(Menu(date: widget._dailyMenu.day, meal: meal)));
+          widget._dailyMenu.addMenu(MenuOriginator(Menu(
+              id: ObjectId().hexString,
+              date: widget._dailyMenu.day,
+              meal: meal)));
         }
         widget._dailyMenu
             .moveRecipeToMeal(mealRecipe.meal, meal, mealRecipe.recipe.id);
@@ -275,7 +304,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
     );
   }
 
-  void _hadleRecipeCheckChange(
+  void _handleRecipeCheckChange(
       DailyMenu dailyMenu, MealRecipe mealRecipe, bool checked) {
     if (checked) {
       dailyMenu.setSelectedRecipe(mealRecipe);
@@ -285,9 +314,11 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   }
 
   Widget _dropTargetBuilder(BuildContext context,
-      List<MealRecipe> candidateRecipes, rejectedRecipes, Meal targetMeal) {
+      List<MealRecipe?> candidateRecipes, rejectedRecipes, Meal targetMeal) {
+    candidateRecipes.removeWhere((e) => e == null);
+
     if (candidateRecipes.isNotEmpty) {
-      return ListTile(title: Text(candidateRecipes[0].recipe.name));
+      return ListTile(title: Text(candidateRecipes[0]!.recipe.name));
     } else if (_dragMode == true && _fromMeal != targetMeal) {
       return Center(
         child: Text('DROP HERE'),
@@ -300,10 +331,7 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
   void _openRecipeView(Recipe recipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeView(
-          recipe,
-          heroTag: Object(), //Just a placeholder to avoid NPE
-        ),
+        builder: (_) => RecipeView(recipe),
       ),
     );
   }

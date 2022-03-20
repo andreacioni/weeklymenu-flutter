@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/models/date.dart';
 import 'package:weekly_menu_app/widgets/menu_page/daily_menu_future_wrapper.dart';
 
 import 'menu_app_bar.dart';
@@ -8,7 +8,7 @@ import '../../globals/constants.dart';
 import './menu_card.dart';
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({Key key}) : super(key: key);
+  const MenuScreen({Key? key}) : super(key: key);
 
   @override
   _MenuScreenState createState() => _MenuScreenState();
@@ -18,7 +18,7 @@ class _MenuScreenState extends State<MenuScreen> {
   final _todayOffset = (pageViewLimitDays / 2);
   final _itemExtent = MenuCard.extent;
 
-  ScrollController _scrollController;
+  late ScrollController _scrollController;
 
   @override
   void initState() {

@@ -4,7 +4,9 @@
 // ignore_for_file: directives_ordering, top_level_function_literal_block
 
 import 'package:flutter_data/flutter_data.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:weekly_menu_app/models/ingredient.dart';
 import 'package:weekly_menu_app/models/menu.dart';
@@ -12,21 +14,25 @@ import 'package:weekly_menu_app/models/recipe.dart';
 import 'package:weekly_menu_app/models/shopping_list.dart';
 
 // ignore: prefer_function_declarations_over_variables
-ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<String> baseDirFn, List<int> encryptionKey, bool clear}) {
-  // ignore: unnecessary_statements
-  baseDirFn ??= () => getApplicationDocumentsDirectory().then((dir) => dir.path);
+ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<String>? baseDirFn, List<int>? encryptionKey, bool? clear}) {
+  if (!kIsWeb) {
+    baseDirFn ??= () => getApplicationDocumentsDirectory().then((dir) => dir.path);
+  } else {
+    baseDirFn ??= () => '';
+  }
+  
   return hiveLocalStorageProvider.overrideWithProvider(Provider(
         (_) => HiveLocalStorage(baseDirFn: baseDirFn, encryptionKey: encryptionKey, clear: clear)));
 };
 
 // ignore: prefer_function_declarations_over_variables
 RepositoryInitializerProvider repositoryInitializerProvider = (
-        {bool remote, bool verbose}) {
+        {bool? remote, bool? verbose}) {
   return _repositoryInitializerProviderFamily(
       RepositoryInitializerArgs(remote, verbose));
 };
 
-final repositoryProviders = {
+final repositoryProviders = <String, Provider<Repository<DataModel>>>{
   'ingredients': ingredientsRepositoryProvider,
 'menus': menusRepositoryProvider,
 'recipes': recipesRepositoryProvider,
@@ -35,26 +41,44 @@ final repositoryProviders = {
 
 final _repositoryInitializerProviderFamily =
   FutureProvider.family<RepositoryInitializer, RepositoryInitializerArgs>((ref, args) async {
-    final adapters = <String, RemoteAdapter>{'ingredients': ref.read(ingredientsRemoteAdapterProvider), 'menus': ref.read(menusRemoteAdapterProvider), 'recipes': ref.read(recipesRemoteAdapterProvider), 'shoppingLists': ref.read(shoppingListsRemoteAdapterProvider)};
+    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(ingredientsRemoteAdapterProvider), 'menus': ref.watch(menusRemoteAdapterProvider), 'recipes': ref.watch(recipesRemoteAdapterProvider), 'shoppingLists': ref.watch(shoppingListsRemoteAdapterProvider)};
     final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shoppingLists': true};
 
-    for (final key in repositoryProviders.keys) {
-      final repository = ref.read(repositoryProviders[key]);
+    await ref.watch(graphNotifierProvider).initialize();
+
+    final _repoMap = {
+      for (final type in repositoryProviders.keys)
+        [type]: ref.watch(repositoryProviders[type]!)
+    };
+
+    for (final type in _repoMap.keys) {
+      final repository = _repoMap[type]!;
       repository.dispose();
       await repository.initialize(
-        remote: args?.remote ?? remotes[key],
-        verbose: args?.verbose,
+        remote: args.remote ?? remotes[type],
+        verbose: args.verbose,
         adapters: adapters,
       );
     }
 
     ref.onDispose(() {
-      if (ref.mounted) {
-        for (final repositoryProvider in repositoryProviders.values) {
-          ref.read(repositoryProvider).dispose();
-        }
+      for (final repository in _repoMap.values) {
+        repository.dispose();
       }
     });
 
     return RepositoryInitializer();
 });
+extension RepositoryWidgetRefX on WidgetRef {
+  Repository<Ingredient> get ingredients => watch(ingredientsRepositoryProvider)..remoteAdapter.internalWatch = watch;
+  Repository<Menu> get menus => watch(menusRepositoryProvider)..remoteAdapter.internalWatch = watch;
+  Repository<Recipe> get recipes => watch(recipesRepositoryProvider)..remoteAdapter.internalWatch = watch;
+  Repository<ShoppingList> get shoppingLists => watch(shoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch;
+}
+
+extension RepositoryRefX on Ref {
+  Repository<Ingredient> get ingredients => watch(ingredientsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
+  Repository<Menu> get menus => watch(menusRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
+  Repository<Recipe> get recipes => watch(recipesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
+  Repository<ShoppingList> get shoppingLists => watch(shoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
+}

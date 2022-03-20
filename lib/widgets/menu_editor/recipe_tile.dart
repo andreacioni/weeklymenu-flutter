@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/recipe.dart';
 
@@ -7,14 +6,14 @@ class RecipeTile extends StatelessWidget {
   final Recipe _recipe;
   final bool editEnable;
   final bool isChecked;
-  final void Function() onPressed;
-  final void Function(bool) onCheckChange;
-  final Key key;
+  final void Function()? onPressed;
+  final void Function(bool?)? onCheckChange;
+  final Key? key;
 
   RecipeTile(
     this._recipe, {
-    this.editEnable,
-    this.isChecked,
+    this.editEnable = false,
+    this.isChecked = false,
     this.onPressed,
     this.onCheckChange,
     this.key,

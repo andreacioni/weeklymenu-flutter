@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:weekly_menu_app/providers/providers.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../globals/errors_handlers.dart';
@@ -17,7 +16,7 @@ class RecipeView extends StatefulWidget {
   final Recipe recipe;
   final Object heroTag;
 
-  RecipeView(this.recipe, {this.heroTag});
+  RecipeView(this.recipe, {this.heroTag = const Object()});
 
   @override
   _RecipeViewState createState() => _RecipeViewState();
@@ -27,7 +26,7 @@ class _RecipeViewState extends State<RecipeView> {
   final _log = Logger();
   final _formKey = GlobalKey<FormState>();
 
-  bool _editEnabled;
+  late final bool _editEnabled;
 
   @override
   void initState() {
@@ -39,25 +38,21 @@ class _RecipeViewState extends State<RecipeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer(
-        builder: (context, watch, _) {
-          final recipe = watch(recipeOriginatorProvider(widget.recipe));
-          return recipe != null
-              ? WillPopScope(
-                  onWillPop: () async {
-                    _handleBackButton(context, recipe);
-                    return true;
-                  },
-                  child: buildForm(recipe),
-                )
-              : Center(
-                  child: CircularProgressIndicator(),
-                );
+        builder: (context, ref, _) {
+          final recipe = RecipeOriginator(widget.recipe);
+          return WillPopScope(
+            onWillPop: () async {
+              _handleBackButton(ref, context, recipe);
+              return true;
+            },
+            child: buildForm(ref, recipe),
+          );
         },
       ),
     );
   }
 
-  Form buildForm(RecipeOriginator recipe) {
+  Form buildForm(WidgetRef ref, RecipeOriginator recipe) {
     return Form(
       key: _formKey,
       child: CustomScrollView(
@@ -67,8 +62,8 @@ class _RecipeViewState extends State<RecipeView> {
             heroTag: widget.heroTag,
             editModeEnabled: _editEnabled,
             onRecipeEditEnabled: (editEnabled) =>
-                _handleEditToggle(recipe, editEnabled),
-            onBackPressed: () => _handleBackButton(context, recipe),
+                _handleEditToggle(ref, recipe, editEnabled),
+            onBackPressed: () => _handleBackButton(ref, context, recipe),
           ),
           SliverList(
             delegate: SliverChildListDelegate([
@@ -223,15 +218,16 @@ class _RecipeViewState extends State<RecipeView> {
     );
   }
 
-  void _handleEditToggle(RecipeOriginator recipe, bool editEnabled) async {
-    if (!_formKey.currentState.validate()) {
+  void _handleEditToggle(
+      WidgetRef ref, RecipeOriginator recipe, bool editEnabled) async {
+    if (!_formKey.currentState!.validate()) {
       _log.w("Validation faield");
       return;
     }
 
     //This call save the form's state not the recipe. This operation must be done
     // here to trigger all the onSaved callback of the form fields
-    _formKey.currentState.save();
+    _formKey.currentState!.save();
 
     if (!editEnabled && recipe.isEdited) {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
@@ -241,7 +237,7 @@ class _RecipeViewState extends State<RecipeView> {
       showProgressDialog(context);
 
       try {
-        await context.read(recipesRepositoryProvider).save(recipe.save());
+        await ref.read(recipesRepositoryProvider).save(recipe.save());
       } catch (e) {
         showAlertErrorMessage(context);
         return;
@@ -252,12 +248,13 @@ class _RecipeViewState extends State<RecipeView> {
     setState(() => _editEnabled = editEnabled);
   }
 
-  void _handleBackButton(BuildContext context, RecipeOriginator recipe) async {
+  void _handleBackButton(
+      WidgetRef ref, BuildContext context, RecipeOriginator recipe) async {
     if (recipe.isEdited) {
       final wannaSave = await showWannaSaveDialog(context);
 
-      if (wannaSave) {
-        _handleEditToggle(recipe, false);
+      if (wannaSave ?? false) {
+        _handleEditToggle(ref, recipe, false);
       } else {
         _log.i("Losing all the changes");
         recipe.revert();

@@ -1,3 +1,4 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -9,14 +10,16 @@ part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 @DataRepository([BaseAdapter, ShoppingListAdapter])
+@CopyWith()
 class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey(defaultValue: [])
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)
-  String name;
+  String? name;
 
-  ShoppingList({String id, this.items, this.name}) : super(id: id);
+  ShoppingList({required String id, this.items = const [], this.name})
+      : super(id: id);
 
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
@@ -32,7 +35,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
       items.where((item) => !item.checked).toList();
 
   ShoppingListItem getItemById(String itemId) =>
-      items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
+      items.firstWhere((ing) => ing.item == itemId);
 
   void addShoppingListItem(ShoppingListItem shoppingListItem) {
     items.add(shoppingListItem);
@@ -55,27 +58,28 @@ class ShoppingList extends BaseModel<ShoppingList> {
 }
 
 @JsonSerializable()
-class ShoppingListItem extends Equatable with ChangeNotifier {
+@CopyWith()
+class ShoppingListItem with ChangeNotifier {
   String item;
 
   bool checked;
 
   @JsonKey(includeIfNull: false)
-  double quantity;
+  double? quantity;
 
   @JsonKey(includeIfNull: false)
-  String unitOfMeasure;
+  String? unitOfMeasure;
 
   @JsonKey(includeIfNull: false)
-  String supermarketSection;
+  String? supermarketSection;
 
   @JsonKey(includeIfNull: false)
-  int listPosition;
+  int? listPosition;
 
   ShoppingListItem(
-      {this.item,
+      {required this.item,
       this.supermarketSection,
-      this.checked,
+      this.checked = false,
       this.quantity,
       this.unitOfMeasure,
       this.listPosition});
@@ -84,15 +88,6 @@ class ShoppingListItem extends Equatable with ChangeNotifier {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
-
-  List<Object> get props => [
-        item,
-        supermarketSection,
-        checked,
-        quantity,
-        unitOfMeasure,
-        listPosition
-      ];
 }
 
 mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>

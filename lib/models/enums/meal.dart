@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'meal.g.dart';
+
+@JsonEnum(alwaysCreate: true)
 enum Meal {
+  @JsonValue('Breakfast')
   Breakfast,
+  @JsonValue('Lunch')
   Lunch,
+  @JsonValue('Dinner')
   Dinner
 }
 
-extension MealValue on Meal {
-  String get value => this.toString().split(".").last;
-}
+extension MealExtension on Meal {
+  String? get value => _$MealEnumMap[this];
 
-extension MealIcon on Meal {
-  IconData get icon  {
+  IconData get icon {
     switch (this) {
       case Meal.Breakfast:
         return Icons.local_cafe;

@@ -1,3 +1,4 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -7,10 +8,11 @@ part 'ingredient.g.dart';
 
 @JsonSerializable()
 @DataRepository([BaseAdapter])
+@CopyWith()
 class Ingredient extends BaseModel<Ingredient> {
-  String name;
+  final String name;
 
-  Ingredient({String id, this.name}) : super(id: id);
+  Ingredient({required String id, required this.name}) : super(id: id);
 
   factory Ingredient.fromJson(Map<String, dynamic> json) =>
       _$IngredientFromJson(json);

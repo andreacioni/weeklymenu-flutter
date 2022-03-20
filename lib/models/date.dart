@@ -1,12 +1,10 @@
 import 'package:intl/intl.dart';
 
 class Date {
-  DateTime _dateTime;
+  final DateTime _dateTime;
 
-  Date(DateTime dateTime) {
-    assert(dateTime != null);
-    _dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day);
-  }
+  Date(DateTime dateTime)
+      : _dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day);
 
   factory Date.now() => Date(DateTime.now());
 

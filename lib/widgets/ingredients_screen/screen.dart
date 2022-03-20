@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_data/flutter_data.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../models/ingredient.dart';
 
-class IngredientsScreen extends ConsumerWidget {
+class IngredientsScreen extends HookConsumerWidget {
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    final repository = watch(ingredientsRepositoryProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repository = ref.watch(ingredientsRepositoryProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -56,7 +57,7 @@ class IngredientsScreen extends ConsumerWidget {
     );
   }
 
-  Future<bool> _showDismissDialog(
+  Future<bool?> _showDismissDialog(
       BuildContext context, DismissDirection direction) {
     return showDialog<bool>(
       context: context,

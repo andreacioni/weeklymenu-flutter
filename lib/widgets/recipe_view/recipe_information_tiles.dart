@@ -10,7 +10,8 @@ class RecipeInformationTiles extends StatelessWidget {
   final bool editEnabled;
   final GlobalKey formKey;
 
-  RecipeInformationTiles(this._recipe, {this.editEnabled, this.formKey});
+  RecipeInformationTiles(this._recipe,
+      {this.editEnabled = false, required this.formKey});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class RecipeInformationTiles extends StatelessWidget {
           suffix: "ppl",
           onChanged: () => {}, //_recipe.setEdited(),
           onSaved: (newValue) => _recipe
-              .update(_recipe.instance.copyWith(servs: newValue?.truncate())),
+              .update(_recipe.instance.copyWith(servs: newValue.truncate())),
         ),
         EditableInformationTile(
           _recipe.instance.estimatedPreparationTime?.toDouble(),
@@ -41,7 +42,7 @@ class RecipeInformationTiles extends StatelessWidget {
           suffix: "min",
           onChanged: () => {}, //_recipe.setEdited(),
           onSaved: (newValue) => _recipe.update(_recipe.instance
-              .copyWith(estimatedPreparationTime: newValue?.truncate())),
+              .copyWith(estimatedPreparationTime: newValue.truncate())),
         ),
         EditableInformationTile(
           _recipe.instance.estimatedCookingTime?.toDouble(),
@@ -54,7 +55,7 @@ class RecipeInformationTiles extends StatelessWidget {
           suffix: "min",
           onChanged: () => {}, //_recipe.setEdited(),
           onSaved: (newValue) => _recipe.update(_recipe.instance
-              .copyWith(estimatedCookingTime: newValue?.truncate())),
+              .copyWith(estimatedCookingTime: newValue.truncate())),
         ),
         ListTile(
           title: Text("Difficulty"),
@@ -88,9 +89,7 @@ class RecipeInformationTiles extends StatelessWidget {
   Widget _buildDifficultyDropdown(BuildContext context) {
     return !editEnabled
         ? Text(
-            _recipe.instance.difficulty == null
-                ? '-'
-                : _recipe.instance.difficulty,
+            _recipe.instance.difficulty ?? '-',
             style: const TextStyle(fontSize: 18),
           )
         : DropdownButton<String>(
@@ -99,7 +98,7 @@ class RecipeInformationTiles extends StatelessWidget {
             iconSize: 24,
             elevation: 16,
             style: const TextStyle(color: Colors.black, fontSize: 18),
-            onChanged: (String newValue) =>
+            onChanged: (String? newValue) =>
                 _recipe.update(_recipe.instance.copyWith(difficulty: newValue)),
             items: Difficulties.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
@@ -114,7 +113,7 @@ class RecipeInformationTiles extends StatelessWidget {
 class RecipeInformationLevelSelect extends StatefulWidget {
   static const LEVELS = 3;
 
-  final int _initialLevel;
+  final int? _initialLevel;
   final String _label;
   final Icon _icon;
   final bool editEnabled;
@@ -126,7 +125,7 @@ class RecipeInformationLevelSelect extends StatefulWidget {
       {this.editEnabled = false,
       this.activeColor = Colors.black,
       this.inactiveColor = Colors.grey,
-      @required this.onLevelUpdate});
+      required this.onLevelUpdate});
 
   @override
   RecipeInformationLevelSelectState createState() =>
@@ -135,7 +134,7 @@ class RecipeInformationLevelSelect extends StatefulWidget {
 
 class RecipeInformationLevelSelectState
     extends State<RecipeInformationLevelSelect> {
-  int _level;
+  int? _level;
 
   RecipeInformationLevelSelectState(this._level);
 
@@ -169,7 +168,7 @@ class RecipeInformationLevelSelectState
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Icon(
         widget._icon.icon,
-        color: (_level != null && index < _level)
+        color: (_level != null && index < _level!)
             ? widget.activeColor
             : widget.inactiveColor,
       ),
@@ -185,37 +184,38 @@ class RecipeInformationLevelSelectState
 }
 
 class EditableInformationTile extends StatelessWidget {
-  final double value;
+  final double? value;
   final double minValue;
   final String title;
-  final Icon icon;
+  final Icon? icon;
   final String suffix;
   final bool editingEnabled;
+  final String hintText;
   final void Function(double) onSaved;
   final void Function() onChanged;
 
-  EditableInformationTile(
-    this.value,
-    this.title, {
-    this.icon,
-    this.suffix,
-    this.editingEnabled,
-    this.onSaved,
-    this.onChanged,
-    this.minValue = 0,
-  });
+  EditableInformationTile(this.value, this.title,
+      {this.icon,
+      required this.suffix,
+      this.editingEnabled = false,
+      required this.onSaved,
+      required this.onChanged,
+      this.minValue = 0,
+      String? hintText})
+      : this.hintText = hintText ?? title;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: editingEnabled
           ? NumberFormField(
-              initialValue: value?.toDouble(),
+              initialValue: value ?? 0,
               fractionDigits: 0,
               labelText: title,
               minValue: minValue,
               onChanged: (_) => onChanged(),
               onSaved: onSaved,
+              hintText: hintText,
             )
           : Text(title),
       leading: icon,

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 abstract class Saveable<T> {
   T save();
@@ -23,14 +23,11 @@ abstract class Originator<T extends Cloneable<T>> extends StateNotifier<T>
   bool _edited;
 
   Originator(T original)
-      : assert(original != null),
-        super(original) {
-    _backup = original.clone();
-    _edited = false;
-  }
+      : _backup = original.clone(),
+        _edited = false,
+        super(original);
 
   T update(T newValue) {
-    assert(newValue != null);
     state = newValue;
     setEdited();
     return state;

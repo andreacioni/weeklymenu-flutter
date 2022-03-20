@@ -3,27 +3,24 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:weekly_menu_app/providers/providers.dart';
 
+import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
-import '../../models/enums/meals.dart';
 
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends StatelessWidget {
   static final extent = 150.0;
   static final _dateParser = DateFormat('EEEE, MMMM dd');
 
-  final void Function() onTap;
+  final DailyMenu dailyMenu;
+  final void Function()? onTap;
 
-  MenuCard({this.onTap});
+  MenuCard(this.dailyMenu, {this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final dailyMenu = ProviderScope.containerOf(context, listen: false)
-        .read(dailyMenuScopedProvider);
-
     final divider = Divider(
       color: Colors.grey.shade500,
       height: 0,
@@ -95,7 +92,7 @@ class MenuCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    Meal.Breakfast.value,
+                    Meal.Breakfast.value!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -123,7 +120,7 @@ class MenuCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    Meal.Lunch.value,
+                    Meal.Lunch.value!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -152,7 +149,7 @@ class MenuCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    Meal.Dinner.value,
+                    Meal.Dinner.value!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -196,11 +193,11 @@ class MenuRecipesText extends ConsumerWidget {
 
   final List<String> _recipesIds;
 
-  MenuRecipesText(this._recipesIds, {Key key}) : super(key: key);
+  MenuRecipesText(this._recipesIds, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    final repository = watch(recipesRepositoryProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repository = ref.watch(recipesRepositoryProvider);
 
     return FutureBuilder<List<String>>(
       future: _getRecipeNames(repository),

@@ -2,25 +2,45 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/utils.dart' as utils;
 part 'auth_token.g.dart';
 
-@JsonSerializable()
 class AuthToken {
-  @JsonKey(name: 'access_token')
-  final String accessToken;
+  final String _jwtString;
+  final AuthTokenData _tokenData;
 
-  AuthToken({
-    this.accessToken,
-  });
+  AuthToken(this._jwtString, this._tokenData);
 
-  factory AuthToken.fromJson(Map<String, dynamic> json) =>
-      _$AuthTokenFromJson(json);
+  factory AuthToken.fromJWT(String jwtString) {
+    return AuthToken(
+        jwtString, AuthTokenData.fromBase64Json(jwtString.split(".")[1]));
+  }
+  factory AuthToken.fromLoginResponse(LoginResponse loginResponse) {
+    return AuthToken(loginResponse.accessToken,
+        AuthTokenData.fromBase64Json(loginResponse.accessToken.split(".")[1]));
+  }
 
-  Map<String, dynamic> toJson() => _$AuthTokenToJson(this);
+  String get jwt => _jwtString;
+
+  AuthTokenData get data => _tokenData;
+
+  bool get isValid => _tokenData.isValid;
 }
 
 @JsonSerializable()
-class JWTToken {
-  String _token;
+class LoginResponse {
+  @JsonKey(name: 'access_token')
+  final String accessToken;
 
+  LoginResponse({
+    required this.accessToken,
+  });
+
+  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
+      _$LoginResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
+}
+
+@JsonSerializable()
+class AuthTokenData {
   final String jti;
 
   final String identity;
@@ -34,27 +54,22 @@ class JWTToken {
   @JsonKey(name: 'exp')
   final int validUntil;
 
-  JWTToken({
-    this.jti,
-    this.issuedAt,
-    this.notValidBefore,
-    this.identity,
-    this.validUntil,
+  AuthTokenData({
+    required this.jti,
+    required this.issuedAt,
+    required this.notValidBefore,
+    required this.identity,
+    required this.validUntil,
   });
 
-  factory JWTToken.fromBase64Json(String token) {
-    if (token == null) return null;
-
+  factory AuthTokenData.fromBase64Json(String token) {
     final jsonString = utils.decodeBase64(token.split(".")[1]);
     final jsonMap = utils.jsonMapFromString(jsonString);
 
-    final jwtToken = _$JWTTokenFromJson(jsonMap);
-    jwtToken._token = token;
+    final jwtToken = _$AuthTokenDataFromJson(jsonMap);
 
     return jwtToken;
   }
-
-  String get toJwtString => _token;
 
   Duration get duration {
     final d = DateTime.fromMillisecondsSinceEpoch(validUntil * 1000)
@@ -67,5 +82,5 @@ class JWTToken {
     return d;
   }
 
-  bool isValid() => duration > Duration.zero;
+  bool get isValid => duration > Duration.zero;
 }

@@ -2,22 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../models/recipe.dart';
 import '../../globals/utils.dart';
 
-class RecipeTags extends StatelessWidget {
+class RecipeTags extends HookConsumerWidget {
   final RecipeOriginator recipe;
   final bool editEnabled;
 
   const RecipeTags({
-    @required this.recipe,
-    @required this.editEnabled,
+    required this.recipe,
+    required this.editEnabled,
   });
 
   @override
-  Widget build(BuildContext context) {
-    Repository<Recipe> recipeRepo = context.read(recipesRepositoryProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    Repository<Recipe> recipeRepo = ref.read(recipesRepositoryProvider);
 
     return FutureBuilder<List<Recipe>>(
       future: recipeRepo.findAll(),
@@ -30,7 +31,7 @@ class RecipeTags extends StatelessWidget {
           return Center(child: CircularProgressIndicator());
         }
 
-        return buildTagsRow(snapshot.data);
+        return buildTagsRow(snapshot.data ?? <Recipe>[]);
       },
     );
   }
@@ -38,9 +39,7 @@ class RecipeTags extends StatelessWidget {
   Widget buildTagsRow(List<Recipe> recipes) {
     final tags = getAllRecipeTags(recipes);
 
-    if (recipe.instance.tags != null) {
-      tags.removeWhere((tag) => recipe.instance.tags.contains(tag));
-    }
+    tags.removeWhere((tag) => recipe.instance.tags.contains(tag));
 
     return Container();
 

@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../globals/constants.dart';
 import '../models/auth_token.dart';
+
+final authServiceProvider = Provider((ref) => AuthService());
 
 class AuthService {
   static final _log = Logger();
@@ -23,15 +26,13 @@ class AuthService {
     ),
   );
 
-  JWTToken _token;
+  AuthToken? _token;
 
-  String _email, _password;
+  String? _email, _password;
 
   bool _initialized;
 
-  AuthService() {
-    _initialized = false;
-  }
+  AuthService() : _initialized = false;
 
   Future<void> register(String name, String email, String password) async {
     await _dio.post('$BASE_URL/auth/register',
@@ -40,14 +41,14 @@ class AuthService {
     return;
   }
 
-  Future<JWTToken> login(String email, String password) async {
-    var authResp = await _dio.post('$BASE_URL/auth/token',
+  Future<void> login(String email, String password) async {
+    final authResp = await _dio.post('$BASE_URL/auth/token',
         data: {'email': email, 'password': password});
 
-    await _storeUserInformation(
-        email, password, AuthToken.fromJson(authResp.data).accessToken);
+    final loginResponse = LoginResponse.fromJson(authResp.data);
+    _token = AuthToken.fromLoginResponse(loginResponse);
 
-    return _token;
+    await _storeUserInformation(email, password, _token!);
   }
 
   Future<void> logout() async {
@@ -61,21 +62,21 @@ class AuthService {
   }
 
   Future<void> _storeUserInformation(
-      String email, String password, String token) async {
+      String email, String password, AuthToken token) async {
     final sharedPreferences = await SharedPreferences.getInstance();
 
     //Email & Password
     _email = email;
     _password = password;
     await sharedPreferences.setString(
-        SharedPreferencesKeys.emailSharedPreferencesKey, _email);
+        SharedPreferencesKeys.emailSharedPreferencesKey, email);
     await sharedPreferences.setString(
-        SharedPreferencesKeys.passwordSharedPreferencesKey, _password);
+        SharedPreferencesKeys.passwordSharedPreferencesKey, password);
 
     //Token
-    _token = JWTToken.fromBase64Json(token);
+    _token = token;
     await sharedPreferences.setString(
-        SharedPreferencesKeys.tokenSharedPreferencesKey, _token.toJwtString);
+        SharedPreferencesKeys.tokenSharedPreferencesKey, _token!.jwt);
   }
 
   Future<void> _loadUserInformation() async {
@@ -88,8 +89,8 @@ class AuthService {
         .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
 
     //Token
-    _token = JWTToken.fromBase64Json(sharedPreferences
-        .getString(SharedPreferencesKeys.tokenSharedPreferencesKey));
+    _token = AuthToken.fromJWT(sharedPreferences
+        .getString(SharedPreferencesKeys.tokenSharedPreferencesKey)!);
   }
 
   Future<void> _clearUserInformation() async {
@@ -109,7 +110,7 @@ class AuthService {
         .remove(SharedPreferencesKeys.tokenSharedPreferencesKey);
   }
 
-  Future<JWTToken> get token async {
+  Future<AuthToken?> get token async {
     if (!_initialized) {
       _log.i("Auth service not yet initialized");
       try {
@@ -121,13 +122,13 @@ class AuthService {
       }
     }
 
-    if (_token == null || !_token.isValid()) {
+    if (_token == null || _token!.isValid) {
       _log.i("Invalid cached token, getting new one...");
 
       try {
         await _tryLogin();
       } on DioError catch (e) {
-        if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
+        if (e.type == DioErrorType.response && e.response!.statusCode == 401) {
           _log.i(
               "Failed auto login with saved credentials, password changed. Login again...");
         } else {
@@ -143,7 +144,9 @@ class AuthService {
 
   Future<void> _tryLogin() async {
     if (_password != null && _email != null) {
-      return await login(_email, _password);
+      await login(_email!, _password!);
+    } else {
+      _log.w("email & password are null");
     }
   }
 }

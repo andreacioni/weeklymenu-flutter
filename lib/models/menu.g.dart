@@ -6,63 +6,22 @@ part of 'menu.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Menu _$MenuFromJson(Map<String, dynamic> json) {
-  return Menu(
-    id: json['_id'] as String,
-    date: Menu.dateFromJson(json['date'] as String),
-    meal: _$enumDecodeNullable(_$MealEnumMap, json['meal']),
-    recipes: (json['recipes'] as List)?.map((e) => e as String)?.toList() ?? [],
-  );
-}
+Menu _$MenuFromJson(Map<String, dynamic> json) => Menu(
+      id: json['_id'] as String,
+      date: const DateConverter().fromJson(json['date'] as String),
+      meal: $enumDecode(_$MealEnumMap, json['meal']),
+      recipes: (json['recipes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+    );
 
-Map<String, dynamic> _$MenuToJson(Menu instance) {
-  final val = <String, dynamic>{
-    '_id': instance.id,
-    'date': Menu.dateToJson(instance.date),
-    'meal': _$MealEnumMap[instance.meal],
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('recipes', instance.recipes);
-  return val;
-}
-
-T _$enumDecode<T>(
-  Map<T, dynamic> enumValues,
-  dynamic source, {
-  T unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError('A value must be provided. Supported values: '
-        '${enumValues.values.join(', ')}');
-  }
-
-  final value = enumValues.entries
-      .singleWhere((e) => e.value == source, orElse: () => null)
-      ?.key;
-
-  if (value == null && unknownValue == null) {
-    throw ArgumentError('`$source` is not one of the supported values: '
-        '${enumValues.values.join(', ')}');
-  }
-  return value ?? unknownValue;
-}
-
-T _$enumDecodeNullable<T>(
-  Map<T, dynamic> enumValues,
-  dynamic source, {
-  T unknownValue,
-}) {
-  if (source == null) {
-    return null;
-  }
-  return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
-}
+Map<String, dynamic> _$MenuToJson(Menu instance) => <String, dynamic>{
+      '_id': instance.id,
+      'date': const DateConverter().toJson(instance.date),
+      'meal': _$MealEnumMap[instance.meal],
+      'recipes': instance.recipes,
+    };
 
 const _$MealEnumMap = {
   Meal.Breakfast: 'Breakfast',
@@ -78,7 +37,7 @@ const _$MealEnumMap = {
 
 mixin $MenuLocalAdapter on LocalAdapter<Menu> {
   @override
-  Map<String, Map<String, Object>> relationshipsFor([Menu model]) => {};
+  Map<String, Map<String, Object?>> relationshipsFor([Menu? model]) => {};
 
   @override
   Menu deserialize(map) {
@@ -102,29 +61,32 @@ class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 //
 
 final menusLocalAdapterProvider =
-    Provider<LocalAdapter<Menu>>((ref) => $MenuHiveLocalAdapter(ref));
+    Provider<LocalAdapter<Menu>>((ref) => $MenuHiveLocalAdapter(ref.read));
 
-final menusRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
-    (ref) => $MenuRemoteAdapter(ref.read(menusLocalAdapterProvider)));
+final menusRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>((ref) =>
+    $MenuRemoteAdapter(
+        ref.watch(menusLocalAdapterProvider), menuProvider, menusProvider));
 
 final menusRepositoryProvider =
-    Provider<Repository<Menu>>((ref) => Repository<Menu>(ref));
+    Provider<Repository<Menu>>((ref) => Repository<Menu>(ref.read));
 
-final _watchMenu = StateNotifierProvider.autoDispose
-    .family<DataStateNotifier<Menu>, WatchArgs<Menu>>((ref, args) {
-  return ref.read(menusRepositoryProvider).watchOne(args.id,
+final _menuProvider = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<Menu?>, DataState<Menu?>, WatchArgs<Menu>>(
+        (ref, args) {
+  return ref.watch(menusRepositoryProvider).watchOneNotifier(args.id,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
       alsoWatch: args.alsoWatch);
 });
 
-AutoDisposeStateNotifierProvider<DataStateNotifier<Menu>> watchMenu(dynamic id,
-    {bool remote,
-    Map<String, dynamic> params = const {},
-    Map<String, String> headers = const {},
-    AlsoWatch<Menu> alsoWatch}) {
-  return _watchMenu(WatchArgs(
+AutoDisposeStateNotifierProvider<DataStateNotifier<Menu?>, DataState<Menu?>>
+    menuProvider(dynamic id,
+        {bool? remote,
+        Map<String, dynamic>? params,
+        Map<String, String>? headers,
+        AlsoWatch<Menu>? alsoWatch}) {
+  return _menuProvider(WatchArgs(
       id: id,
       remote: remote,
       params: params,
@@ -132,30 +94,41 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<Menu>> watchMenu(dynamic id,
       alsoWatch: alsoWatch));
 }
 
-final _watchMenus = StateNotifierProvider.autoDispose
-    .family<DataStateNotifier<List<Menu>>, WatchArgs<Menu>>((ref, args) {
-  ref.maintainState = false;
-  return ref.read(menusRepositoryProvider).watchAll(
+final _menusProvider = StateNotifierProvider.autoDispose.family<
+    DataStateNotifier<List<Menu>>,
+    DataState<List<Menu>>,
+    WatchArgs<Menu>>((ref, args) {
+  return ref.watch(menusRepositoryProvider).watchAllNotifier(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      filterLocal: args.filterLocal,
       syncLocal: args.syncLocal);
 });
 
-AutoDisposeStateNotifierProvider<DataStateNotifier<List<Menu>>> watchMenus(
-    {bool remote, Map<String, dynamic> params, Map<String, String> headers}) {
-  return _watchMenus(
-      WatchArgs(remote: remote, params: params, headers: headers));
+AutoDisposeStateNotifierProvider<DataStateNotifier<List<Menu>>,
+        DataState<List<Menu>>>
+    menusProvider(
+        {bool? remote,
+        Map<String, dynamic>? params,
+        Map<String, String>? headers,
+        bool? syncLocal}) {
+  return _menusProvider(WatchArgs(
+      remote: remote, params: params, headers: headers, syncLocal: syncLocal));
 }
 
-extension MenuX on Menu {
+extension MenuDataX on Menu {
   /// Initializes "fresh" models (i.e. manually instantiated) to use
   /// [save], [delete] and so on.
   ///
-  /// Can be obtained via `context.read`, `ref.read`, `container.read`
-  Menu init(Reader read) {
+  /// Can be obtained via `ref.read`, `container.read`
+  Menu init(Reader read, {bool save = true}) {
     final repository = internalLocatorFn(menusRepositoryProvider, read);
-    return repository.remoteAdapter.initializeModel(this, save: true);
+    final updatedModel =
+        repository.remoteAdapter.initializeModel(this, save: save);
+    return save ? updatedModel : this;
   }
+}
+
+extension MenuDataRepositoryX on Repository<Menu> {
+  BaseAdapter<Menu> get baseAdapter => remoteAdapter as BaseAdapter<Menu>;
 }

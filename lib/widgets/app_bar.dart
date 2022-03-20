@@ -8,9 +8,9 @@ class BaseAppBar extends AppBar {
   final bool automaticallyImplyLeading;
 
   BaseAppBar(
-      {this.title,
-      this.actions,
-      this.leading,
+      {required this.title,
+      required this.actions,
+      required this.leading,
       this.automaticallyImplyLeading = true})
       : super(
           centerTitle: true,

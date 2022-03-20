@@ -6,8 +6,8 @@ import '../../models/recipe.dart';
 
 class RecipeCard extends ConsumerWidget {
   final String recipeId;
-  final Function onLongPress;
-  final Function onTap;
+  final Function()? onLongPress;
+  final Function()? onTap;
   final BorderSide borderSide;
   final Color shadowColorStart;
   final Color shadowColorEnd;
@@ -16,13 +16,13 @@ class RecipeCard extends ConsumerWidget {
       {this.onLongPress,
       this.onTap,
       this.borderSide = BorderSide.none,
-      this.shadowColorStart,
+      this.shadowColorStart = Colors.transparent,
       this.shadowColorEnd = Colors.transparent});
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final borderRadius = BorderRadius.circular(10);
-    final recipesRepository = watch(recipesRepositoryProvider);
+    final recipesRepository = ref.watch(recipesRepositoryProvider);
     return FlutterDataStateBuilder(
       notifier: () => recipesRepository.watchOne(recipeId),
       builder: (context, data, _, __) {

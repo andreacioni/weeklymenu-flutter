@@ -10,13 +10,13 @@ import './item_suggestion_text_field.dart';
 class ShoppingListItemTile extends StatefulWidget {
   final Key formKey;
   final ShoppingListItem shoppingListItem;
-  final Function(bool) onCheckChange;
-  final Function(DismissDirection) onDismiss;
+  final Function(bool)? onCheckChange;
+  final Function(DismissDirection)? onDismiss;
   final bool editable;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
-    this.formKey,
+    required this.formKey,
     this.onCheckChange,
     this.onDismiss,
     this.editable = true,
@@ -27,7 +27,7 @@ class ShoppingListItemTile extends StatefulWidget {
 }
 
 class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
-  bool _editingMode;
+  late final bool _editingMode;
 
   @override
   void initState() {
@@ -38,11 +38,11 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
   @override
   Widget build(BuildContext context) {
     return Consumer(
-      builder: (context, watch, _) {
-        final ingredietsRepository = watch(ingredientsRepositoryProvider);
+      builder: (context, ref, _) {
+        final ingredientsRepository = ref.watch(ingredientsRepositoryProvider);
         return FlutterDataStateBuilder(
           notifier: () =>
-              ingredietsRepository.watchOne(widget.shoppingListItem.item),
+              ingredientsRepository.watchOne(widget.shoppingListItem.item),
           builder: (context, state, notifier, _) {
             return Dismissible(
               key: widget.formKey,
@@ -109,7 +109,7 @@ class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
     });
 
     if (widget.onCheckChange != null) {
-      widget.onCheckChange(newValue);
+      widget.onCheckChange!(newValue);
     }
   }
 }

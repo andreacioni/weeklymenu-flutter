@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:flutter_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +9,7 @@ import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/recipe.dart';
 
-class RecipeIngredientListTile extends ConsumerWidget {
+class RecipeIngredientListTile extends HookConsumerWidget {
   final log = Logger();
 
   final RecipeOriginator _recipe;
@@ -20,8 +20,8 @@ class RecipeIngredientListTile extends ConsumerWidget {
       {this.editEnabled = false});
 
   @override
-  Widget build(BuildContext context, ScopedReader watch) {
-    final ingredientsRepo = watch(ingredientsRepositoryProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ingredientsRepo = ref.watch(ingredientsRepositoryProvider);
 
     return FlutterDataStateBuilder<Ingredient>(
       notifier: () => ingredientsRepo.watchOne(recipeIngredient.ingredientId),
@@ -56,7 +56,7 @@ class RecipeIngredientListTile extends ConsumerWidget {
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(ingredient.name == null ? '' : ingredient.name),
+        title: Text(ingredient.name),
         trailing: editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
@@ -66,7 +66,7 @@ class RecipeIngredientListTile extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    recipeIngredient.quantity?.toStringAsFixed(0),
+                    recipeIngredient.quantity?.toStringAsFixed(0) ?? '-',
                     style: TextStyle(
                       fontSize: 27,
                       fontWeight: FontWeight.bold,
@@ -74,9 +74,7 @@ class RecipeIngredientListTile extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    recipeIngredient.unitOfMeasure == null
-                        ? '-'
-                        : recipeIngredient.unitOfMeasure.toString(),
+                    recipeIngredient.unitOfMeasure?.toString() ?? '-',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -89,7 +87,7 @@ class RecipeIngredientListTile extends ConsumerWidget {
   }
 
   void openRecipeIngredientUpdateModal(BuildContext context) async {
-    RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
+    RecipeIngredient? updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
       barrierDismissible: true,
       builder: (_) => RecipeIngredientModal(recipeIngredient),
