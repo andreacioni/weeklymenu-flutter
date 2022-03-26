@@ -368,7 +368,7 @@ final recipesRepositoryProvider =
 final _recipeProvider = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Recipe?>, DataState<Recipe?>, WatchArgs<Recipe>>(
         (ref, args) {
-  return ref.watch(recipesRepositoryProvider).watchOneNotifier(args.id,
+  return ref.watch(recipesRepositoryProvider).watchOneNotifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -376,7 +376,7 @@ final _recipeProvider = StateNotifierProvider.autoDispose
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Recipe?>, DataState<Recipe?>>
-    recipeProvider(dynamic id,
+    recipeProvider(Object? id,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,

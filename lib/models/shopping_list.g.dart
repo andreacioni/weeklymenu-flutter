@@ -290,7 +290,7 @@ final _shoppingListProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<ShoppingList?>,
     DataState<ShoppingList?>,
     WatchArgs<ShoppingList>>((ref, args) {
-  return ref.watch(shoppingListsRepositoryProvider).watchOneNotifier(args.id,
+  return ref.watch(shoppingListsRepositoryProvider).watchOneNotifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -299,7 +299,7 @@ final _shoppingListProvider = StateNotifierProvider.autoDispose.family<
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList?>,
         DataState<ShoppingList?>>
-    shoppingListProvider(dynamic id,
+    shoppingListProvider(Object? id,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,

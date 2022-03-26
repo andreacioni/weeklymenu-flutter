@@ -3,6 +3,7 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:weekly_menu_app/main.data.dart';
 import '../../models/date.dart';
 import '../../models/menu.dart';
 import '../../widgets/flutter_data_state_builder.dart';
@@ -23,20 +24,16 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.watch(menusRepositoryProvider);
-
-    if (repository == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final repository = ref.menus;
 
     return FlutterDataStateBuilder<List<Menu>>(
-      notifier: () => repository.watchAll(
+      state: repository.watchAll(
         params: {'day': _day.format(_dateParser)},
       ),
-      builder: (context, state, notifier, _) {
+      builder: (context, model) {
         final dailyMenu = DailyMenu(
           _day,
-          state.model
+          model
               .where((menu) => menu.date == _day)
               .map((menu) => MenuOriginator(menu))
               .toList(),

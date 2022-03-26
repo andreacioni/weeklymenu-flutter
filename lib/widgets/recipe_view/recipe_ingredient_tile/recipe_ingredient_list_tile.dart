@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../main.data.dart';
 import '../../flutter_data_state_builder.dart';
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
@@ -21,12 +22,12 @@ class RecipeIngredientListTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ingredientsRepo = ref.watch(ingredientsRepositoryProvider);
+    final ingredientsRepo = ref.ingredients;
 
     return FlutterDataStateBuilder<Ingredient>(
-      notifier: () => ingredientsRepo.watchOne(recipeIngredient.ingredientId),
-      builder: (context, state, notifier, _) {
-        final ingredient = state.model;
+      state: ingredientsRepo.watchOne(recipeIngredient.ingredientId),
+      builder: (context, model) {
+        final ingredient = model;
         return buildListTile(context, ingredient);
       },
     );

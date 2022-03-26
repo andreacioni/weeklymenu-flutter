@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
 import 'package:weekly_menu_app/models/menu.dart';
 import 'package:weekly_menu_app/models/recipe.dart';
+import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
 
 import '../../models/ingredient.dart';
 import '../../services/auth_service.dart';
@@ -20,9 +21,9 @@ class SplashScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
         body: Center(
-      child: ref.read(repositoryInitializerProvider()).when(
+      child: ref.watch(repositoryInitializerProvider()).when(
           data: (_) {
-            return ref.read(_tokenProvider).when(
+            return ref.watch(_tokenProvider).when(
                   data: (jwt) {
                     if (jwt != null) {
                       Future.delayed(

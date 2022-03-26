@@ -73,7 +73,7 @@ final menusRepositoryProvider =
 final _menuProvider = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Menu?>, DataState<Menu?>, WatchArgs<Menu>>(
         (ref, args) {
-  return ref.watch(menusRepositoryProvider).watchOneNotifier(args.id,
+  return ref.watch(menusRepositoryProvider).watchOneNotifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
@@ -81,7 +81,7 @@ final _menuProvider = StateNotifierProvider.autoDispose
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Menu?>, DataState<Menu?>>
-    menuProvider(dynamic id,
+    menuProvider(Object? id,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,

@@ -50,12 +50,8 @@ class _NumberFormFieldState extends State<NumberFormField> {
         controller: _controller,
         focusNode: _focusNode,
         validator: _validateNumber,
-        onChanged: widget.onChanged != null
-            ? (v) => widget.onChanged!(double.tryParse(v)!)
-            : null,
-        onSaved: widget.onSaved != null
-            ? (v) => widget.onSaved!(double.tryParse(v!)!)
-            : null,
+        onChanged: widget.onChanged != null ? (v) => _onChanged(v) : null,
+        onSaved: widget.onSaved != null ? (v) => _onSaved(v) : null,
         maxLines: 1,
         keyboardType: TextInputType.number,
         inputFormatters: [
@@ -77,6 +73,23 @@ class _NumberFormFieldState extends State<NumberFormField> {
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))],
       decoration: InputDecoration(counterText: "", errorText: null),
     ); */
+  }
+
+  void _onChanged(String v) {
+    final value = double.tryParse(v);
+    if (value != null && widget.onChanged != null) {
+      widget.onChanged!(value);
+    }
+  }
+
+  void _onSaved(String? v) {
+    if (v != null && widget.onSaved != null) {
+      final value = double.tryParse(v);
+
+      if (value != null) {
+        widget.onSaved!(value);
+      }
+    }
   }
 
   void _onFocusChange() {

@@ -89,8 +89,9 @@ class AuthService {
         .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
 
     //Token
-    _token = AuthToken.fromJWT(sharedPreferences
-        .getString(SharedPreferencesKeys.tokenSharedPreferencesKey)!);
+    final jwt = sharedPreferences
+        .getString(SharedPreferencesKeys.tokenSharedPreferencesKey);
+    _token = jwt != null ? AuthToken.fromJWT(jwt) : null;
   }
 
   Future<void> _clearUserInformation() async {
@@ -122,7 +123,7 @@ class AuthService {
       }
     }
 
-    if (_token == null || _token!.isValid) {
+    if (_token == null || !_token!.isValid) {
       _log.i("Invalid cached token, getting new one...");
 
       try {

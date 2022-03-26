@@ -45,8 +45,13 @@ class ShoppingList extends BaseModel<ShoppingList> {
     items.removeWhere((item) => item.item == toBeRemoved.item);
   }
 
-  void setChecked(ShoppingListItem item, bool checked) {
-    item.checked = checked;
+  ShoppingList setChecked(ShoppingListItem item, bool checked) {
+    final idx = items.indexWhere((i) => i == item);
+    if (idx >= 0) {
+      items[idx] = items[idx].copyWith(checked: checked);
+    }
+
+    return copyWith(items: items).was(this);
   }
 
   bool containsItem(String itemId) {
@@ -60,21 +65,21 @@ class ShoppingList extends BaseModel<ShoppingList> {
 @JsonSerializable()
 @CopyWith()
 class ShoppingListItem with ChangeNotifier {
-  String item;
+  final String item;
 
-  bool checked;
-
-  @JsonKey(includeIfNull: false)
-  double? quantity;
+  final bool checked;
 
   @JsonKey(includeIfNull: false)
-  String? unitOfMeasure;
+  final double? quantity;
 
   @JsonKey(includeIfNull: false)
-  String? supermarketSection;
+  final String? unitOfMeasure;
 
   @JsonKey(includeIfNull: false)
-  int? listPosition;
+  final String? supermarketSection;
+
+  @JsonKey(includeIfNull: false)
+  final int? listPosition;
 
   ShoppingListItem(
       {required this.item,

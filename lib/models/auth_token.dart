@@ -48,7 +48,7 @@ class AuthTokenData {
   @JsonKey(name: 'iat')
   final int issuedAt;
 
-  @JsonKey(name: 'nfb')
+  @JsonKey(name: 'nbf')
   final int notValidBefore;
 
   @JsonKey(name: 'exp')
@@ -62,8 +62,8 @@ class AuthTokenData {
     required this.validUntil,
   });
 
-  factory AuthTokenData.fromBase64Json(String token) {
-    final jsonString = utils.decodeBase64(token.split(".")[1]);
+  factory AuthTokenData.fromBase64Json(String jwtBody) {
+    final jsonString = utils.decodeBase64(jwtBody);
     final jsonMap = utils.jsonMapFromString(jsonString);
 
     final jwtToken = _$AuthTokenDataFromJson(jsonMap);

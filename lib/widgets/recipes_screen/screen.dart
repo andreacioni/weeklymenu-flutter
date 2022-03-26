@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:objectid/objectid.dart';
 
+import '../../main.data.dart';
 import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
 import '../recipe_view/screen.dart';
@@ -41,7 +42,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      final repository = ref.watch(recipesRepositoryProvider);
+      final repository = ref.recipes;
       return Scaffold(
         appBar: _editingModeEnabled == false
             ? _buildAppBar(context)
@@ -59,12 +60,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
   FlutterDataStateBuilder<List<Recipe>> buildDataStateBuilder(
       Repository<Recipe> repository) {
     return FlutterDataStateBuilder<List<Recipe>>(
-      notifier: () => repository.watchAll(),
-      builder: (context, state, notifier, _) {
+      state: repository.watchAll(syncLocal: true),
+      onRefresh: () => repository.findAll(syncLocal: true),
+      builder: (context, model) {
         return Padding(
           padding: const EdgeInsets.all(10.0),
           child: _buildScreenBody(
-            [...state.model],
+            [...model],
             filter: (recipe) => !stringContains(recipe.name, _searchText),
           ),
         );

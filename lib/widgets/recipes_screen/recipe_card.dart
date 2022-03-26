@@ -23,10 +23,11 @@ class RecipeCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final borderRadius = BorderRadius.circular(10);
     final recipesRepository = ref.watch(recipesRepositoryProvider);
-    return FlutterDataStateBuilder(
-      notifier: () => recipesRepository.watchOne(recipeId),
-      builder: (context, data, _, __) {
-        final recipe = data.model;
+    return FlutterDataStateBuilder<Recipe>(
+      state: recipesRepository.watchOne(recipeId),
+      onRefresh: () => recipesRepository.findOne(recipeId),
+      builder: (context, model) {
+        final recipe = model;
         return Card(
           elevation: 1,
           shape: RoundedRectangleBorder(
@@ -85,7 +86,7 @@ class RecipeCard extends ConsumerWidget {
     );
   }
 
-  DecorationImage _buildImageProvider(String imgUrl) {
+  DecorationImage _buildImageProvider(String? imgUrl) {
     if (imgUrl != null) {
       return DecorationImage(
         image: NetworkImage(

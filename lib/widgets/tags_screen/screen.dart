@@ -9,32 +9,30 @@ import '../../models/recipe.dart';
 class TagsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Repository<Recipe> repository = ref.watch(recipesRepositoryProvider);
+    final repository = ref.read(recipesRepositoryProvider);
 
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FlutterDataStateBuilder<List<Recipe>>(
-        notifier: () => repository.watchAll(),
-        builder: (_, state, notifier, __) {
-          final tags = getAllRecipeTags(state.model);
+        state: repository.watchAll(),
+        onRefresh: () => ref.read(recipesRepositoryProvider).findAll(),
+        builder: (context, model) {
+          final tags = getAllRecipeTags(model);
 
-          return RefreshIndicator(
-            onRefresh: () async => notifier.reload(),
-            child: ListView.builder(
-              itemBuilder: (_, index) {
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(tags[index]),
-                    ),
-                    Divider(
-                      height: 0,
-                    ),
-                  ],
-                );
-              },
-              itemCount: tags.length,
-            ),
+          return ListView.builder(
+            itemBuilder: (_, index) {
+              return Column(
+                children: [
+                  ListTile(
+                    title: Text(tags[index]),
+                  ),
+                  Divider(
+                    height: 0,
+                  ),
+                ],
+              );
+            },
+            itemCount: tags.length,
           );
         },
       ),
@@ -50,7 +48,7 @@ class TagsScreen extends HookConsumerWidget {
   List<String> getAllRecipeTags(List<Recipe> recipes) {
     List<String> tags = [];
     recipes.forEach((recipe) {
-      if (recipe.tags != null) {
+      if (recipe.tags.isNotEmpty) {
         tags.addAll(recipe.tags);
       }
     });

@@ -20,7 +20,7 @@ AuthTokenData _$AuthTokenDataFromJson(Map<String, dynamic> json) =>
     AuthTokenData(
       jti: json['jti'] as String,
       issuedAt: json['iat'] as int,
-      notValidBefore: json['nfb'] as int,
+      notValidBefore: json['nbf'] as int,
       identity: json['identity'] as String,
       validUntil: json['exp'] as int,
     );
@@ -30,6 +30,6 @@ Map<String, dynamic> _$AuthTokenDataToJson(AuthTokenData instance) =>
       'jti': instance.jti,
       'identity': instance.identity,
       'iat': instance.issuedAt,
-      'nfb': instance.notValidBefore,
+      'nbf': instance.notValidBefore,
       'exp': instance.validUntil,
     };

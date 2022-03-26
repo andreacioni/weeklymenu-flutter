@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
+import '../../main.data.dart';
+import '../flutter_data_state_builder.dart';
 import '../../models/ingredient.dart';
 
 class IngredientsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.watch(ingredientsRepositoryProvider);
-
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FlutterDataStateBuilder<List<Ingredient>>(
-          notifier: () => repository.watchAll(),
-          builder: (context, state, notifier, _) {
+          state: ref.ingredients.watchAll(),
+          builder: (context, model) {
             return ListView.builder(
               itemBuilder: (_, index) {
                 return Dismissible(
-                  key: ValueKey(state.model[index].id),
+                  key: ValueKey(model[index].id),
                   direction: DismissDirection.endToStart,
                   confirmDismiss: (dd) => _showDismissDialog(context, dd),
                   background: Container(
@@ -40,18 +38,17 @@ class IngredientsScreen extends HookConsumerWidget {
                   child: Column(
                     children: <Widget>[
                       ListTile(
-                        title: Text(state.model[index].name),
+                        title: Text(model[index].name),
                       ),
                       Divider(
                         height: 0,
                       ),
                     ],
                   ),
-                  onDismissed: (_) =>
-                      _deleteIngredient(context, state.model[index]),
+                  onDismissed: (_) => _deleteIngredient(context, model[index]),
                 );
               },
-              itemCount: state.model.length,
+              itemCount: model.length,
             );
           }),
     );
