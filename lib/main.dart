@@ -4,7 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/splash_screen/screen.dart';
 import 'main.data.dart';
 
-void main() => runApp(App());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(App());
+}
 
 class App extends StatelessWidget {
   @override

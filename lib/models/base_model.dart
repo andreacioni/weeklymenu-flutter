@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_data/flutter_data.dart';
+import 'package:isar/isar.dart';
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/globals/http.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
@@ -15,6 +17,12 @@ abstract class BaseModel<T extends DataModel<T>>
   @JsonKey(name: '_id')
   final String id;
 
+  @Id()
+  @JsonKey(ignore: true)
+
+  ///this is an `internal` field and MUST NOT be taken into account
+  final int? hashId;
+
   @JsonKey(name: 'insert_timestamp', ignore: true)
   final int insertTimestamp;
 
@@ -23,6 +31,7 @@ abstract class BaseModel<T extends DataModel<T>>
 
   BaseModel({
     required this.id,
+    this.hashId,
     this.insertTimestamp = 0,
     this.updateTimestamp = 0,
   });
@@ -32,7 +41,7 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
   final _providerContainer = ProviderContainer();
 
   @override
-  String get baseUrl => "https://heroku-weeklymenu.herokuapp.com/api/v1/";
+  String get baseUrl => BASE_URL + '/';
 
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {

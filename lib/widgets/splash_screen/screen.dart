@@ -49,8 +49,8 @@ class SplashScreen extends HookConsumerWidget {
       );
 
   static void goToHomePage(BuildContext context) {
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => HomePage()));
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => ShoppingListScreen()));
   }
 
   static void goToLoginPage(BuildContext context) {

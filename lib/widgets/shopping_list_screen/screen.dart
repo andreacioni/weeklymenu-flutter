@@ -4,16 +4,25 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:logging/logging.dart';
 
-import '../flutter_data_state_builder.dart';
+import '../../repository/shopping_list_repository.dart';
 import '../../models/ingredient.dart';
 import './shopping_list_tile.dart';
 import '../../globals/errors_handlers.dart';
 import '../../models/shopping_list.dart';
 import './item_suggestion_text_field.dart';
-import 'package:weekly_menu_app/main.data.dart';
+
+final _shoppingListProvider =
+    StreamProvider.autoDispose<List<ShoppingList>>(((ref) async* {
+  final repo = await ref.watch(shoppingListsRepositoryProvider.future);
+  repo.sync(); //do not wait to finish
+  yield* repo.watchAll();
+}));
 
 class ShoppingListScreen extends HookConsumerWidget {
+  final _logger = Logger('ShoppingListScreen');
+
   ShoppingListScreen({Key? key}) : super(key: key);
 
   @override
@@ -46,8 +55,13 @@ class ShoppingListScreen extends HookConsumerWidget {
       shoppingList.addShoppingListItem(item);
 
       try {
-        await ref.read(shoppingListsRepositoryProvider).save(shoppingList);
-      } catch (e) {
+        await ref
+            .read(shoppingListsRepositoryProvider)
+            .value
+            ?.save(shoppingList);
+      } catch (e, st) {
+        _logger.severe("failed to save shopping list", e, st);
+
         showAlertErrorMessage(context);
         shoppingList.removeItemFromList(item);
       }
@@ -68,7 +82,9 @@ class ShoppingListScreen extends HookConsumerWidget {
         ShoppingListItem shopItem, bool checked) async {
       try {
         await shoppingList.setChecked(shopItem, checked).save();
-      } catch (e) {
+      } catch (e, st) {
+        _logger.severe("failed to save shopping list", e, st);
+
         showAlertErrorMessage(context);
         shoppingList.setChecked(
           shopItem,
@@ -116,8 +132,12 @@ class ShoppingListScreen extends HookConsumerWidget {
         ShoppingListItem shoppingListItem) async {
       shoppingList.removeItemFromList(shoppingListItem);
       try {
-        await ref.read(shoppingListsRepositoryProvider).save(shoppingList);
-      } catch (e) {
+        await ref
+            .read(shoppingListsRepositoryProvider)
+            .value
+            ?.save(shoppingList);
+      } catch (e, st) {
+        _logger.severe("failed to save shopping list", e, st);
         showAlertErrorMessage(context);
         shoppingList.addShoppingListItem(shoppingListItem);
       }
@@ -248,36 +268,35 @@ class ShoppingListScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
-      appBar: _buildAppBar(context),
-      body: FlutterDataStateBuilder<List<ShoppingList>>(
-        state: ref.shoppingLists.watchAll(syncLocal: true),
-        onRefresh: () => ref.shoppingLists.findAll(syncLocal: true),
-        //notFound: _buildNoElementsPage(),
-        builder: (context, data) {
-          if (data.isEmpty) {
-            return _buildNoElementsPage();
-          }
-          //Get only the first element, by now only one list per user is supported
-          final shoppingList = data[0];
-          final allItems = shoppingList.getAllItems;
+        appBar: _buildAppBar(context),
+        body: ref.watch(_shoppingListProvider).when(
+              data: (data) {
+                if (data.isEmpty) {
+                  return _buildNoElementsPage();
+                }
+                //Get only the first element, by now only one list per user is supported
+                final shoppingList = data[0];
+                final allItems = shoppingList.getAllItems;
 
-          return allItems.isEmpty && !newItemMode.value
-              ? _buildNoElementsPage()
-              : CustomScrollView(
-                  slivers: <Widget>[
-                    //if (allItems.isEmpty) _buildNoElementsPage(),
-                    if (loading.value) _buildLoadingItem(),
-                    if (newItemMode.value) _buildAddItem(ref, shoppingList),
-                    //_buildFloatingHeader('Unckecked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildUncheckedList(ref, shoppingList),
-                    //_buildFloatingHeader('Checked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildCheckedList(ref, shoppingList),
-                  ],
-                );
-        },
-      ),
-    );
+                return allItems.isEmpty && !newItemMode.value
+                    ? _buildNoElementsPage()
+                    : CustomScrollView(
+                        slivers: <Widget>[
+                          //if (allItems.isEmpty) _buildNoElementsPage(),
+                          if (loading.value) _buildLoadingItem(),
+                          if (newItemMode.value)
+                            _buildAddItem(ref, shoppingList),
+                          //_buildFloatingHeader('Unckecked'),
+                          if (allItems.isNotEmpty)
+                            ..._buildUncheckedList(ref, shoppingList),
+                          //_buildFloatingHeader('Checked'),
+                          if (allItems.isNotEmpty)
+                            ..._buildCheckedList(ref, shoppingList),
+                        ],
+                      );
+              },
+              error: (_, __) => _buildNoElementsPage(),
+              loading: () => _buildLoadingItem(),
+            ));
   }
 }

@@ -8,6 +8,7 @@ import 'package:collection/collection.dart';
 import '../../globals/utils.dart';
 import '../../models/ingredient.dart';
 import '../../models/shopping_list.dart';
+import '../../repository/shopping_list_repository.dart';
 
 class ItemSuggestionTextField extends StatefulWidget {
   final Ingredient? value;
@@ -105,14 +106,14 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
 
   Future<List> suggestionsCallback(WidgetRef ref, String pattern) async {
     final ingredientsRepo = ref.read(ingredientsRepositoryProvider);
-    final shopListRepo = ref.read(shoppingListsRepositoryProvider);
+    final shopListRepo = ref.read(shoppingListsRepositoryProvider).value!;
 
     availableIngredients = await ingredientsRepo.findAll(remote: false);
 
     List<dynamic> suggestions = [];
 
     if (widget.showShoppingItemSuggestions) {
-      final shoppingList = (await shopListRepo.findAll(remote: false))[0];
+      final shoppingList = (await shopListRepo.findAll())[0];
 
       final checkedItems = shoppingList.getCheckedItems.where((item) {
         var ing = resolveShoppingListItemIngredient(item);

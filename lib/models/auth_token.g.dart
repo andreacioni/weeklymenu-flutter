@@ -6,8 +6,7 @@ part of 'auth_token.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
-    LoginResponse(
+LoginResponse _$LoginResponseFromJson(Map json) => LoginResponse(
       accessToken: json['access_token'] as String,
     );
 
@@ -16,8 +15,7 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
       'access_token': instance.accessToken,
     };
 
-AuthTokenData _$AuthTokenDataFromJson(Map<String, dynamic> json) =>
-    AuthTokenData(
+AuthTokenData _$AuthTokenDataFromJson(Map json) => AuthTokenData(
       jti: json['jti'] as String,
       issuedAt: json['iat'] as int,
       notValidBefore: json['nbf'] as int,

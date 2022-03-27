@@ -69,7 +69,7 @@ extension $IngredientCopyWith on Ingredient {
 // JsonSerializableGenerator
 // **************************************************************************
 
-Ingredient _$IngredientFromJson(Map<String, dynamic> json) => Ingredient(
+Ingredient _$IngredientFromJson(Map json) => Ingredient(
       id: json['_id'] as String,
       name: json['name'] as String,
     );
@@ -129,11 +129,15 @@ final _ingredientProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<Ingredient?>,
     DataState<Ingredient?>,
     WatchArgs<Ingredient>>((ref, args) {
-  return ref.watch(ingredientsRepositoryProvider).watchOneNotifier(args.id!,
+  final adapter = ref.watch(ingredientsRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
+  return notifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      alsoWatch: args.alsoWatch);
+      alsoWatch: args.alsoWatch,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Ingredient?>,
@@ -142,24 +146,32 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<Ingredient?>,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        AlsoWatch<Ingredient>? alsoWatch}) {
+        AlsoWatch<Ingredient>? alsoWatch,
+        String? finder,
+        String? watcher}) {
   return _ingredientProvider(WatchArgs(
       id: id,
       remote: remote,
       params: params,
       headers: headers,
-      alsoWatch: alsoWatch));
+      alsoWatch: alsoWatch,
+      finder: finder,
+      watcher: watcher));
 }
 
 final _ingredientsProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<List<Ingredient>>,
     DataState<List<Ingredient>>,
     WatchArgs<Ingredient>>((ref, args) {
-  return ref.watch(ingredientsRepositoryProvider).watchAllNotifier(
+  final adapter = ref.watch(ingredientsRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
+  return notifier(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      syncLocal: args.syncLocal);
+      syncLocal: args.syncLocal,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<Ingredient>>,
@@ -168,9 +180,16 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<List<Ingredient>>,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        bool? syncLocal}) {
+        bool? syncLocal,
+        String? finder,
+        String? watcher}) {
   return _ingredientsProvider(WatchArgs(
-      remote: remote, params: params, headers: headers, syncLocal: syncLocal));
+      remote: remote,
+      params: params,
+      headers: headers,
+      syncLocal: syncLocal,
+      finder: finder,
+      watcher: watcher));
 }
 
 extension IngredientDataX on Ingredient {

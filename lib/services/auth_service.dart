@@ -5,26 +5,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../globals/constants.dart';
+import '../globals/http.dart';
+import '../globals/shared_preferences.dart';
 import '../models/auth_token.dart';
 
-final authServiceProvider = Provider((ref) => AuthService());
+final authServiceProvider =
+    Provider((ref) => AuthService(ref.read(dioProvider)));
 
 class AuthService {
   static final _log = Logger();
-
-  static final String BASE_URL =
-      'https://heroku-weeklymenu.herokuapp.com/api/v1';
-
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: BASE_URL,
-      contentType: 'application/json',
-      connectTimeout: 2000,
-      receiveTimeout: 2000,
-      sendTimeout: 2000,
-    ),
-  );
 
   AuthToken? _token;
 
@@ -32,7 +21,9 @@ class AuthService {
 
   bool _initialized;
 
-  AuthService() : _initialized = false;
+  final Dio _dio;
+
+  AuthService(this._dio) : _initialized = false;
 
   Future<void> register(String name, String email, String password) async {
     await _dio.post('$BASE_URL/auth/register',

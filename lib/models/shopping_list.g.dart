@@ -183,13 +183,831 @@ extension $ShoppingListItemCopyWith on ShoppingListItem {
 }
 
 // **************************************************************************
+// IsarCollectionGenerator
+// **************************************************************************
+
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast
+
+extension GetShoppingListCollection on Isar {
+  IsarCollection<ShoppingList> get shoppingLists {
+    return getCollection('ShoppingList');
+  }
+}
+
+final ShoppingListSchema = CollectionSchema(
+  name: 'ShoppingList',
+  schema:
+      '{"name":"ShoppingList","idName":"hashId","properties":[{"name":"id","type":"String"},{"name":"insertTimestamp","type":"Long"},{"name":"isInitialized","type":"Bool"},{"name":"name","type":"String"},{"name":"updateTimestamp","type":"Long"}],"indexes":[],"links":[]}',
+  nativeAdapter: const _ShoppingListNativeAdapter(),
+  webAdapter: const _ShoppingListWebAdapter(),
+  idName: 'hashId',
+  propertyIds: {
+    'id': 0,
+    'insertTimestamp': 1,
+    'isInitialized': 2,
+    'name': 3,
+    'updateTimestamp': 4
+  },
+  listProperties: {},
+  indexIds: {},
+  indexTypes: {},
+  linkIds: {},
+  backlinkIds: {},
+  linkedCollections: [],
+  getId: (obj) {
+    if (obj.hashId == Isar.autoIncrement) {
+      return null;
+    } else {
+      return obj.hashId;
+    }
+  },
+  setId: null,
+  getLinks: (obj) => [],
+  version: 2,
+);
+
+class _ShoppingListWebAdapter extends IsarWebTypeAdapter<ShoppingList> {
+  const _ShoppingListWebAdapter();
+
+  @override
+  Object serialize(
+      IsarCollection<ShoppingList> collection, ShoppingList object) {
+    final jsObj = IsarNative.newJsObject();
+    IsarNative.jsObjectSet(jsObj, 'hashId', object.hashId);
+    IsarNative.jsObjectSet(jsObj, 'id', object.id);
+    IsarNative.jsObjectSet(jsObj, 'insertTimestamp', object.insertTimestamp);
+    IsarNative.jsObjectSet(jsObj, 'isInitialized', object.isInitialized);
+    IsarNative.jsObjectSet(jsObj, 'name', object.name);
+    IsarNative.jsObjectSet(jsObj, 'updateTimestamp', object.updateTimestamp);
+    return jsObj;
+  }
+
+  @override
+  ShoppingList deserialize(
+      IsarCollection<ShoppingList> collection, dynamic jsObj) {
+    final object = ShoppingList(
+      id: IsarNative.jsObjectGet(jsObj, 'id') ?? '',
+      name: IsarNative.jsObjectGet(jsObj, 'name'),
+    );
+    return object;
+  }
+
+  @override
+  P deserializeProperty<P>(Object jsObj, String propertyName) {
+    switch (propertyName) {
+      case 'hashId':
+        return (IsarNative.jsObjectGet(jsObj, 'hashId')) as P;
+      case 'id':
+        return (IsarNative.jsObjectGet(jsObj, 'id') ?? '') as P;
+      case 'insertTimestamp':
+        return (IsarNative.jsObjectGet(jsObj, 'insertTimestamp') ??
+            double.negativeInfinity) as P;
+      case 'isInitialized':
+        return (IsarNative.jsObjectGet(jsObj, 'isInitialized') ?? false) as P;
+      case 'name':
+        return (IsarNative.jsObjectGet(jsObj, 'name')) as P;
+      case 'updateTimestamp':
+        return (IsarNative.jsObjectGet(jsObj, 'updateTimestamp') ??
+            double.negativeInfinity) as P;
+      default:
+        throw 'Illegal propertyName';
+    }
+  }
+
+  @override
+  void attachLinks(Isar isar, int id, ShoppingList object) {}
+}
+
+class _ShoppingListNativeAdapter extends IsarNativeTypeAdapter<ShoppingList> {
+  const _ShoppingListNativeAdapter();
+
+  @override
+  void serialize(
+      IsarCollection<ShoppingList> collection,
+      IsarRawObject rawObj,
+      ShoppingList object,
+      int staticSize,
+      List<int> offsets,
+      AdapterAlloc alloc) {
+    var dynamicSize = 0;
+    final value0 = object.id;
+    final _id = IsarBinaryWriter.utf8Encoder.convert(value0);
+    dynamicSize += (_id.length) as int;
+    final value1 = object.insertTimestamp;
+    final _insertTimestamp = value1;
+    final value2 = object.isInitialized;
+    final _isInitialized = value2;
+    final value3 = object.name;
+    IsarUint8List? _name;
+    if (value3 != null) {
+      _name = IsarBinaryWriter.utf8Encoder.convert(value3);
+    }
+    dynamicSize += (_name?.length ?? 0) as int;
+    final value4 = object.updateTimestamp;
+    final _updateTimestamp = value4;
+    final size = staticSize + dynamicSize;
+
+    rawObj.buffer = alloc(size);
+    rawObj.buffer_length = size;
+    final buffer = IsarNative.bufAsBytes(rawObj.buffer, size);
+    final writer = IsarBinaryWriter(buffer, staticSize);
+    writer.writeBytes(offsets[0], _id);
+    writer.writeLong(offsets[1], _insertTimestamp);
+    writer.writeBool(offsets[2], _isInitialized);
+    writer.writeBytes(offsets[3], _name);
+    writer.writeLong(offsets[4], _updateTimestamp);
+  }
+
+  @override
+  ShoppingList deserialize(IsarCollection<ShoppingList> collection, int id,
+      IsarBinaryReader reader, List<int> offsets) {
+    final object = ShoppingList(
+      id: reader.readString(offsets[0]),
+      name: reader.readStringOrNull(offsets[3]),
+    );
+    return object;
+  }
+
+  @override
+  P deserializeProperty<P>(
+      int id, IsarBinaryReader reader, int propertyIndex, int offset) {
+    switch (propertyIndex) {
+      case -1:
+        return id as P;
+      case 0:
+        return (reader.readString(offset)) as P;
+      case 1:
+        return (reader.readLong(offset)) as P;
+      case 2:
+        return (reader.readBool(offset)) as P;
+      case 3:
+        return (reader.readStringOrNull(offset)) as P;
+      case 4:
+        return (reader.readLong(offset)) as P;
+      default:
+        throw 'Illegal propertyIndex';
+    }
+  }
+
+  @override
+  void attachLinks(Isar isar, int id, ShoppingList object) {}
+}
+
+extension ShoppingListQueryWhereSort
+    on QueryBuilder<ShoppingList, ShoppingList, QWhere> {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhere> anyHashId() {
+    return addWhereClauseInternal(const WhereClause(indexName: null));
+  }
+}
+
+extension ShoppingListQueryWhere
+    on QueryBuilder<ShoppingList, ShoppingList, QWhereClause> {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdEqualTo(
+      int? hashId) {
+    return addWhereClauseInternal(WhereClause(
+      indexName: null,
+      lower: [hashId],
+      includeLower: true,
+      upper: [hashId],
+      includeUpper: true,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdNotEqualTo(
+      int? hashId) {
+    if (whereSortInternal == Sort.asc) {
+      return addWhereClauseInternal(WhereClause(
+        indexName: null,
+        upper: [hashId],
+        includeUpper: false,
+      )).addWhereClauseInternal(WhereClause(
+        indexName: null,
+        lower: [hashId],
+        includeLower: false,
+      ));
+    } else {
+      return addWhereClauseInternal(WhereClause(
+        indexName: null,
+        lower: [hashId],
+        includeLower: false,
+      )).addWhereClauseInternal(WhereClause(
+        indexName: null,
+        upper: [hashId],
+        includeUpper: false,
+      ));
+    }
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdGreaterThan(
+    int? hashId, {
+    bool include = false,
+  }) {
+    return addWhereClauseInternal(WhereClause(
+      indexName: null,
+      lower: [hashId],
+      includeLower: include,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdLessThan(
+    int? hashId, {
+    bool include = false,
+  }) {
+    return addWhereClauseInternal(WhereClause(
+      indexName: null,
+      upper: [hashId],
+      includeUpper: include,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdBetween(
+    int? lowerHashId,
+    int? upperHashId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addWhereClauseInternal(WhereClause(
+      indexName: null,
+      lower: [lowerHashId],
+      includeLower: includeLower,
+      upper: [upperHashId],
+      includeUpper: includeUpper,
+    ));
+  }
+}
+
+extension ShoppingListQueryFilter
+    on QueryBuilder<ShoppingList, ShoppingList, QFilterCondition> {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      hashIdIsNull() {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.isNull,
+      property: 'hashId',
+      value: null,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> hashIdEqualTo(
+      int? value) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.eq,
+      property: 'hashId',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      hashIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.gt,
+      include: include,
+      property: 'hashId',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      hashIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.lt,
+      include: include,
+      property: 'hashId',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> hashIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition.between(
+      property: 'hashId',
+      lower: lower,
+      includeLower: includeLower,
+      upper: upper,
+      includeUpper: includeUpper,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.eq,
+      property: 'id',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idGreaterThan(
+    String value, {
+    bool caseSensitive = true,
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.gt,
+      include: include,
+      property: 'id',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idLessThan(
+    String value, {
+    bool caseSensitive = true,
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.lt,
+      include: include,
+      property: 'id',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idBetween(
+    String lower,
+    String upper, {
+    bool caseSensitive = true,
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition.between(
+      property: 'id',
+      lower: lower,
+      includeLower: includeLower,
+      upper: upper,
+      includeUpper: includeUpper,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.startsWith,
+      property: 'id',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.endsWith,
+      property: 'id',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.contains,
+      property: 'id',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.matches,
+      property: 'id',
+      value: pattern,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      insertTimestampEqualTo(int value) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.eq,
+      property: 'insertTimestamp',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      insertTimestampGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.gt,
+      include: include,
+      property: 'insertTimestamp',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      insertTimestampLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.lt,
+      include: include,
+      property: 'insertTimestamp',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      insertTimestampBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition.between(
+      property: 'insertTimestamp',
+      lower: lower,
+      includeLower: includeLower,
+      upper: upper,
+      includeUpper: includeUpper,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      isInitializedEqualTo(bool value) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.eq,
+      property: 'isInitialized',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameIsNull() {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.isNull,
+      property: 'name',
+      value: null,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.eq,
+      property: 'name',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      nameGreaterThan(
+    String? value, {
+    bool caseSensitive = true,
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.gt,
+      include: include,
+      property: 'name',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameLessThan(
+    String? value, {
+    bool caseSensitive = true,
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.lt,
+      include: include,
+      property: 'name',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameBetween(
+    String? lower,
+    String? upper, {
+    bool caseSensitive = true,
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition.between(
+      property: 'name',
+      lower: lower,
+      includeLower: includeLower,
+      upper: upper,
+      includeUpper: includeUpper,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      nameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.startsWith,
+      property: 'name',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.endsWith,
+      property: 'name',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.contains,
+      property: 'name',
+      value: value,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> nameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.matches,
+      property: 'name',
+      value: pattern,
+      caseSensitive: caseSensitive,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      updateTimestampEqualTo(int value) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.eq,
+      property: 'updateTimestamp',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      updateTimestampGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.gt,
+      include: include,
+      property: 'updateTimestamp',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      updateTimestampLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.lt,
+      include: include,
+      property: 'updateTimestamp',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      updateTimestampBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition.between(
+      property: 'updateTimestamp',
+      lower: lower,
+      includeLower: includeLower,
+      upper: upper,
+      includeUpper: includeUpper,
+    ));
+  }
+}
+
+extension ShoppingListQueryLinks
+    on QueryBuilder<ShoppingList, ShoppingList, QFilterCondition> {}
+
+extension ShoppingListQueryWhereSortBy
+    on QueryBuilder<ShoppingList, ShoppingList, QSortBy> {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByHashId() {
+    return addSortByInternal('hashId', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByHashIdDesc() {
+    return addSortByInternal('hashId', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortById() {
+    return addSortByInternal('id', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByIdDesc() {
+    return addSortByInternal('id', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      sortByInsertTimestamp() {
+    return addSortByInternal('insertTimestamp', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      sortByInsertTimestampDesc() {
+    return addSortByInternal('insertTimestamp', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByIsInitialized() {
+    return addSortByInternal('isInitialized', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      sortByIsInitializedDesc() {
+    return addSortByInternal('isInitialized', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByName() {
+    return addSortByInternal('name', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByNameDesc() {
+    return addSortByInternal('name', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      sortByUpdateTimestamp() {
+    return addSortByInternal('updateTimestamp', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      sortByUpdateTimestampDesc() {
+    return addSortByInternal('updateTimestamp', Sort.desc);
+  }
+}
+
+extension ShoppingListQueryWhereSortThenBy
+    on QueryBuilder<ShoppingList, ShoppingList, QSortThenBy> {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByHashId() {
+    return addSortByInternal('hashId', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByHashIdDesc() {
+    return addSortByInternal('hashId', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenById() {
+    return addSortByInternal('id', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByIdDesc() {
+    return addSortByInternal('id', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      thenByInsertTimestamp() {
+    return addSortByInternal('insertTimestamp', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      thenByInsertTimestampDesc() {
+    return addSortByInternal('insertTimestamp', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByIsInitialized() {
+    return addSortByInternal('isInitialized', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      thenByIsInitializedDesc() {
+    return addSortByInternal('isInitialized', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByName() {
+    return addSortByInternal('name', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByNameDesc() {
+    return addSortByInternal('name', Sort.desc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      thenByUpdateTimestamp() {
+    return addSortByInternal('updateTimestamp', Sort.asc);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
+      thenByUpdateTimestampDesc() {
+    return addSortByInternal('updateTimestamp', Sort.desc);
+  }
+}
+
+extension ShoppingListQueryWhereDistinct
+    on QueryBuilder<ShoppingList, ShoppingList, QDistinct> {
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctByHashId() {
+    return addDistinctByInternal('hashId');
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctById(
+      {bool caseSensitive = true}) {
+    return addDistinctByInternal('id', caseSensitive: caseSensitive);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct>
+      distinctByInsertTimestamp() {
+    return addDistinctByInternal('insertTimestamp');
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct>
+      distinctByIsInitialized() {
+    return addDistinctByInternal('isInitialized');
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctByName(
+      {bool caseSensitive = true}) {
+    return addDistinctByInternal('name', caseSensitive: caseSensitive);
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct>
+      distinctByUpdateTimestamp() {
+    return addDistinctByInternal('updateTimestamp');
+  }
+}
+
+extension ShoppingListQueryProperty
+    on QueryBuilder<ShoppingList, ShoppingList, QQueryProperty> {
+  QueryBuilder<ShoppingList, int?, QQueryOperations> hashIdProperty() {
+    return addPropertyNameInternal('hashId');
+  }
+
+  QueryBuilder<ShoppingList, String, QQueryOperations> idProperty() {
+    return addPropertyNameInternal('id');
+  }
+
+  QueryBuilder<ShoppingList, int, QQueryOperations> insertTimestampProperty() {
+    return addPropertyNameInternal('insertTimestamp');
+  }
+
+  QueryBuilder<ShoppingList, bool, QQueryOperations> isInitializedProperty() {
+    return addPropertyNameInternal('isInitialized');
+  }
+
+  QueryBuilder<ShoppingList, String?, QQueryOperations> nameProperty() {
+    return addPropertyNameInternal('name');
+  }
+
+  QueryBuilder<ShoppingList, int, QQueryOperations> updateTimestampProperty() {
+    return addPropertyNameInternal('updateTimestamp');
+  }
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
+ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
       id: json['_id'] as String,
       items: (json['items'] as List<dynamic>?)
-              ?.map((e) => ShoppingListItem.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => ShoppingListItem.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
       name: json['name'] as String?,
@@ -211,8 +1029,7 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   return val;
 }
 
-ShoppingListItem _$ShoppingListItemFromJson(Map<String, dynamic> json) =>
-    ShoppingListItem(
+ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
       item: json['item'] as String,
       supermarketSection: json['supermarketSection'] as String?,
       checked: json['checked'] as bool? ?? false,
@@ -238,118 +1055,4 @@ Map<String, dynamic> _$ShoppingListItemToJson(ShoppingListItem instance) {
   writeNotNull('supermarketSection', instance.supermarketSection);
   writeNotNull('listPosition', instance.listPosition);
   return val;
-}
-
-// **************************************************************************
-// RepositoryGenerator
-// **************************************************************************
-
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
-
-mixin $ShoppingListLocalAdapter on LocalAdapter<ShoppingList> {
-  @override
-  Map<String, Map<String, Object?>> relationshipsFor([ShoppingList? model]) =>
-      {};
-
-  @override
-  ShoppingList deserialize(map) {
-    for (final key in relationshipsFor().keys) {
-      map[key] = {
-        '_': [map[key], !map.containsKey(key)],
-      };
-    }
-    return ShoppingList.fromJson(map);
-  }
-
-  @override
-  Map<String, dynamic> serialize(model) => model.toJson();
-}
-
-// ignore: must_be_immutable
-class $ShoppingListHiveLocalAdapter = HiveLocalAdapter<ShoppingList>
-    with $ShoppingListLocalAdapter;
-
-class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
-    with BaseAdapter<ShoppingList>, ShoppingListAdapter<ShoppingList>;
-
-//
-
-final shoppingListsLocalAdapterProvider = Provider<LocalAdapter<ShoppingList>>(
-    (ref) => $ShoppingListHiveLocalAdapter(ref.read));
-
-final shoppingListsRemoteAdapterProvider =
-    Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
-        ref.watch(shoppingListsLocalAdapterProvider),
-        shoppingListProvider,
-        shoppingListsProvider));
-
-final shoppingListsRepositoryProvider = Provider<Repository<ShoppingList>>(
-    (ref) => Repository<ShoppingList>(ref.read));
-
-final _shoppingListProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<ShoppingList?>,
-    DataState<ShoppingList?>,
-    WatchArgs<ShoppingList>>((ref, args) {
-  return ref.watch(shoppingListsRepositoryProvider).watchOneNotifier(args.id!,
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      alsoWatch: args.alsoWatch);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList?>,
-        DataState<ShoppingList?>>
-    shoppingListProvider(Object? id,
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        AlsoWatch<ShoppingList>? alsoWatch}) {
-  return _shoppingListProvider(WatchArgs(
-      id: id,
-      remote: remote,
-      params: params,
-      headers: headers,
-      alsoWatch: alsoWatch));
-}
-
-final _shoppingListsProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<List<ShoppingList>>,
-    DataState<List<ShoppingList>>,
-    WatchArgs<ShoppingList>>((ref, args) {
-  return ref.watch(shoppingListsRepositoryProvider).watchAllNotifier(
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      syncLocal: args.syncLocal);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<List<ShoppingList>>,
-        DataState<List<ShoppingList>>>
-    shoppingListsProvider(
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        bool? syncLocal}) {
-  return _shoppingListsProvider(WatchArgs(
-      remote: remote, params: params, headers: headers, syncLocal: syncLocal));
-}
-
-extension ShoppingListDataX on ShoppingList {
-  /// Initializes "fresh" models (i.e. manually instantiated) to use
-  /// [save], [delete] and so on.
-  ///
-  /// Can be obtained via `ref.read`, `container.read`
-  ShoppingList init(Reader read, {bool save = true}) {
-    final repository = internalLocatorFn(shoppingListsRepositoryProvider, read);
-    final updatedModel =
-        repository.remoteAdapter.initializeModel(this, save: save);
-    return save ? updatedModel : this;
-  }
-}
-
-extension ShoppingListDataRepositoryX on Repository<ShoppingList> {
-  BaseAdapter<ShoppingList> get baseAdapter =>
-      remoteAdapter as BaseAdapter<ShoppingList>;
-  ShoppingListAdapter<ShoppingList> get shoppingListAdapter =>
-      remoteAdapter as ShoppingListAdapter<ShoppingList>;
 }
