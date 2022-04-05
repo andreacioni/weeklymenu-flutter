@@ -17,12 +17,6 @@ abstract class BaseModel<T extends DataModel<T>>
   @JsonKey(name: '_id')
   final String id;
 
-  @Id()
-  @JsonKey(ignore: true)
-
-  ///this is an `internal` field and MUST NOT be taken into account
-  final int? hashId;
-
   @JsonKey(name: 'insert_timestamp', ignore: true)
   final int insertTimestamp;
 
@@ -31,7 +25,29 @@ abstract class BaseModel<T extends DataModel<T>>
 
   BaseModel({
     required this.id,
-    this.hashId,
+    this.insertTimestamp = 0,
+    this.updateTimestamp = 0,
+  });
+}
+
+abstract class BaseModel2<T> implements Cloneable<T> {
+  @JsonKey(ignore: true)
+  @Id()
+  final int? internalId;
+
+  @JsonKey(name: '_id')
+  @Index()
+  final String? id;
+
+  @JsonKey(name: 'insert_timestamp', ignore: true)
+  final int insertTimestamp;
+
+  @JsonKey(name: 'update_timestamp', ignore: true)
+  final int updateTimestamp;
+
+  BaseModel2({
+    this.id,
+    this.internalId,
     this.insertTimestamp = 0,
     this.updateTimestamp = 0,
   });

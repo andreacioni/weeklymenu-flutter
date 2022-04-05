@@ -12,15 +12,14 @@ part 'shopping_list.g.dart';
 @JsonSerializable()
 @Collection()
 @CopyWith()
-class ShoppingList extends BaseModel<ShoppingList> {
+class ShoppingList extends BaseModel2<ShoppingList> {
   @JsonKey(defaultValue: <ShoppingListItem>[])
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)
   String? name;
 
-  ShoppingList({required String id, this.items = const [], this.name})
-      : super(id: id);
+  ShoppingList({String? id, this.items = const [], this.name}) : super(id: id);
 
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
@@ -52,7 +51,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
       items[idx] = items[idx].copyWith(checked: checked);
     }
 
-    return copyWith(items: items).was(this);
+    return copyWith(items: items);
   }
 
   bool containsItem(String itemId) {
@@ -94,19 +93,4 @@ class ShoppingListItem with ChangeNotifier {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
-}
-
-mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
-    on RemoteAdapter<ShoppingList> {
-  @override
-  String urlForFindAll(Map<String, dynamic> params) => dashCaseType;
-
-  @override
-  String urlForFindOne(id, Map<String, dynamic> params) => '$dashCaseType/$id';
-
-  @override
-  String urlForSave(id, Map<String, dynamic> params) => '$dashCaseType/$id';
-
-  String get dashCaseType =>
-      type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
 }

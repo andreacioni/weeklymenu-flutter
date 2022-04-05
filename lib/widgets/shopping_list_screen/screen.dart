@@ -81,7 +81,10 @@ class ShoppingListScreen extends HookConsumerWidget {
     Future<void> _setChecked(WidgetRef ref, ShoppingList shoppingList,
         ShoppingListItem shopItem, bool checked) async {
       try {
-        await shoppingList.setChecked(shopItem, checked).save();
+        await ref
+            .read(shoppingListsRepositoryProvider)
+            .value!
+            .save(shoppingList.setChecked(shopItem, checked));
       } catch (e, st) {
         _logger.severe("failed to save shopping list", e, st);
 

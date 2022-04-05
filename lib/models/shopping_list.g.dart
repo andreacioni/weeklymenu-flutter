@@ -7,7 +7,7 @@ part of 'shopping_list.dart';
 // **************************************************************************
 
 abstract class _$ShoppingListCWProxy {
-  ShoppingList id(String id);
+  ShoppingList id(String? id);
 
   ShoppingList items(List<ShoppingListItem> items);
 
@@ -33,7 +33,7 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   const _$ShoppingListCWProxyImpl(this._value);
 
   @override
-  ShoppingList id(String id) => this(id: id);
+  ShoppingList id(String? id) => this(id: id);
 
   @override
   ShoppingList items(List<ShoppingListItem> items) => this(items: items);
@@ -55,10 +55,10 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
     Object? name = const $CopyWithPlaceholder(),
   }) {
     return ShoppingList(
-      id: id == const $CopyWithPlaceholder() || id == null
+      id: id == const $CopyWithPlaceholder()
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
-          : id as String,
+          : id as String?,
       items: items == const $CopyWithPlaceholder() || items == null
           ? _value.items
           // ignore: cast_nullable_to_non_nullable
@@ -72,7 +72,7 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
 }
 
 extension $ShoppingListCopyWith on ShoppingList {
-  /// Returns a callable class that can be used as follows: `instanceOfclass ShoppingList extends BaseModel<ShoppingList>.name.copyWith(...)` or like so:`instanceOfclass ShoppingList extends BaseModel<ShoppingList>.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfclass ShoppingList extends BaseModel2<ShoppingList>.name.copyWith(...)` or like so:`instanceOfclass ShoppingList extends BaseModel2<ShoppingList>.name.copyWith.fieldName(...)`.
   _$ShoppingListCWProxy get copyWith => _$ShoppingListCWProxyImpl(this);
 }
 
@@ -197,28 +197,26 @@ extension GetShoppingListCollection on Isar {
 final ShoppingListSchema = CollectionSchema(
   name: 'ShoppingList',
   schema:
-      '{"name":"ShoppingList","idName":"hashId","properties":[{"name":"id","type":"String"},{"name":"insertTimestamp","type":"Long"},{"name":"isInitialized","type":"Bool"},{"name":"name","type":"String"},{"name":"updateTimestamp","type":"Long"}],"indexes":[],"links":[]}',
+      '{"name":"ShoppingList","idName":"internalId","properties":[{"name":"id","type":"String"},{"name":"insertTimestamp","type":"Long"},{"name":"name","type":"String"},{"name":"updateTimestamp","type":"Long"}],"indexes":[{"name":"id","unique":false,"properties":[{"name":"id","type":"Hash","caseSensitive":true}]}],"links":[]}',
   nativeAdapter: const _ShoppingListNativeAdapter(),
   webAdapter: const _ShoppingListWebAdapter(),
-  idName: 'hashId',
-  propertyIds: {
-    'id': 0,
-    'insertTimestamp': 1,
-    'isInitialized': 2,
-    'name': 3,
-    'updateTimestamp': 4
-  },
+  idName: 'internalId',
+  propertyIds: {'id': 0, 'insertTimestamp': 1, 'name': 2, 'updateTimestamp': 3},
   listProperties: {},
-  indexIds: {},
-  indexTypes: {},
+  indexIds: {'id': 0},
+  indexTypes: {
+    'id': [
+      NativeIndexType.stringHash,
+    ]
+  },
   linkIds: {},
   backlinkIds: {},
   linkedCollections: [],
   getId: (obj) {
-    if (obj.hashId == Isar.autoIncrement) {
+    if (obj.internalId == Isar.autoIncrement) {
       return null;
     } else {
-      return obj.hashId;
+      return obj.internalId;
     }
   },
   setId: null,
@@ -233,10 +231,9 @@ class _ShoppingListWebAdapter extends IsarWebTypeAdapter<ShoppingList> {
   Object serialize(
       IsarCollection<ShoppingList> collection, ShoppingList object) {
     final jsObj = IsarNative.newJsObject();
-    IsarNative.jsObjectSet(jsObj, 'hashId', object.hashId);
     IsarNative.jsObjectSet(jsObj, 'id', object.id);
     IsarNative.jsObjectSet(jsObj, 'insertTimestamp', object.insertTimestamp);
-    IsarNative.jsObjectSet(jsObj, 'isInitialized', object.isInitialized);
+    IsarNative.jsObjectSet(jsObj, 'internalId', object.internalId);
     IsarNative.jsObjectSet(jsObj, 'name', object.name);
     IsarNative.jsObjectSet(jsObj, 'updateTimestamp', object.updateTimestamp);
     return jsObj;
@@ -246,7 +243,7 @@ class _ShoppingListWebAdapter extends IsarWebTypeAdapter<ShoppingList> {
   ShoppingList deserialize(
       IsarCollection<ShoppingList> collection, dynamic jsObj) {
     final object = ShoppingList(
-      id: IsarNative.jsObjectGet(jsObj, 'id') ?? '',
+      id: IsarNative.jsObjectGet(jsObj, 'id'),
       name: IsarNative.jsObjectGet(jsObj, 'name'),
     );
     return object;
@@ -255,15 +252,13 @@ class _ShoppingListWebAdapter extends IsarWebTypeAdapter<ShoppingList> {
   @override
   P deserializeProperty<P>(Object jsObj, String propertyName) {
     switch (propertyName) {
-      case 'hashId':
-        return (IsarNative.jsObjectGet(jsObj, 'hashId')) as P;
       case 'id':
-        return (IsarNative.jsObjectGet(jsObj, 'id') ?? '') as P;
+        return (IsarNative.jsObjectGet(jsObj, 'id')) as P;
       case 'insertTimestamp':
         return (IsarNative.jsObjectGet(jsObj, 'insertTimestamp') ??
             double.negativeInfinity) as P;
-      case 'isInitialized':
-        return (IsarNative.jsObjectGet(jsObj, 'isInitialized') ?? false) as P;
+      case 'internalId':
+        return (IsarNative.jsObjectGet(jsObj, 'internalId')) as P;
       case 'name':
         return (IsarNative.jsObjectGet(jsObj, 'name')) as P;
       case 'updateTimestamp':
@@ -291,20 +286,21 @@ class _ShoppingListNativeAdapter extends IsarNativeTypeAdapter<ShoppingList> {
       AdapterAlloc alloc) {
     var dynamicSize = 0;
     final value0 = object.id;
-    final _id = IsarBinaryWriter.utf8Encoder.convert(value0);
-    dynamicSize += (_id.length) as int;
+    IsarUint8List? _id;
+    if (value0 != null) {
+      _id = IsarBinaryWriter.utf8Encoder.convert(value0);
+    }
+    dynamicSize += (_id?.length ?? 0) as int;
     final value1 = object.insertTimestamp;
     final _insertTimestamp = value1;
-    final value2 = object.isInitialized;
-    final _isInitialized = value2;
-    final value3 = object.name;
+    final value2 = object.name;
     IsarUint8List? _name;
-    if (value3 != null) {
-      _name = IsarBinaryWriter.utf8Encoder.convert(value3);
+    if (value2 != null) {
+      _name = IsarBinaryWriter.utf8Encoder.convert(value2);
     }
     dynamicSize += (_name?.length ?? 0) as int;
-    final value4 = object.updateTimestamp;
-    final _updateTimestamp = value4;
+    final value3 = object.updateTimestamp;
+    final _updateTimestamp = value3;
     final size = staticSize + dynamicSize;
 
     rawObj.buffer = alloc(size);
@@ -313,17 +309,16 @@ class _ShoppingListNativeAdapter extends IsarNativeTypeAdapter<ShoppingList> {
     final writer = IsarBinaryWriter(buffer, staticSize);
     writer.writeBytes(offsets[0], _id);
     writer.writeLong(offsets[1], _insertTimestamp);
-    writer.writeBool(offsets[2], _isInitialized);
-    writer.writeBytes(offsets[3], _name);
-    writer.writeLong(offsets[4], _updateTimestamp);
+    writer.writeBytes(offsets[2], _name);
+    writer.writeLong(offsets[3], _updateTimestamp);
   }
 
   @override
   ShoppingList deserialize(IsarCollection<ShoppingList> collection, int id,
       IsarBinaryReader reader, List<int> offsets) {
     final object = ShoppingList(
-      id: reader.readString(offsets[0]),
-      name: reader.readStringOrNull(offsets[3]),
+      id: reader.readStringOrNull(offsets[0]),
+      name: reader.readStringOrNull(offsets[2]),
     );
     return object;
   }
@@ -335,14 +330,12 @@ class _ShoppingListNativeAdapter extends IsarNativeTypeAdapter<ShoppingList> {
       case -1:
         return id as P;
       case 0:
-        return (reader.readString(offset)) as P;
+        return (reader.readStringOrNull(offset)) as P;
       case 1:
         return (reader.readLong(offset)) as P;
       case 2:
-        return (reader.readBool(offset)) as P;
-      case 3:
         return (reader.readStringOrNull(offset)) as P;
-      case 4:
+      case 3:
         return (reader.readLong(offset)) as P;
       default:
         throw 'Illegal propertyIndex';
@@ -355,150 +348,159 @@ class _ShoppingListNativeAdapter extends IsarNativeTypeAdapter<ShoppingList> {
 
 extension ShoppingListQueryWhereSort
     on QueryBuilder<ShoppingList, ShoppingList, QWhere> {
-  QueryBuilder<ShoppingList, ShoppingList, QAfterWhere> anyHashId() {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhere> anyInternalId() {
     return addWhereClauseInternal(const WhereClause(indexName: null));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhere> anyId() {
+    return addWhereClauseInternal(const WhereClause(indexName: 'id'));
   }
 }
 
 extension ShoppingListQueryWhere
     on QueryBuilder<ShoppingList, ShoppingList, QWhereClause> {
-  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdEqualTo(
-      int? hashId) {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> internalIdEqualTo(
+      int? internalId) {
     return addWhereClauseInternal(WhereClause(
       indexName: null,
-      lower: [hashId],
+      lower: [internalId],
       includeLower: true,
-      upper: [hashId],
+      upper: [internalId],
       includeUpper: true,
     ));
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdNotEqualTo(
-      int? hashId) {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause>
+      internalIdNotEqualTo(int? internalId) {
     if (whereSortInternal == Sort.asc) {
       return addWhereClauseInternal(WhereClause(
         indexName: null,
-        upper: [hashId],
+        upper: [internalId],
         includeUpper: false,
       )).addWhereClauseInternal(WhereClause(
         indexName: null,
-        lower: [hashId],
+        lower: [internalId],
         includeLower: false,
       ));
     } else {
       return addWhereClauseInternal(WhereClause(
         indexName: null,
-        lower: [hashId],
+        lower: [internalId],
         includeLower: false,
       )).addWhereClauseInternal(WhereClause(
         indexName: null,
-        upper: [hashId],
+        upper: [internalId],
         includeUpper: false,
       ));
     }
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdGreaterThan(
-    int? hashId, {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause>
+      internalIdGreaterThan(
+    int? internalId, {
     bool include = false,
   }) {
     return addWhereClauseInternal(WhereClause(
       indexName: null,
-      lower: [hashId],
+      lower: [internalId],
       includeLower: include,
     ));
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdLessThan(
-    int? hashId, {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause>
+      internalIdLessThan(
+    int? internalId, {
     bool include = false,
   }) {
     return addWhereClauseInternal(WhereClause(
       indexName: null,
-      upper: [hashId],
+      upper: [internalId],
       includeUpper: include,
     ));
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> hashIdBetween(
-    int? lowerHashId,
-    int? upperHashId, {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> internalIdBetween(
+    int? lowerInternalId,
+    int? upperInternalId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return addWhereClauseInternal(WhereClause(
       indexName: null,
-      lower: [lowerHashId],
+      lower: [lowerInternalId],
       includeLower: includeLower,
-      upper: [upperHashId],
+      upper: [upperInternalId],
       includeUpper: includeUpper,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> idEqualTo(
+      String? id) {
+    return addWhereClauseInternal(WhereClause(
+      indexName: 'id',
+      lower: [id],
+      includeLower: true,
+      upper: [id],
+      includeUpper: true,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> idNotEqualTo(
+      String? id) {
+    if (whereSortInternal == Sort.asc) {
+      return addWhereClauseInternal(WhereClause(
+        indexName: 'id',
+        upper: [id],
+        includeUpper: false,
+      )).addWhereClauseInternal(WhereClause(
+        indexName: 'id',
+        lower: [id],
+        includeLower: false,
+      ));
+    } else {
+      return addWhereClauseInternal(WhereClause(
+        indexName: 'id',
+        lower: [id],
+        includeLower: false,
+      )).addWhereClauseInternal(WhereClause(
+        indexName: 'id',
+        upper: [id],
+        includeUpper: false,
+      ));
+    }
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> idIsNull() {
+    return addWhereClauseInternal(const WhereClause(
+      indexName: 'id',
+      upper: [null],
+      includeUpper: true,
+      lower: [null],
+      includeLower: true,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterWhereClause> idIsNotNull() {
+    return addWhereClauseInternal(const WhereClause(
+      indexName: 'id',
+      lower: [null],
+      includeLower: false,
     ));
   }
 }
 
 extension ShoppingListQueryFilter
     on QueryBuilder<ShoppingList, ShoppingList, QFilterCondition> {
-  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
-      hashIdIsNull() {
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idIsNull() {
     return addFilterConditionInternal(FilterCondition(
       type: ConditionType.isNull,
-      property: 'hashId',
+      property: 'id',
       value: null,
     ));
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> hashIdEqualTo(
-      int? value) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.eq,
-      property: 'hashId',
-      value: value,
-    ));
-  }
-
-  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
-      hashIdGreaterThan(
-    int? value, {
-    bool include = false,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.gt,
-      include: include,
-      property: 'hashId',
-      value: value,
-    ));
-  }
-
-  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
-      hashIdLessThan(
-    int? value, {
-    bool include = false,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.lt,
-      include: include,
-      property: 'hashId',
-      value: value,
-    ));
-  }
-
-  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> hashIdBetween(
-    int? lower,
-    int? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return addFilterConditionInternal(FilterCondition.between(
-      property: 'hashId',
-      lower: lower,
-      includeLower: includeLower,
-      upper: upper,
-      includeUpper: includeUpper,
-    ));
-  }
-
   QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return addFilterConditionInternal(FilterCondition(
@@ -510,7 +512,7 @@ extension ShoppingListQueryFilter
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idGreaterThan(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
     bool include = false,
   }) {
@@ -524,7 +526,7 @@ extension ShoppingListQueryFilter
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idLessThan(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
     bool include = false,
   }) {
@@ -538,8 +540,8 @@ extension ShoppingListQueryFilter
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition> idBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool caseSensitive = true,
     bool includeLower = true,
     bool includeUpper = true,
@@ -652,11 +654,62 @@ extension ShoppingListQueryFilter
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
-      isInitializedEqualTo(bool value) {
+      internalIdIsNull() {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.isNull,
+      property: 'internalId',
+      value: null,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      internalIdEqualTo(int? value) {
     return addFilterConditionInternal(FilterCondition(
       type: ConditionType.eq,
-      property: 'isInitialized',
+      property: 'internalId',
       value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      internalIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.gt,
+      include: include,
+      property: 'internalId',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      internalIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return addFilterConditionInternal(FilterCondition(
+      type: ConditionType.lt,
+      include: include,
+      property: 'internalId',
+      value: value,
+    ));
+  }
+
+  QueryBuilder<ShoppingList, ShoppingList, QAfterFilterCondition>
+      internalIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return addFilterConditionInternal(FilterCondition.between(
+      property: 'internalId',
+      lower: lower,
+      includeLower: includeLower,
+      upper: upper,
+      includeUpper: includeUpper,
     ));
   }
 
@@ -830,14 +883,6 @@ extension ShoppingListQueryLinks
 
 extension ShoppingListQueryWhereSortBy
     on QueryBuilder<ShoppingList, ShoppingList, QSortBy> {
-  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByHashId() {
-    return addSortByInternal('hashId', Sort.asc);
-  }
-
-  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByHashIdDesc() {
-    return addSortByInternal('hashId', Sort.desc);
-  }
-
   QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortById() {
     return addSortByInternal('id', Sort.asc);
   }
@@ -856,13 +901,13 @@ extension ShoppingListQueryWhereSortBy
     return addSortByInternal('insertTimestamp', Sort.desc);
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByIsInitialized() {
-    return addSortByInternal('isInitialized', Sort.asc);
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByInternalId() {
+    return addSortByInternal('internalId', Sort.asc);
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
-      sortByIsInitializedDesc() {
-    return addSortByInternal('isInitialized', Sort.desc);
+      sortByInternalIdDesc() {
+    return addSortByInternal('internalId', Sort.desc);
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> sortByName() {
@@ -886,14 +931,6 @@ extension ShoppingListQueryWhereSortBy
 
 extension ShoppingListQueryWhereSortThenBy
     on QueryBuilder<ShoppingList, ShoppingList, QSortThenBy> {
-  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByHashId() {
-    return addSortByInternal('hashId', Sort.asc);
-  }
-
-  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByHashIdDesc() {
-    return addSortByInternal('hashId', Sort.desc);
-  }
-
   QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenById() {
     return addSortByInternal('id', Sort.asc);
   }
@@ -912,13 +949,13 @@ extension ShoppingListQueryWhereSortThenBy
     return addSortByInternal('insertTimestamp', Sort.desc);
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByIsInitialized() {
-    return addSortByInternal('isInitialized', Sort.asc);
+  QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByInternalId() {
+    return addSortByInternal('internalId', Sort.asc);
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy>
-      thenByIsInitializedDesc() {
-    return addSortByInternal('isInitialized', Sort.desc);
+      thenByInternalIdDesc() {
+    return addSortByInternal('internalId', Sort.desc);
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QAfterSortBy> thenByName() {
@@ -942,10 +979,6 @@ extension ShoppingListQueryWhereSortThenBy
 
 extension ShoppingListQueryWhereDistinct
     on QueryBuilder<ShoppingList, ShoppingList, QDistinct> {
-  QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctByHashId() {
-    return addDistinctByInternal('hashId');
-  }
-
   QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctById(
       {bool caseSensitive = true}) {
     return addDistinctByInternal('id', caseSensitive: caseSensitive);
@@ -956,9 +989,8 @@ extension ShoppingListQueryWhereDistinct
     return addDistinctByInternal('insertTimestamp');
   }
 
-  QueryBuilder<ShoppingList, ShoppingList, QDistinct>
-      distinctByIsInitialized() {
-    return addDistinctByInternal('isInitialized');
+  QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctByInternalId() {
+    return addDistinctByInternal('internalId');
   }
 
   QueryBuilder<ShoppingList, ShoppingList, QDistinct> distinctByName(
@@ -974,11 +1006,7 @@ extension ShoppingListQueryWhereDistinct
 
 extension ShoppingListQueryProperty
     on QueryBuilder<ShoppingList, ShoppingList, QQueryProperty> {
-  QueryBuilder<ShoppingList, int?, QQueryOperations> hashIdProperty() {
-    return addPropertyNameInternal('hashId');
-  }
-
-  QueryBuilder<ShoppingList, String, QQueryOperations> idProperty() {
+  QueryBuilder<ShoppingList, String?, QQueryOperations> idProperty() {
     return addPropertyNameInternal('id');
   }
 
@@ -986,8 +1014,8 @@ extension ShoppingListQueryProperty
     return addPropertyNameInternal('insertTimestamp');
   }
 
-  QueryBuilder<ShoppingList, bool, QQueryOperations> isInitializedProperty() {
-    return addPropertyNameInternal('isInitialized');
+  QueryBuilder<ShoppingList, int?, QQueryOperations> internalIdProperty() {
+    return addPropertyNameInternal('internalId');
   }
 
   QueryBuilder<ShoppingList, String?, QQueryOperations> nameProperty() {
@@ -1004,7 +1032,7 @@ extension ShoppingListQueryProperty
 // **************************************************************************
 
 ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
-      id: json['_id'] as String,
+      id: json['_id'] as String?,
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => ShoppingListItem.fromJson(
                   Map<String, dynamic>.from(e as Map)))
@@ -1014,10 +1042,7 @@ ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
     );
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
-  final val = <String, dynamic>{
-    '_id': instance.id,
-    'items': instance.items.map((e) => e.toJson()).toList(),
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -1025,6 +1050,8 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
     }
   }
 
+  writeNotNull('_id', instance.id);
+  val['items'] = instance.items.map((e) => e.toJson()).toList();
   writeNotNull('name', instance.name);
   return val;
 }
