@@ -7,3 +7,4 @@ targets:
           # `@JsonSerializable`-annotated class in the package.
           #
           explicit_to_json: true
+          any_map: true

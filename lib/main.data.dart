@@ -21,8 +21,13 @@ ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<Str
     baseDirFn ??= () => '';
   }
   
-  return hiveLocalStorageProvider.overrideWithProvider(Provider(
-        (_) => HiveLocalStorage(baseDirFn: baseDirFn, encryptionKey: encryptionKey, clear: clear)));
+  return hiveLocalStorageProvider
+    .overrideWithProvider(Provider((ref) => HiveLocalStorage(
+            hive: ref.read(hiveProvider),
+            baseDirFn: baseDirFn,
+            encryptionKey: encryptionKey,
+            clear: clear,
+          )));
 };
 
 // ignore: prefer_function_declarations_over_variables

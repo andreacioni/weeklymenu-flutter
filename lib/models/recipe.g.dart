@@ -298,8 +298,7 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   return val;
 }
 
-RecipeIngredient _$RecipeIngredientFromJson(Map<String, dynamic> json) =>
-    RecipeIngredient(
+RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
       ingredientId: json['ingredient'] as String,
       unitOfMeasure: json['unitOfMeasure'] as String?,
       quantity: json['quantity'] ?? 0,
@@ -355,12 +354,9 @@ class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
 
 //
 
-final recipesLocalAdapterProvider =
-    Provider<LocalAdapter<Recipe>>((ref) => $RecipeHiveLocalAdapter(ref.read));
-
 final recipesRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>((ref) =>
-    $RecipeRemoteAdapter(ref.watch(recipesLocalAdapterProvider), recipeProvider,
-        recipesProvider));
+    $RecipeRemoteAdapter(
+        $RecipeHiveLocalAdapter(ref.read), recipeProvider, recipesProvider));
 
 final recipesRepositoryProvider =
     Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref.read));
@@ -368,11 +364,15 @@ final recipesRepositoryProvider =
 final _recipeProvider = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Recipe?>, DataState<Recipe?>, WatchArgs<Recipe>>(
         (ref, args) {
-  return ref.watch(recipesRepositoryProvider).watchOneNotifier(args.id!,
+  final adapter = ref.watch(recipesRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
+  return notifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      alsoWatch: args.alsoWatch);
+      alsoWatch: args.alsoWatch,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Recipe?>, DataState<Recipe?>>
@@ -380,24 +380,32 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<Recipe?>, DataState<Recipe?>>
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        AlsoWatch<Recipe>? alsoWatch}) {
+        AlsoWatch<Recipe>? alsoWatch,
+        String? finder,
+        String? watcher}) {
   return _recipeProvider(WatchArgs(
       id: id,
       remote: remote,
       params: params,
       headers: headers,
-      alsoWatch: alsoWatch));
+      alsoWatch: alsoWatch,
+      finder: finder,
+      watcher: watcher));
 }
 
 final _recipesProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<List<Recipe>>,
     DataState<List<Recipe>>,
     WatchArgs<Recipe>>((ref, args) {
-  return ref.watch(recipesRepositoryProvider).watchAllNotifier(
+  final adapter = ref.watch(recipesRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
+  return notifier(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      syncLocal: args.syncLocal);
+      syncLocal: args.syncLocal,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<Recipe>>,
@@ -406,9 +414,16 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<List<Recipe>>,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        bool? syncLocal}) {
+        bool? syncLocal,
+        String? finder,
+        String? watcher}) {
   return _recipesProvider(WatchArgs(
-      remote: remote, params: params, headers: headers, syncLocal: syncLocal));
+      remote: remote,
+      params: params,
+      headers: headers,
+      syncLocal: syncLocal,
+      finder: finder,
+      watcher: watcher));
 }
 
 extension RecipeDataX on Recipe {

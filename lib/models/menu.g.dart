@@ -6,7 +6,7 @@ part of 'menu.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Menu _$MenuFromJson(Map<String, dynamic> json) => Menu(
+Menu _$MenuFromJson(Map json) => Menu(
       id: json['_id'] as String,
       date: const DateConverter().fromJson(json['date'] as String),
       meal: $enumDecode(_$MealEnumMap, json['meal']),
@@ -60,12 +60,9 @@ class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 
 //
 
-final menusLocalAdapterProvider =
-    Provider<LocalAdapter<Menu>>((ref) => $MenuHiveLocalAdapter(ref.read));
-
 final menusRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>((ref) =>
     $MenuRemoteAdapter(
-        ref.watch(menusLocalAdapterProvider), menuProvider, menusProvider));
+        $MenuHiveLocalAdapter(ref.read), menuProvider, menusProvider));
 
 final menusRepositoryProvider =
     Provider<Repository<Menu>>((ref) => Repository<Menu>(ref.read));
@@ -73,11 +70,15 @@ final menusRepositoryProvider =
 final _menuProvider = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<Menu?>, DataState<Menu?>, WatchArgs<Menu>>(
         (ref, args) {
-  return ref.watch(menusRepositoryProvider).watchOneNotifier(args.id!,
+  final adapter = ref.watch(menusRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
+  return notifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      alsoWatch: args.alsoWatch);
+      alsoWatch: args.alsoWatch,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<Menu?>, DataState<Menu?>>
@@ -85,24 +86,32 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<Menu?>, DataState<Menu?>>
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        AlsoWatch<Menu>? alsoWatch}) {
+        AlsoWatch<Menu>? alsoWatch,
+        String? finder,
+        String? watcher}) {
   return _menuProvider(WatchArgs(
       id: id,
       remote: remote,
       params: params,
       headers: headers,
-      alsoWatch: alsoWatch));
+      alsoWatch: alsoWatch,
+      finder: finder,
+      watcher: watcher));
 }
 
 final _menusProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<List<Menu>>,
     DataState<List<Menu>>,
     WatchArgs<Menu>>((ref, args) {
-  return ref.watch(menusRepositoryProvider).watchAllNotifier(
+  final adapter = ref.watch(menusRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
+  return notifier(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      syncLocal: args.syncLocal);
+      syncLocal: args.syncLocal,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<Menu>>,
@@ -111,9 +120,16 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<List<Menu>>,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        bool? syncLocal}) {
+        bool? syncLocal,
+        String? finder,
+        String? watcher}) {
   return _menusProvider(WatchArgs(
-      remote: remote, params: params, headers: headers, syncLocal: syncLocal));
+      remote: remote,
+      params: params,
+      headers: headers,
+      syncLocal: syncLocal,
+      finder: finder,
+      watcher: watcher));
 }
 
 extension MenuDataX on Menu {

@@ -186,10 +186,11 @@ extension $ShoppingListItemCopyWith on ShoppingListItem {
 // JsonSerializableGenerator
 // **************************************************************************
 
-ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
+ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
       id: json['_id'] as String,
       items: (json['items'] as List<dynamic>?)
-              ?.map((e) => ShoppingListItem.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => ShoppingListItem.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
       name: json['name'] as String?,
@@ -211,8 +212,7 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   return val;
 }
 
-ShoppingListItem _$ShoppingListItemFromJson(Map<String, dynamic> json) =>
-    ShoppingListItem(
+ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
       item: json['item'] as String,
       supermarketSection: json['supermarketSection'] as String?,
       checked: json['checked'] as bool? ?? false,
@@ -274,12 +274,9 @@ class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
 
 //
 
-final shoppingListsLocalAdapterProvider = Provider<LocalAdapter<ShoppingList>>(
-    (ref) => $ShoppingListHiveLocalAdapter(ref.read));
-
 final shoppingListsRemoteAdapterProvider =
     Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
-        ref.watch(shoppingListsLocalAdapterProvider),
+        $ShoppingListHiveLocalAdapter(ref.read),
         shoppingListProvider,
         shoppingListsProvider));
 
@@ -290,11 +287,15 @@ final _shoppingListProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<ShoppingList?>,
     DataState<ShoppingList?>,
     WatchArgs<ShoppingList>>((ref, args) {
-  return ref.watch(shoppingListsRepositoryProvider).watchOneNotifier(args.id!,
+  final adapter = ref.watch(shoppingListsRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
+  return notifier(args.id!,
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      alsoWatch: args.alsoWatch);
+      alsoWatch: args.alsoWatch,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList?>,
@@ -303,24 +304,32 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList?>,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        AlsoWatch<ShoppingList>? alsoWatch}) {
+        AlsoWatch<ShoppingList>? alsoWatch,
+        String? finder,
+        String? watcher}) {
   return _shoppingListProvider(WatchArgs(
       id: id,
       remote: remote,
       params: params,
       headers: headers,
-      alsoWatch: alsoWatch));
+      alsoWatch: alsoWatch,
+      finder: finder,
+      watcher: watcher));
 }
 
 final _shoppingListsProvider = StateNotifierProvider.autoDispose.family<
     DataStateNotifier<List<ShoppingList>>,
     DataState<List<ShoppingList>>,
     WatchArgs<ShoppingList>>((ref, args) {
-  return ref.watch(shoppingListsRepositoryProvider).watchAllNotifier(
+  final adapter = ref.watch(shoppingListsRemoteAdapterProvider);
+  final notifier =
+      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
+  return notifier(
       remote: args.remote,
       params: args.params,
       headers: args.headers,
-      syncLocal: args.syncLocal);
+      syncLocal: args.syncLocal,
+      finder: args.finder);
 });
 
 AutoDisposeStateNotifierProvider<DataStateNotifier<List<ShoppingList>>,
@@ -329,9 +338,16 @@ AutoDisposeStateNotifierProvider<DataStateNotifier<List<ShoppingList>>,
         {bool? remote,
         Map<String, dynamic>? params,
         Map<String, String>? headers,
-        bool? syncLocal}) {
+        bool? syncLocal,
+        String? finder,
+        String? watcher}) {
   return _shoppingListsProvider(WatchArgs(
-      remote: remote, params: params, headers: headers, syncLocal: syncLocal));
+      remote: remote,
+      params: params,
+      headers: headers,
+      syncLocal: syncLocal,
+      finder: finder,
+      watcher: watcher));
 }
 
 extension ShoppingListDataX on ShoppingList {
