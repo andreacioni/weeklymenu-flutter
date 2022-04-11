@@ -328,8 +328,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
             onPressed: () async {
               Navigator.of(context).pop();
               if (textController.text.trim().isNotEmpty) {
-                await ref.read(recipesRepositoryProvider).save(Recipe(
-                    id: ObjectId().hexString, name: textController.text));
+                await ref.read(recipesRepositoryProvider).save(
+                    Recipe(id: ObjectId().hexString, name: textController.text),
+                    params: {'update': false});
               } else {
                 _log.w("No name supplied");
               }

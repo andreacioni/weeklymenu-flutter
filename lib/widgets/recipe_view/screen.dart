@@ -55,7 +55,7 @@ class RecipeView extends HookConsumerWidget {
         showProgressDialog(context);
 
         try {
-          await ref.recipes.save(recipe.save());
+          await ref.recipes.save(recipe.save(), params: {'update': true});
         } catch (e) {
           showAlertErrorMessage(context);
           return;

@@ -24,20 +24,13 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.menus;
-
     return FlutterDataStateBuilder<List<Menu>>(
-      state: repository.watchAll(
+      state: ref.menus.watchAll(
         params: {'day': _day.format(_dateParser)},
       ),
       builder: (context, model) {
-        final dailyMenu = DailyMenu(
-          _day,
-          model
-              .where((menu) => menu.date == _day)
-              .map((menu) => MenuOriginator(menu))
-              .toList(),
-        ); //TODO to be reviewed
+        final filtered = model.where((m) => m.date == _day).toList();
+        final dailyMenu = DailyMenu(_day, filtered);
         return _buildMenuCard(context, _day, dailyMenu);
       },
     );

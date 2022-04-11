@@ -9,7 +9,11 @@ part of 'ingredient.dart';
 abstract class _$IngredientCWProxy {
   Ingredient id(String id);
 
+  Ingredient insertTimestamp(int? insertTimestamp);
+
   Ingredient name(String name);
+
+  Ingredient updateTimestamp(int? updateTimestamp);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Ingredient(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -19,7 +23,9 @@ abstract class _$IngredientCWProxy {
   /// ````
   Ingredient call({
     String? id,
+    int? insertTimestamp,
     String? name,
+    int? updateTimestamp,
   });
 }
 
@@ -33,7 +39,15 @@ class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
   Ingredient id(String id) => this(id: id);
 
   @override
+  Ingredient insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
+
+  @override
   Ingredient name(String name) => this(name: name);
+
+  @override
+  Ingredient updateTimestamp(int? updateTimestamp) =>
+      this(updateTimestamp: updateTimestamp);
 
   @override
 
@@ -45,17 +59,27 @@ class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
   /// ````
   Ingredient call({
     Object? id = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
+    Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return Ingredient(
       id: id == const $CopyWithPlaceholder() || id == null
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
           : id as String,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
       name: name == const $CopyWithPlaceholder() || name == null
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
           : name as String,
+      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
+          ? _value.updateTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : updateTimestamp as int?,
     );
   }
 }
@@ -72,11 +96,15 @@ extension $IngredientCopyWith on Ingredient {
 Ingredient _$IngredientFromJson(Map json) => Ingredient(
       id: json['_id'] as String,
       name: json['name'] as String,
+      insertTimestamp: json['insert_timestamp'] as int?,
+      updateTimestamp: json['update_timestamp'] as int?,
     );
 
 Map<String, dynamic> _$IngredientToJson(Ingredient instance) =>
     <String, dynamic>{
       '_id': instance.id,
+      'insert_timestamp': instance.insertTimestamp,
+      'update_timestamp': instance.updateTimestamp,
       'name': instance.name,
     };
 

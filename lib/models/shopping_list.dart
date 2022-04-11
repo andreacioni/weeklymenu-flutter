@@ -12,14 +12,22 @@ part 'shopping_list.g.dart';
 @DataRepository([BaseAdapter, ShoppingListAdapter])
 @CopyWith()
 class ShoppingList extends BaseModel<ShoppingList> {
-  @JsonKey(defaultValue: [])
+  @JsonKey(defaultValue: const [])
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)
   String? name;
 
-  ShoppingList({required String id, this.items = const [], this.name})
-      : super(id: id);
+  ShoppingList(
+      {required String id,
+      this.items = const [],
+      this.name,
+      int? insertTimestamp,
+      int? updateTimestamp})
+      : super(
+            id: id,
+            insertTimestamp: insertTimestamp,
+            updateTimestamp: updateTimestamp);
 
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
@@ -104,7 +112,8 @@ mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
   String urlForFindOne(id, Map<String, dynamic> params) => '$dashCaseType/$id';
 
   @override
-  String urlForSave(id, Map<String, dynamic> params) => '$dashCaseType/$id';
+  String urlForSave(id, Map<String, dynamic> params) =>
+      params['update'] == true ? '$dashCaseType/$id' : dashCaseType;
 
   String get dashCaseType =>
       type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();

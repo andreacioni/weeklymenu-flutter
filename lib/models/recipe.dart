@@ -68,25 +68,30 @@ class Recipe extends BaseModel<Recipe> {
   @JsonKey(ignore: true)
   final String? owner;
 
-  Recipe({
-    required String id,
-    required this.name,
-    this.description,
-    this.ingredients = const <RecipeIngredient>[],
-    this.difficulty,
-    this.rating,
-    this.cost,
-    this.availabilityMonths = const <int>[],
-    this.servs,
-    this.estimatedPreparationTime,
-    this.estimatedCookingTime,
-    this.imgUrl,
-    this.tags = const <String>[],
-    this.preparation,
-    this.recipeUrl,
-    this.note,
-    this.owner,
-  }) : super(id: id);
+  Recipe(
+      {required String id,
+      required this.name,
+      this.description,
+      this.ingredients = const <RecipeIngredient>[],
+      this.difficulty,
+      this.rating,
+      this.cost,
+      this.availabilityMonths = const <int>[],
+      this.servs,
+      this.estimatedPreparationTime,
+      this.estimatedCookingTime,
+      this.imgUrl,
+      this.tags = const <String>[],
+      this.preparation,
+      this.recipeUrl,
+      this.note,
+      this.owner,
+      int? insertTimestamp,
+      int? updateTimestamp})
+      : super(
+            id: id,
+            insertTimestamp: insertTimestamp,
+            updateTimestamp: updateTimestamp);
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 

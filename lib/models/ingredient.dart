@@ -12,7 +12,15 @@ part 'ingredient.g.dart';
 class Ingredient extends BaseModel<Ingredient> {
   final String name;
 
-  Ingredient({required String id, required this.name}) : super(id: id);
+  Ingredient(
+      {required String id,
+      required this.name,
+      int? insertTimestamp,
+      int? updateTimestamp})
+      : super(
+            id: id,
+            insertTimestamp: insertTimestamp,
+            updateTimestamp: updateTimestamp);
 
   factory Ingredient.fromJson(Map<String, dynamic> json) =>
       _$IngredientFromJson(json);

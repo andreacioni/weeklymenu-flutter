@@ -25,6 +25,8 @@ abstract class _$RecipeCWProxy {
 
   Recipe ingredients(List<RecipeIngredient> ingredients);
 
+  Recipe insertTimestamp(int? insertTimestamp);
+
   Recipe name(String name);
 
   Recipe note(String? note);
@@ -40,6 +42,8 @@ abstract class _$RecipeCWProxy {
   Recipe servs(int? servs);
 
   Recipe tags(List<String> tags);
+
+  Recipe updateTimestamp(int? updateTimestamp);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Recipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -57,6 +61,7 @@ abstract class _$RecipeCWProxy {
     String? id,
     String? imgUrl,
     List<RecipeIngredient>? ingredients,
+    int? insertTimestamp,
     String? name,
     String? note,
     String? owner,
@@ -65,6 +70,7 @@ abstract class _$RecipeCWProxy {
     String? recipeUrl,
     int? servs,
     List<String>? tags,
+    int? updateTimestamp,
   });
 }
 
@@ -106,6 +112,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
       this(ingredients: ingredients);
 
   @override
+  Recipe insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
+
+  @override
   Recipe name(String name) => this(name: name);
 
   @override
@@ -130,6 +140,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   Recipe tags(List<String> tags) => this(tags: tags);
 
   @override
+  Recipe updateTimestamp(int? updateTimestamp) =>
+      this(updateTimestamp: updateTimestamp);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Recipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -147,6 +161,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? id = const $CopyWithPlaceholder(),
     Object? imgUrl = const $CopyWithPlaceholder(),
     Object? ingredients = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? note = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
@@ -155,6 +170,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? recipeUrl = const $CopyWithPlaceholder(),
     Object? servs = const $CopyWithPlaceholder(),
     Object? tags = const $CopyWithPlaceholder(),
+    Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return Recipe(
       availabilityMonths: availabilityMonths == const $CopyWithPlaceholder() ||
@@ -196,6 +212,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
               ? _value.ingredients
               // ignore: cast_nullable_to_non_nullable
               : ingredients as List<RecipeIngredient>,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
       name: name == const $CopyWithPlaceholder() || name == null
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
@@ -228,6 +248,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.tags
           // ignore: cast_nullable_to_non_nullable
           : tags as List<String>,
+      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
+          ? _value.updateTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : updateTimestamp as int?,
     );
   }
 }
@@ -267,11 +291,15 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
       preparation: json['preparation'] as String?,
       recipeUrl: json['recipeUrl'] as String?,
       note: json['note'] as String?,
+      insertTimestamp: json['insert_timestamp'] as int?,
+      updateTimestamp: json['update_timestamp'] as int?,
     );
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
+    'insert_timestamp': instance.insertTimestamp,
+    'update_timestamp': instance.updateTimestamp,
     'name': instance.name,
   };
 

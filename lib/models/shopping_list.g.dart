@@ -9,9 +9,13 @@ part of 'shopping_list.dart';
 abstract class _$ShoppingListCWProxy {
   ShoppingList id(String id);
 
+  ShoppingList insertTimestamp(int? insertTimestamp);
+
   ShoppingList items(List<ShoppingListItem> items);
 
   ShoppingList name(String? name);
+
+  ShoppingList updateTimestamp(int? updateTimestamp);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ShoppingList(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -21,8 +25,10 @@ abstract class _$ShoppingListCWProxy {
   /// ````
   ShoppingList call({
     String? id,
+    int? insertTimestamp,
     List<ShoppingListItem>? items,
     String? name,
+    int? updateTimestamp,
   });
 }
 
@@ -36,10 +42,18 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   ShoppingList id(String id) => this(id: id);
 
   @override
+  ShoppingList insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
+
+  @override
   ShoppingList items(List<ShoppingListItem> items) => this(items: items);
 
   @override
   ShoppingList name(String? name) => this(name: name);
+
+  @override
+  ShoppingList updateTimestamp(int? updateTimestamp) =>
+      this(updateTimestamp: updateTimestamp);
 
   @override
 
@@ -51,14 +65,20 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   /// ````
   ShoppingList call({
     Object? id = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? items = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
+    Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return ShoppingList(
       id: id == const $CopyWithPlaceholder() || id == null
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
           : id as String,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
       items: items == const $CopyWithPlaceholder() || items == null
           ? _value.items
           // ignore: cast_nullable_to_non_nullable
@@ -67,6 +87,10 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
           : name as String?,
+      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
+          ? _value.updateTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : updateTimestamp as int?,
     );
   }
 }
@@ -194,11 +218,15 @@ ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
               .toList() ??
           [],
       name: json['name'] as String?,
+      insertTimestamp: json['insert_timestamp'] as int?,
+      updateTimestamp: json['update_timestamp'] as int?,
     );
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
+    'insert_timestamp': instance.insertTimestamp,
+    'update_timestamp': instance.updateTimestamp,
     'items': instance.items.map((e) => e.toJson()).toList(),
   };
 

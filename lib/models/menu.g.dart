@@ -3,6 +3,115 @@
 part of 'menu.dart';
 
 // **************************************************************************
+// CopyWithGenerator
+// **************************************************************************
+
+abstract class _$MenuCWProxy {
+  Menu date(Date date);
+
+  Menu id(String id);
+
+  Menu insertTimestamp(int? insertTimestamp);
+
+  Menu meal(Meal meal);
+
+  Menu recipes(List<String> recipes);
+
+  Menu updateTimestamp(int? updateTimestamp);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Menu(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// Menu(...).copyWith(id: 12, name: "My name")
+  /// ````
+  Menu call({
+    Date? date,
+    String? id,
+    int? insertTimestamp,
+    Meal? meal,
+    List<String>? recipes,
+    int? updateTimestamp,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfMenu.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfMenu.copyWith.fieldName(...)`
+class _$MenuCWProxyImpl implements _$MenuCWProxy {
+  final Menu _value;
+
+  const _$MenuCWProxyImpl(this._value);
+
+  @override
+  Menu date(Date date) => this(date: date);
+
+  @override
+  Menu id(String id) => this(id: id);
+
+  @override
+  Menu insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
+
+  @override
+  Menu meal(Meal meal) => this(meal: meal);
+
+  @override
+  Menu recipes(List<String> recipes) => this(recipes: recipes);
+
+  @override
+  Menu updateTimestamp(int? updateTimestamp) =>
+      this(updateTimestamp: updateTimestamp);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Menu(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// Menu(...).copyWith(id: 12, name: "My name")
+  /// ````
+  Menu call({
+    Object? date = const $CopyWithPlaceholder(),
+    Object? id = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? meal = const $CopyWithPlaceholder(),
+    Object? recipes = const $CopyWithPlaceholder(),
+    Object? updateTimestamp = const $CopyWithPlaceholder(),
+  }) {
+    return Menu(
+      date: date == const $CopyWithPlaceholder() || date == null
+          ? _value.date
+          // ignore: cast_nullable_to_non_nullable
+          : date as Date,
+      id: id == const $CopyWithPlaceholder() || id == null
+          ? _value.id
+          // ignore: cast_nullable_to_non_nullable
+          : id as String,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
+      meal: meal == const $CopyWithPlaceholder() || meal == null
+          ? _value.meal
+          // ignore: cast_nullable_to_non_nullable
+          : meal as Meal,
+      recipes: recipes == const $CopyWithPlaceholder() || recipes == null
+          ? _value.recipes
+          // ignore: cast_nullable_to_non_nullable
+          : recipes as List<String>,
+      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
+          ? _value.updateTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : updateTimestamp as int?,
+    );
+  }
+}
+
+extension $MenuCopyWith on Menu {
+  /// Returns a callable class that can be used as follows: `instanceOfclass Menu extends BaseModel<Menu>.name.copyWith(...)` or like so:`instanceOfclass Menu extends BaseModel<Menu>.name.copyWith.fieldName(...)`.
+  _$MenuCWProxy get copyWith => _$MenuCWProxyImpl(this);
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -14,10 +123,14 @@ Menu _$MenuFromJson(Map json) => Menu(
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      insertTimestamp: json['insert_timestamp'] as int?,
+      updateTimestamp: json['update_timestamp'] as int?,
     );
 
 Map<String, dynamic> _$MenuToJson(Menu instance) => <String, dynamic>{
       '_id': instance.id,
+      'insert_timestamp': instance.insertTimestamp,
+      'update_timestamp': instance.updateTimestamp,
       'date': const DateConverter().toJson(instance.date),
       'meal': _$MealEnumMap[instance.meal],
       'recipes': instance.recipes,

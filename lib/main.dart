@@ -11,7 +11,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [
-        configureRepositoryLocalStorage(),
+        configureRepositoryLocalStorage(clear: true),
       ],
       child: MaterialApp(
         title: 'Weekly Menu',

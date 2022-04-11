@@ -46,7 +46,7 @@ class ShoppingListScreen extends HookConsumerWidget {
       shoppingList.addShoppingListItem(item);
 
       try {
-        await ref.read(shoppingListsRepositoryProvider).save(shoppingList);
+        await ref.shoppingLists.save(shoppingList, params: {'update': true});
       } catch (e) {
         showAlertErrorMessage(context);
         shoppingList.removeItemFromList(item);
@@ -58,8 +58,9 @@ class ShoppingListScreen extends HookConsumerWidget {
       Repository<Ingredient> ingredientsRepo =
           ref.read(ingredientsRepositoryProvider);
       loading.value = true;
-      Ingredient newIngredient = await ingredientsRepo
-          .save(Ingredient(id: ObjectId().hexString, name: ingredientName));
+      Ingredient newIngredient = await ingredientsRepo.save(
+          Ingredient(id: ObjectId().hexString, name: ingredientName),
+          params: {'update': false});
       loading.value = false;
       _createShopItemForIngredient(ref, shoppingList, newIngredient);
     }
@@ -67,7 +68,9 @@ class ShoppingListScreen extends HookConsumerWidget {
     Future<void> _setChecked(WidgetRef ref, ShoppingList shoppingList,
         ShoppingListItem shopItem, bool checked) async {
       try {
-        await shoppingList.setChecked(shopItem, checked).save();
+        await shoppingList
+            .setChecked(shopItem, checked)
+            .save(params: {'update': true});
       } catch (e) {
         showAlertErrorMessage(context);
         shoppingList.setChecked(
