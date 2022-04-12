@@ -111,6 +111,65 @@ extension $MenuCopyWith on Menu {
   _$MenuCWProxy get copyWith => _$MenuCWProxyImpl(this);
 }
 
+abstract class _$DailyMenuCWProxy {
+  DailyMenu day(Date day);
+
+  DailyMenu menus(List<Menu> menus);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `DailyMenu(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// DailyMenu(...).copyWith(id: 12, name: "My name")
+  /// ````
+  DailyMenu call({
+    Date? day,
+    List<Menu>? menus,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfDailyMenu.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfDailyMenu.copyWith.fieldName(...)`
+class _$DailyMenuCWProxyImpl implements _$DailyMenuCWProxy {
+  final DailyMenu _value;
+
+  const _$DailyMenuCWProxyImpl(this._value);
+
+  @override
+  DailyMenu day(Date day) => this(day: day);
+
+  @override
+  DailyMenu menus(List<Menu> menus) => this(menus: menus);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `DailyMenu(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// DailyMenu(...).copyWith(id: 12, name: "My name")
+  /// ````
+  DailyMenu call({
+    Object? day = const $CopyWithPlaceholder(),
+    Object? menus = const $CopyWithPlaceholder(),
+  }) {
+    return DailyMenu(
+      day: day == const $CopyWithPlaceholder() || day == null
+          ? _value.day
+          // ignore: cast_nullable_to_non_nullable
+          : day as Date,
+      menus: menus == const $CopyWithPlaceholder() || menus == null
+          ? _value.menus
+          // ignore: cast_nullable_to_non_nullable
+          : menus as List<Menu>,
+    );
+  }
+}
+
+extension $DailyMenuCopyWith on DailyMenu {
+  /// Returns a callable class that can be used as follows: `instanceOfclass DailyMenu.name.copyWith(...)` or like so:`instanceOfclass DailyMenu.name.copyWith.fieldName(...)`.
+  _$DailyMenuCWProxy get copyWith => _$DailyMenuCWProxyImpl(this);
+}
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************

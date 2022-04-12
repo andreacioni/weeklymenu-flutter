@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../models/recipe.dart';
 
-class RecipeTile extends StatelessWidget {
+class RecipeTile extends HookConsumerWidget {
   final Recipe _recipe;
   final bool editEnable;
   final bool isChecked;
@@ -20,7 +22,8 @@ class RecipeTile extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final checked = useState(isChecked);
     return InkWell(
       onTap: onPressed,
       child: ListTile(
@@ -28,8 +31,13 @@ class RecipeTile extends StatelessWidget {
         title: Text(_recipe.name),
         trailing: editEnable
             ? Checkbox(
-                value: isChecked,
-                onChanged: onCheckChange,
+                value: checked.value,
+                onChanged: (newValue) {
+                  checked.value = newValue == true;
+                  if (onCheckChange != null) {
+                    onCheckChange!(newValue);
+                  }
+                },
               )
             : null,
       ),

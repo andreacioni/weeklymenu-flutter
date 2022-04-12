@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:objectid/objectid.dart';
+import 'package:weekly_menu_app/globals/hooks.dart';
 import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';
 
 import '../../globals/errors_handlers.dart';
@@ -14,18 +15,16 @@ import '../../models/recipe.dart';
 import './recipe_tile.dart';
 import './recipe_suggestion_text_field.dart';
 
-class MenuEditorScrollView extends StatefulWidget {
-  final DailyMenu _dailyMenu;
+class MenuEditorScrollView extends StatefulHookConsumerWidget {
+  final DailyMenuNotifier _dailyMenuNotifier;
 
-  MenuEditorScrollView(this._dailyMenu);
+  MenuEditorScrollView(this._dailyMenuNotifier);
 
   @override
   _MenuEditorScrollViewState createState() => _MenuEditorScrollViewState();
 }
 
-class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
-  final _log = Logger();
-
+class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
   late bool _initialized;
   late ThemeData _theme;
 
@@ -58,54 +57,219 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
 
   @override
   Widget build(BuildContext context) {
-    return HookConsumer(builder: (context, ref, _) {
-      final recipeRepository = ref.read(recipesRepositoryProvider);
-      final menuRepository = ref.read(menusRepositoryProvider);
+    final recipeRepository = ref.watch(recipesRepositoryProvider);
+    final menuRepository = ref.watch(menusRepositoryProvider);
 
-      return Theme(
-        data: _theme,
-        child: CustomScrollView(
-          slivers: Meal.values
-              .map((m) => _buildSliversForMeal(
-                  ref,
-                  m,
-                  widget._dailyMenu.getMenuByMeal(m),
-                  recipeRepository,
-                  menuRepository))
-              .expand((element) => element)
-              .toList(),
+    final dailyMenu = useStateNotifier(widget._dailyMenuNotifier);
+
+    void _showRecipeTextFieldForMeal(Meal meal) {
+      setState(() {
+        _addRecipeMealTarget = meal;
+      });
+    }
+
+    Widget _dropTargetBuilder(BuildContext context,
+        List<MealRecipe?> candidateRecipes, rejectedRecipes, Meal targetMeal) {
+      candidateRecipes.removeWhere((e) => e == null);
+
+      if (candidateRecipes.isNotEmpty) {
+        return ListTile(title: Text(candidateRecipes[0]!.recipe.name));
+      } else if (_dragMode == true && _fromMeal != targetMeal) {
+        return Center(
+          child: Text('DROP HERE'),
+        );
+      } else {
+        return Container();
+      }
+    }
+
+    Future<void> _addRecipeToMeal(
+        Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
+      if (dailyMenu.getMenuByMeal(meal) == null) {
+        final menu = await menuRepository.save(
+            Menu.create(
+              date: dailyMenu.day,
+              recipes: [recipe.id],
+              meal: meal,
+            ),
+            params: {'update': false});
+        widget._dailyMenuNotifier.addMenu(menu);
+      } else {
+        widget._dailyMenuNotifier.addRecipeToMeal(meal, recipe);
+      }
+    }
+
+    void _createNewRecipeByName(
+        WidgetRef ref,
+        Meal meal,
+        String recipeName,
+        Repository<Recipe> recipeRepository,
+        Repository<Menu> menuRepository) async {
+      if (recipeName.trim().isNotEmpty) {
+        showProgressDialog(context);
+
+        try {
+          Recipe recipe = await recipeRepository
+              .save(Recipe(id: ObjectId().hexString, name: recipeName));
+          await _addRecipeToMeal(meal, recipe, menuRepository);
+        } catch (e) {
+          hideProgressDialog(context);
+          showAlertErrorMessage(context);
+          return;
+        }
+
+        hideProgressDialog(context);
+      } else {
+        print("Can't create a reicpe with empty name");
+      }
+    }
+
+    void _stopMealEditing(DailyMenu dailyMenu) {
+      setState(() => _addRecipeMealTarget = null);
+    }
+
+    void _openRecipeView(Recipe recipe) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => RecipeView(recipe),
         ),
       );
-    });
-  }
+    }
 
-  /**
+    void _handleAddRecipe(WidgetRef ref, Meal meal, Recipe recipe,
+        Repository<Menu> menuRepository) async {
+      showProgressDialog(context);
+      try {
+        await _addRecipeToMeal(meal, recipe, menuRepository);
+        hideProgressDialog(context);
+      } catch (e) {
+        hideProgressDialog(context);
+        showAlertErrorMessage(context);
+      }
+    }
+
+    void _handleRecipeCheckChange(WidgetRef ref, DailyMenu dailyMenu,
+        MealRecipe mealRecipe, bool checked) {
+      final menuRecipeSelection =
+          ref.read(menuRecipeSelectionProvider.notifier);
+      if (checked) {
+        menuRecipeSelection.setSelectedRecipe(mealRecipe);
+      } else {
+        menuRecipeSelection.removeSelectedRecipe(mealRecipe);
+      }
+    }
+
+    Widget _buildRecipeTile(WidgetRef ref, DailyMenu dailyMenu, Meal meal,
+        String id, Repository<Recipe> recipeRepository) {
+      return FutureBuilder<Recipe?>(
+          future: recipeRepository.findOne(id, remote: false),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text('Error occurred');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.data == null) {
+              return Text('Recipe not found!');
+            }
+
+            final recipe = snapshot.data!;
+
+            final mealRecipe = MealRecipe(meal, recipe);
+            final recipeTile = RecipeTile(
+              recipe,
+              editEnable: true,
+              isChecked: ref
+                      .read(menuRecipeSelectionProvider)[meal]
+                      ?.contains(recipe.id) ??
+                  false,
+              onPressed: () => _openRecipeView(recipe),
+              onCheckChange: (c) => _handleRecipeCheckChange(
+                  ref, dailyMenu, mealRecipe, c ?? false),
+              key: ValueKey(
+                  mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
+            );
+
+            return Column(
+              //key: ,
+              children: <Widget>[
+                Draggable<MealRecipe>(
+                  child: recipeTile,
+                  feedback: Material(
+                    child: Text(recipe.name),
+                  ),
+                  childWhenDragging: Container(),
+                  data: mealRecipe,
+                  onDragStarted: () => setState(() {
+                    _dragMode = true;
+                    _fromMeal = meal;
+                  }),
+                  onDragCompleted: () => setState(() => _dragMode = false),
+                  onDragEnd: (_) => setState(() => _dragMode = false),
+                  onDraggableCanceled: (_, __) =>
+                      setState(() => _dragMode = false),
+                ),
+                Divider(
+                  height: 0,
+                ),
+              ],
+            );
+          });
+    }
+
+    DragTarget<MealRecipe> _buildDragTarget(WidgetRef ref, Meal meal) {
+      return DragTarget<MealRecipe>(
+        builder: (bCtx, accepted, rejected) =>
+            _dropTargetBuilder(bCtx, accepted, rejected, meal),
+        onWillAccept: (mealRecipe) {
+          print('onWillAccept - $meal');
+          return true;
+        },
+        onAccept: (mealRecipe) {
+          print('onAccept - $meal');
+          if (dailyMenu.getMenuByMeal(meal) == null) {
+            widget._dailyMenuNotifier.addMenu(Menu(
+                id: ObjectId().hexString, date: dailyMenu.day, meal: meal));
+          }
+          dailyMenu.moveRecipeToMeal(
+              mealRecipe.meal, meal, mealRecipe.recipe.id);
+        },
+        onLeave: (_) {
+          print('onLeave - $meal');
+        },
+      );
+    }
+
+    /**
   * We can't pass only the menu object because it could be null if there isn't any recipe defined
   * for that (day, meal)
   **/
-  List<Widget> _buildSliversForMeal(WidgetRef ref, Meal meal, Menu? menu,
-      Repository<Recipe> recipeRepository, Repository<Menu> menuRepository) {
-    assert(meal.value != null);
+    List<Widget> _buildSliversForMeal(WidgetRef ref, Meal meal, Menu? menu,
+        Repository<Recipe> recipeRepository, Repository<Menu> menuRepository) {
+      assert(meal.value != null);
 
-    return <Widget>[
-      SliverAppBar(
-        pinned: true,
-        forceElevated: true,
-        elevation: 1,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: <Widget>[
-            Icon(meal.icon),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              meal.value!,
-              textAlign: TextAlign.right,
-            ),
-          ],
-        ),
-        actions: <Widget>[
+      return <Widget>[
+        SliverAppBar(
+          pinned: true,
+          forceElevated: true,
+          elevation: 1,
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: <Widget>[
+              Icon(meal.icon),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                meal.value!,
+                textAlign: TextAlign.right,
+              ),
+            ],
+          ),
+          actions: <Widget>[
 /*             IconButton(
               icon: Icon(Icons.swap_horiz),
               onPressed: menu != null &&
@@ -114,224 +278,53 @@ class _MenuEditorScrollViewState extends State<MenuEditorScrollView> {
                   ? () => _swapMenuBetweenDays(menu)
                   : null,
             ), */
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _showRecipeTextFieldForMeal(meal),
-          ),
-        ],
-      ),
-      SliverList(
-        delegate: SliverChildListDelegate.fixed(
-          <Widget>[
-            if (_addRecipeMealTarget == meal)
-              RecipeSuggestionTextField(
-                meal,
-                dailyMenu: widget._dailyMenu,
-                autofocus: true,
-                enabled: true,
-                hintText: 'Recipe',
-                showSuggestions: true,
-                onFocusChanged: (hasFocus) {
-                  if (hasFocus == false) {
-                    _stopMealEditing(widget._dailyMenu);
-                  }
-                },
-                onRecipeSelected: (recipe) =>
-                    _handleAddRecipe(meal, recipe, menuRepository),
-                onSubmitted: (recipeName) => _createNewRecipeByName(
-                    meal, recipeName, recipeRepository, menuRepository),
-              ),
-            if (menu != null && menu.recipes.isNotEmpty)
-              ...menu.recipes
-                  .map((id) => _buildRecipeTile(
-                      ref, widget._dailyMenu, meal, id, recipeRepository))
-                  .toList(),
-            _buildDragTarget(meal),
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () => _showRecipeTextFieldForMeal(meal),
+            ),
           ],
         ),
-      ),
-    ];
-  }
-
-  void _showRecipeTextFieldForMeal(Meal meal) {
-    setState(() {
-      _addRecipeMealTarget = meal;
-    });
-  }
-
-  void _handleAddRecipe(
-      Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
-    showProgressDialog(context);
-    try {
-      await _addRecipeToMeal(meal, recipe, menuRepository);
-      hideProgressDialog(context);
-    } catch (e) {
-      hideProgressDialog(context);
-      showAlertErrorMessage(context);
-    }
-  }
-
-  Future<void> _addRecipeToMeal(
-      Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
-    if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-      await menuRepository.save(
-          Menu(
-            id: ObjectId().hexString,
-            date: widget._dailyMenu.day,
-            recipes: [recipe.id],
-            meal: meal,
-          ),
-          params: {'update': false});
-      widget._dailyMenu.addRecipeToMeal(meal, recipe);
-    } else {
-      widget._dailyMenu.addRecipeToMeal(meal, recipe);
-    }
-  }
-
-  void _createNewRecipeByName(
-      Meal meal,
-      String recipeName,
-      Repository<Recipe> recipeRepository,
-      Repository<Menu> menuRepository) async {
-    if (recipeName != null && recipeName.trim().isNotEmpty) {
-      showProgressDialog(context);
-
-      try {
-        Recipe recipe = await recipeRepository
-            .save(Recipe(id: ObjectId().hexString, name: recipeName));
-        await _addRecipeToMeal(meal, recipe, menuRepository);
-      } catch (e) {
-        hideProgressDialog(context);
-        showAlertErrorMessage(context);
-        return;
-      }
-
-      hideProgressDialog(context);
-    } else {
-      _log.w("Can't create a reicpe with empty name");
-    }
-  }
-
-  void _stopMealEditing(DailyMenu dailyMenu) {
-    setState(() => _addRecipeMealTarget = null);
-  }
-
-  Widget _buildRecipeTile(WidgetRef ref, DailyMenu dailyMenu, Meal meal,
-      String id, Repository<Recipe> recipeRepository) {
-    final selection = ref.read(menuRecipeSelectionProvider.notifier);
-    return FutureBuilder<Recipe?>(
-        future: recipeRepository.findOne(id),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text('Error occurred');
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.data == null) {
-            return Text('Recipe not found!');
-          }
-
-          final recipe = snapshot.data!;
-
-          final mealRecipe = MealRecipe(meal, recipe);
-          final recipeTile = RecipeTile(
-            recipe,
-            editEnable: true,
-            isChecked: ref
-                    .read(menuRecipeSelectionProvider)[meal]
-                    ?.contains(recipe.id) ??
-                false,
-            onPressed: () => _openRecipeView(recipe),
-            onCheckChange: (c) => _handleRecipeCheckChange(
-                ref, dailyMenu, mealRecipe, c ?? false),
-            key: ValueKey(
-                mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
-          );
-
-          return Column(
-            //key: ,
-            children: <Widget>[
-              Draggable<MealRecipe>(
-                child: recipeTile,
-                feedback: Material(
-                  child: Text(recipe.name),
+        SliverList(
+          delegate: SliverChildListDelegate.fixed(
+            <Widget>[
+              if (_addRecipeMealTarget == meal)
+                RecipeSuggestionTextField(
+                  meal,
+                  dailyMenu: dailyMenu,
+                  autofocus: true,
+                  enabled: true,
+                  hintText: 'Recipe',
+                  showSuggestions: true,
+                  onFocusChanged: (hasFocus) {
+                    if (hasFocus == false) {
+                      _stopMealEditing(dailyMenu);
+                    }
+                  },
+                  onRecipeSelected: (recipe) =>
+                      _handleAddRecipe(ref, meal, recipe, menuRepository),
+                  onSubmitted: (recipeName) => _createNewRecipeByName(
+                      ref, meal, recipeName, recipeRepository, menuRepository),
                 ),
-                childWhenDragging: Container(),
-                data: mealRecipe,
-                onDragStarted: () => setState(() {
-                  _dragMode = true;
-                  _fromMeal = meal;
-                }),
-                onDragCompleted: () => setState(() => _dragMode = false),
-                onDragEnd: (_) => setState(() => _dragMode = false),
-                onDraggableCanceled: (_, __) =>
-                    setState(() => _dragMode = false),
-              ),
-              Divider(
-                height: 0,
-              ),
+              if (menu != null && menu.recipes.isNotEmpty)
+                ...menu.recipes
+                    .map((id) => _buildRecipeTile(
+                        ref, dailyMenu, meal, id, recipeRepository))
+                    .toList(),
+              _buildDragTarget(ref, meal),
             ],
-          );
-        });
-  }
-
-  DragTarget<MealRecipe> _buildDragTarget(Meal meal) {
-    return DragTarget<MealRecipe>(
-      builder: (bCtx, accepted, rejected) =>
-          _dropTargetBuilder(bCtx, accepted, rejected, meal),
-      onWillAccept: (mealRecipe) {
-        print('onWillAccept - $meal');
-        return true;
-      },
-      onAccept: (mealRecipe) {
-        print('onAccept - $meal');
-        if (widget._dailyMenu.getMenuByMeal(meal) == null) {
-          widget._dailyMenu.addMenu(Menu(
-              id: ObjectId().hexString,
-              date: widget._dailyMenu.day,
-              meal: meal));
-        }
-        widget._dailyMenu
-            .moveRecipeToMeal(mealRecipe.meal, meal, mealRecipe.recipe.id);
-      },
-      onLeave: (_) {
-        print('onLeave - $meal');
-      },
-    );
-  }
-
-  void _handleRecipeCheckChange(
-      WidgetRef ref, DailyMenu dailyMenu, MealRecipe mealRecipe, bool checked) {
-    final menuRecipeSelection = ref.read(menuRecipeSelectionProvider.notifier);
-    if (checked) {
-      menuRecipeSelection.setSelectedRecipe(mealRecipe);
-    } else {
-      menuRecipeSelection.removeSelectedRecipe(mealRecipe);
+          ),
+        ),
+      ];
     }
-  }
 
-  Widget _dropTargetBuilder(BuildContext context,
-      List<MealRecipe?> candidateRecipes, rejectedRecipes, Meal targetMeal) {
-    candidateRecipes.removeWhere((e) => e == null);
-
-    if (candidateRecipes.isNotEmpty) {
-      return ListTile(title: Text(candidateRecipes[0]!.recipe.name));
-    } else if (_dragMode == true && _fromMeal != targetMeal) {
-      return Center(
-        child: Text('DROP HERE'),
-      );
-    } else {
-      return Container();
-    }
-  }
-
-  void _openRecipeView(Recipe recipe) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => RecipeView(recipe),
+    return Theme(
+      data: _theme,
+      child: CustomScrollView(
+        slivers: Meal.values
+            .map((m) => _buildSliversForMeal(ref, m, dailyMenu.getMenuByMeal(m),
+                recipeRepository, menuRepository))
+            .expand((element) => element)
+            .toList(),
       ),
     );
   }

@@ -30,7 +30,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
       ),
       builder: (context, model) {
         final filtered = model.where((m) => m.date == _day).toList();
-        final dailyMenu = DailyMenu(_day, filtered);
+        final dailyMenu = DailyMenu(day: _day, menus: filtered);
         return _buildMenuCard(context, _day, dailyMenu);
       },
     );
@@ -42,12 +42,10 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => MenuEditorScreen(dailyMenu),
+            builder: (_) => MenuEditorScreen(DailyMenuNotifier(dailyMenu)),
           ),
         );
       },
     );
-
-    ;
   }
 }

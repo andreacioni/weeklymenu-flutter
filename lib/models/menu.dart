@@ -79,13 +79,91 @@ class Menu extends BaseModel<Menu> {
   Menu clone() => Menu.fromJson(this.toJson());
 }
 
-class DailyMenu extends StateNotifier<List<Menu>> {
-  final Date day;
+class DailyMenuNotifier extends StateNotifier<DailyMenu> {
+  DailyMenuNotifier(DailyMenu dailyMenu) : super(dailyMenu);
 
-  DailyMenu(this.day, List<Menu> menuList) : super(menuList) {
-    assert(menuList.every((element) => element.date == day));
+  void addMenu(Menu newMenu) {
+    assert(state.menus.firstWhereOrNull(
+          (menu) => menu.meal == newMenu.meal,
+        ) ==
+        null);
+
+    state = state;
   }
 
+  void updateMenu(Menu newMenu) {
+    assert(state.menus.firstWhereOrNull(
+          (menu) => menu.meal == newMenu.meal,
+        ) !=
+        null);
+    final menuList = state.menus..removeWhere((m) => m.id == newMenu.id);
+
+    state = state.copyWith(menus: [...menuList, newMenu]);
+  }
+
+  void addRecipeToMeal(Meal meal, Recipe recipe) {
+    var menu = state.getMenuByMeal(meal);
+
+    if (menu != null) {
+      menu = menu.addRecipe(recipe.id);
+      updateMenu(menu);
+      menu.save(params: {'update': true});
+    }
+  }
+
+  void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
+    if (recipeIds.isNotEmpty) {
+      var menu = state.getMenuByMeal(meal);
+
+      if (menu != null) {
+        final newMenu = menu.addRecipes(recipeIds);
+        updateMenu(newMenu);
+      }
+    }
+  }
+
+  void removeMenu(Menu menu) {
+    final newList = state.menus
+      ..removeWhere((element) => element.id == menu.id);
+    state = state.copyWith(menus: newList);
+  }
+
+  Future<void> save(DailyMenu dailyMenu) async {
+    for (Menu menu in dailyMenu.menus) {
+      if (menu.recipes.isEmpty) {
+        // No recipes in menu means that there isn't a menu for that meal, so when can remove it
+        await menu.delete(params: {'update': true});
+        removeMenu(menu);
+      } else {
+        await menu.save(params: {'update': true});
+      }
+    }
+  }
+
+  void removeRecipesFromMeal(List<String> recipeIds) {
+    final copy = [...state.menus];
+    copy.forEach((menu) => menu.removeRecipeByIdList(recipeIds));
+    state = state.copyWith(menus: copy);
+  }
+
+  void removeAllRecipesFromMeal(Meal meal) {
+    if (state.menus.isNotEmpty) {
+      final menu = state.menus.firstWhereOrNull((m) => m.meal == meal);
+      if (menu != null) {
+        menu.removeAllRecipes();
+        updateMenu(menu);
+      }
+    }
+  }
+}
+
+@CopyWith()
+class DailyMenu {
+  final Date day;
+  final List<Menu> menus;
+
+  DailyMenu({required this.day, required this.menus})
+      : assert(menus.every((element) => element.date == day));
   void moveRecipeToMeal(Meal from, to, String recipeId) {
     /* assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
@@ -111,37 +189,6 @@ class DailyMenu extends StateNotifier<List<Menu>> {
     return menus.where((m) => m.meal == meal).toList();
   }
 
-  void addMenu(Menu newMenu) {
-    assert(state.firstWhereOrNull(
-          (menu) => menu.meal == newMenu.meal,
-        ) ==
-        null);
-
-    state = [...state, newMenu];
-  }
-
-  void updateMenu(Menu newMenu) {
-    assert(state.firstWhereOrNull(
-          (menu) => menu.meal == newMenu.meal,
-        ) !=
-        null);
-    state.removeWhere((menu) => menu.meal == newMenu.meal);
-    state = [...state, newMenu];
-  }
-
-  void addRecipeToMeal(Meal meal, Recipe recipe) {
-    var menu = getMenuByMeal(meal);
-
-    if (menu == null) {
-      menu = Menu.create(date: day, meal: meal, recipes: [recipe.id]);
-    } else {
-      menu = menu.addRecipe(recipe.id);
-    }
-
-    menu.save();
-    updateMenu(menu);
-  }
-
   void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
     if (recipeIds.isNotEmpty) {
       var menu = getMenuByMeal(meal);
@@ -155,9 +202,9 @@ class DailyMenu extends StateNotifier<List<Menu>> {
   Map<Meal, List<String>> get recipeIdsByMeal {
     Map<Meal, List<String>> recipeIdsByMeal = {};
 
-    if (state.isNotEmpty) {
+    if (menus.isNotEmpty) {
       Meal.values.forEach((meal) {
-        final menuMeal = state.firstWhereOrNull((menu) => menu.meal == meal);
+        final menuMeal = menus.firstWhereOrNull((menu) => menu.meal == meal);
 
         if (menuMeal != null) {
           recipeIdsByMeal[meal] = menuMeal.recipes;
@@ -171,39 +218,7 @@ class DailyMenu extends StateNotifier<List<Menu>> {
   }
 
   Menu? getMenuByMeal(Meal meal) =>
-      state.firstWhereOrNull((menu) => menu.meal == meal);
-
-  Future<void> save(DailyMenu dailyMenu) async {
-    for (Menu menu in dailyMenu.menus) {
-      if (menu.recipes.isEmpty) {
-        // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        await menu.delete(params: {'update': true});
-        dailyMenu.removeMenu(menu);
-      } else {
-        await menu.save(params: {'update': true});
-      }
-    }
-  }
-
-  void removeMenu(Menu menu) {
-    state.removeWhere((element) => element.id == menu.id);
-  }
-
-  void removeRecipesFromMeal(List<String> recipeIds) {
-    final copy = [...state];
-    copy.forEach((e) => e.removeRecipeByIdList(recipeIds));
-  }
-
-  void removeAllRecipesFromMeal(Meal meal) {
-    if (state.isNotEmpty) {
-      final menu = state.firstWhereOrNull((m) => m.meal == meal);
-      if (menu != null) {
-        menu.removeAllRecipes();
-      }
-    }
-  }
-
-  List<Menu> get menus => [...menus];
+      menus.firstWhereOrNull((menu) => menu.meal == meal);
 
   bool get isToday => day.isToday;
 
