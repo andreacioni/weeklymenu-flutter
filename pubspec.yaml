@@ -12,6 +12,7 @@ description: Weekly Menu App
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 0.0.1+1
+publish_to: none
 
 environment:
   sdk: ">=2.14.0 <3.0.0"
@@ -23,7 +24,10 @@ dependencies:
   
   ffi: ^1.0.0
   dio: ^4.0.0
-  flutter_tags: ^1.0.0-nullsafety.1
+  flutter_tags: 
+    git: 
+      url: https://github.com/pierrea/flutter_tags
+      ref: 56f31f6b426a959c12b747eaf70c6f9fb3670122
   intl: ^0.17.0
   expandable: ^5.0.0
   grouped_buttons: ^1.0.4

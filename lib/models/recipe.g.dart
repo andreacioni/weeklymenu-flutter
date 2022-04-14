@@ -19,7 +19,7 @@ abstract class _$RecipeCWProxy {
 
   Recipe estimatedPreparationTime(int? estimatedPreparationTime);
 
-  Recipe id(String id);
+  Recipe id(String? id);
 
   Recipe imgUrl(String? imgUrl);
 
@@ -102,7 +102,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
       this(estimatedPreparationTime: estimatedPreparationTime);
 
   @override
-  Recipe id(String id) => this(id: id);
+  Recipe id(String? id) => this(id: id);
 
   @override
   Recipe imgUrl(String? imgUrl) => this(imgUrl: imgUrl);
@@ -199,10 +199,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
               ? _value.estimatedPreparationTime
               // ignore: cast_nullable_to_non_nullable
               : estimatedPreparationTime as int?,
-      id: id == const $CopyWithPlaceholder() || id == null
+      id: id == const $CopyWithPlaceholder()
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
-          : id as String,
+          : id as String?,
       imgUrl: imgUrl == const $CopyWithPlaceholder()
           ? _value.imgUrl
           // ignore: cast_nullable_to_non_nullable
@@ -266,7 +266,7 @@ extension $RecipeCopyWith on Recipe {
 // **************************************************************************
 
 Recipe _$RecipeFromJson(Map json) => Recipe(
-      id: json['_id'] as String,
+      id: json['_id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
       ingredients: (json['ingredients'] as List<dynamic>?)

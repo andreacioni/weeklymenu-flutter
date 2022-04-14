@@ -41,9 +41,7 @@ class RecipeTags extends HookConsumerWidget {
 
     tags.removeWhere((tag) => recipe.instance.tags.contains(tag));
 
-    return Container();
-
-    /* return Tags(
+    return Tags(
       itemBuilder: (index) => ItemTags(
         image: ItemTagsImage(
           child: Icon(
@@ -53,18 +51,19 @@ class RecipeTags extends HookConsumerWidget {
         ),
         removeButton: editEnabled
             ? ItemTagsRemoveButton(onRemoved: () {
-                recipe.removeTag(recipe.tags[index]);
+                final newList = recipe.instance.tags..removeAt(index);
+                recipe.update(recipe.instance.copyWith(tags: newList));
                 return true;
               })
             : null,
-        title: recipe.tags[index],
-        activeColor: getColorForString(recipe.tags[index]),
+        title: recipe.instance.tags[index],
+        activeColor: getColorForString(recipe.instance.tags[index]),
         combine: ItemTagsCombine.withTextAfter,
         index: index,
         pressEnabled: false,
         textScaleFactor: 1.5,
       ),
-      itemCount: (recipe.tags == null) ? 0 : recipe.tags.length,
+      itemCount: recipe.instance.tags.length,
       horizontalScroll: true,
       verticalDirection: VerticalDirection.up,
       textField: editEnabled
@@ -74,19 +73,18 @@ class RecipeTags extends HookConsumerWidget {
               suggestions: tags,
               textCapitalization: TextCapitalization.words,
               maxLength: 20,
-              onSubmitted: (newTag) => recipe.addTag(newTag),
+              onSubmitted: (newTag) => recipe.update(recipe.instance
+                  .copyWith(tags: [...recipe.instance.tags, newTag])),
               constraintSuggestion: false,
             )
           : null,
-    ); */
+    );
   }
 
   List<String> getAllRecipeTags(List<Recipe> recipes) {
     List<String> tags = [];
     recipes.forEach((recipe) {
-      if (recipe.tags != null) {
-        tags.addAll(recipe.tags);
-      }
+      tags.addAll(recipe.tags);
     });
 
     return tags;

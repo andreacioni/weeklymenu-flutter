@@ -126,7 +126,7 @@ class MenuEditorScreen extends HookConsumerWidget {
           return true;
         },
         child: Scaffold(
-          appBar: _MenuEditorAppBar(dailyMenu),
+          appBar: _MenuEditorAppBar(dailyMenuNotifier),
           body: Container(
             child: MenuEditorScrollView(
               dailyMenuNotifier,
@@ -140,37 +140,48 @@ class MenuEditorScreen extends HookConsumerWidget {
 
 class _MenuEditorAppBar extends HookConsumerWidget
     implements PreferredSizeWidget {
-  final DailyMenu dailyMenu;
+  final DailyMenuNotifier dailyMenuNotifier;
 
   const _MenuEditorAppBar(
-    this.dailyMenu, {
+    this.dailyMenuNotifier, {
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final menuRecipeSelection = ref.watch(menuRecipeSelectionProvider);
+    final dailyMenu = useStateNotifier(dailyMenuNotifier);
 
     void _handleDeleteRecipes() {
       menuRecipeSelection.forEach(
         (meal, recipesId) {
           if (recipesId.isNotEmpty) {
-            final menu = dailyMenu.getMenuByMeal(meal);
+            final menu = dailyMenuNotifier.state.getMenuByMeal(meal);
 
             if (menu == null) {
               return;
             }
 
+            Menu? newMenu;
+
             recipesId.forEach(
               (recipeIdToBeDeleted) {
                 if (menu.recipes.isNotEmpty) {
-                  menu.removeRecipeById(recipeIdToBeDeleted);
+                  newMenu = menu.removeRecipeById(recipeIdToBeDeleted);
                 }
               },
             );
+            if (newMenu != null) {
+              if (newMenu!.recipes.isEmpty) {
+                dailyMenuNotifier.removeMenu(newMenu!);
+              } else {
+                dailyMenuNotifier.updateMenu(newMenu!);
+              }
+            }
           }
         },
       );
+      ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
     }
 
     void _handleSwapRecipes({bool cut = true}) async {

@@ -3,7 +3,10 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 
+import '../../main.data.dart';
+import '../flutter_data_state_builder.dart';
 import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
@@ -173,15 +176,14 @@ class MenuCard extends StatelessWidget {
     return Expanded(
       child: Row(
         children: <Widget>[
-          if (recipesIds == null || recipesIds.isEmpty)
+          if (recipesIds.isEmpty)
             Text(
               "No recipes defined",
               textAlign: TextAlign.right,
               style:
                   TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
             ),
-          if (recipesIds != null && recipesIds.isNotEmpty)
-            MenuRecipesText(recipesIds)
+          if (recipesIds.isNotEmpty) MenuRecipesText(recipesIds)
         ],
       ),
     );
@@ -189,43 +191,28 @@ class MenuCard extends StatelessWidget {
 }
 
 class MenuRecipesText extends ConsumerWidget {
-  final Logger _log = Logger();
-
   final List<String> _recipesIds;
 
   MenuRecipesText(this._recipesIds, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.watch(recipesRepositoryProvider);
-
-    return FutureBuilder<List<String>>(
-      future: _getRecipeNames(repository),
-      initialData: const <String>[],
-      builder: (_, snapshot) =>
-          _buildTextEntry(snapshot.data ?? ['Loading...']),
-    );
+    return FlutterDataStateBuilder<List<Recipe>>(
+        state: ref.recipes.watchAll(),
+        builder: (context, recipes) {
+          List<String> recipesNames = <String>[];
+          for (String recipeId in _recipesIds) {
+            final recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
+            recipesNames.add(recipe?.name ?? '');
+          }
+          return _buildTextEntry(recipesNames);
+        });
   }
 
-  Future<List<String>> _getRecipeNames(Repository<Recipe> repository) async {
-    List<String> recipesNames = <String>[];
-    for (String recipeId in _recipesIds) {
-      try {
-        final recipe = await repository.findOne(recipeId);
-        recipesNames.add(recipe?.name ?? '???');
-      } catch (e) {
-        _log.e("There was an error while looking for recipe id: $recipeId", e);
-        recipesNames.add('!!!');
-      }
-    }
-
-    return recipesNames;
-  }
-
-  Widget _buildTextEntry([List<String> recipesNames = const <String>[]]) {
+  Widget _buildTextEntry(List<String> recipesNames) {
     return Expanded(
       child: Text(
-        recipesNames.join(', '),
+        (recipesNames..removeWhere((e) => e.isEmpty)).join(', '),
         style: TextStyle(fontStyle: FontStyle.normal, color: Colors.black),
         overflow: TextOverflow.ellipsis,
         softWrap: false,

@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 
@@ -69,7 +70,7 @@ class Recipe extends BaseModel<Recipe> {
   final String? owner;
 
   Recipe(
-      {required String id,
+      {String? id,
       required this.name,
       this.description,
       this.ingredients = const <RecipeIngredient>[],
@@ -89,7 +90,7 @@ class Recipe extends BaseModel<Recipe> {
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            id: id ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 

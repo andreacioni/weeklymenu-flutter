@@ -72,7 +72,7 @@ class _IngredientSelectionTextFieldState
                 name: RegExp(r'^Add "(.*)" \.\.\.')
                     .firstMatch(selectedIngredient.name)!
                     .group(1)!);
-            selectedIngredient.save();
+            selectedIngredient.init(ref.read).save();
             print('ingredient: ${selectedIngredient.name} created');
           } else {
             this._typeAheadController.text = selectedIngredient.name;

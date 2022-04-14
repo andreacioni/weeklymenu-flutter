@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/globals/hooks.dart';
 
 import '../../globals/memento.dart';
 import '../../main.data.dart';
@@ -15,31 +15,26 @@ import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
 import 'editable_text_field.dart';
 
-final _recipeOriginatorProvider = StateNotifierProvider.autoDispose
-    .family<RecipeOriginator, Recipe, Recipe>(
-        (_, recipe) => RecipeOriginator(recipe));
-
 class RecipeView extends HookConsumerWidget {
   final Recipe originalRecipeInstance;
   final Object heroTag;
 
-  RecipeView(this.originalRecipeInstance, {this.heroTag = const Object()});
+  final RecipeOriginator originator;
 
-  final _log = Logger();
+  RecipeView(this.originalRecipeInstance, {this.heroTag = const Object()})
+      : originator = RecipeOriginator(originalRecipeInstance);
+
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final editEnabledNotifier = useState(false);
+    final recipe = useStateNotifier(originator);
     final editEnabled = editEnabledNotifier.value;
 
-    final recipeOriginator =
-        ref.watch(_recipeOriginatorProvider(originalRecipeInstance).notifier);
-
-    void _handleEditToggle(
-        WidgetRef ref, RecipeOriginator recipe, bool newValue) async {
+    void _handleEditToggle(bool newValue) async {
       if (!_formKey.currentState!.validate()) {
-        _log.w("Validation faield");
+        print("Validation failed");
         return;
       }
 
@@ -47,15 +42,15 @@ class RecipeView extends HookConsumerWidget {
       // here to trigger all the onSaved callback of the form fields
       _formKey.currentState!.save();
 
-      if (!newValue && recipe.isEdited) {
+      if (!newValue && originator.isEdited) {
         //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
 
-        _log.i("Saving all recipe changes");
+        print("Saving all recipe changes");
 
         showProgressDialog(context);
 
         try {
-          await ref.recipes.save(recipe.save(), params: {'update': true});
+          await ref.recipes.save(originator.save(), params: {'update': true});
         } catch (e) {
           showAlertErrorMessage(context);
           return;
@@ -66,36 +61,35 @@ class RecipeView extends HookConsumerWidget {
       editEnabledNotifier.value = newValue;
     }
 
-    void _handleBackButton(
-        WidgetRef ref, BuildContext context, RecipeOriginator recipe) async {
-      if (recipe.isEdited) {
+    void _handleBackButton(BuildContext context) async {
+      if (originator.isEdited) {
         final wannaSave = await showWannaSaveDialog(context);
 
         if (wannaSave ?? false) {
-          _handleEditToggle(ref, recipe, false);
+          _handleEditToggle(false);
         } else {
-          _log.i("Losing all the changes");
-          recipe.revert();
+          print("Losing all the changes");
+          originator.revert();
         }
       } else {
-        _log.d("No changes made, not save action is necessary");
+        print("No changes made, not save action is necessary");
       }
 
       Navigator.of(context).pop();
     }
 
-    Form buildForm(WidgetRef ref, RecipeOriginator recipe) {
+    Form buildForm() {
       return Form(
         key: _formKey,
         child: CustomScrollView(
           slivers: <Widget>[
             RecipeAppBar(
-              recipe,
+              originator,
               heroTag: heroTag,
               editModeEnabled: editEnabled,
               onRecipeEditEnabled: (editEnabled) =>
-                  _handleEditToggle(ref, recipe, editEnabled),
-              onBackPressed: () => _handleBackButton(ref, context, recipe),
+                  _handleEditToggle(editEnabled),
+              onBackPressed: () => _handleBackButton(context),
             ),
             SliverList(
               delegate: SliverChildListDelegate([
@@ -103,11 +97,11 @@ class RecipeView extends HookConsumerWidget {
                   height: 5,
                 ),
                 EditableTextField(
-                  recipe.instance.description,
+                  recipe.description,
                   editEnabled: editEnabled,
                   hintText: "Description",
-                  onSubmitted: (newDescription) => recipe.update(
-                      recipe.instance.copyWith(description: newDescription)),
+                  onSubmitted: (newDescription) => originator
+                      .update(recipe.copyWith(description: newDescription)),
                 ),
                 SizedBox(
                   height: 5,
@@ -129,7 +123,7 @@ class RecipeView extends HookConsumerWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10, right: 10),
                     child: RecipeInformationTiles(
-                      recipe,
+                      originator,
                       editEnabled: editEnabled,
                       formKey: _formKey,
                     ),
@@ -151,23 +145,23 @@ class RecipeView extends HookConsumerWidget {
                 SizedBox(
                   height: 5,
                 ),
-                if (recipe.instance.ingredients.isEmpty && !editEnabled)
+                if (recipe.ingredients.isEmpty && !editEnabled)
                   EditableTextField(
                     "",
                     editEnabled: false,
                     hintText: "No ingredients",
                   ),
-                if (recipe.instance.ingredients.isNotEmpty)
-                  ...recipe.instance.ingredients
+                if (recipe.ingredients.isNotEmpty)
+                  ...recipe.ingredients
                       .map(
                         (recipeIng) => DismissibleRecipeIngredientTile(
-                            recipe, recipeIng, editEnabled),
+                            originator, recipeIng, editEnabled),
                       )
                       .toList(),
                 if (editEnabled)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: AddIngredientButton(recipe),
+                    child: AddIngredientButton(originator),
                   ),
                 SizedBox(
                   height: 5,
@@ -186,12 +180,12 @@ class RecipeView extends HookConsumerWidget {
                   height: 5,
                 ),
                 EditableTextField(
-                  recipe.instance.preparation,
+                  recipe.preparation,
                   editEnabled: editEnabled,
                   hintText: "Add preparation steps...",
                   maxLines: 1000,
-                  onChanged: (text) => recipe
-                      .update(recipe.instance.copyWith(preparation: text)),
+                  onChanged: (text) =>
+                      originator.update(recipe.copyWith(preparation: text)),
                 ),
                 SizedBox(
                   height: 5,
@@ -210,12 +204,12 @@ class RecipeView extends HookConsumerWidget {
                   height: 5,
                 ),
                 EditableTextField(
-                  recipe.instance.note,
+                  recipe.note,
                   editEnabled: editEnabled,
                   hintText: "Add note...",
                   maxLines: 1000,
                   onChanged: (text) =>
-                      recipe.update(recipe.instance.copyWith(note: text)),
+                      originator.update(recipe.copyWith(note: text)),
                 ),
                 SizedBox(
                   height: 5,
@@ -234,11 +228,11 @@ class RecipeView extends HookConsumerWidget {
                   height: 5,
                 ),
                 RecipeTags(
-                  recipe: recipe,
+                  recipe: originator,
                   editEnabled: editEnabled,
                 ),
                 SizedBox(
-                  height: 5,
+                  height: 20,
                 ),
               ]),
             ),
@@ -250,10 +244,10 @@ class RecipeView extends HookConsumerWidget {
     return Scaffold(
         body: WillPopScope(
       onWillPop: () async {
-        _handleBackButton(ref, context, recipeOriginator);
+        _handleBackButton(context);
         return true;
       },
-      child: buildForm(ref, recipeOriginator),
+      child: buildForm(),
     ));
   }
 }

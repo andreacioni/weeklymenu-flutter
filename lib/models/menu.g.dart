@@ -9,7 +9,7 @@ part of 'menu.dart';
 abstract class _$MenuCWProxy {
   Menu date(Date date);
 
-  Menu id(String id);
+  Menu id(String? id);
 
   Menu insertTimestamp(int? insertTimestamp);
 
@@ -45,7 +45,7 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
   Menu date(Date date) => this(date: date);
 
   @override
-  Menu id(String id) => this(id: id);
+  Menu id(String? id) => this(id: id);
 
   @override
   Menu insertTimestamp(int? insertTimestamp) =>
@@ -82,10 +82,10 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
           ? _value.date
           // ignore: cast_nullable_to_non_nullable
           : date as Date,
-      id: id == const $CopyWithPlaceholder() || id == null
+      id: id == const $CopyWithPlaceholder()
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
-          : id as String,
+          : id as String?,
       insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -175,7 +175,7 @@ extension $DailyMenuCopyWith on DailyMenu {
 // **************************************************************************
 
 Menu _$MenuFromJson(Map json) => Menu(
-      id: json['_id'] as String,
+      id: json['_id'] as String?,
       date: const DateConverter().fromJson(json['date'] as String),
       meal: $enumDecode(_$MealEnumMap, json['meal']),
       recipes: (json['recipes'] as List<dynamic>?)

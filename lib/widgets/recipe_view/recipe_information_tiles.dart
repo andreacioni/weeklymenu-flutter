@@ -6,11 +6,11 @@ import '../../models/enums/difficulty.dart';
 import '../../models/recipe.dart';
 
 class RecipeInformationTiles extends StatelessWidget {
-  final RecipeOriginator _recipe;
+  final RecipeOriginator originator;
   final bool editEnabled;
   final GlobalKey formKey;
 
-  RecipeInformationTiles(this._recipe,
+  RecipeInformationTiles(this.originator,
       {this.editEnabled = false, required this.formKey});
 
   @override
@@ -18,7 +18,7 @@ class RecipeInformationTiles extends StatelessWidget {
     return Column(
       children: <Widget>[
         EditableInformationTile(
-          _recipe.instance.servs?.toDouble(),
+          originator.instance.servs?.toDouble(),
           "Servings",
           minValue: 1,
           icon: Icon(
@@ -28,11 +28,11 @@ class RecipeInformationTiles extends StatelessWidget {
           editingEnabled: editEnabled,
           suffix: "ppl",
           onChanged: () => {}, //_recipe.setEdited(),
-          onSaved: (newValue) => _recipe
-              .update(_recipe.instance.copyWith(servs: newValue.truncate())),
+          onSaved: (newValue) => originator
+              .update(originator.instance.copyWith(servs: newValue.truncate())),
         ),
         EditableInformationTile(
-          _recipe.instance.estimatedPreparationTime?.toDouble(),
+          originator.instance.estimatedPreparationTime?.toDouble(),
           "Preparation time",
           icon: Icon(
             Icons.timer,
@@ -41,11 +41,11 @@ class RecipeInformationTiles extends StatelessWidget {
           editingEnabled: editEnabled,
           suffix: "min",
           onChanged: () => {}, //_recipe.setEdited(),
-          onSaved: (newValue) => _recipe.update(_recipe.instance
+          onSaved: (newValue) => originator.update(originator.instance
               .copyWith(estimatedPreparationTime: newValue.truncate())),
         ),
         EditableInformationTile(
-          _recipe.instance.estimatedCookingTime?.toDouble(),
+          originator.instance.estimatedCookingTime?.toDouble(),
           "Cooking time",
           icon: Icon(
             Icons.timelapse,
@@ -54,7 +54,7 @@ class RecipeInformationTiles extends StatelessWidget {
           editingEnabled: editEnabled,
           suffix: "min",
           onChanged: () => {}, //_recipe.setEdited(),
-          onSaved: (newValue) => _recipe.update(_recipe.instance
+          onSaved: (newValue) => originator.update(originator.instance
               .copyWith(estimatedCookingTime: newValue.truncate())),
         ),
         ListTile(
@@ -65,22 +65,22 @@ class RecipeInformationTiles extends StatelessWidget {
         RecipeInformationLevelSelect(
           "Affinity",
           Icon(Icons.favorite, color: Colors.red.shade300),
-          _recipe.instance.rating,
+          originator.instance.rating,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.3),
           activeColor: Colors.red,
           onLevelUpdate: (newLevel) =>
-              _recipe.update(_recipe.instance.copyWith(rating: newLevel)),
+              originator.update(originator.instance.copyWith(rating: newLevel)),
         ),
         RecipeInformationLevelSelect(
           "Cost",
           Icon(Icons.attach_money, color: Colors.green.shade300),
-          _recipe.instance.cost,
+          originator.instance.cost,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.5),
           activeColor: Colors.green,
           onLevelUpdate: (newLevel) =>
-              _recipe.update(_recipe.instance.copyWith(cost: newLevel)),
+              originator.update(originator.instance.copyWith(cost: newLevel)),
         ),
       ],
     );
@@ -89,17 +89,17 @@ class RecipeInformationTiles extends StatelessWidget {
   Widget _buildDifficultyDropdown(BuildContext context) {
     return !editEnabled
         ? Text(
-            _recipe.instance.difficulty ?? '-',
+            originator.instance.difficulty ?? '-',
             style: const TextStyle(fontSize: 18),
           )
         : DropdownButton<String>(
-            value: _recipe.instance.difficulty,
+            value: originator.instance.difficulty,
             hint: const Text('Choose'),
             iconSize: 24,
             elevation: 16,
             style: const TextStyle(color: Colors.black, fontSize: 18),
-            onChanged: (String? newValue) =>
-                _recipe.update(_recipe.instance.copyWith(difficulty: newValue)),
+            onChanged: (String? newValue) => originator
+                .update(originator.instance.copyWith(difficulty: newValue)),
             items: Difficulties.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -178,8 +178,8 @@ class RecipeInformationLevelSelectState
   void updateLevel(int newLevel) {
     setState(() {
       _level = newLevel;
-      widget.onLevelUpdate(newLevel);
     });
+    widget.onLevelUpdate(newLevel);
   }
 }
 

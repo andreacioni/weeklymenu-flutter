@@ -301,10 +301,12 @@ packages:
   flutter_tags:
     dependency: "direct main"
     description:
-      name: flutter_tags
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0-nullsafety.1"
+      path: "."
+      ref: "56f31f6b426a959c12b747eaf70c6f9fb3670122"
+      resolved-ref: "56f31f6b426a959c12b747eaf70c6f9fb3670122"
+      url: "https://github.com/pierrea/flutter_tags"
+    source: git
+    version: "0.4.10"
   flutter_test:
     dependency: "direct dev"
     description: flutter

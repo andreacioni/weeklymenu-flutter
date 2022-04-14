@@ -29,23 +29,16 @@ class Menu extends BaseModel<Menu> {
   List<String> recipes;
 
   Menu(
-      {required String id,
+      {String? id,
       required this.date,
       required this.meal,
       this.recipes = const [],
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            id: id ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
-
-  factory Menu.create({
-    required Date date,
-    required Meal meal,
-    List<String> recipes = const [],
-  }) =>
-      Menu(id: ObjectId().hexString, date: date, meal: meal, recipes: recipes);
 
   Menu addRecipe(String recipeId) {
     return this.copyWith(recipes: [...recipes, recipeId]).was(this);
@@ -89,6 +82,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
         null);
 
     state = state;
+    newMenu.save(params: {'update': false});
   }
 
   void updateMenu(Menu newMenu) {
@@ -99,6 +93,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     final menuList = state.menus..removeWhere((m) => m.id == newMenu.id);
 
     state = state.copyWith(menus: [...menuList, newMenu]);
+    newMenu.save(params: {'update': true});
   }
 
   void addRecipeToMeal(Meal meal, Recipe recipe) {
@@ -107,7 +102,6 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     if (menu != null) {
       menu = menu.addRecipe(recipe.id);
       updateMenu(menu);
-      menu.save(params: {'update': true});
     }
   }
 
@@ -125,6 +119,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
   void removeMenu(Menu menu) {
     final newList = state.menus
       ..removeWhere((element) => element.id == menu.id);
+    menu.delete();
     state = state.copyWith(menus: newList);
   }
 

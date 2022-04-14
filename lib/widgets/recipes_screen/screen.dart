@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:objectid/objectid.dart';
@@ -21,13 +20,11 @@ class RecipesScreen extends StatefulWidget {
 }
 
 class _RecipesScreenState extends State<RecipesScreen> {
-  final _log = Logger();
+  late bool _searchModeEnabled;
+  late String _searchText;
 
-  late final bool _searchModeEnabled;
-  late final String _searchText;
-
-  late final bool _editingModeEnabled;
-  late final List<Recipe> _selectedRecipes;
+  late bool _editingModeEnabled;
+  late List<Recipe> _selectedRecipes;
 
   @override
   void initState() {
@@ -277,7 +274,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
             actions: <Widget>[
               FlatButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('NO')),
+                  child: Text('CANCEL')),
               FlatButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   child: Text('YES')),
@@ -286,17 +283,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
         });
 
     if (confirmDelete ?? false) {
-      showProgressDialog(context);
       for (var recipe in _selectedRecipes) {
         try {
           await ref.read(recipesRepositoryProvider).delete(recipe);
         } catch (e) {
-          hideProgressDialog(context);
           showAlertErrorMessage(context);
           return;
         }
       }
-      hideProgressDialog(context);
     }
 
     setState(() => _editingModeEnabled = false);
@@ -332,7 +326,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     Recipe(id: ObjectId().hexString, name: textController.text),
                     params: {'update': false});
               } else {
-                _log.w("No name supplied");
+                print("No name supplied");
               }
             },
           )

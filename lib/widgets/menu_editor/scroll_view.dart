@@ -87,7 +87,7 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
         Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
       if (dailyMenu.getMenuByMeal(meal) == null) {
         final menu = await menuRepository.save(
-            Menu.create(
+            Menu(
               date: dailyMenu.day,
               recipes: [recipe.id],
               meal: meal,
