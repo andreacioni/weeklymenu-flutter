@@ -6,14 +6,14 @@ class NumberFormField extends StatefulWidget {
   final String labelText;
   final double minValue;
   final double maxValue;
-  final double initialValue;
+  final double? initialValue;
   final bool allowEmpty;
   final int fractionDigits;
   final void Function(double)? onChanged;
   final void Function(double)? onSaved;
 
   NumberFormField({
-    required this.initialValue,
+    this.initialValue,
     required this.labelText,
     String? hintText,
     this.minValue = 0,
@@ -35,7 +35,7 @@ class _NumberFormFieldState extends State<NumberFormField> {
   @override
   void initState() {
     _controller = new TextEditingController(
-        text: widget.initialValue.toStringAsFixed(widget.fractionDigits));
+        text: widget.initialValue?.toStringAsFixed(widget.fractionDigits));
     _focusNode = new FocusNode();
 
     _focusNode.addListener(_onFocusChange);

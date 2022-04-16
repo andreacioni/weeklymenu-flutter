@@ -216,7 +216,7 @@ ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
               ?.map((e) => ShoppingListItem.fromJson(
                   Map<String, dynamic>.from(e as Map)))
               .toList() ??
-          [],
+          const [],
       name: json['name'] as String?,
       insertTimestamp: json['insert_timestamp'] as int?,
       updateTimestamp: json['update_timestamp'] as int?,

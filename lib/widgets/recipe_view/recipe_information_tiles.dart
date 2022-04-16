@@ -40,6 +40,7 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
+          minValue: 1,
           onChanged: () => {}, //_recipe.setEdited(),
           onSaved: (newValue) => originator.update(originator.instance
               .copyWith(estimatedPreparationTime: newValue.truncate())),
@@ -53,6 +54,7 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
+          minValue: 1,
           onChanged: () => {}, //_recipe.setEdited(),
           onSaved: (newValue) => originator.update(originator.instance
               .copyWith(estimatedCookingTime: newValue.truncate())),
@@ -209,7 +211,7 @@ class EditableInformationTile extends StatelessWidget {
     return ListTile(
       title: editingEnabled
           ? NumberFormField(
-              initialValue: value ?? 0,
+              initialValue: value,
               fractionDigits: 0,
               labelText: title,
               minValue: minValue,

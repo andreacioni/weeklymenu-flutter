@@ -45,7 +45,7 @@ class IngredientsScreen extends HookConsumerWidget {
                       ),
                     ],
                   ),
-                  onDismissed: (_) => _deleteIngredient(context, model[index]),
+                  onDismissed: (_) => model[index].delete(),
                 );
               },
               itemCount: model.length,
@@ -90,9 +90,5 @@ class IngredientsScreen extends HookConsumerWidget {
         )
       ],
     );
-  }
-
-  void _deleteIngredient(BuildContext context, Ingredient ingredient) {
-    ingredient.delete();
   }
 }

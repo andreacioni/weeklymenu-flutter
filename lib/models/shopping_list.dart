@@ -12,7 +12,7 @@ part 'shopping_list.g.dart';
 @DataRepository([BaseAdapter, ShoppingListAdapter])
 @CopyWith()
 class ShoppingList extends BaseModel<ShoppingList> {
-  @JsonKey(defaultValue: const [])
+  @JsonKey()
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)

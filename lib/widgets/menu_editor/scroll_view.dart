@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/globals/hooks.dart';
 import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';

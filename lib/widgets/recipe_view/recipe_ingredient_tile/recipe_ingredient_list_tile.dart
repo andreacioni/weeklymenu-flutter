@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../main.data.dart';
@@ -11,8 +10,6 @@ import '../../../models/ingredient.dart';
 import '../../../models/recipe.dart';
 
 class RecipeIngredientListTile extends HookConsumerWidget {
-  final log = Logger();
-
   final RecipeOriginator _recipe;
   final RecipeIngredient recipeIngredient;
   final bool editEnabled;
@@ -101,7 +98,7 @@ class RecipeIngredientListTile extends HookConsumerWidget {
 
       _recipe.update(_recipe.instance.copyWith(ingredients: recipeIngredients));
     } else {
-      log.i("No update ingredient recipe returned");
+      print("No update ingredient recipe returned");
     }
   }
 }

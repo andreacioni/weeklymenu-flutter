@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../globals/constants.dart';
@@ -11,8 +10,6 @@ import '../models/auth_token.dart';
 final authServiceProvider = Provider((ref) => AuthService());
 
 class AuthService {
-  static final _log = Logger();
-
   static final String BASE_URL =
       'https://heroku-weeklymenu.herokuapp.com/api/v1';
 
@@ -113,30 +110,30 @@ class AuthService {
 
   Future<AuthToken?> get token async {
     if (!_initialized) {
-      _log.i("Auth service not yet initialized");
+      print("Auth service not yet initialized");
       try {
         await _loadUserInformation();
         _initialized = true;
       } catch (e) {
-        _log.e("There was an error loading saved credentials");
+        print("There was an error loading saved credentials");
         throw e;
       }
     }
 
     if (_token == null || !_token!.isValid) {
-      _log.i("Invalid cached token, getting new one...");
+      print("Invalid cached token, getting new one...");
 
       try {
         await _tryLogin();
       } on DioError catch (e) {
         if (e.type == DioErrorType.response && e.response!.statusCode == 401) {
-          _log.i(
+          print(
               "Failed auto login with saved credentials, password changed. Login again...");
         } else {
-          _log.e("Unexpented failure while logging in", e);
+          print("Unexpented failure while logging in\n${e.stackTrace}");
         }
       } catch (e) {
-        _log.e("Generic error raised while logging in", e);
+        print("Generic error raised while logging in\n$e");
       }
     }
 
@@ -147,7 +144,7 @@ class AuthService {
     if (_password != null && _email != null) {
       await login(_email!, _password!);
     } else {
-      _log.w("email & password are null");
+      print("email & password are null");
     }
   }
 }
