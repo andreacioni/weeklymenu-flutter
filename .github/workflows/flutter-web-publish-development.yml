@@ -1,0 +1,22 @@
+# This workflows will upload a Python Package using Twine when a release is created.
+# The package will include a stable version of the actionpi-ui that will be built here in this workflow.
+
+name: Development build
+
+on:
+  push:
+    branches:
+      - 'develop'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.10.4'
+      - run: flutter pub get
+      #- run: flutter test
+      - run: flutter build web
