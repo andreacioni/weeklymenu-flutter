@@ -1,7 +1,7 @@
 # This workflows will upload a Python Package using Twine when a release is created.
 # The package will include a stable version of the actionpi-ui that will be built here in this workflow.
 
-name: Development build
+name: Web - develop
 
 on:
   push:
@@ -20,3 +20,12 @@ jobs:
       - run: flutter pub get
       #- run: flutter test
       - run: flutter build web
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          port: 21
+          username: ${{ secrets.FTP_USERNAME }} # FTP username
+          password: ${{ secrets.FTP_PASSWORD }} # FTP password
+          server-dir: ${{ secrets.FTP_REMOTE_FOLDER }}
+          local-dir: ./build/web
