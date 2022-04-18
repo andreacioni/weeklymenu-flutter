@@ -24,8 +24,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
           server: ${{ secrets.FTP_HOST }}
-          port: 21
           username: ${{ secrets.FTP_USERNAME }} # FTP username
           password: ${{ secrets.FTP_PASSWORD }} # FTP password
           server-dir: ${{ secrets.FTP_REMOTE_FOLDER }}
-          local-dir: ./build/web
+          local-dir: ./build/web/
