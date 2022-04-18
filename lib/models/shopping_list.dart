@@ -1,22 +1,33 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:weekly_menu_app/models/base_model.dart';
 
-import '../datasource/network.dart';
+import 'package:flutter_data/flutter_data.dart';
 
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class ShoppingList with ChangeNotifier {
-  @JsonKey(name: '_id')
-  String id;
-
-  @JsonKey(defaultValue: [])
+@DataRepository([BaseAdapter, ShoppingListAdapter])
+@CopyWith()
+class ShoppingList extends BaseModel<ShoppingList> {
+  @JsonKey()
   List<ShoppingListItem> items;
 
   @JsonKey(includeIfNull: false)
-  String name;
+  String? name;
 
-  ShoppingList({@required this.id, this.items, this.name});
+  ShoppingList(
+      {required String id,
+      this.items = const [],
+      this.name,
+      int? insertTimestamp,
+      int? updateTimestamp})
+      : super(
+            id: id,
+            insertTimestamp: insertTimestamp,
+            updateTimestamp: updateTimestamp);
 
   factory ShoppingList.fromJson(Map<String, dynamic> json) =>
       _$ShoppingListFromJson(json);
@@ -32,46 +43,56 @@ class ShoppingList with ChangeNotifier {
       items.where((item) => !item.checked).toList();
 
   ShoppingListItem getItemById(String itemId) =>
-      items.firstWhere((ing) => ing.item == itemId, orElse: () => null);
+      items.firstWhere((ing) => ing.item == itemId);
 
   void addShoppingListItem(ShoppingListItem shoppingListItem) {
     items.add(shoppingListItem);
-    notifyListeners();
   }
 
   void removeItemFromList(ShoppingListItem toBeRemoved) {
     items.removeWhere((item) => item.item == toBeRemoved.item);
-    notifyListeners();
   }
 
-  void setChecked(ShoppingListItem item, bool checked) {
-    item.checked = checked;
-    notifyListeners();
+  ShoppingList setChecked(ShoppingListItem item, bool checked) {
+    final idx = items.indexWhere((i) => i == item);
+    if (idx >= 0) {
+      items[idx] = items[idx].copyWith(checked: checked);
+    }
+
+    return copyWith(items: items).was(this);
   }
 
   bool containsItem(String itemId) {
     return items.map((item) => item.item).contains(itemId);
   }
+
+  @override
+  ShoppingList clone() => ShoppingList.fromJson(this.toJson());
 }
 
 @JsonSerializable()
+@CopyWith()
 class ShoppingListItem with ChangeNotifier {
-  String item;
-  bool checked;
+  final String item;
+
+  final bool checked;
 
   @JsonKey(includeIfNull: false)
-  double quantity;
+  final double? quantity;
+
   @JsonKey(includeIfNull: false)
-  String unitOfMeasure;
+  final String? unitOfMeasure;
+
   @JsonKey(includeIfNull: false)
-  String supermarketSection;
+  final String? supermarketSection;
+
   @JsonKey(includeIfNull: false)
-  int listPosition;
+  final int? listPosition;
 
   ShoppingListItem(
-      {this.item,
+      {required this.item,
       this.supermarketSection,
-      this.checked,
+      this.checked = false,
       this.quantity,
       this.unitOfMeasure,
       this.listPosition});
@@ -80,4 +101,20 @@ class ShoppingListItem with ChangeNotifier {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
+}
+
+mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
+    on RemoteAdapter<ShoppingList> {
+  @override
+  String urlForFindAll(Map<String, dynamic> params) => dashCaseType;
+
+  @override
+  String urlForFindOne(id, Map<String, dynamic> params) => '$dashCaseType/$id';
+
+  @override
+  String urlForSave(id, Map<String, dynamic> params) =>
+      params['update'] == true ? '$dashCaseType/$id' : dashCaseType;
+
+  String get dashCaseType =>
+      type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
 }

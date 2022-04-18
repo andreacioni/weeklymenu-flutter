@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
-import 'package:weekly_menu_app/globals/date.dart';
+import 'package:weekly_menu_app/models/date.dart';
 
 import '../../globals/constants.dart' as consts;
 import './date_range_picker.dart';
@@ -11,7 +11,7 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ScrollController _scrollController;
   final double _itemExtent;
   final Date _day;
-  final void Function(Date) onDayChanged;
+  final void Function(Date)? onDayChanged;
   final List<void Function(Date)> _listeners = [];
 
   MenuAppBar(
@@ -33,7 +33,7 @@ class MenuAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MenuAppBarState extends State<MenuAppBar> {
-  Date _day;
+  late Date _day;
 
   @override
   void initState() {
@@ -106,21 +106,19 @@ class _MenuAppBarState extends State<MenuAppBar> {
   }
 
   void _openDatePicker(BuildContext ctx) async {
-    Date dt = Date(
-      await showDatePicker(
-        context: ctx,
-        initialDate: _day.toDateTime,
-        firstDate: Date.now()
-            .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate()))
-            .toDateTime,
-        lastDate: Date.now()
-            .add((Duration(days: (consts.pageViewLimitDays / 2).truncate())))
-            .toDateTime,
-      ),
+    final ret = await showDatePicker(
+      context: ctx,
+      initialDate: _day.toDateTime,
+      firstDate: Date.now()
+          .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate()))
+          .toDateTime,
+      lastDate: Date.now()
+          .add((Duration(days: (consts.pageViewLimitDays / 2).truncate())))
+          .toDateTime,
     );
 
-    if (dt != null) {
-      _setNewDate(dt);
+    if (ret != null) {
+      _setNewDate(Date(ret));
     }
   }
 

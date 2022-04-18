@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../number_text_field.dart';
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/enums/unit_of_measure.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
-import '../../../providers/ingredients_provider.dart';
 
 class RecipeIngredientModal extends StatefulWidget {
-  final String recipeId;
-  final RecipeIngredient recipeIngredient;
+  final RecipeIngredient? recipeIngredient;
 
-  RecipeIngredientModal(this.recipeId, {this.recipeIngredient});
+  RecipeIngredientModal([this.recipeIngredient]);
 
   @override
   _RecipeIngredientModalState createState() => _RecipeIngredientModalState();
 }
 
 class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
-  Ingredient _selectedIngredient;
-  double _quantity = 0;
-  String _unitOfMeasure;
-  bool _isFreezed = false;
-  bool _expandMore;
+  Ingredient? _selectedIngredient;
+  double? _quantity;
+  String? _unitOfMeasure;
+  bool? _isFreezed = false;
+  late bool _expandMore;
 
-  bool _updateMode;
+  late bool _updateMode;
 
   @override
   void initState() {
@@ -36,15 +36,9 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
       _updateMode = false;
     } else {
       _updateMode = true;
-
-      Ingredient ingredient =
-          Provider.of<IngredientsProvider>(context, listen: false)
-              .getById(widget.recipeIngredient.ingredientId);
-
-      _selectedIngredient = ingredient;
-      _quantity = widget.recipeIngredient.quantity;
-      _isFreezed = widget.recipeIngredient.freezed;
-      _unitOfMeasure = widget.recipeIngredient.unitOfMeasure;
+      _quantity = widget.recipeIngredient?.quantity;
+      _isFreezed = widget.recipeIngredient?.freezed;
+      _unitOfMeasure = widget.recipeIngredient?.unitOfMeasure;
     }
 
     super.initState();
@@ -52,56 +46,52 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Row(
-              children: [
-                _buildIngredientSelectionTextField(),
-                IconButton(
-                    icon: Icon(
-                        _expandMore ? Icons.expand_less : Icons.expand_more),
-                    onPressed: () =>
-                        setState(() => _expandMore = !_expandMore)),
+    return HookConsumer(builder: (context, ref, _) {
+      return AlertDialog(
+        content: Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Row(
+                children: [
+                  _buildIngredientSelectionTextField(),
+                  IconButton(
+                      icon: Icon(
+                          _expandMore ? Icons.expand_less : Icons.expand_more),
+                      onPressed: () =>
+                          setState(() => _expandMore = !_expandMore)),
+                ],
+              ),
+              if (_expandMore) ...[
+                _buildQuantityAndUomRow(),
+                SizedBox(
+                  height: 10,
+                ),
+                _buildFreezedRow(),
               ],
-            ),
-            if (_expandMore) ...[
-              _buildQuantityAndUomRow(),
               SizedBox(
                 height: 10,
               ),
-              _buildFreezedRow(),
             ],
-            SizedBox(
-              height: 10,
-            ),
-          ],
+          ),
         ),
-      ),
-      actions: <Widget>[
-        FlatButton(
-          child: Text("CANCEL"),
-          textColor: Theme.of(context).primaryColor,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        _buildDoneButton(context),
-      ],
-    );
+        actions: <Widget>[
+          FlatButton(
+            child: Text("CANCEL"),
+            textColor: Theme.of(context).primaryColor,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          _buildDoneButton(context, ref),
+        ],
+      );
+    });
   }
 
-  void _handleAddButton() async {
-    String ingredientToAddId = _selectedIngredient.id;
+  void _handleAddButton(WidgetRef ref) async {
+    var ingredientToAddId = _selectedIngredient!.id;
 
-    if (ingredientToAddId == null) {
-      ingredientToAddId =
-          (await Provider.of<IngredientsProvider>(context, listen: false)
-                  .addIngredient(_selectedIngredient))
-              .id;
-    }
     Navigator.of(context).pop(
       RecipeIngredient(
         ingredientId: ingredientToAddId,
@@ -115,7 +105,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   void _updateRecipeIngredient() {
     Navigator.of(context).pop(
       RecipeIngredient(
-        ingredientId: _selectedIngredient.id,
+        ingredientId: _selectedIngredient!.id,
         freezed: _isFreezed,
         quantity: _quantity,
         unitOfMeasure: _unitOfMeasure,
@@ -159,7 +149,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
           ],
         ),
         Switch(
-          value: _isFreezed,
+          value: _isFreezed ?? false,
           onChanged: (newValue) => setState(() => _isFreezed = newValue),
         ),
       ],
@@ -173,11 +163,13 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
       children: <Widget>[
         Flexible(
           child: NumberFormField(
-            initialValue: _quantity?.toDouble(),
+            initialValue: _quantity?.toDouble() ?? 0,
             minValue: 0,
             maxValue: 9999,
             onChanged: (newValue) => setState(() => _quantity = newValue),
             labelText: "Quantity",
+            hintText: 'Quantity',
+            onSaved: (_) {},
           ),
         ),
         SizedBox(
@@ -197,15 +189,13 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
     );
   }
 
-  Widget _buildDoneButton(BuildContext context) {
+  Widget _buildDoneButton(BuildContext context, WidgetRef ref) {
     if (_updateMode == false) {
       return FlatButton(
-        child: Text(
-            _selectedIngredient != null && _selectedIngredient.id == null
-                ? "CREATE & ADD"
-                : "ADD"),
+        child: Text("ADD"),
         textColor: Theme.of(context).primaryColor,
-        onPressed: _selectedIngredient == null ? null : _handleAddButton,
+        onPressed:
+            _selectedIngredient == null ? null : () => _handleAddButton(ref),
       );
     } else {
       return FlatButton(

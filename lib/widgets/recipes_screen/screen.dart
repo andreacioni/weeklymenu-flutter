@@ -1,68 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/globals/errors_handlers.dart';
-import 'package:weekly_menu_app/widgets/recipe_view/screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:objectid/objectid.dart';
 
+import '../../main.data.dart';
+import '../flutter_data_state_builder.dart';
+import '../../globals/errors_handlers.dart';
+import '../recipe_view/screen.dart';
 import '../../globals/utils.dart';
-import '../../providers/recipes_provider.dart';
-import '../app_bar.dart';
 import '../../models/recipe.dart';
 import './recipe_card.dart';
 import '../../presentation/custom_icons_icons.dart';
 
 class RecipesScreen extends StatefulWidget {
-  const RecipesScreen({Key key}) : super(key: key);
+  const RecipesScreen({Key? key}) : super(key: key);
 
   @override
   _RecipesScreenState createState() => _RecipesScreenState();
 }
 
 class _RecipesScreenState extends State<RecipesScreen> {
-  bool _searchModeEnabled;
-  bool _isLoading;
-  String _searchText;
+  late bool _searchModeEnabled;
+  late String _searchText;
 
-  bool _editingModeEnabled;
-  List<RecipeOriginator> _selectedRecipes;
+  late bool _editingModeEnabled;
+  late List<Recipe> _selectedRecipes;
 
   @override
   void initState() {
     _searchModeEnabled = false;
     _searchText = "";
-    _isLoading = false;
     _editingModeEnabled = false;
-    _selectedRecipes = <RecipeOriginator>[];
+    _selectedRecipes = <Recipe>[];
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final recipes = Provider.of<RecipesProvider>(context).getRecipes;
+    return Consumer(builder: (context, ref, _) {
+      final repository = ref.recipes;
+      return Scaffold(
+        appBar: _editingModeEnabled == false
+            ? _buildAppBar(context)
+            : _buildEditingAppBar(ref),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showRecipeNameDialog(ref),
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: buildDataStateBuilder(repository),
+      );
+    });
+  }
 
-    var body = _buildScreenBody(
-        recipes, (recipe) => !stringContains(recipe.name, _searchText));
-
-    return Scaffold(
-      appBar: _editingModeEnabled == false
-          ? _buildAppBar(context, recipes)
-          : _buildEditingAppBar(context),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showRecipeNameDialog,
-        child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: body,
-            ),
+  FlutterDataStateBuilder<List<Recipe>> buildDataStateBuilder(
+      Repository<Recipe> repository) {
+    return FlutterDataStateBuilder<List<Recipe>>(
+      state: repository.watchAll(syncLocal: true),
+      onRefresh: () => repository.findAll(syncLocal: true),
+      builder: (context, model) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: _buildScreenBody(
+            [...model],
+            filter: (recipe) => !stringContains(recipe.name, _searchText),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildScreenBody(
-      List<RecipeOriginator> recipes, bool Function(RecipeOriginator) filter) {
+  Widget _buildScreenBody(List<Recipe> recipes,
+      {required bool Function(Recipe) filter}) {
     if (recipes.isNotEmpty) {
       recipes.removeWhere(filter);
 
@@ -110,49 +120,45 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Widget _buildRecipeList(List<RecipeOriginator> recipes) {
+  Widget _buildRecipeList(List<Recipe> recipes) {
     return GridView.builder(
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => Hero(
         tag: recipes[index].id,
-        child: ChangeNotifierProvider.value(
-          value: recipes[index],
-          child: RecipeCard(
-            borderSide: _editingModeEnabled == true &&
-                    _selectedRecipes.contains(recipes[index])
-                ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
-                : BorderSide.none,
-            shadowColorStart: _editingModeEnabled == true &&
-                    _selectedRecipes.contains(recipes[index])
-                ? Theme.of(ctx).accentColor.withOpacity(0.7)
-                : Colors.black54,
-            onTap: () => _editingModeEnabled == true
-                ? _addRecipeToEditingList(recipes[index])
-                : _openRecipeView(recipes, index, recipes[index].id),
-            onLongPress: () => _editingModeEnabled == false
-                ? _enableEditingMode(recipes[index])
-                : null,
-          ),
-        ),
+        child: buildRecipeCard(recipes, index, ctx),
       ),
       itemCount: recipes.length,
     );
   }
 
-  void _openRecipeView(
-      List<RecipeOriginator> recipes, int index, Object heroTag) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider.value(
-          value: recipes[index],
-          child: RecipeView(heroTag: heroTag),
-        ),
-      ),
+  Widget buildRecipeCard(List<Recipe> recipes, int index, BuildContext ctx) {
+    final recipe = recipes[index];
+    return RecipeCard(
+      recipe.id,
+      borderSide: _editingModeEnabled == true &&
+              _selectedRecipes.contains(recipes[index])
+          ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
+          : BorderSide.none,
+      shadowColorStart: _editingModeEnabled == true &&
+              _selectedRecipes.contains(recipes[index])
+          ? Theme.of(ctx).accentColor.withOpacity(0.7)
+          : Colors.black54,
+      onTap: () => _editingModeEnabled == true
+          ? _addRecipeToEditingList(recipe)
+          : _openRecipeView(recipe, recipe.id),
+      onLongPress: () =>
+          _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
     );
   }
 
-  void _addRecipeToEditingList(RecipeOriginator recipe) {
+  void _openRecipeView(Recipe recipe, Object heroTag) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => RecipeView(recipe, heroTag: heroTag)),
+    );
+  }
+
+  void _addRecipeToEditingList(Recipe recipe) {
     if (!_selectedRecipes.contains(recipe)) {
       setState(() {
         _selectedRecipes.add(recipe);
@@ -168,19 +174,15 @@ class _RecipesScreenState extends State<RecipesScreen> {
     }
   }
 
-  void _enableEditingMode(RecipeOriginator recipe) {
+  void _enableEditingMode(Recipe recipe) {
     setState(() => _editingModeEnabled = true);
     _addRecipeToEditingList(recipe);
   }
 
-  AppBar _buildAppBar(BuildContext context, List<RecipeOriginator> recipes) {
-    if (_searchModeEnabled) {
-      _searchText = "";
-    }
-
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: _searchModeEnabled == false
-          ? Text('Recipes')
+          ? buildAppBarTitle()
           : TextField(
               autofocus: true,
               decoration: InputDecoration(
@@ -200,26 +202,35 @@ class _RecipesScreenState extends State<RecipesScreen> {
         if (_searchModeEnabled == false)
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: recipes.isEmpty
-                ? null
-                : () => setState(() => _searchModeEnabled = true),
+            onPressed: () => setState(() => _searchModeEnabled = true),
           )
         else
           IconButton(
             icon: Icon(Icons.clear),
-            onPressed: () => setState(() => _searchModeEnabled = false),
+            onPressed: () => setState(() {
+              _searchModeEnabled = false;
+              _searchText = "";
+            }),
           ),
         IconButton(
           icon: Icon(Icons.filter_list),
-          onPressed: recipes.isEmpty ? null : _openOrderingDialog,
+          onPressed: _openOrderingDialog,
         )
+      ],
+    );
+  }
+
+  Widget buildAppBarTitle() {
+    return Row(
+      children: [
+        Text('Recipes'),
       ],
     );
   }
 
   void _openOrderingDialog() async {}
 
-  AppBar _buildEditingAppBar(BuildContext context) {
+  AppBar _buildEditingAppBar(WidgetRef ref) {
     return AppBar(
       titleSpacing: 0,
       automaticallyImplyLeading: false,
@@ -247,13 +258,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.delete),
-          onPressed: _deleteRecipes,
+          onPressed: () => _deleteRecipes(ref),
         )
       ],
     );
   }
 
-  void _deleteRecipes() async {
+  void _deleteRecipes(WidgetRef ref) async {
     var confirmDelete = await showDialog<bool>(
         context: context,
         builder: (ctx) {
@@ -263,7 +274,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
             actions: <Widget>[
               FlatButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('NO')),
+                  child: Text('CANCEL')),
               FlatButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   child: Text('YES')),
@@ -271,27 +282,23 @@ class _RecipesScreenState extends State<RecipesScreen> {
           );
         });
 
-    if (confirmDelete) {
-      showProgressDialog(context);
+    if (confirmDelete ?? false) {
       for (var recipe in _selectedRecipes) {
         try {
-          await Provider.of<RecipesProvider>(context, listen: false)
-              .removeRecipe(recipe);
+          await ref.read(recipesRepositoryProvider).delete(recipe);
         } catch (e) {
-          hideProgressDialog(context);
           showAlertErrorMessage(context);
           return;
         }
       }
-      hideProgressDialog(context);
     }
 
     setState(() => _editingModeEnabled = false);
   }
 
-  void _showRecipeNameDialog() async {
+  void _showRecipeNameDialog(WidgetRef ref) async {
     final textController = TextEditingController();
-    RecipeOriginator newRecipe = await showDialog<RecipeOriginator>(
+    final newRecipe = await showDialog<Recipe>(
       context: context,
       builder: (_) => AlertDialog(
         content: TextField(
@@ -314,13 +321,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
             ),
             onPressed: () async {
               Navigator.of(context).pop();
-              setState(() => _isLoading = true);
               if (textController.text.trim().isNotEmpty) {
-                await Provider.of<RecipesProvider>(context, listen: false)
-                    .addRecipe(Recipe(name: textController.text));
-                setState(() => _isLoading = false);
+                await ref.read(recipesRepositoryProvider).save(
+                    Recipe(id: ObjectId().hexString, name: textController.text),
+                    params: {'update': false});
+              } else {
+                print("No name supplied");
               }
-              setState(() => _isLoading = false);
             },
           )
         ],
@@ -332,13 +339,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
     }
   }
 
-  void _openNewRecipeScreen(RecipeOriginator newRecipe) {
+  void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider.value(
-          value: newRecipe,
-          child: RecipeView(),
-        ),
+        builder: (_) => RecipeView(newRecipe),
       ),
     );
   }

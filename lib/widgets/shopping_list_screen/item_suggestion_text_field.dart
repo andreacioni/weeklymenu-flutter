@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:collection/collection.dart';
 
 import '../../globals/utils.dart';
 import '../../models/ingredient.dart';
 import '../../models/shopping_list.dart';
-import '../../providers/ingredients_provider.dart';
-import '../../providers/shopping_list_provider.dart';
 
 class ItemSuggestionTextField extends StatefulWidget {
-  final Ingredient value;
-  final String hintText;
-  final bool autofocus;
+  final Ingredient? value;
+  final String? hintText;
+  final bool autoFocus;
   final bool showShoppingItemSuggestions;
-  final void Function(Ingredient) onIngredientSelected;
-  final void Function(ShoppingListItem) onShoppingItemSelected;
-  final void Function(dynamic) onSubmitted;
-  final Function onTap;
+  final void Function(Ingredient)? onIngredientSelected;
+  final void Function(ShoppingListItem)? onShoppingItemSelected;
+  final void Function(dynamic)? onSubmitted;
+  final Function()? onTap;
   final Function(bool) onFocusChanged;
   final bool enabled;
 
@@ -27,10 +28,10 @@ class ItemSuggestionTextField extends StatefulWidget {
     this.onSubmitted,
     this.showShoppingItemSuggestions = true,
     this.onTap,
-    this.onFocusChanged,
-    this.hintText,
-    this.autofocus = false,
+    this.autoFocus = false,
     this.enabled = true,
+    required this.onFocusChanged,
+    this.hintText,
   });
 
   @override
@@ -39,7 +40,8 @@ class ItemSuggestionTextField extends StatefulWidget {
 }
 
 class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
-  FocusNode focusNode;
+  List<Ingredient> availableIngredients = [];
+  late final FocusNode focusNode;
 
   @override
   void initState() {
@@ -57,65 +59,63 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
   @override
   Widget build(BuildContext context) {
     final TextEditingController textEditingController = TextEditingController();
-    if (widget.value != null) {
-      textEditingController.text = widget.value.name;
+    if (widget.value?.name != null) {
+      textEditingController.text = widget.value!.name;
     }
-    return TypeAheadField<dynamic>(
-      textFieldConfiguration: TextFieldConfiguration(
-        controller: textEditingController,
-        enabled: widget.enabled,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: widget.hintText,
+    return Consumer(builder: (context, ref, _) {
+      return TypeAheadField<dynamic>(
+        textFieldConfiguration: TextFieldConfiguration(
+          controller: textEditingController,
+          enabled: widget.enabled,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: widget.hintText,
+          ),
+          onSubmitted: widget.onSubmitted,
+          onTap: focusNode.hasFocus ? widget.onTap : null,
+          focusNode: focusNode,
+          autofocus: widget.autoFocus,
         ),
-        onSubmitted: widget.onSubmitted,
-        onTap: focusNode.hasFocus ? widget.onTap : null,
-        focusNode: focusNode,
-        autofocus: widget.autofocus,
-      ),
-      itemBuilder: _itemBuilder,
-      onSuggestionSelected: (suggestion) =>
-          _onSuggestionSelected(textEditingController, suggestion),
-      suggestionsCallback: (pattern) => _suggestionsCallback(context, pattern),
-      hideOnEmpty: true,
-    );
+        itemBuilder: itemBuilder,
+        onSuggestionSelected: (suggestion) =>
+            onSuggestionSelected(textEditingController, suggestion),
+        suggestionsCallback: (pattern) => suggestionsCallback(ref, pattern),
+        hideOnEmpty: true,
+      );
+    });
   }
 
-  void _onSuggestionSelected(
+  void onSuggestionSelected(
       TextEditingController textEditingController, dynamic item) {
     if (item is Ingredient) {
       textEditingController.text = item.name;
 
       if (widget.onIngredientSelected != null) {
-        widget.onIngredientSelected(item);
+        widget.onIngredientSelected!(item);
       }
     } else {
-      var ingredient = _resolveShoppingListItemIngredient(item);
-      textEditingController.text = ingredient.name;
+      var ingredient = resolveShoppingListItemIngredient(item);
+      textEditingController.text = ingredient?.name ?? 'Ingredient not found';
 
       if (widget.onShoppingItemSelected != null) {
-        widget.onShoppingItemSelected(item);
+        widget.onShoppingItemSelected!(item);
       }
     }
   }
 
-  Future<List> _suggestionsCallback(
-      BuildContext context, String pattern) async {
-    final ingredientProvider = Provider.of<IngredientsProvider>(
-      context,
-      listen: false,
-    );
-    final availableIngredients = ingredientProvider.getIngredients;
+  Future<List> suggestionsCallback(WidgetRef ref, String pattern) async {
+    final ingredientsRepo = ref.read(ingredientsRepositoryProvider);
+    final shopListRepo = ref.read(shoppingListsRepositoryProvider);
+
+    availableIngredients = await ingredientsRepo.findAll(remote: false);
 
     List<dynamic> suggestions = [];
 
     if (widget.showShoppingItemSuggestions) {
-      final shoppingList = Provider.of<ShoppingList>(
-        context,
-        listen: false,
-      );
+      final shoppingList = (await shopListRepo.findAll(remote: false))[0];
+
       final checkedItems = shoppingList.getCheckedItems.where((item) {
-        var ing = ingredientProvider.getById(item.item);
+        var ing = resolveShoppingListItemIngredient(item);
         return ing != null ? stringContains(ing.name, pattern) : false;
       });
 
@@ -134,27 +134,24 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     return suggestions;
   }
 
-  Widget _itemBuilder(BuildContext buildContext, dynamic item) {
+  Widget itemBuilder(BuildContext buildContext, dynamic item) {
     if (item is Ingredient) {
       return ListTile(
         title: Text(item.name),
-        subtitle: Text('Igredient'),
+        subtitle: Text('Ingredient'),
       );
     } else {
-      var ing = _resolveShoppingListItemIngredient(item);
+      var ing = resolveShoppingListItemIngredient(item);
       return ListTile(
-        title: Text(ing.name),
+        title: Text(ing?.name ?? 'Ingredient not found'),
         subtitle: Text('Shopping List'),
         trailing: Icon(Icons.check_box),
       );
     }
   }
 
-  Ingredient _resolveShoppingListItemIngredient(
-      ShoppingListItem shoppingListItem) {
-    return Provider.of<IngredientsProvider>(
-      context,
-      listen: false,
-    ).getById(shoppingListItem.item);
+  Ingredient? resolveShoppingListItemIngredient(ShoppingListItem item) {
+    return availableIngredients
+        .firstWhereOrNull((ingredient) => ingredient.id == item.item);
   }
 }

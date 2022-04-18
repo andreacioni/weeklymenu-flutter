@@ -12,7 +12,7 @@ class UnitsOfMeasureDropdown extends StatefulWidget {
 }
 
 class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
-  String _uomDropdownValue;
+  String? _uomDropdownValue;
   double _spinnerValue = 0;
 
   DropdownMenuItem<String> _createDropDownItem(String uom) {
@@ -28,6 +28,7 @@ class _UnitsOfMeasureDropdownState extends State<UnitsOfMeasureDropdown> {
       children: <Widget>[
         NumberFormField(
           initialValue: _spinnerValue,
+          labelText: 'Unità di misura',
           minValue: 0,
           maxValue: 9999,
           onChanged: (newValue) => _spinnerValue = newValue,

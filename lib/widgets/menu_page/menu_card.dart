@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 
+import '../../main.data.dart';
+import '../flutter_data_state_builder.dart';
+import '../../models/enums/meal.dart';
+import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
-import '../../models/enums/meals.dart';
-
-import '../../providers/recipes_provider.dart';
 
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends StatelessWidget {
   static final extent = 150.0;
   static final _dateParser = DateFormat('EEEE, MMMM dd');
 
-  final void Function() onTap;
+  final DailyMenu dailyMenu;
+  final void Function()? onTap;
 
-  MenuCard({this.onTap});
+  MenuCard(this.dailyMenu, {this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final dailyMenu = Provider.of<DailyMenu>(context);
-
     final divider = Divider(
       color: Colors.grey.shade500,
       height: 0,
@@ -92,7 +94,7 @@ class MenuCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    Meal.Breakfast.value,
+                    Meal.Breakfast.value!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -120,7 +122,7 @@ class MenuCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    Meal.Lunch.value,
+                    Meal.Lunch.value!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -149,7 +151,7 @@ class MenuCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    Meal.Dinner.value,
+                    Meal.Dinner.value!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -173,36 +175,43 @@ class MenuCard extends StatelessWidget {
     return Expanded(
       child: Row(
         children: <Widget>[
-          if (recipesIds == null || recipesIds.isEmpty)
+          if (recipesIds.isEmpty)
             Text(
               "No recipes defined",
               textAlign: TextAlign.right,
               style:
                   TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
             ),
-          if (recipesIds != null && recipesIds.isNotEmpty)
-            MenuRecipesText(recipesIds)
+          if (recipesIds.isNotEmpty) MenuRecipesText(recipesIds)
         ],
       ),
     );
   }
 }
 
-class MenuRecipesText extends StatelessWidget {
-  final List<String> recipesIds;
+class MenuRecipesText extends ConsumerWidget {
+  final List<String> _recipesIds;
 
-  const MenuRecipesText(this.recipesIds, {Key key}) : super(key: key);
+  MenuRecipesText(this._recipesIds, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final recipesProvider = Provider.of<RecipesProvider>(context);
-    final recipes = recipesIds
-        .map((recipeId) => recipesProvider.getById(recipeId).name)
-        .toList();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FlutterDataStateBuilder<List<Recipe>>(
+        state: ref.recipes.watchAll(),
+        builder: (context, recipes) {
+          List<String> recipesNames = <String>[];
+          for (String recipeId in _recipesIds) {
+            final recipe = recipes.firstWhereOrNull((r) => r.id == recipeId);
+            recipesNames.add(recipe?.name ?? '');
+          }
+          return _buildTextEntry(recipesNames);
+        });
+  }
 
+  Widget _buildTextEntry(List<String> recipesNames) {
     return Expanded(
       child: Text(
-        recipes.join(', '),
+        (recipesNames..removeWhere((e) => e.isEmpty)).join(', '),
         style: TextStyle(fontStyle: FontStyle.normal, color: Colors.black),
         overflow: TextOverflow.ellipsis,
         softWrap: false,

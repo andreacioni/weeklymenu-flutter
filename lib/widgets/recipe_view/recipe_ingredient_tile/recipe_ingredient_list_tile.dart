@@ -1,50 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../main.data.dart';
+import '../../flutter_data_state_builder.dart';
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/recipe.dart';
-import '../../../providers/ingredients_provider.dart';
 
-class RecipeIngredientListTile extends StatefulWidget {
+class RecipeIngredientListTile extends HookConsumerWidget {
   final RecipeOriginator _recipe;
-  final RecipeIngredient _recipeIngredient;
+  final RecipeIngredient recipeIngredient;
   final bool editEnabled;
 
-  RecipeIngredientListTile(this._recipe, this._recipeIngredient,
+  RecipeIngredientListTile(this._recipe, this.recipeIngredient,
       {this.editEnabled = false});
 
   @override
-  _RecipeIngredientListTileState createState() =>
-      _RecipeIngredientListTileState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ingredientsRepo = ref.ingredients;
 
-class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
-  final _log = Logger();
+    return FlutterDataStateBuilder<Ingredient>(
+      state: ingredientsRepo.watchOne(recipeIngredient.ingredientId),
+      builder: (context, model) {
+        final ingredient = model;
+        return buildListTile(context, ingredient);
+      },
+    );
+    /* return FutureBuilder<Ingredient>(
+      future: Provider.of<Repository<Ingredient>>(context, listen: false)
+          .findOne(widget._recipeIngredient.ingredientId, remote: false),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text("Error occurred");
+        }
 
-  @override
-  Widget build(BuildContext context) {
-    Ingredient ingredient =
-        Provider.of<IngredientsProvider>(context, listen: false)
-            .getById(widget._recipeIngredient.ingredientId);
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        final ingredient = snapshot.data;
+
+        return buildListTile(ingredient);
+      },
+    ); */
+  }
+
+  Widget buildListTile(BuildContext context, Ingredient ingredient) {
     return Card(
       child: ListTile(
         leading: Padding(
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(ingredient.name == null ? '' : ingredient.name),
-        trailing: widget.editEnabled
+        title: Text(ingredient.name),
+        trailing: editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
-                onPressed: _openRecipeIngredientUpdateModal,
+                onPressed: () => openRecipeIngredientUpdateModal(context),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    widget._recipeIngredient.quantity?.toStringAsFixed(0),
+                    recipeIngredient.quantity?.toStringAsFixed(0) ?? '-',
                     style: TextStyle(
                       fontSize: 27,
                       fontWeight: FontWeight.bold,
@@ -52,9 +72,7 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
                     ),
                   ),
                   Text(
-                    widget._recipeIngredient.unitOfMeasure == null
-                        ? '-'
-                        : widget._recipeIngredient.unitOfMeasure.toString(),
+                    recipeIngredient.unitOfMeasure?.toString() ?? '-',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -66,25 +84,21 @@ class _RecipeIngredientListTileState extends State<RecipeIngredientListTile> {
     );
   }
 
-  void _openRecipeIngredientUpdateModal() async {
-    RecipeIngredient updatedRecipeIng = await showDialog<RecipeIngredient>(
+  void openRecipeIngredientUpdateModal(BuildContext context) async {
+    RecipeIngredient? updatedRecipeIng = await showDialog<RecipeIngredient>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => RecipeIngredientModal(
-        widget._recipeIngredient.recipeId,
-        recipeIngredient: widget._recipeIngredient,
-      ),
+      builder: (_) => RecipeIngredientModal(recipeIngredient),
     );
 
     if (updatedRecipeIng != null) {
-      widget._recipe.setEdited();
-      widget._recipeIngredient.update(
-        quantity: updatedRecipeIng.quantity,
-        unitOfMeasure: updatedRecipeIng.unitOfMeasure,
-        freezed: updatedRecipeIng.freezed,
-      );
+      final recipeIngredients = [..._recipe.instance.ingredients]
+        ..removeWhere((ri) => ri.ingredientId == recipeIngredient.ingredientId)
+        ..add(updatedRecipeIng);
+
+      _recipe.update(_recipe.instance.copyWith(ingredients: recipeIngredients));
     } else {
-      _log.i("No update ingredient recipe returned");
+      print("No update ingredient recipe returned");
     }
   }
 }

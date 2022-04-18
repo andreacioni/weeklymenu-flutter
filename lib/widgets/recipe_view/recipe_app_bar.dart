@@ -11,17 +11,17 @@ class RecipeAppBar extends StatelessWidget {
 
   RecipeAppBar(
     this._recipe, {
-    this.heroTag,
-    this.editModeEnabled,
-    this.onRecipeEditEnabled,
-    this.onBackPressed,
+    this.heroTag = const Object(),
+    this.editModeEnabled = false,
+    required this.onRecipeEditEnabled,
+    required this.onBackPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
       forceElevated: true,
-      expandedHeight: _recipe.imgUrl != null ? 200.0 : null,
+      expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
       pinned: true,
       stretch: true,
       flexibleSpace: FlexibleSpaceBar(
@@ -38,7 +38,7 @@ class RecipeAppBar extends StatelessWidget {
                 ),
                 padding: EdgeInsets.all(3),
                 child: Text(
-                  _recipe.name,
+                  _recipe.instance.name,
                   maxLines: 1,
                   style: TextStyle(color: Colors.white),
                   overflow: TextOverflow.ellipsis,
@@ -64,11 +64,11 @@ class RecipeAppBar extends StatelessWidget {
               )
           ],
         ),
-        background: _recipe.imgUrl != null
+        background: _recipe.instance.imgUrl != null
             ? Hero(
                 tag: heroTag,
                 child: Image.network(
-                  _recipe.imgUrl,
+                  _recipe.instance.imgUrl!,
                   fit: BoxFit.fitWidth,
                 ),
               )
@@ -97,8 +97,11 @@ class RecipeAppBar extends StatelessWidget {
 
   void _showUpdateImageDialog(BuildContext context) async {
     final textController = TextEditingController();
-    textController.text = _recipe.imgUrl;
-    String newUrl = await showDialog<String>(
+    if (_recipe.instance.imgUrl != null) {
+      textController.text = _recipe.instance.imgUrl!;
+    }
+
+    String? newUrl = await showDialog<String>(
         context: context,
         builder: (_) => AlertDialog(
               title: Text('Image URL'),
@@ -118,13 +121,13 @@ class RecipeAppBar extends StatelessWidget {
             ));
 
     if (newUrl != null) {
-      _recipe.updateImgUrl(newUrl);
+      _recipe.update(_recipe.instance.copyWith(imgUrl: newUrl));
     }
   }
 
   void _openEditRecipeNameModal(BuildContext context) async {
-    final textController = TextEditingController(text: _recipe.name);
-    String newRecipeName = await showDialog<String>(
+    final textController = TextEditingController(text: _recipe.instance.name);
+    String? newRecipeName = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
         content: TextField(
@@ -150,7 +153,7 @@ class RecipeAppBar extends StatelessWidget {
     );
 
     if (newRecipeName != null) {
-      _recipe.updateName(newRecipeName);
+      _recipe.update(_recipe.instance.copyWith(name: newRecipeName));
     }
   }
 }

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:logging/logging.dart';
-import 'package:provider/provider.dart';
 
 import '../../models/ingredient.dart';
 import './recipe_ingredient_modal/recipe_ingredient_modal.dart';
-
 import '../../models/recipe.dart';
-import '../../providers/recipes_provider.dart';
 
 class AddIngredientButton extends StatelessWidget {
   final log = Logger((AddIngredientButton).toString());
@@ -40,14 +37,17 @@ class AddIngredientButton extends StatelessWidget {
   }
 
   void _openAddIngredientModal(BuildContext context) async {
-    var newRecipeIngredient = await showDialog<RecipeIngredient>(
+    final newRecipeIngredient = await showDialog<RecipeIngredient>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => RecipeIngredientModal(_recipe.id),
+      builder: (_) => RecipeIngredientModal(),
     );
 
+    final recipeIngredients = _recipe.instance.ingredients;
+
     if (newRecipeIngredient != null) {
-      _recipe.addRecipeIngredient(newRecipeIngredient);
+      _recipe.update(_recipe.instance
+          .copyWith(ingredients: [...recipeIngredients, newRecipeIngredient]));
     } else {
       log.info("No recipe ingredient to add");
     }

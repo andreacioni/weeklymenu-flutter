@@ -6,18 +6,19 @@ import '../../models/enums/difficulty.dart';
 import '../../models/recipe.dart';
 
 class RecipeInformationTiles extends StatelessWidget {
-  final RecipeOriginator _recipe;
+  final RecipeOriginator originator;
   final bool editEnabled;
   final GlobalKey formKey;
 
-  RecipeInformationTiles(this._recipe, {this.editEnabled, this.formKey});
+  RecipeInformationTiles(this.originator,
+      {this.editEnabled = false, required this.formKey});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         EditableInformationTile(
-          _recipe.servs?.toDouble(),
+          originator.instance.servs?.toDouble(),
           "Servings",
           minValue: 1,
           icon: Icon(
@@ -26,11 +27,12 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "ppl",
-          onChanged: () => _recipe.setEdited(),
-          onSaved: (newValue) => _recipe.updateServs(newValue?.truncate()),
+          onChanged: () => {}, //_recipe.setEdited(),
+          onSaved: (newValue) => originator
+              .update(originator.instance.copyWith(servs: newValue.truncate())),
         ),
         EditableInformationTile(
-          _recipe.estimatedPreparationTime?.toDouble(),
+          originator.instance.estimatedPreparationTime?.toDouble(),
           "Preparation time",
           icon: Icon(
             Icons.timer,
@@ -38,12 +40,13 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
-          onChanged: () => _recipe.setEdited(),
-          onSaved: (newValue) =>
-              _recipe.updatePreparationTime(newValue?.truncate()),
+          minValue: 1,
+          onChanged: () => {}, //_recipe.setEdited(),
+          onSaved: (newValue) => originator.update(originator.instance
+              .copyWith(estimatedPreparationTime: newValue.truncate())),
         ),
         EditableInformationTile(
-          _recipe.estimatedCookingTime?.toDouble(),
+          originator.instance.estimatedCookingTime?.toDouble(),
           "Cooking time",
           icon: Icon(
             Icons.timelapse,
@@ -51,9 +54,10 @@ class RecipeInformationTiles extends StatelessWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
-          onChanged: () => _recipe.setEdited(),
-          onSaved: (newValue) =>
-              _recipe.updateCookingTime(newValue?.truncate()),
+          minValue: 1,
+          onChanged: () => {}, //_recipe.setEdited(),
+          onSaved: (newValue) => originator.update(originator.instance
+              .copyWith(estimatedCookingTime: newValue.truncate())),
         ),
         ListTile(
           title: Text("Difficulty"),
@@ -63,20 +67,22 @@ class RecipeInformationTiles extends StatelessWidget {
         RecipeInformationLevelSelect(
           "Affinity",
           Icon(Icons.favorite, color: Colors.red.shade300),
-          _recipe.rating,
+          originator.instance.rating,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.3),
           activeColor: Colors.red,
-          onLevelUpdate: (newLevel) => _recipe.updateRating(newLevel),
+          onLevelUpdate: (newLevel) =>
+              originator.update(originator.instance.copyWith(rating: newLevel)),
         ),
         RecipeInformationLevelSelect(
           "Cost",
           Icon(Icons.attach_money, color: Colors.green.shade300),
-          _recipe.cost,
+          originator.instance.cost,
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.5),
           activeColor: Colors.green,
-          onLevelUpdate: (newLevel) => _recipe.updateCost(newLevel),
+          onLevelUpdate: (newLevel) =>
+              originator.update(originator.instance.copyWith(cost: newLevel)),
         ),
       ],
     );
@@ -85,16 +91,17 @@ class RecipeInformationTiles extends StatelessWidget {
   Widget _buildDifficultyDropdown(BuildContext context) {
     return !editEnabled
         ? Text(
-            _recipe.difficulty == null ? '-' : _recipe.difficulty,
+            originator.instance.difficulty ?? '-',
             style: const TextStyle(fontSize: 18),
           )
         : DropdownButton<String>(
-            value: _recipe.difficulty,
+            value: originator.instance.difficulty,
             hint: const Text('Choose'),
             iconSize: 24,
             elevation: 16,
             style: const TextStyle(color: Colors.black, fontSize: 18),
-            onChanged: (String newValue) => _recipe.updateDifficulty(newValue),
+            onChanged: (String? newValue) => originator
+                .update(originator.instance.copyWith(difficulty: newValue)),
             items: Difficulties.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -108,7 +115,7 @@ class RecipeInformationTiles extends StatelessWidget {
 class RecipeInformationLevelSelect extends StatefulWidget {
   static const LEVELS = 3;
 
-  final int _initialLevel;
+  final int? _initialLevel;
   final String _label;
   final Icon _icon;
   final bool editEnabled;
@@ -120,7 +127,7 @@ class RecipeInformationLevelSelect extends StatefulWidget {
       {this.editEnabled = false,
       this.activeColor = Colors.black,
       this.inactiveColor = Colors.grey,
-      @required this.onLevelUpdate});
+      required this.onLevelUpdate});
 
   @override
   RecipeInformationLevelSelectState createState() =>
@@ -129,7 +136,7 @@ class RecipeInformationLevelSelect extends StatefulWidget {
 
 class RecipeInformationLevelSelectState
     extends State<RecipeInformationLevelSelect> {
-  int _level;
+  int? _level;
 
   RecipeInformationLevelSelectState(this._level);
 
@@ -163,7 +170,7 @@ class RecipeInformationLevelSelectState
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Icon(
         widget._icon.icon,
-        color: (_level != null && index < _level)
+        color: (_level != null && index < _level!)
             ? widget.activeColor
             : widget.inactiveColor,
       ),
@@ -173,43 +180,44 @@ class RecipeInformationLevelSelectState
   void updateLevel(int newLevel) {
     setState(() {
       _level = newLevel;
-      widget.onLevelUpdate(newLevel);
     });
+    widget.onLevelUpdate(newLevel);
   }
 }
 
 class EditableInformationTile extends StatelessWidget {
-  final double value;
+  final double? value;
   final double minValue;
   final String title;
-  final Icon icon;
+  final Icon? icon;
   final String suffix;
   final bool editingEnabled;
+  final String hintText;
   final void Function(double) onSaved;
   final void Function() onChanged;
 
-  EditableInformationTile(
-    this.value,
-    this.title, {
-    this.icon,
-    this.suffix,
-    this.editingEnabled,
-    this.onSaved,
-    this.onChanged,
-    this.minValue = 0,
-  });
+  EditableInformationTile(this.value, this.title,
+      {this.icon,
+      required this.suffix,
+      this.editingEnabled = false,
+      required this.onSaved,
+      required this.onChanged,
+      this.minValue = 0,
+      String? hintText})
+      : this.hintText = hintText ?? title;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: editingEnabled
           ? NumberFormField(
-              initialValue: value?.toDouble(),
+              initialValue: value,
               fractionDigits: 0,
               labelText: title,
               minValue: minValue,
               onChanged: (_) => onChanged(),
               onSaved: onSaved,
+              hintText: hintText,
             )
           : Text(title),
       leading: icon,

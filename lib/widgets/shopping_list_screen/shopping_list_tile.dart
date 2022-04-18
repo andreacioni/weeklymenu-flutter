@@ -1,123 +1,94 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-import '../../providers/ingredients_provider.dart';
+import '../flutter_data_state_builder.dart';
 import '../../models/shopping_list.dart';
 import '../../models/ingredient.dart';
 import './item_suggestion_text_field.dart';
+import 'package:weekly_menu_app/main.data.dart';
 
-class ShoppingListItemTile extends StatefulWidget {
+class ShoppingListItemTile extends HookConsumerWidget {
   final Key formKey;
   final ShoppingListItem shoppingListItem;
-  final Function(bool) onCheckChange;
-  final Function(DismissDirection) onDismiss;
+  final Function(bool)? onCheckChange;
+  final Function(DismissDirection)? onDismiss;
   final bool editable;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
-    this.formKey,
+    required this.formKey,
     this.onCheckChange,
     this.onDismiss,
     this.editable = true,
   }) : super(key: formKey);
 
   @override
-  _ShoppingListItemTileState createState() => _ShoppingListItemTileState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ingredientsRepository = ref.ingredients;
+    final _editingMode = useState(false);
+    final shopItem = useState(shoppingListItem);
 
-class _ShoppingListItemTileState extends State<ShoppingListItemTile> {
-  Ingredient _ingredient;
-  bool _editingMode;
-
-  @override
-  void initState() {
-    _editingMode = false;
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    if (widget.shoppingListItem.item != null) {
-      _ingredient = Provider.of<IngredientsProvider>(context)
-          .getById(widget.shoppingListItem.item);
-    } else {
-      _editingMode = true;
+    void _onFocusChanged(bool hasFocus) {
+      if (hasFocus == false) {
+        _editingMode.value = false;
+      } else {
+        _editingMode.value = true;
+      }
     }
 
-    super.didChangeDependencies();
-  }
+    void _onIngredientSelected(Ingredient newIngredient) {
+      _editingMode.value = false;
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Dismissible(
-      key: widget.formKey,
-      onDismissed: widget.onDismiss,
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            leading: Icon(Icons.drag_handle),
-            trailing: _editingMode == true
-                ? IconButton(icon: Icon(Icons.edit), onPressed: null)
-                : Checkbox(
-                    value: widget.shoppingListItem.checked,
-                    onChanged: onCheckChange,
-                  ),
-            title: ItemSuggestionTextField(
-              value: _ingredient,
-              enabled: widget.editable,
-              showShoppingItemSuggestions: false,
-              onIngredientSelected: _onIngredientSelected,
-              onSubmitted: _getOrCreateIngredientByName,
-              //onTap: _onTap,
-              onFocusChanged: _onFocusChanged,
-            ),
+    void _getOrCreateIngredientByName(ingredientName) {
+      _editingMode.value = false;
+    }
+
+    void _onCheckChange(newValue) {
+      shopItem.value = shopItem.value.copyWith(checked: newValue);
+
+      if (onCheckChange != null) {
+        onCheckChange!(newValue);
+      }
+    }
+
+    return FlutterDataStateBuilder<Ingredient>(
+      state: ingredientsRepository.watchOne(shoppingListItem.item),
+      onRefresh: () => ingredientsRepository.findOne(shoppingListItem.item),
+      builder: (context, model) {
+        return Dismissible(
+          key: formKey,
+          onDismissed: onDismiss,
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.drag_handle),
+                trailing: _editingMode.value == true
+                    ? IconButton(icon: Icon(Icons.edit), onPressed: null)
+                    : Checkbox(
+                        value: shoppingListItem.checked,
+                        onChanged: _onCheckChange,
+                      ),
+                title: ItemSuggestionTextField(
+                  value: model,
+                  enabled: editable,
+                  showShoppingItemSuggestions: false,
+                  onIngredientSelected: _onIngredientSelected,
+                  onSubmitted: _getOrCreateIngredientByName,
+                  //onTap: _onTap,
+                  onFocusChanged: _onFocusChanged,
+                ),
+              ),
+              Divider(
+                height: 0,
+              )
+            ],
           ),
-          Divider(
-            height: 0,
-          )
-        ],
-      ),
+        );
+      },
     );
-  }
-
-  void _onFocusChanged(bool hasFocus) {
-    if (hasFocus == false) {
-      setState(() {
-        _editingMode = false;
-      });
-    } else {
-      setState(() {
-        _editingMode = true;
-      });
-    }
-  }
-
-  void _onTap() {
-    setState(() {
-      _editingMode = true;
-    });
-  }
-
-  void _onIngredientSelected(Ingredient newIngredient) {
-    setState(() {
-      _ingredient = newIngredient;
-      _editingMode = false;
-    });
-  }
-
-  void _getOrCreateIngredientByName(ingredientName) {
-    setState(() {
-      _editingMode = false;
-    });
-  }
-
-  void onCheckChange(newValue) {
-    setState(() {
-      widget.shoppingListItem.checked = newValue;
-    });
-
-    if (widget.onCheckChange != null) {
-      widget.onCheckChange(newValue);
-    }
   }
 }

@@ -9,13 +9,13 @@ class BaseLoginForm extends StatelessWidget {
   final String action;
   final void Function() onSubmit;
   final List<TextFormField> textFields;
-  final Widget secondaryActionWidget;
+  final Widget? secondaryActionWidget;
   final GlobalKey<FormState> formKey;
 
   BaseLoginForm(this.title, this.action, this.textFields,
       {this.secondaryActionWidget,
-      @required this.onSubmit,
-      @required this.formKey});
+      required this.onSubmit,
+      required this.formKey});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class BaseLoginForm extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                if (secondaryActionWidget != null) secondaryActionWidget
+                if (secondaryActionWidget != null) secondaryActionWidget!
               ],
             ),
           ),
@@ -69,19 +69,19 @@ class BaseLoginForm extends StatelessWidget {
   }
 
   void validateAndSave(void Function() onSaved) {
-    if (!formKey.currentState.validate()) {
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    formKey.currentState.save();
+    formKey.currentState?.save();
 
     onSaved();
   }
 }
 
 TextFormField buildEmailFormField({
-  @required void Function(String value) onSaved,
-  void Function() onFieldSubmitted,
+  required void Function(String? value) onSaved,
+  void Function()? onFieldSubmitted,
 }) {
   return TextFormField(
     decoration: InputDecoration(hintText: "Email"),
@@ -90,15 +90,16 @@ TextFormField buildEmailFormField({
         onFieldSubmitted != null ? TextInputAction.done : TextInputAction.next,
     validator: _validateEmail,
     onSaved: onSaved,
-    onFieldSubmitted: (_) => onFieldSubmitted(),
+    onFieldSubmitted:
+        onFieldSubmitted != null ? ((_) => onFieldSubmitted()) : null,
   );
 }
 
 TextFormField buildPasswordFormField(
-    {@required void Function(String value) onSaved,
-    void Function() onFieldSubmitted,
+    {required void Function(String? value) onSaved,
+    String? Function(String value)? additionalValidator,
+    void Function()? onFieldSubmitted,
     TextInputAction textInputAction = TextInputAction.next,
-    String Function(String value) additionalValidator,
     String hintText = "Password"}) {
   if (additionalValidator == null) {
     additionalValidator = (_) => null;
@@ -110,13 +111,15 @@ TextFormField buildPasswordFormField(
     textInputAction:
         onFieldSubmitted != null ? TextInputAction.done : TextInputAction.next,
     validator: (value) =>
-        _validatePassword(value) ?? additionalValidator(value),
+        _validatePassword(value) ?? additionalValidator!(value!),
     onSaved: onSaved,
-    onFieldSubmitted: (_) => onFieldSubmitted(),
+    onFieldSubmitted:
+        onFieldSubmitted != null ? ((_) => onFieldSubmitted()) : null,
   );
 }
 
-FlatButton buildCancelButton(BuildContext context, {void Function() onCancel}) {
+FlatButton buildCancelButton(BuildContext context,
+    {void Function()? onCancel}) {
   return FlatButton(
     child: Text(
       "Cancel",
@@ -130,16 +133,17 @@ FlatButton buildCancelButton(BuildContext context, {void Function() onCancel}) {
   );
 }
 
-String _validateEmail(String value) {
-  if (!RegExp(consts.emailValidationRegex).hasMatch(value)) {
+String? _validateEmail(String? value) {
+  if (value != null && !RegExp(consts.emailValidationRegex).hasMatch(value)) {
     return "Enter a valid email address";
   }
 
   return null;
 }
 
-String _validatePassword(String value) {
-  if (!RegExp(consts.passwordValidationRegex).hasMatch(value)) {
+String? _validatePassword(String? value) {
+  if (value != null &&
+      !RegExp(consts.passwordValidationRegex).hasMatch(value)) {
     return "Password must be at least 8 characters long";
   }
 

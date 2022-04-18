@@ -5,15 +5,15 @@ void showAlertErrorMessage(BuildContext context,
         'There was an error trying to reach remote server.'}) {
   showDialog(
       context: context,
-      child: AlertDialog(
-        content: Text(errorMessage),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('OK'),
-            onPressed: () => Navigator.of(context).pop(),
-          )
-        ],
-      ));
+      builder: (context) => AlertDialog(
+            content: Text(errorMessage),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          ));
 }
 
 void showProgressDialog(BuildContext context,
@@ -21,26 +21,26 @@ void showProgressDialog(BuildContext context,
   showDialog(
       context: context,
       barrierDismissible: dismissible,
-      child: AlertDialog(
-        content: Row(
-          children: <Widget>[
-            CircularProgressIndicator(),
-            SizedBox(
-              width: 10,
+      builder: (context) => AlertDialog(
+            content: Row(
+              children: <Widget>[
+                CircularProgressIndicator(),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(message),
+              ],
             ),
-            Text(message),
-          ],
-        ),
-      ));
+          ));
 }
 
 void hideProgressDialog(BuildContext context) {
   Navigator.of(context).pop();
 }
 
-Future<bool> showWannaSaveDialog(BuildContext context) {
+Future<bool?> showWannaSaveDialog(BuildContext context) {
   return showDialog<bool>(
-    child: AlertDialog(
+    builder: (context) => AlertDialog(
       title: Text("Are you sure?"),
       content: Text(
           "You are leaving this screen with unsaved changes. Would you like to save them?"),

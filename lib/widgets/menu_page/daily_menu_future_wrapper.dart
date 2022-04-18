@@ -1,72 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_data/flutter_data.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
-import 'package:weekly_menu_app/globals/date.dart';
-import 'package:weekly_menu_app/models/menu.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
-import 'package:weekly_menu_app/widgets/menu_editor/screen.dart';
-import 'package:weekly_menu_app/widgets/menu_page/menu_card.dart';
+import 'package:weekly_menu_app/main.data.dart';
+import '../../models/date.dart';
+import '../../models/menu.dart';
+import '../../widgets/flutter_data_state_builder.dart';
+import '../../widgets/menu_editor/screen.dart';
+import '../../widgets/menu_page/menu_card.dart';
 
 /*
 * Added this class to prevent FutureBuilder to fire every time a setState in 
 * the parent widget is called. See: https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
 * for more details.
 */
-class DailyMenuFutureWrapper extends StatefulWidget {
+class DailyMenuFutureWrapper extends HookConsumerWidget {
+  static final _dateParser = DateFormat('y-MM-dd');
+
   final Date _day;
 
   DailyMenuFutureWrapper(this._day);
 
   @override
-  _DailyMenuFutureWrapperState createState() => _DailyMenuFutureWrapperState();
-}
-
-class _DailyMenuFutureWrapperState extends State<DailyMenuFutureWrapper> {
-  Future<DailyMenu> _dailyMenu;
-
-  @override
-  void initState() {
-    _dailyMenu = Provider.of<MenusProvider>(context, listen: false)
-        .fetchDailyMenu(widget._day);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DailyMenu>(
-      future: _dailyMenu,
-      builder: (ctx, snapshot) {
-        if (snapshot.hasError) {
-          return Container();
-        }
-
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            return _buildMenuCard(widget._day, snapshot.data);
-          default:
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-        }
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FlutterDataStateBuilder<List<Menu>>(
+      state: ref.menus.watchAll(
+        params: {'day': _day.format(_dateParser)},
+      ),
+      builder: (context, model) {
+        final filtered = model.where((m) => m.date == _day).toList();
+        final dailyMenu = DailyMenu(day: _day, menus: filtered);
+        return _buildMenuCard(context, _day, dailyMenu);
       },
     );
   }
 
-  Widget _buildMenuCard(Date day, DailyMenu dailyMenu) {
-    return ChangeNotifierProvider.value(
-      value: dailyMenu,
-      child: MenuCard(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => ChangeNotifierProvider.value(
-                value: dailyMenu,
-                child: MenuEditorScreen(),
-              ),
-            ),
-          );
-        },
-      ),
+  Widget _buildMenuCard(BuildContext context, Date day, DailyMenu dailyMenu) {
+    return MenuCard(
+      dailyMenu,
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => MenuEditorScreen(DailyMenuNotifier(dailyMenu)),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,79 +1,68 @@
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:provider/provider.dart';
-import 'package:weekly_menu_app/globals/date.dart';
-import 'package:weekly_menu_app/globals/memento.dart';
-import 'package:weekly_menu_app/providers/menus_provider.dart';
+// ignore_for_file: invalid_annotation_target
 
-import '../globals/utils.dart' as utils;
-import '../datasource/network.dart';
-import './enums/meals.dart';
+import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:flutter_data/flutter_data.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:collection/collection.dart';
+import 'package:objectid/objectid.dart';
+import 'package:weekly_menu_app/main.data.dart';
+
+import '../globals/json_converter.dart';
+import 'date.dart';
+import 'base_model.dart';
+import '../globals/memento.dart';
 import './recipe.dart';
+import 'enums/meal.dart';
 
 part 'menu.g.dart';
 
-class MenuOriginator extends Originator<Menu> {
-  MenuOriginator(Menu original) : super(original);
-
-  void addRecipe(RecipeOriginator recipe) {
-    if (recipe != null) {
-      addRecipeById(recipe.id);
-    }
-  }
-
-  void addRecipesByIdList(List<String> selectedRecipes) {
-    if (selectedRecipes != null && selectedRecipes.isNotEmpty) {
-      selectedRecipes.forEach((recipeId) => addRecipeById(recipeId));
-    }
-  }
-
-  void addRecipeById(String recipeId) {
-    if (recipeId != null && !instance.recipes.contains(recipeId)) {
-      instance.recipes.add(recipeId);
-      setEdited();
-    }
-  }
-
-  void removeRecipeById(String recipeId) {
-    if (recipeId != null) {
-      instance.recipes.removeWhere((recId) => recId == recipeId);
-      setEdited();
-    }
-  }
-
-  void removeAllRecipes() {
-    instance.recipes.clear();
-    setEdited();
-  }
-
-  String get id => instance.id;
-
-  Date get date => instance.date;
-
-  Meal get meal => instance.meal;
-
-  List<String> get recipes => [...instance.recipes];
-
-  bool get isEmpty => instance.recipes == null || instance.recipes.isEmpty;
-
-  Map<String, dynamic> toJson() => instance.toJson();
-}
-
 @JsonSerializable()
-class Menu implements Cloneable<Menu> {
-  static final _dateParser = DateFormat('y-M-d');
-
-  @JsonKey(name: '_id')
-  String id;
-  @JsonKey(toJson: dateToJson, fromJson: dateFromJson)
+@DataRepository([BaseAdapter])
+@CopyWith()
+class Menu extends BaseModel<Menu> {
+  @DateConverter()
   Date date;
+
   Meal meal;
 
-  @JsonKey(includeIfNull: false, defaultValue: [])
+  @JsonKey(includeIfNull: false)
   List<String> recipes;
 
-  Menu({this.id, this.date, this.meal, this.recipes});
+  Menu(
+      {String? id,
+      required this.date,
+      required this.meal,
+      this.recipes = const [],
+      int? insertTimestamp,
+      int? updateTimestamp})
+      : super(
+            id: id ?? ObjectId().hexString,
+            insertTimestamp: insertTimestamp,
+            updateTimestamp: updateTimestamp);
+
+  Menu addRecipe(String recipeId) {
+    return this.copyWith(recipes: [...recipes, recipeId]).was(this);
+  }
+
+  Menu addRecipes(List<String> recipeIds) {
+    return this.copyWith(recipes: [...recipes, ...recipeIds]).was(this);
+  }
+
+  Menu removeRecipeById(String id) {
+    return this
+        .copyWith(recipes: recipes..removeWhere((element) => element == id))
+        .was(this);
+  }
+
+  Menu removeRecipeByIdList(List<String> ids) {
+    return this
+        .copyWith(recipes: recipes..removeWhere((e) => ids.contains(e)))
+        .was(this);
+  }
+
+  Menu removeAllRecipes() {
+    return this.copyWith(recipes: []).was(this);
+  }
 
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
 
@@ -81,88 +70,136 @@ class Menu implements Cloneable<Menu> {
 
   @override
   Menu clone() => Menu.fromJson(this.toJson());
-
-  static String dateToJson(Date date) => date.format(_dateParser);
-
-  static Date dateFromJson(String date) => Date.parse(_dateParser, date);
 }
 
-class DailyMenu
-    with ChangeNotifier
-    implements Revertable<List<MenuOriginator>> {
-  final Date day;
+class DailyMenuNotifier extends StateNotifier<DailyMenu> {
+  DailyMenuNotifier(DailyMenu dailyMenu) : super(dailyMenu);
 
-  List<MenuOriginator> _menus;
-
-  Map<Meal, List<String>> _selectedRecipesByMeal = {};
-
-  DailyMenu(this.day, this._menus) : assert(_menus != null);
-
-  void moveRecipeToMeal(Meal from, to, String recipeId) {
-    assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
-
-    final menuFrom = getMenuByMeal(from);
-    final menuTo = getMenuByMeal(to);
-    final initialLength = menuFrom.recipes.length;
-
-    menuFrom.removeRecipeById(recipeId);
-
-    assert(initialLength != menuFrom.recipes.length);
-
-    menuTo.addRecipeById(recipeId);
-
-    notifyListeners();
-  }
-
-  List<String> getRecipeIdsByMeal(Meal meal) {
-    return this.recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
-  }
-
-  List<MenuOriginator> getMenusByMeal(Meal meal) {
-    return recipeIdsByMeal[meal] == null ? [] : recipeIdsByMeal[meal];
-  }
-
-  void addMenu(MenuOriginator newMenu) {
-    assert(_menus.firstWhere(
+  void addMenu(Menu newMenu) {
+    assert(state.menus.firstWhereOrNull(
           (menu) => menu.meal == newMenu.meal,
-          orElse: () => null,
         ) ==
         null);
 
-    newMenu.setEdited();
-    _menus.add(newMenu);
-
-    notifyListeners();
+    state = state;
+    newMenu.save(params: {'update': false});
   }
 
-  void addRecipeToMeal(Meal meal, RecipeOriginator recipe) {
-    var menu = getMenuByMeal(meal);
+  void updateMenu(Menu newMenu) {
+    assert(state.menus.firstWhereOrNull(
+          (menu) => menu.meal == newMenu.meal,
+        ) !=
+        null);
+    final menuList = state.menus..removeWhere((m) => m.id == newMenu.id);
 
-    assert(menu != null);
-    menu.addRecipe(recipe);
+    state = state.copyWith(menus: [...menuList, newMenu]);
+    newMenu.save(params: {'update': true});
+  }
 
-    notifyListeners();
+  void addRecipeToMeal(Meal meal, Recipe recipe) {
+    var menu = state.getMenuByMeal(meal);
+
+    if (menu != null) {
+      menu = menu.addRecipe(recipe.id);
+      updateMenu(menu);
+    }
   }
 
   void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
-    if (recipeIds != null && recipeIds.isNotEmpty) {
+    if (recipeIds.isNotEmpty) {
+      var menu = state.getMenuByMeal(meal);
+
+      if (menu != null) {
+        final newMenu = menu.addRecipes(recipeIds);
+        updateMenu(newMenu);
+      }
+    }
+  }
+
+  void removeMenu(Menu menu) {
+    final newList = state.menus
+      ..removeWhere((element) => element.id == menu.id);
+    menu.delete();
+    state = state.copyWith(menus: newList);
+  }
+
+  Future<void> save(DailyMenu dailyMenu) async {
+    for (Menu menu in dailyMenu.menus) {
+      if (menu.recipes.isEmpty) {
+        // No recipes in menu means that there isn't a menu for that meal, so when can remove it
+        await menu.delete(params: {'update': true});
+        removeMenu(menu);
+      } else {
+        await menu.save(params: {'update': true});
+      }
+    }
+  }
+
+  void removeRecipesFromMeal(List<String> recipeIds) {
+    final copy = [...state.menus];
+    copy.forEach((menu) => menu.removeRecipeByIdList(recipeIds));
+    state = state.copyWith(menus: copy);
+  }
+
+  void removeAllRecipesFromMeal(Meal meal) {
+    if (state.menus.isNotEmpty) {
+      final menu = state.menus.firstWhereOrNull((m) => m.meal == meal);
+      if (menu != null) {
+        menu.removeAllRecipes();
+        updateMenu(menu);
+      }
+    }
+  }
+}
+
+@CopyWith()
+class DailyMenu {
+  final Date day;
+  final List<Menu> menus;
+
+  DailyMenu({required this.day, required this.menus})
+      : assert(menus.every((element) => element.date == day));
+  void moveRecipeToMeal(Meal from, to, String recipeId) {
+    /* assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
+
+    final menuFrom = getMenuByMeal(from);
+    final menuTo = getMenuByMeal(to);
+
+    menuFrom?.removeRecipeById(recipeId);
+
+    assert(initialLength != menuFrom.recipes.length);
+
+    menuTo?.addRecipeById(recipeId);
+
+    */
+
+    throw Error();
+  }
+
+  List<String> getRecipeIdsByMeal(Meal meal) {
+    return recipeIdsByMeal[meal] ?? [];
+  }
+
+  List<Menu> getMenusByMeal(Meal meal) {
+    return menus.where((m) => m.meal == meal).toList();
+  }
+
+  void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
+    if (recipeIds.isNotEmpty) {
       var menu = getMenuByMeal(meal);
 
-      assert(menu != null);
-      menu.addRecipesByIdList(recipeIds);
-
-      notifyListeners();
+      if (menu != null) {
+        menu.addRecipes(recipeIds);
+      }
     }
   }
 
   Map<Meal, List<String>> get recipeIdsByMeal {
     Map<Meal, List<String>> recipeIdsByMeal = {};
 
-    if (_menus != null && _menus.isNotEmpty) {
+    if (menus.isNotEmpty) {
       Meal.values.forEach((meal) {
-        final MenuOriginator menuMeal = _menus != null
-            ? _menus.firstWhere((menu) => menu.meal == meal, orElse: () => null)
-            : null;
+        final menuMeal = menus.firstWhereOrNull((menu) => menu.meal == meal);
 
         if (menuMeal != null) {
           recipeIdsByMeal[meal] = menuMeal.recipes;
@@ -175,151 +212,8 @@ class DailyMenu
     return recipeIdsByMeal;
   }
 
-  MenuOriginator getMenuByMeal(Meal meal) {
-    if (_menus != null && _menus.isNotEmpty) {
-      return _menus.firstWhere((menu) => menu.meal == meal, orElse: () => null);
-    }
-
-    return null;
-  }
-
-  List<MenuOriginator> revert() {
-    for (MenuOriginator m in _menus) {
-      m.revert();
-    }
-
-    notifyListeners();
-    return _menus;
-  }
-
-  void setSelectedRecipe(MealRecipe mealRecipe) {
-    List<String> recipesList = _selectedRecipesByMeal[mealRecipe.meal];
-
-    if (recipesList == null) {
-      recipesList = [];
-    }
-
-    recipesList.add(mealRecipe.recipe.id);
-    _selectedRecipesByMeal[mealRecipe.meal] = recipesList;
-    notifyListeners();
-  }
-
-  void removeSelectedRecipe(MealRecipe mealRecipe) {
-    final List<String> recipesList = _selectedRecipesByMeal[mealRecipe.meal];
-
-    if (recipesList != null) {
-      recipesList.removeWhere((recId) => mealRecipe.recipe.id == recId);
-    }
-    notifyListeners();
-  }
-
-  void clearSelected() {
-    _selectedRecipesByMeal.clear();
-    notifyListeners();
-  }
-
-  Future<void> save(BuildContext context, MenusProvider menusProvider) async {
-    for (MenuOriginator menu in menus) {
-      if (menu.recipes.isEmpty) {
-        // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        await Provider.of<MenusProvider>(context, listen: false)
-            .removeMenu(menu);
-        removeMenu(menu);
-      } else {
-        await Provider.of<MenusProvider>(context, listen: false).saveMenu(menu);
-      }
-    }
-  }
-
-  Future<void> removeMenu(MenuOriginator menu) async {
-    _menus.removeWhere((element) => element.id == menu.id);
-    notifyListeners();
-  }
-
-  void removeSelectedMealRecipes() {
-    _selectedRecipesByMeal.forEach(
-      (meal, recipesId) {
-        if (recipesId != null && recipesId.isNotEmpty) {
-          MenuOriginator menu = getMenuByMeal(meal);
-          recipesId.forEach(
-            (recipeIdToBeDeleted) {
-              if (menu.recipes != null && menu.recipes.isNotEmpty) {
-                menu.removeRecipeById(recipeIdToBeDeleted);
-              }
-            },
-          );
-        }
-      },
-    );
-
-    notifyListeners();
-  }
-
-  /**
-   * Get the meal of the selected recipes, _null_ is returned if no recipes are selected.
-   * If there are selected recipe that belongs to more meals _null_ is returned.
-   */
-  Meal get selectedRecipesMeal {
-    Meal meal;
-    final selectedRecipesClone =
-        Map<Meal, List<String>>.from(_selectedRecipesByMeal);
-
-    if (selectedRecipesClone != null && selectedRecipesClone.isNotEmpty) {
-      selectedRecipesClone.removeWhere(
-          (_, recipeIds) => recipeIds == null || recipeIds.isEmpty);
-
-      if (selectedRecipesClone.length == 1) {
-        meal = selectedRecipesClone.entries.first.key;
-      }
-    }
-
-    return meal;
-  }
-
-/**
- *  Returns selected recipes ids. Duplicates are removed.
- */
-  List<String> get selectedRecipes {
-    final recipeIds = <String>[];
-
-    _selectedRecipesByMeal.forEach((meal, recipeMealIds) {
-      recipeMealIds.forEach((recipeId) {
-        if (!recipeIds.contains(recipeId)) {
-          recipeIds.add(recipeId);
-        }
-      });
-    });
-
-    return recipeIds;
-  }
-
-  bool get hasSelectedRecipes => selectedRecipes.isNotEmpty;
-
-  void removeAllRecipesFromMeal(Meal meal) {
-    if (_menus != null && _menus.isNotEmpty) {
-      final menu = _menus.firstWhere((m) => m.meal == meal, orElse: () => null);
-      if (menu != null) {
-        menu.removeAllRecipes();
-        notifyListeners();
-      }
-    }
-  }
-
-  bool get isEdited {
-    bool ret = false;
-
-    _menus.forEach(
-      (menu) {
-        if (menu.isEdited == true) {
-          ret = true;
-        }
-      },
-    );
-
-    return ret;
-  }
-
-  List<MenuOriginator> get menus => [..._menus];
+  Menu? getMenuByMeal(Meal meal) =>
+      menus.firstWhereOrNull((menu) => menu.meal == meal);
 
   bool get isToday => day.isToday;
 

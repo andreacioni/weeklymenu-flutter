@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/services/auth_service.dart';
 
-import 'package:weekly_menu_app/providers/rest_provider.dart';
-import 'package:weekly_menu_app/globals/constants.dart';
-import 'package:weekly_menu_app/widgets/splash_screen/screen.dart';
-import 'package:weekly_menu_app/widgets/tags_screen/screen.dart';
-
+import 'widgets/tags_screen/screen.dart';
 import './widgets/ingredients_screen/screen.dart';
+import 'widgets/login_screen/screen.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends HookConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authService = ref.read(authServiceProvider);
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
@@ -79,16 +78,9 @@ class AppDrawer extends StatelessWidget {
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () async {
-              final sharedPreferences = await SharedPreferences.getInstance();
-              sharedPreferences
-                  .remove(SharedPreferencesKeys.tokenSharedPreferencesKey);
-              sharedPreferences
-                  .remove(SharedPreferencesKeys.emailSharedPreferencesKey);
-              sharedPreferences
-                  .remove(SharedPreferencesKeys.passwordSharedPreferencesKey);
-              Provider.of<RestProvider>(context, listen: false).logout();
+              authService.logout();
               Navigator.pop(context);
-              SplashScreen.goToLogin(context);
+              goToLogin(context);
             },
           ),
           ListTile(
@@ -106,5 +98,10 @@ class AppDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static void goToLogin(BuildContext context) {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
   }
 }

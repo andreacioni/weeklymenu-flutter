@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/base_login_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/register_form.dart';
 import 'package:weekly_menu_app/widgets/login_screen/forms/reset_password_form.dart';
@@ -21,7 +20,7 @@ class LoginScreen extends StatefulWidget {
       gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: <Color>[Colors.amber, Colors.amberAccent[200]]),
+          colors: <Color>[Colors.amber, Colors.amberAccent[200]!]),
     ),
   );
 
@@ -30,7 +29,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  LoginScreenMode mode;
+  late LoginScreenMode mode;
 
   @override
   void initState() {
@@ -99,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         minWidth: 250,
                         shape: RoundedRectangleBorder(
                           borderRadius: BaseLoginForm.flatButtonBorderRadius,
-                          side: BorderSide(color: Colors.amber[100], width: 3),
+                          side: BorderSide(color: Colors.amber[100]!, width: 3),
                         ),
                         splashColor: Colors.amber[100],
                         highlightColor: Colors.amber[100],
@@ -115,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildMainForm() {
+  Widget? buildMainForm() {
     switch (mode) {
       case LoginScreenMode.SignIn:
         return SignInForm(
@@ -130,8 +129,6 @@ class _LoginScreenState extends State<LoginScreen> {
           onBackToSignInPressed: toSignInForm,
         );
     }
-
-    return null;
   }
 
   void toSignInForm() => setState(() => mode = LoginScreenMode.SignIn);
