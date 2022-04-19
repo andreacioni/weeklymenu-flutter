@@ -20,16 +20,18 @@ class App extends StatelessWidget {
           // Define the default brightness and colors.
           brightness: Brightness.light,
           primaryColor: Colors.amber.shade300,
-          accentColor: Colors.amberAccent,
           splashColor: Colors.amberAccent,
           scaffoldBackgroundColor: Colors.white,
+
           // Define the default font family.
           fontFamily: 'Rubik',
-
           floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: Colors.amber.shade300),
-
-          appBarTheme: AppBarTheme(color: Colors.amber.shade300),
+          appBarTheme: AppBarTheme(
+              color: Colors.amber.shade300,
+              titleTextStyle: TextStyle(
+                  fontSize: 20, color: Colors.black, fontFamily: 'Rubik'),
+              iconTheme: IconThemeData(color: Colors.black)),
 
           //AppBarTheme
           bottomAppBarTheme: BottomAppBarTheme(
@@ -38,8 +40,7 @@ class App extends StatelessWidget {
 
           //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
           colorScheme: ColorScheme.light(
-            primary: Colors.amber,
-          ),
+              primary: Colors.amber, secondary: Colors.amberAccent),
 
           // Define the default TextTheme. Use this to specify the default
           // text styling for headlines, titles, bodies of text, and more.
@@ -48,6 +49,11 @@ class App extends StatelessWidget {
             headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
             bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
             //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
+          ),
+
+          checkboxTheme: CheckboxThemeData(
+            fillColor: MaterialStateProperty.resolveWith((states) =>
+                states.contains(MaterialState.selected) ? Colors.amber : null),
           ),
 
           dialogTheme: DialogTheme(

@@ -251,6 +251,8 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
 
       return <Widget>[
         SliverAppBar(
+          titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
+          iconTheme: Theme.of(context).iconTheme,
           pinned: true,
           forceElevated: true,
           elevation: 1,
