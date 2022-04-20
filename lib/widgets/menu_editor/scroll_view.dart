@@ -84,16 +84,14 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
     Future<void> _addRecipeToMeal(
         Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
       if (dailyMenu.getMenuByMeal(meal) == null) {
-        final menu = await menuRepository.save(
-            Menu(
-              date: dailyMenu.day,
-              recipes: [recipe.id],
-              meal: meal,
-            ),
-            params: {'update': false});
-        widget._dailyMenuNotifier.addMenu(menu);
+        final menu = Menu(
+          date: dailyMenu.day,
+          recipes: [recipe.id],
+          meal: meal,
+        ).init(ref.read);
+        await widget._dailyMenuNotifier.addMenu(menu);
       } else {
-        widget._dailyMenuNotifier.addRecipeToMeal(meal, recipe);
+        await widget._dailyMenuNotifier.addRecipeToMeal(meal, recipe);
       }
     }
 
@@ -258,6 +256,9 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
           elevation: 1,
           automaticallyImplyLeading: false,
           title: Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Icon(meal.icon),
               SizedBox(
