@@ -119,7 +119,9 @@ class ShoppingListScreen extends HookConsumerWidget {
         ShoppingListItem shoppingListItem) async {
       shoppingList.removeItemFromList(shoppingListItem);
       try {
-        await ref.read(shoppingListsRepositoryProvider).save(shoppingList);
+        await ref
+            .read(shoppingListsRepositoryProvider)
+            .save(shoppingList, params: {'update': true});
       } catch (e) {
         showAlertErrorMessage(context);
         shoppingList.addShoppingListItem(shoppingListItem);
