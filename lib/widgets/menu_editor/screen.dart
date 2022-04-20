@@ -105,9 +105,7 @@ class MenuEditorScreen extends HookConsumerWidget {
     final theme = Theme.of(context).copyWith(
       primaryColor: primaryColor,
       toggleableActiveColor: primaryColor,
-      appBarTheme: AppBarTheme(
-        color: primaryColor,
-      ),
+      appBarTheme: Theme.of(context).appBarTheme.copyWith(color: primaryColor),
       splashColor: primaryColor.withOpacity(0.4),
     );
 

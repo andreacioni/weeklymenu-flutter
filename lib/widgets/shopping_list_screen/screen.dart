@@ -119,7 +119,9 @@ class ShoppingListScreen extends HookConsumerWidget {
         ShoppingListItem shoppingListItem) async {
       shoppingList.removeItemFromList(shoppingListItem);
       try {
-        await ref.read(shoppingListsRepositoryProvider).save(shoppingList);
+        await ref
+            .read(shoppingListsRepositoryProvider)
+            .save(shoppingList, params: {'update': true});
       } catch (e) {
         showAlertErrorMessage(context);
         shoppingList.addShoppingListItem(shoppingListItem);
@@ -136,6 +138,7 @@ class ShoppingListScreen extends HookConsumerWidget {
           forceElevated: true,
           automaticallyImplyLeading: false,
           backgroundColor: Colors.grey.shade100,
+          centerTitle: false,
           actions: <Widget>[
             if (expandChecked.value)
               IconButton(

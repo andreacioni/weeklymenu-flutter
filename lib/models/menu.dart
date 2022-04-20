@@ -75,34 +75,41 @@ class Menu extends BaseModel<Menu> {
 class DailyMenuNotifier extends StateNotifier<DailyMenu> {
   DailyMenuNotifier(DailyMenu dailyMenu) : super(dailyMenu);
 
-  void addMenu(Menu newMenu) {
+  Future<Menu> addMenu(Menu newMenu) async {
     assert(state.menus.firstWhereOrNull(
           (menu) => menu.meal == newMenu.meal,
         ) ==
         null);
 
-    state = state;
-    newMenu.save(params: {'update': false});
+    final res = await newMenu.save(params: {'update': false});
+    state = state = state.copyWith(menus: [...state.menus, newMenu]);
+
+    return res;
   }
 
-  void updateMenu(Menu newMenu) {
+  Future<Menu> updateMenu(Menu newMenu) async {
     assert(state.menus.firstWhereOrNull(
           (menu) => menu.meal == newMenu.meal,
         ) !=
         null);
     final menuList = state.menus..removeWhere((m) => m.id == newMenu.id);
 
+    final res = await newMenu.save(params: {'update': true});
     state = state.copyWith(menus: [...menuList, newMenu]);
-    newMenu.save(params: {'update': true});
+
+    return res;
   }
 
-  void addRecipeToMeal(Meal meal, Recipe recipe) {
+  Future<Menu> addRecipeToMeal(Meal meal, Recipe recipe) async {
     var menu = state.getMenuByMeal(meal);
 
     if (menu != null) {
       menu = menu.addRecipe(recipe.id);
-      updateMenu(menu);
+      final res = await updateMenu(menu);
+      return res;
     }
+
+    return menu!;
   }
 
   void addRecipeIdListToMeal(Meal meal, List<String> recipeIds) {
