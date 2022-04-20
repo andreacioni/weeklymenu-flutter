@@ -138,6 +138,7 @@ class ShoppingListScreen extends HookConsumerWidget {
           forceElevated: true,
           automaticallyImplyLeading: false,
           backgroundColor: Colors.grey.shade100,
+          centerTitle: false,
           actions: <Widget>[
             if (expandChecked.value)
               IconButton(
