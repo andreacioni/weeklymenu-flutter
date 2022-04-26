@@ -65,7 +65,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
           child: Column(
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.drag_handle),
+                contentPadding: EdgeInsets.only(right: 16),
+                leading: Container(color: Colors.red, width: 6),
                 trailing: _editingMode.value == true
                     ? IconButton(icon: Icon(Icons.edit), onPressed: null)
                     : Checkbox(

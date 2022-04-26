@@ -242,19 +242,17 @@ class ShoppingListScreen extends HookConsumerWidget {
           ),
           onPressed: () => Scaffold.of(context).openDrawer(),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: newItemMode.value == false
-                ? () => newItemMode.value = true
-                : null,
-          )
-        ],
+        actions: <Widget>[],
       );
     }
 
     return Scaffold(
       appBar: _buildAppBar(context),
+      floatingActionButton: IconButton(
+        icon: Icon(Icons.add),
+        onPressed:
+            newItemMode.value == false ? () => newItemMode.value = true : null,
+      ),
       body: FlutterDataStateBuilder<List<ShoppingList>>(
         state: ref.shoppingLists.watchAll(syncLocal: true),
         onRefresh: () => ref.shoppingLists.findAll(syncLocal: true),
