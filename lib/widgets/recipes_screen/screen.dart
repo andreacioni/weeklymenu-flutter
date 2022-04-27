@@ -61,7 +61,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       onRefresh: () => repository.findAll(syncLocal: true),
       builder: (context, model) {
         return Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: _buildScreenBody(
             [...model],
             filter: (recipe) => !stringContains(recipe.name, _searchText),
@@ -138,11 +138,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
       recipe.id,
       borderSide: _editingModeEnabled == true &&
               _selectedRecipes.contains(recipes[index])
-          ? BorderSide(color: Theme.of(ctx).accentColor, width: 2)
+          ? BorderSide(color: Theme.of(ctx).colorScheme.secondary, width: 2)
           : BorderSide.none,
       shadowColorStart: _editingModeEnabled == true &&
               _selectedRecipes.contains(recipes[index])
-          ? Theme.of(ctx).accentColor.withOpacity(0.7)
+          ? Theme.of(ctx).colorScheme.secondary.withOpacity(0.7)
           : Colors.black54,
       onTap: () => _editingModeEnabled == true
           ? _addRecipeToEditingList(recipe)

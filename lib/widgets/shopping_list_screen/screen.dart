@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/widgets/shopping_list_screen/shopping_list_app_bar.dart';
 
 import '../flutter_data_state_builder.dart';
 import '../../models/ingredient.dart';
@@ -12,6 +12,18 @@ import '../../globals/errors_handlers.dart';
 import '../../models/shopping_list.dart';
 import './item_suggestion_text_field.dart';
 import 'package:weekly_menu_app/main.data.dart';
+
+final selectedShoppingListItems =
+    StateProvider.autoDispose(((_) => <String>[]));
+
+final supermarketSectionList = Provider.autoDispose(((ref) {
+  final shoppingListItems = ref.shoppingLists.watchAll().model[0].items;
+  return (shoppingListItems
+        ..removeWhere((e) => e.supermarketSection?.isEmpty ?? false))
+      .map((e) => e.supermarketSection)
+      .toSet()
+      .toList();
+}));
 
 class ShoppingListScreen extends HookConsumerWidget {
   ShoppingListScreen({Key? key}) : super(key: key);
@@ -31,9 +43,7 @@ class ShoppingListScreen extends HookConsumerWidget {
                 child: CircularProgressIndicator(),
               ),
             ),
-            Divider(
-              height: 0,
-            )
+            Divider(height: 0)
           ],
         ),
       );
@@ -226,31 +236,11 @@ class ShoppingListScreen extends HookConsumerWidget {
       );
     }
 
-    AppBar _buildAppBar(BuildContext context) {
-      return AppBar(
-        elevation: 5,
-        title: Row(
-          children: [
-            const Text('Shopping List'),
-          ],
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            size: 30.0,
-            color: Colors.black,
-          ),
-          onPressed: () => Scaffold.of(context).openDrawer(),
-        ),
-        actions: <Widget>[],
-      );
-    }
-
     return Scaffold(
-      appBar: _buildAppBar(context),
-      floatingActionButton: IconButton(
-        icon: Icon(Icons.add),
-        onPressed:
+      appBar: const ShoppingListAppBar(),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () =>
             newItemMode.value == false ? () => newItemMode.value = true : null,
       ),
       body: FlutterDataStateBuilder<List<ShoppingList>>(

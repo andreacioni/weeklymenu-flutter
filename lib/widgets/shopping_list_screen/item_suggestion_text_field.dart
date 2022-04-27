@@ -20,6 +20,7 @@ class ItemSuggestionTextField extends StatefulWidget {
   final Function()? onTap;
   final Function(bool) onFocusChanged;
   final bool enabled;
+  final TextStyle? textStyle;
 
   ItemSuggestionTextField({
     this.value,
@@ -32,6 +33,7 @@ class ItemSuggestionTextField extends StatefulWidget {
     this.enabled = true,
     required this.onFocusChanged,
     this.hintText,
+    this.textStyle,
   });
 
   @override
@@ -67,6 +69,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
         textFieldConfiguration: TextFieldConfiguration(
           controller: textEditingController,
           enabled: widget.enabled,
+          style: widget.textStyle,
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: widget.hintText,

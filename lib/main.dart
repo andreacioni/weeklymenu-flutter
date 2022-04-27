@@ -38,6 +38,9 @@ class App extends StatelessWidget {
             color: Colors.white,
           ),
 
+          listTileTheme: ListTileThemeData(
+              selectedTileColor: Colors.amber.withOpacity(0.2)),
+
           //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
           colorScheme: ColorScheme.light(
               primary: Colors.amber, secondary: Colors.amberAccent),
