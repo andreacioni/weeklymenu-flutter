@@ -60,7 +60,8 @@ class App extends StatelessWidget {
           ),
 
           dialogTheme: DialogTheme(
-            titleTextStyle: TextStyle(fontWeight: FontWeight.normal),
+            titleTextStyle:
+                TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),

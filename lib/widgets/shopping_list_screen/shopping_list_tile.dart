@@ -90,25 +90,42 @@ class ShoppingListItemTile extends HookConsumerWidget {
                 child: ListTile(
                   selected: selectedItems.contains(shoppingListItem.item),
                   contentPadding: EdgeInsets.only(right: 16),
-                  leading: Container(color: Colors.red, width: 6),
+                  leading: Container(
+                      color: shoppingListItem.supermarketSection != null
+                          ? getColorByString(
+                              shoppingListItem.supermarketSection!)
+                          : null,
+                      width: 6),
                   trailing: selectedItems.isEmpty
                       ? Checkbox(
                           value: shoppingListItem.checked,
                           onChanged: _onCheckChange,
                         )
                       : null,
-                  title: ItemSuggestionTextField(
-                    value: model,
-                    enabled: editable,
-                    showShoppingItemSuggestions: false,
-                    onIngredientSelected: _onIngredientSelected,
-                    onSubmitted: _getOrCreateIngredientByName,
-                    onFocusChanged: _onFocusChanged,
-                    textStyle: shoppingListItem.checked
-                        ? TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey)
-                        : null,
+                  title: Row(
+                    children: [
+                      Flexible(
+                        child: ItemSuggestionTextField(
+                          value: model,
+                          enabled: editable,
+                          showShoppingItemSuggestions: false,
+                          onIngredientSelected: _onIngredientSelected,
+                          onSubmitted: _getOrCreateIngredientByName,
+                          onFocusChanged: _onFocusChanged,
+                          textStyle: shoppingListItem.checked
+                              ? TextStyle(
+                                  decoration: TextDecoration.lineThrough,
+                                  color: Colors.grey)
+                              : null,
+                        ),
+                      ),
+                      if (selectedItems.isEmpty)
+                        Chip(
+                            label: Text(
+                          '10g',
+                          style: TextStyle(fontSize: 12),
+                        ))
+                    ],
                   ),
                 ),
               ),
