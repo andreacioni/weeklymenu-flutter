@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import './drawer.dart';
 import './widgets/menu_page/screen.dart';
 import './widgets/recipes_screen/screen.dart';
 import './widgets/shopping_list_screen/screen.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   HomePage();
 
   @override
-  _HomePageState createState() => _HomePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _HomePageState();
+  }
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   final PageStorageBucket bucket = PageStorageBucket();
   final List<Widget> _screens = [
     MenuScreen(key: PageStorageKey('menuPage')),
@@ -23,11 +26,6 @@ class _HomePageState extends State<HomePage> {
   int _activeScreenIndex = 0;
 
   _HomePageState();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

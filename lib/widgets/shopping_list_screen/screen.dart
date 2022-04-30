@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/widgets/shopping_list_screen/shopping_list_app_bar.dart';
 
 import '../flutter_data_state_builder.dart';
 import '../../models/ingredient.dart';
@@ -13,6 +13,32 @@ import '../../models/shopping_list.dart';
 import './item_suggestion_text_field.dart';
 import 'package:weekly_menu_app/main.data.dart';
 
+final selectedShoppingListItems =
+    StateProvider.autoDispose(((_) => <String>[]));
+
+Color getColorByString(String s) {
+  const colorList = [
+    Colors.amber,
+    Colors.blue,
+    Colors.red,
+    Colors.pink,
+    Colors.purple,
+    Colors.indigo,
+    Colors.lime,
+  ];
+
+  return colorList[s.hashCode % colorList.length];
+}
+
+final supermarketSectionList = Provider.autoDispose(((ref) {
+  final shoppingListItems = ref.shoppingLists.watchAll().model[0].items;
+  return (shoppingListItems
+        ..removeWhere((e) => e.supermarketSection?.isEmpty ?? false))
+      .map((e) => e.supermarketSection)
+      .toSet()
+      .toList();
+}));
+
 class ShoppingListScreen extends HookConsumerWidget {
   ShoppingListScreen({Key? key}) : super(key: key);
 
@@ -20,7 +46,6 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
     final expandChecked = useState(true);
-    final loading = useState(false);
 
     Widget _buildLoadingItem() {
       return SliverList(
@@ -31,9 +56,7 @@ class ShoppingListScreen extends HookConsumerWidget {
                 child: CircularProgressIndicator(),
               ),
             ),
-            Divider(
-              height: 0,
-            )
+            Divider(height: 0)
           ],
         ),
       );
@@ -57,11 +80,11 @@ class ShoppingListScreen extends HookConsumerWidget {
         WidgetRef ref, ShoppingList shoppingList, String ingredientName) async {
       Repository<Ingredient> ingredientsRepo =
           ref.read(ingredientsRepositoryProvider);
-      loading.value = true;
-      Ingredient newIngredient = await ingredientsRepo.save(
-          Ingredient(id: ObjectId().hexString, name: ingredientName),
-          params: {'update': false});
-      loading.value = false;
+
+      Ingredient newIngredient =
+          Ingredient(id: ObjectId().hexString, name: ingredientName);
+      ingredientsRepo.save(newIngredient, params: {'update': false});
+
       _createShopItemForIngredient(ref, shoppingList, newIngredient);
     }
 
@@ -129,7 +152,10 @@ class ShoppingListScreen extends HookConsumerWidget {
     }
 
     List<Widget> _buildCheckedList(WidgetRef ref, ShoppingList shoppingList) {
-      final checkItems = shoppingList.getCheckedItems;
+      final checkItems = shoppingList.getCheckedItems
+        ..sort((a, b) =>
+            (a.supermarketSection ?? '').compareTo(b.supermarketSection ?? ''));
+
       return [
         SliverAppBar(
           primary: false,
@@ -173,7 +199,9 @@ class ShoppingListScreen extends HookConsumerWidget {
     }
 
     List<Widget> _buildUncheckedList(WidgetRef ref, ShoppingList shoppingList) {
-      final uncheckItems = shoppingList.getUncheckedItems;
+      final uncheckItems = shoppingList.getUncheckedItems
+        ..sort((a, b) =>
+            (a.supermarketSection ?? '').compareTo(b.supermarketSection ?? ''));
       return [
         SliverList(
           delegate: SliverChildBuilderDelegate(
@@ -226,35 +254,14 @@ class ShoppingListScreen extends HookConsumerWidget {
       );
     }
 
-    AppBar _buildAppBar(BuildContext context) {
-      return AppBar(
-        elevation: 5,
-        title: Row(
-          children: [
-            const Text('Shopping List'),
-          ],
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            size: 30.0,
-            color: Colors.black,
-          ),
-          onPressed: () => Scaffold.of(context).openDrawer(),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: newItemMode.value == false
-                ? () => newItemMode.value = true
-                : null,
-          )
-        ],
-      );
-    }
-
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: const ShoppingListAppBar(),
+      floatingActionButton: newItemMode.value == false
+          ? FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () => newItemMode.value = true,
+            )
+          : null,
       body: FlutterDataStateBuilder<List<ShoppingList>>(
         state: ref.shoppingLists.watchAll(syncLocal: true),
         onRefresh: () => ref.shoppingLists.findAll(syncLocal: true),
@@ -272,7 +279,6 @@ class ShoppingListScreen extends HookConsumerWidget {
               : CustomScrollView(
                   slivers: <Widget>[
                     //if (allItems.isEmpty) _buildNoElementsPage(),
-                    if (loading.value) _buildLoadingItem(),
                     if (newItemMode.value) _buildAddItem(ref, shoppingList),
                     //_buildFloatingHeader('Unckecked'),
                     if (allItems.isNotEmpty)

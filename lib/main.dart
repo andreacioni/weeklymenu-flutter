@@ -21,6 +21,7 @@ class App extends StatelessWidget {
           brightness: Brightness.light,
           primaryColor: Colors.amber.shade300,
           splashColor: Colors.amberAccent,
+          highlightColor: Colors.amberAccent.withOpacity(0.3),
           scaffoldBackgroundColor: Colors.white,
 
           // Define the default font family.
@@ -37,6 +38,9 @@ class App extends StatelessWidget {
           bottomAppBarTheme: BottomAppBarTheme(
             color: Colors.white,
           ),
+
+          listTileTheme: ListTileThemeData(
+              selectedTileColor: Colors.amber.withOpacity(0.2)),
 
           //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
           colorScheme: ColorScheme.light(
@@ -57,9 +61,11 @@ class App extends StatelessWidget {
           ),
 
           dialogTheme: DialogTheme(
-            titleTextStyle: TextStyle(fontWeight: FontWeight.normal),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            titleTextStyle:
+                TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ),
