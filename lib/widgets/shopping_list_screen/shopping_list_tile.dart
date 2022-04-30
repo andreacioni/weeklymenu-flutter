@@ -119,10 +119,11 @@ class ShoppingListItemTile extends HookConsumerWidget {
                               : null,
                         ),
                       ),
-                      if (selectedItems.isEmpty)
+                      if (selectedItems.isEmpty &&
+                          shopItem.value.quantity != null)
                         Chip(
                             label: Text(
-                          '10g',
+                          "${shopItem.value.quantity}${shopItem.value.unitOfMeasure ?? ''}",
                           style: TextStyle(fontSize: 12),
                         ))
                     ],

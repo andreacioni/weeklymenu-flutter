@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/homepage.dart';
 
 import '../../globals/extensions.dart';
 import '../../main.data.dart';
@@ -140,7 +141,9 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 size: 30.0,
                 color: Colors.black,
               ),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+              //S
+              onPressed: () =>
+                  Scaffold.of(Scaffold.of(context).context).openDrawer(),
               splashRadius: Material.defaultSplashRadius / 2,
             )
           : IconButton(
@@ -178,5 +181,5 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => new Size.fromHeight(50);
+  Size get preferredSize => new Size.fromHeight(56);
 }

@@ -21,7 +21,7 @@ class App extends StatelessWidget {
           brightness: Brightness.light,
           primaryColor: Colors.amber.shade300,
           splashColor: Colors.amberAccent,
-          highlightColor: Colors.amberAccent.withOpacity(0.1),
+          highlightColor: Colors.amberAccent.withOpacity(0.3),
           scaffoldBackgroundColor: Colors.white,
 
           // Define the default font family.
