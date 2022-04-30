@@ -46,7 +46,6 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
     final expandChecked = useState(true);
-    final loading = useState(false);
 
     Widget _buildLoadingItem() {
       return SliverList(
@@ -81,11 +80,11 @@ class ShoppingListScreen extends HookConsumerWidget {
         WidgetRef ref, ShoppingList shoppingList, String ingredientName) async {
       Repository<Ingredient> ingredientsRepo =
           ref.read(ingredientsRepositoryProvider);
-      loading.value = true;
-      Ingredient newIngredient = await ingredientsRepo.save(
-          Ingredient(id: ObjectId().hexString, name: ingredientName),
-          params: {'update': false});
-      loading.value = false;
+
+      Ingredient newIngredient =
+          Ingredient(id: ObjectId().hexString, name: ingredientName);
+      ingredientsRepo.save(newIngredient, params: {'update': false});
+
       _createShopItemForIngredient(ref, shoppingList, newIngredient);
     }
 
@@ -280,7 +279,6 @@ class ShoppingListScreen extends HookConsumerWidget {
               : CustomScrollView(
                   slivers: <Widget>[
                     //if (allItems.isEmpty) _buildNoElementsPage(),
-                    if (loading.value) _buildLoadingItem(),
                     if (newItemMode.value) _buildAddItem(ref, shoppingList),
                     //_buildFloatingHeader('Unckecked'),
                     if (allItems.isNotEmpty)

@@ -70,6 +70,7 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
           controller: textEditingController,
           enabled: widget.enabled,
           style: widget.textStyle,
+          textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: widget.hintText,

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 
-import 'screen.dart';
+import '../../globals/extensions.dart';
 import '../../main.data.dart';
+import 'screen.dart';
 import '../../models/shopping_list.dart';
 
 class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -33,35 +34,93 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           .save(newShoppingList, params: {'update': true});
     }
 
-    Future<String?> chooseSupermarketSectionToSelection() async {
+    Future<String?> chooseSupermarketSectionToSelection(
+        List<String> availableSupermarketSections) async {
       final sectionName = await showDialog<String>(
           context: context,
           builder: (context) => SimpleDialog(
-                title: Text('Choose a section'),
+                title: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Choose a section'),
+                    Text('Select existing section or type a new one'),
+                  ],
+                ),
                 titlePadding: EdgeInsets.all(10),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                contentPadding: EdgeInsets.all(10),
                 children: [
-                  ConstrainedBox(
-                    child: TextField(),
-                    constraints: BoxConstraints(maxWidth: 100),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    children: ['Ciao', 'Gigi']
+                  Wrap(
+                    direction: Axis.horizontal,
+                    children: availableSupermarketSections
                         .map((value) => GestureDetector(
                               onTap: () => Navigator.of(context).pop(value),
-                              child: Chip(
-                                label: Text(value),
-                                avatar: Icon(Icons.bookmark_border),
-                                backgroundColor: getColorByString(value),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Chip(
+                                    label: Text(value),
+                                    avatar: Icon(Icons.bookmark_border),
+                                    backgroundColor: getColorByString(value),
+                                  ),
+                                  SizedBox(width: 3)
+                                ],
                               ),
                             ))
                         .toList(),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          minLines: 1,
+                          maxLines: 1,
+                          autofillHints: availableSupermarketSections,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: const InputDecoration(
+                            contentPadding: const EdgeInsets.all(10.0),
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            labelText: 'New section',
+                          ),
+                          onFieldSubmitted: (value) =>
+                              Navigator.of(context).pop(value),
+                        ),
+                      ),
+                      /* IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () => Navigator.of(context).pop(value),
+                        splashRadius: Material.defaultSplashRadius / 2,
+                      ) */
+                    ],
                   ),
                 ],
               ));
 
       return sectionName;
+    }
+
+    void openSupermarketSectionSelectionDialog() async {
+      final allItems =
+          (await ref.shoppingLists.findAll(remote: false))[0].items;
+      final availableSupermarketSections =
+          (allItems.map((e) => e.supermarketSection).toList()
+                ..removeWhere((e) => e == null || e.trim().isEmpty))
+              .unique()
+              .cast<String>();
+
+      final section = await chooseSupermarketSectionToSelection(
+          availableSupermarketSections);
+
+      if (section != null) {
+        setSupermarketSectionOnSelectedItems(section);
+      }
+
+      ref.read(selectedShoppingListItems.notifier).update((state) => []);
     }
 
     return AppBar(
@@ -82,6 +141,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 color: Colors.black,
               ),
               onPressed: () => Scaffold.of(context).openDrawer(),
+              splashRadius: Material.defaultSplashRadius / 2,
             )
           : IconButton(
               icon: Icon(
@@ -89,6 +149,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 size: 30.0,
                 color: Colors.black,
               ),
+              splashRadius: Material.defaultSplashRadius / 2,
               onPressed: () => ref
                   .read(selectedShoppingListItems.notifier)
                   .update((state) => []),
@@ -98,23 +159,18 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           IconButton(
             icon: Icon(Icons.filter_list),
             onPressed: () {},
+            splashRadius: Material.defaultSplashRadius / 2,
           )
         else ...[
           IconButton(
             icon: Icon(Icons.bookmark_border),
-            onPressed: () async {
-              final section = await chooseSupermarketSectionToSelection();
-              if (section != null) {
-                setSupermarketSectionOnSelectedItems(section);
-              }
-              ref
-                  .read(selectedShoppingListItems.notifier)
-                  .update((state) => []);
-            },
+            onPressed: openSupermarketSectionSelectionDialog,
+            splashRadius: Material.defaultSplashRadius / 2,
           ),
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {},
+            splashRadius: Material.defaultSplashRadius / 2,
           )
         ]
       ],

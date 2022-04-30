@@ -21,6 +21,7 @@ class App extends StatelessWidget {
           brightness: Brightness.light,
           primaryColor: Colors.amber.shade300,
           splashColor: Colors.amberAccent,
+          highlightColor: Colors.amberAccent.withOpacity(0.1),
           scaffoldBackgroundColor: Colors.white,
 
           // Define the default font family.
@@ -62,8 +63,9 @@ class App extends StatelessWidget {
           dialogTheme: DialogTheme(
             titleTextStyle:
                 TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ),
