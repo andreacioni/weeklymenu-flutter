@@ -4,13 +4,39 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 import 'package:weekly_menu_app/homepage.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../globals/extensions.dart';
 import '../../main.data.dart';
 import 'screen.dart';
 import '../../models/shopping_list.dart';
 
-class _SupermarketSectionSelectionDialog extends StatelessWidget {
+class _ColorChooseSelectionDialog extends StatelessWidget {
+  Color? selectedColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: BlockPicker(
+        pickerColor: Colors.red, //default color
+        onColorChanged: (Color color) {
+          selectedColor = color;
+        },
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('CANCEL')),
+        ElevatedButton(
+          child: Text('CHOOSE'),
+          onPressed: () => Navigator.of(context).pop(selectedColor),
+        )
+      ],
+    );
+  }
+}
+
+class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
   final List<String> availableSupermarketSections;
 
   const _SupermarketSectionSelectionDialog(
@@ -19,7 +45,17 @@ class _SupermarketSectionSelectionDialog extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, _) {
+    final ValueNotifier<Color?> selectedColor = useState(null);
+    final iconTheme = Theme.of(context).iconTheme;
+
+    void displayColorDialog() async {
+      final color = await showDialog<Color?>(
+          context: context, builder: (_) => _ColorChooseSelectionDialog());
+
+      selectedColor.value = color;
+    }
+
     return SimpleDialog(
       title: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -60,7 +96,7 @@ class _SupermarketSectionSelectionDialog extends StatelessWidget {
         ),
         SizedBox(height: 10),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
@@ -78,22 +114,17 @@ class _SupermarketSectionSelectionDialog extends StatelessWidget {
                   labelText: 'New section',
                 ),
                 onFieldSubmitted: (value) => Navigator.of(context).pop(value),
-                validator:
               ),
             ),
             IconButton(
-              icon: Icon(Icons.color_lens_outlined),
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                        content: BlockPicker(
-                          pickerColor: Colors.red, //default color
-                          onColorChanged: (Color color) {
-                            //on color picked
-                            print(color);
-                          },
-                        ),
-                      )),
+              icon: selectedColor.value == null
+                  ? Icon(Icons.color_lens_outlined)
+                  : Container(
+                      height: iconTheme.size,
+                      width: iconTheme.size,
+                      decoration: BoxDecoration(
+                          color: selectedColor.value, shape: BoxShape.circle)),
+              onPressed: displayColorDialog,
               splashRadius: Material.defaultSplashRadius / 2,
             )
           ],
@@ -143,14 +174,14 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           .save(newShoppingList, params: {'update': true});
     }
 
-    Future<String?> chooseSupermarketSectionToSelection(
+    Future<MapEntry<String, Color>?> chooseSupermarketSectionToSelection(
         List<String> availableSupermarketSections) async {
-      final sectionName = await showDialog<String>(
+      final section = await showDialog<MapEntry<String, Color>?>(
           context: context,
           builder: (context) =>
               _SupermarketSectionSelectionDialog(availableSupermarketSections));
 
-      return sectionName;
+      return section;
     }
 
     void openSupermarketSectionSelectionDialog() async {
