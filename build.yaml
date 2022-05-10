@@ -8,3 +8,4 @@ targets:
           #
           explicit_to_json: true
           any_map: true
+          include_if_null: false

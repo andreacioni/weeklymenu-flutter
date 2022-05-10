@@ -186,14 +186,24 @@ Menu _$MenuFromJson(Map json) => Menu(
       updateTimestamp: json['update_timestamp'] as int?,
     );
 
-Map<String, dynamic> _$MenuToJson(Menu instance) => <String, dynamic>{
-      '_id': instance.id,
-      'insert_timestamp': instance.insertTimestamp,
-      'update_timestamp': instance.updateTimestamp,
-      'date': const DateConverter().toJson(instance.date),
-      'meal': _$MealEnumMap[instance.meal],
-      'recipes': instance.recipes,
-    };
+Map<String, dynamic> _$MenuToJson(Menu instance) {
+  final val = <String, dynamic>{
+    '_id': instance.id,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  writeNotNull('date', const DateConverter().toJson(instance.date));
+  val['meal'] = _$MealEnumMap[instance.meal];
+  val['recipes'] = instance.recipes;
+  return val;
+}
 
 const _$MealEnumMap = {
   Meal.Breakfast: 'Breakfast',

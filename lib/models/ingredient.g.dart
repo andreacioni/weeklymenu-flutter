@@ -100,13 +100,22 @@ Ingredient _$IngredientFromJson(Map json) => Ingredient(
       updateTimestamp: json['update_timestamp'] as int?,
     );
 
-Map<String, dynamic> _$IngredientToJson(Ingredient instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'insert_timestamp': instance.insertTimestamp,
-      'update_timestamp': instance.updateTimestamp,
-      'name': instance.name,
-    };
+Map<String, dynamic> _$IngredientToJson(Ingredient instance) {
+  final val = <String, dynamic>{
+    '_id': instance.id,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['name'] = instance.name;
+  return val;
+}
 
 // **************************************************************************
 // RepositoryGenerator

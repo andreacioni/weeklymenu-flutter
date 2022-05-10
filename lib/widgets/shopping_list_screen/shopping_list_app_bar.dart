@@ -154,7 +154,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItems = ref.watch(selectedShoppingListItems);
 
-    void setSupermarketSectionOnSelectedItems(String str) async {
+    void setSupermarketSectionOnSelectedItems(
+        MapEntry<String, Color> str) async {
       if (str.trim().isEmpty) return;
 
       final shoppingList = (await ref.shoppingLists.findAll())[0];

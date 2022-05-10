@@ -225,9 +225,6 @@ ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
-    'items': instance.items.map((e) => e.toJson()).toList(),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -236,6 +233,9 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
     }
   }
 
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['items'] = instance.items.map((e) => e.toJson()).toList();
   writeNotNull('name', instance.name);
   return val;
 }
