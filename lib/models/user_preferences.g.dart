@@ -120,12 +120,14 @@ extension $UserPreferenceCopyWith on UserPreference {
 // **************************************************************************
 
 SupermarketSection _$SupermarketSectionFromJson(Map json) => SupermarketSection(
-      name: json['name'] as String?,
+      name: json['name'] as String,
       color: const ColorConverter().fromJson(json['color'] as int?),
     );
 
 Map<String, dynamic> _$SupermarketSectionToJson(SupermarketSection instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -133,7 +135,6 @@ Map<String, dynamic> _$SupermarketSectionToJson(SupermarketSection instance) {
     }
   }
 
-  writeNotNull('name', instance.name);
   writeNotNull('color', const ColorConverter().toJson(instance.color));
   return val;
 }

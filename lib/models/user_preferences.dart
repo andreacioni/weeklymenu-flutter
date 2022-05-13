@@ -11,12 +11,12 @@ part 'user_preferences.g.dart';
 
 @JsonSerializable()
 class SupermarketSection {
-  final String? name;
+  final String name;
 
   @ColorConverter()
   final Color? color;
 
-  SupermarketSection({this.name, this.color});
+  SupermarketSection({required this.name, this.color});
 
   factory SupermarketSection.fromJson(Map<String, dynamic> json) =>
       _$SupermarketSectionFromJson(json);

@@ -84,14 +84,14 @@ class ShoppingListItem with ChangeNotifier {
   final String? unitOfMeasure;
 
   @JsonKey(includeIfNull: false)
-  final String? supermarketSection;
+  final String? supermarketSectionName;
 
   @JsonKey(includeIfNull: false)
   final int? listPosition;
 
   ShoppingListItem(
       {required this.item,
-      this.supermarketSection,
+      this.supermarketSectionName,
       this.checked = false,
       this.quantity,
       this.unitOfMeasure,

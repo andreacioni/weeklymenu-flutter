@@ -16,25 +16,11 @@ import 'package:weekly_menu_app/main.data.dart';
 final selectedShoppingListItems =
     StateProvider.autoDispose(((_) => <String>[]));
 
-Color getColorByString(String s) {
-  const colorList = [
-    Colors.amber,
-    Colors.blue,
-    Colors.red,
-    Colors.pink,
-    Colors.purple,
-    Colors.indigo,
-    Colors.lime,
-  ];
-
-  return colorList[s.hashCode % colorList.length];
-}
-
 final supermarketSectionList = Provider.autoDispose(((ref) {
   final shoppingListItems = ref.shoppingLists.watchAll().model[0].items;
   return (shoppingListItems
-        ..removeWhere((e) => e.supermarketSection?.isEmpty ?? false))
-      .map((e) => e.supermarketSection)
+        ..removeWhere((e) => e.supermarketSectionName?.isEmpty ?? false))
+      .map((e) => e.supermarketSectionName)
       .toSet()
       .toList();
 }));
@@ -153,8 +139,8 @@ class ShoppingListScreen extends HookConsumerWidget {
 
     List<Widget> _buildCheckedList(WidgetRef ref, ShoppingList shoppingList) {
       final checkItems = shoppingList.getCheckedItems
-        ..sort((a, b) =>
-            (a.supermarketSection ?? '').compareTo(b.supermarketSection ?? ''));
+        ..sort((a, b) => (a.supermarketSectionName ?? '')
+            .compareTo(b.supermarketSectionName ?? ''));
 
       return [
         SliverAppBar(
@@ -200,8 +186,8 @@ class ShoppingListScreen extends HookConsumerWidget {
 
     List<Widget> _buildUncheckedList(WidgetRef ref, ShoppingList shoppingList) {
       final uncheckItems = shoppingList.getUncheckedItems
-        ..sort((a, b) =>
-            (a.supermarketSection ?? '').compareTo(b.supermarketSection ?? ''));
+        ..sort((a, b) => (a.supermarketSectionName ?? '')
+            .compareTo(b.supermarketSectionName ?? ''));
       return [
         SliverList(
           delegate: SliverChildBuilderDelegate(

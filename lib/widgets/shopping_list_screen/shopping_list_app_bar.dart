@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
-import 'package:weekly_menu_app/homepage.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import '../../models/user_preferences.dart' hide userPreferenceProvider;
+import '../../providers/user_preferences.dart';
 import '../../globals/extensions.dart';
 import '../../main.data.dart';
 import 'screen.dart';
@@ -37,17 +38,21 @@ class _ColorChooseSelectionDialog extends StatelessWidget {
 }
 
 class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
-  final List<String> availableSupermarketSections;
-
-  const _SupermarketSectionSelectionDialog(
-    this.availableSupermarketSections, {
+  static const defaultColor = Colors.white;
+  const _SupermarketSectionSelectionDialog({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, _) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<Color?> selectedColor = useState(null);
     final iconTheme = Theme.of(context).iconTheme;
+
+    final availableSupermarketSections = ref
+            .read(supermarketSectionProvider)
+            ?.where((e) => e.name != null)
+            .toList() ??
+        <SupermarketSection>[];
 
     void displayColorDialog() async {
       final color = await showDialog<Color?>(
@@ -80,13 +85,11 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Chip(
-                          label: Text(value),
-                          avatar: Icon(
-                            Icons.bookmark_border,
-                            color: getColorByString(value),
-                          ),
+                          label: Text(value.name),
+                          avatar: Icon(Icons.bookmark_border,
+                              color: value.color ?? defaultColor),
                           backgroundColor:
-                              getColorByString(value).withOpacity(0.2),
+                              (value.color ?? defaultColor).withOpacity(0.2),
                         ),
                         SizedBox(width: 3)
                       ],
@@ -105,7 +108,8 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
                 maxLines: 1,
                 maxLength: 20,
                 maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                autofillHints: availableSupermarketSections,
+                autofillHints:
+                    availableSupermarketSections.map((e) => e.name).toList(),
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   contentPadding: const EdgeInsets.all(6.0),
@@ -153,10 +157,38 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItems = ref.watch(selectedShoppingListItems);
+    final supermarketSections = ref.watch(supermarketSectionProvider);
+
+    void updateUserPreferences(SupermarketSection section) {
+      final alreadyContainSection =
+          supermarketSections?.map((e) => e.name).contains(section.name) ??
+              false;
+
+      if (!alreadyContainSection) {
+        final userPref = ref.read(userPreferenceProvider);
+        if (userPref == null) {
+          print('user preferences not available');
+          return;
+        }
+
+        List<SupermarketSection> newSections;
+        if (supermarketSections == null) {
+          newSections = [];
+        } else {
+          newSections = [...supermarketSections];
+        }
+
+        newSections.add(section);
+        userPref.copyWith(supermarketSections: newSections);
+        ref
+            .read(userPreferencesRepositoryProvider)
+            .save(userPref, params: {'update': true});
+      }
+    }
 
     void setSupermarketSectionOnSelectedItems(
-        MapEntry<String, Color> str) async {
-      if (str.trim().isEmpty) return;
+        SupermarketSection section) async {
+      if (section.name.trim().isEmpty) return;
 
       final shoppingList = (await ref.shoppingLists.findAll())[0];
       final items = [...shoppingList.items];
@@ -166,7 +198,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
             items.firstWhereOrNull((item) => item.item == itemId);
         if (previousItem == null) return;
         items.removeWhere((item) => itemId == item.item);
-        items.add(previousItem.copyWith(supermarketSection: str));
+        items.add(previousItem.copyWith(supermarketSectionName: section.name));
       });
 
       final newShoppingList = shoppingList.copyWith(items: items);
@@ -175,12 +207,11 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           .save(newShoppingList, params: {'update': true});
     }
 
-    Future<MapEntry<String, Color>?> chooseSupermarketSectionToSelection(
+    Future<SupermarketSection?> chooseSupermarketSectionToSelection(
         List<String> availableSupermarketSections) async {
-      final section = await showDialog<MapEntry<String, Color>?>(
+      final section = await showDialog<SupermarketSection?>(
           context: context,
-          builder: (context) =>
-              _SupermarketSectionSelectionDialog(availableSupermarketSections));
+          builder: (context) => _SupermarketSectionSelectionDialog());
 
       return section;
     }
@@ -189,7 +220,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       final allItems =
           (await ref.shoppingLists.findAll(remote: false))[0].items;
       final availableSupermarketSections =
-          (allItems.map((e) => e.supermarketSection).toList()
+          (allItems.map((e) => e.supermarketSectionName).toList()
                 ..removeWhere((e) => e == null || e.trim().isEmpty))
               .unique()
               .cast<String>();
@@ -199,6 +230,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
       if (section != null) {
         setSupermarketSectionOnSelectedItems(section);
+        updateUserPreferences(section);
       }
 
       ref.read(selectedShoppingListItems.notifier).update((state) => []);
