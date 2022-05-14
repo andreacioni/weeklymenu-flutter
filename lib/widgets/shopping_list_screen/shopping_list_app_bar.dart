@@ -12,16 +12,20 @@ import '../../main.data.dart';
 import 'screen.dart';
 import '../../models/shopping_list.dart';
 
-class _ColorChooseSelectionDialog extends StatelessWidget {
-  Color? selectedColor;
+class _ColorChooseSelectionDialog extends HookConsumerWidget {
+  final Color? initialColor;
+
+  _ColorChooseSelectionDialog({this.initialColor});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, _) {
+    final ValueNotifier<Color?> selectedColor = useState(initialColor);
+
     return AlertDialog(
       content: BlockPicker(
-        pickerColor: Colors.red, //default color
+        pickerColor: selectedColor.value ?? Colors.transparent,
         onColorChanged: (Color color) {
-          selectedColor = color;
+          selectedColor.value = color;
         },
       ),
       actions: [
@@ -30,7 +34,9 @@ class _ColorChooseSelectionDialog extends StatelessWidget {
             child: Text('CANCEL')),
         ElevatedButton(
           child: Text('CHOOSE'),
-          onPressed: () => Navigator.of(context).pop(selectedColor),
+          onPressed: selectedColor.value != null
+              ? () => Navigator.of(context).pop(selectedColor.value)
+              : null,
         )
       ],
     );
@@ -47,6 +53,7 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<Color?> selectedColor = useState(null);
     final ObjectRef<String?> textFieldValue = useRef(null);
+    final textController = useTextEditingController();
     final iconTheme = Theme.of(context).iconTheme;
 
     final availableSupermarketSections =
@@ -54,7 +61,9 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
 
     void displayColorDialog() async {
       final color = await showDialog<Color?>(
-          context: context, builder: (_) => _ColorChooseSelectionDialog());
+          context: context,
+          builder: (_) =>
+              _ColorChooseSelectionDialog(initialColor: selectedColor.value));
 
       selectedColor.value = color;
     }
@@ -78,7 +87,11 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
           direction: Axis.horizontal,
           children: availableSupermarketSections
               .map((value) => GestureDetector(
-                    onTap: () => Navigator.of(context).pop(value),
+                    onTap: () {
+                      selectedColor.value = value.color;
+                      textController.text = value.name;
+                      textFieldValue.value = value.name;
+                    },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -102,6 +115,7 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
           children: [
             Expanded(
               child: TextFormField(
+                controller: textController,
                 minLines: 1,
                 maxLines: 1,
                 maxLength: 20,
@@ -165,34 +179,30 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final selectedItems = ref.watch(selectedShoppingListItems);
     final supermarketSections = ref.read(supermarketSectionProvider);
 
-    void updateUserPreferences(SupermarketSection section) {
-      final alreadyContainSection =
-          supermarketSections?.map((e) => e.name).contains(section.name) ??
-              false;
+    Future<void> updateUserPreferences(SupermarketSection section) async {
+      supermarketSections?.removeWhere((s) => s.name == section.name);
 
-      if (!alreadyContainSection) {
-        final userPref = ref.read(userPreferenceProvider);
-        if (userPref == null) {
-          print('user preferences not available');
-          return;
-        }
-
-        List<SupermarketSection> newSections;
-        if (supermarketSections == null) {
-          newSections = [];
-        } else {
-          newSections = [...supermarketSections];
-        }
-
-        newSections.add(section);
-
-        ref.read(userPreferencesRepositoryProvider).save(
-            userPref.copyWith(supermarketSections: newSections),
-            params: {'update': true});
+      final userPref = ref.read(userPreferenceProvider);
+      if (userPref == null) {
+        print('user preferences not available');
+        return;
       }
+
+      List<SupermarketSection> newSections;
+      if (supermarketSections == null) {
+        newSections = [];
+      } else {
+        newSections = [...supermarketSections];
+      }
+
+      newSections.add(section);
+
+      await ref.read(userPreferencesRepositoryProvider).save(
+          userPref.copyWith(supermarketSections: newSections),
+          params: {'update': true});
     }
 
-    void setSupermarketSectionOnSelectedItems(
+    Future<void> setSupermarketSectionOnSelectedItems(
         SupermarketSection? section) async {
       final shoppingList = (await ref.shoppingLists.findAll())[0];
       final items = [...shoppingList.items];
