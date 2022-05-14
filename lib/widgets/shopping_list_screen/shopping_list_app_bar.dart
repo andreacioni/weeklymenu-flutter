@@ -4,13 +4,14 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/providers/shopping_list.dart';
 
 import '../../models/user_preferences.dart' hide userPreferenceProvider;
 import '../../providers/user_preferences.dart';
 import '../../globals/extensions.dart';
 import '../../main.data.dart';
 import 'screen.dart';
-import '../../models/shopping_list.dart';
+import '../../models/shopping_list.dart' hide shoppingListProvider;
 
 class _ColorChooseSelectionDialog extends HookConsumerWidget {
   final Color? initialColor;
@@ -230,6 +231,23 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       return section;
     }
 
+    void remoteShoppingItemFromList() async {
+      final shoppingList = ref.read(shoppingListProvider);
+      final allItems = shoppingList?.items;
+
+      if (allItems == null) return;
+
+      selectedItems.forEach((i) {
+        allItems.removeWhere((e) => e.item == i);
+      });
+
+      ref.read(shoppingListsRepositoryProvider).save(
+          shoppingList!.copyWith(items: allItems),
+          params: {'update': true});
+
+      ref.read(selectedShoppingListItems.notifier).update((state) => []);
+    }
+
     void removeSupermarketSectionOnSelectedItems() async {
       setSupermarketSectionOnSelectedItems(null);
       ref.read(selectedShoppingListItems.notifier).update((state) => []);
@@ -308,7 +326,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           ),
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {},
+            onPressed: remoteShoppingItemFromList,
             splashRadius: Material.defaultSplashRadius / 2,
           )
         ]
