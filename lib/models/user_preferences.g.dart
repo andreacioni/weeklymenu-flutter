@@ -143,10 +143,10 @@ UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
       id: json['_id'] as String?,
       insertTimestamp: json['insert_timestamp'] as int?,
       updateTimestamp: json['update_timestamp'] as int?,
-      shoppingDays: (json['shoppingDays'] as List<dynamic>?)
+      shoppingDays: (json['shopping_days'] as List<dynamic>?)
           ?.map((e) => e as int)
           .toList(),
-      supermarketSections: (json['supermarketSections'] as List<dynamic>?)
+      supermarketSections: (json['supermarket_sections'] as List<dynamic>?)
           ?.map((e) =>
               SupermarketSection.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
@@ -165,8 +165,8 @@ Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
 
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
-  writeNotNull('shoppingDays', instance.shoppingDays);
-  writeNotNull('supermarketSections',
+  writeNotNull('shopping_days', instance.shoppingDays);
+  writeNotNull('supermarket_sections',
       instance.supermarketSections?.map((e) => e.toJson()).toList());
   return val;
 }
@@ -201,7 +201,7 @@ class $UserPreferenceHiveLocalAdapter = HiveLocalAdapter<UserPreference>
     with $UserPreferenceLocalAdapter;
 
 class $UserPreferenceRemoteAdapter = RemoteAdapter<UserPreference>
-    with BaseAdapter<UserPreference>;
+    with BaseAdapter<UserPreference>, UserPreferencesAdapter<UserPreference>;
 
 //
 
@@ -297,4 +297,6 @@ extension UserPreferenceDataX on UserPreference {
 extension UserPreferenceDataRepositoryX on Repository<UserPreference> {
   BaseAdapter<UserPreference> get baseAdapter =>
       remoteAdapter as BaseAdapter<UserPreference>;
+  UserPreferencesAdapter<UserPreference> get userPreferencesAdapter =>
+      remoteAdapter as UserPreferencesAdapter<UserPreference>;
 }

@@ -28,11 +28,13 @@ class SupermarketSection {
 }
 
 @JsonSerializable(explicitToJson: true, anyMap: true)
-@DataRepository([BaseAdapter])
+@DataRepository([BaseAdapter, UserPreferencesAdapter])
 @CopyWith()
 class UserPreference extends BaseModel<UserPreference> {
+  @JsonKey(name: 'shopping_days')
   final List<int>? shoppingDays;
 
+  @JsonKey(name: 'supermarket_sections')
   final List<SupermarketSection>? supermarketSections;
 
   @JsonKey(ignore: true)
@@ -59,4 +61,17 @@ class UserPreference extends BaseModel<UserPreference> {
 
   @override
   String toString() => "$shoppingDays, $supermarketSections";
+}
+
+mixin UserPreferencesAdapter<T extends DataModel<UserPreference>>
+    on RemoteAdapter<UserPreference> {
+  static const _BASE_PATH = 'users/me/preferences';
+  @override
+  String urlForFindAll(Map<String, dynamic> params) => _BASE_PATH;
+
+  @override
+  String urlForFindOne(id, Map<String, dynamic> params) => '$_BASE_PATH/$id';
+
+  @override
+  String urlForSave(id, Map<String, dynamic> params) => '$_BASE_PATH/$id';
 }

@@ -46,13 +46,11 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<Color?> selectedColor = useState(null);
+    final ObjectRef<String?> textFieldValue = useRef(null);
     final iconTheme = Theme.of(context).iconTheme;
 
-    final availableSupermarketSections = ref
-            .read(supermarketSectionProvider)
-            ?.where((e) => e.name != null)
-            .toList() ??
-        <SupermarketSection>[];
+    final availableSupermarketSections =
+        ref.read(supermarketSectionProvider) ?? <SupermarketSection>[];
 
     void displayColorDialog() async {
       final color = await showDialog<Color?>(
@@ -117,7 +115,7 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
                       borderRadius: BorderRadius.all(Radius.circular(10))),
                   labelText: 'New section',
                 ),
-                onFieldSubmitted: (value) => Navigator.of(context).pop(value),
+                onChanged: (value) => textFieldValue.value = value,
               ),
             ),
             IconButton(
@@ -143,7 +141,15 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text('CANCEL')),
             SizedBox(width: 5),
-            ElevatedButton(onPressed: () {}, child: Text('SET'))
+            ElevatedButton(
+                onPressed: () {
+                  final name = textFieldValue.value?.trim();
+                  if (name?.isNotEmpty ?? false) {
+                    Navigator.of(context).pop(SupermarketSection(
+                        name: name!, color: selectedColor.value));
+                  }
+                },
+                child: Text('SET'))
           ],
         ),
       ],
@@ -157,7 +163,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItems = ref.watch(selectedShoppingListItems);
-    final supermarketSections = ref.watch(supermarketSectionProvider);
+    final supermarketSections = ref.read(supermarketSectionProvider);
 
     void updateUserPreferences(SupermarketSection section) {
       final alreadyContainSection =
@@ -179,17 +185,15 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
         }
 
         newSections.add(section);
-        userPref.copyWith(supermarketSections: newSections);
-        ref
-            .read(userPreferencesRepositoryProvider)
-            .save(userPref, params: {'update': true});
+
+        ref.read(userPreferencesRepositoryProvider).save(
+            userPref.copyWith(supermarketSections: newSections),
+            params: {'update': true});
       }
     }
 
     void setSupermarketSectionOnSelectedItems(
-        SupermarketSection section) async {
-      if (section.name.trim().isEmpty) return;
-
+        SupermarketSection? section) async {
       final shoppingList = (await ref.shoppingLists.findAll())[0];
       final items = [...shoppingList.items];
 
@@ -198,7 +202,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
             items.firstWhereOrNull((item) => item.item == itemId);
         if (previousItem == null) return;
         items.removeWhere((item) => itemId == item.item);
-        items.add(previousItem.copyWith(supermarketSectionName: section.name));
+        items.add(previousItem.copyWith(supermarketSectionName: section?.name));
       });
 
       final newShoppingList = shoppingList.copyWith(items: items);
@@ -214,6 +218,11 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           builder: (context) => _SupermarketSectionSelectionDialog());
 
       return section;
+    }
+
+    void removeSupermarketSectionOnSelectedItems() async {
+      setSupermarketSectionOnSelectedItems(null);
+      ref.read(selectedShoppingListItems.notifier).update((state) => []);
     }
 
     void openSupermarketSectionSelectionDialog() async {
@@ -277,6 +286,11 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
             splashRadius: Material.defaultSplashRadius / 2,
           )
         else ...[
+          IconButton(
+            icon: Icon(Icons.bookmark_remove_outlined),
+            onPressed: removeSupermarketSectionOnSelectedItems,
+            splashRadius: Material.defaultSplashRadius / 2,
+          ),
           IconButton(
             icon: Icon(Icons.bookmark_border),
             onPressed: openSupermarketSectionSelectionDialog,
