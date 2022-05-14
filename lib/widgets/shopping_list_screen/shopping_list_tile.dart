@@ -3,6 +3,7 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/providers/user_preferences.dart';
 import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
 
 import '../flutter_data_state_builder.dart';
@@ -32,6 +33,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
     final editingMode = useState(false);
     final shopItem = useState(shoppingListItem);
     final selectedItems = ref.watch(selectedShoppingListItems);
+    final supermarketSection = ref.watch(supermarketSectionByNameProvider(
+        shopItem.value.supermarketSectionName));
 
     void _onFocusChanged(bool hasFocus) {
       if (hasFocus == false) {
@@ -90,12 +93,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
                 child: ListTile(
                   selected: selectedItems.contains(shoppingListItem.item),
                   contentPadding: EdgeInsets.only(right: 16),
-                  leading: Container(
-                      color: shoppingListItem.supermarketSection != null
-                          ? getColorByString(
-                              shoppingListItem.supermarketSection!)
-                          : null,
-                      width: 6),
+                  leading:
+                      Container(color: supermarketSection?.color, width: 6),
                   trailing: selectedItems.isEmpty
                       ? Checkbox(
                           value: shoppingListItem.checked,

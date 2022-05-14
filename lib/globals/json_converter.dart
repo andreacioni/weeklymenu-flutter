@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
@@ -26,4 +28,14 @@ class MealConverter implements JsonConverter<Meal?, String?> {
 
   @override
   String? toJson(Meal? obj) => obj?.value;
+}
+
+class ColorConverter implements JsonConverter<Color?, int?> {
+  const ColorConverter();
+
+  @override
+  Color? fromJson(int? json) => json != null ? Color(json) : null;
+
+  @override
+  int? toJson(Color? obj) => obj?.value;
 }

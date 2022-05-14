@@ -298,9 +298,6 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
-    'name': instance.name,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -309,6 +306,9 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
     }
   }
 
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['name'] = instance.name;
   writeNotNull('description', instance.description);
   writeNotNull('rating', instance.rating);
   writeNotNull('cost', instance.cost);

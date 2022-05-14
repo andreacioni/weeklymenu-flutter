@@ -109,7 +109,7 @@ abstract class _$ShoppingListItemCWProxy {
 
   ShoppingListItem quantity(double? quantity);
 
-  ShoppingListItem supermarketSection(String? supermarketSection);
+  ShoppingListItem supermarketSectionName(String? supermarketSectionName);
 
   ShoppingListItem unitOfMeasure(String? unitOfMeasure);
 
@@ -124,7 +124,7 @@ abstract class _$ShoppingListItemCWProxy {
     String? item,
     int? listPosition,
     double? quantity,
-    String? supermarketSection,
+    String? supermarketSectionName,
     String? unitOfMeasure,
   });
 }
@@ -149,8 +149,8 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
   ShoppingListItem quantity(double? quantity) => this(quantity: quantity);
 
   @override
-  ShoppingListItem supermarketSection(String? supermarketSection) =>
-      this(supermarketSection: supermarketSection);
+  ShoppingListItem supermarketSectionName(String? supermarketSectionName) =>
+      this(supermarketSectionName: supermarketSectionName);
 
   @override
   ShoppingListItem unitOfMeasure(String? unitOfMeasure) =>
@@ -169,7 +169,7 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
     Object? item = const $CopyWithPlaceholder(),
     Object? listPosition = const $CopyWithPlaceholder(),
     Object? quantity = const $CopyWithPlaceholder(),
-    Object? supermarketSection = const $CopyWithPlaceholder(),
+    Object? supermarketSectionName = const $CopyWithPlaceholder(),
     Object? unitOfMeasure = const $CopyWithPlaceholder(),
   }) {
     return ShoppingListItem(
@@ -189,10 +189,11 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
           ? _value.quantity
           // ignore: cast_nullable_to_non_nullable
           : quantity as double?,
-      supermarketSection: supermarketSection == const $CopyWithPlaceholder()
-          ? _value.supermarketSection
-          // ignore: cast_nullable_to_non_nullable
-          : supermarketSection as String?,
+      supermarketSectionName:
+          supermarketSectionName == const $CopyWithPlaceholder()
+              ? _value.supermarketSectionName
+              // ignore: cast_nullable_to_non_nullable
+              : supermarketSectionName as String?,
       unitOfMeasure: unitOfMeasure == const $CopyWithPlaceholder()
           ? _value.unitOfMeasure
           // ignore: cast_nullable_to_non_nullable
@@ -225,9 +226,6 @@ ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
   final val = <String, dynamic>{
     '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
-    'items': instance.items.map((e) => e.toJson()).toList(),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -236,13 +234,16 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
     }
   }
 
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['items'] = instance.items.map((e) => e.toJson()).toList();
   writeNotNull('name', instance.name);
   return val;
 }
 
 ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
       item: json['item'] as String,
-      supermarketSection: json['supermarketSection'] as String?,
+      supermarketSectionName: json['supermarketSectionName'] as String?,
       checked: json['checked'] as bool? ?? false,
       quantity: (json['quantity'] as num?)?.toDouble(),
       unitOfMeasure: json['unitOfMeasure'] as String?,
@@ -263,7 +264,7 @@ Map<String, dynamic> _$ShoppingListItemToJson(ShoppingListItem instance) {
 
   writeNotNull('quantity', instance.quantity);
   writeNotNull('unitOfMeasure', instance.unitOfMeasure);
-  writeNotNull('supermarketSection', instance.supermarketSection);
+  writeNotNull('supermarketSectionName', instance.supermarketSectionName);
   writeNotNull('listPosition', instance.listPosition);
   return val;
 }
