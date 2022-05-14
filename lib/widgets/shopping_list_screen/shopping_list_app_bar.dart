@@ -82,7 +82,7 @@ class _SupermarketSectionSelectionDialog extends HookConsumerWidget {
       titlePadding: EdgeInsets.only(top: 10, left: 10, right: 10),
       contentPadding: EdgeInsets.all(10),
       children: [
-        Divider(height: 1),
+        Divider(height: 5),
         Wrap(
           direction: Axis.horizontal,
           children: availableSupermarketSections
