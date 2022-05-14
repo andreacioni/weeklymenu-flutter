@@ -19,7 +19,7 @@ jobs:
           flutter-version: '2.10.4'
       - run: flutter pub get
       #- run: flutter test
-      - run: flutter build web --profile
+      - run: flutter build web #--profile
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
