@@ -65,27 +65,33 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
       textEditingController.text = widget.value!.name;
     }
     return Consumer(builder: (context, ref, _) {
-      return TypeAheadField<dynamic>(
-        textFieldConfiguration: TextFieldConfiguration(
-          controller: textEditingController,
-          enabled: widget.enabled,
-          style: widget.textStyle,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: widget.hintText,
+      if (widget.enabled)
+        return TypeAheadField<dynamic>(
+          textFieldConfiguration: TextFieldConfiguration(
+            controller: textEditingController,
+            enabled: widget.enabled,
+            style: widget.textStyle,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: widget.hintText,
+            ),
+            onSubmitted: widget.onSubmitted,
+            onTap: focusNode.hasFocus ? widget.onTap : null,
+            focusNode: focusNode,
+            autofocus: widget.autoFocus,
           ),
-          onSubmitted: widget.onSubmitted,
-          onTap: focusNode.hasFocus ? widget.onTap : null,
-          focusNode: focusNode,
-          autofocus: widget.autoFocus,
-        ),
-        itemBuilder: itemBuilder,
-        onSuggestionSelected: (suggestion) =>
-            onSuggestionSelected(textEditingController, suggestion),
-        suggestionsCallback: (pattern) => suggestionsCallback(ref, pattern),
-        hideOnEmpty: true,
-      );
+          itemBuilder: itemBuilder,
+          onSuggestionSelected: (suggestion) =>
+              onSuggestionSelected(textEditingController, suggestion),
+          suggestionsCallback: (pattern) => suggestionsCallback(ref, pattern),
+          hideOnEmpty: true,
+        );
+      else
+        return Text(
+          widget.value?.name ?? '',
+          style: widget.textStyle,
+        );
     });
   }
 
