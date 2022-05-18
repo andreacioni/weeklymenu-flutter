@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -40,11 +39,48 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
     return MenuCard(
       dailyMenu,
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => MenuEditorScreen(DailyMenuNotifier(dailyMenu)),
-          ),
-        );
+        showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            clipBehavior: Clip.hardEdge,
+            backgroundColor: Colors.transparent,
+            //useRootNavigator: true,
+            //constraints: BoxConstraints(maxHeight: 300),
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  const BorderRadius.all(MENU_CARD_ROUNDED_RECT_BORDER),
+            ),
+            builder: (context) {
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: DragTarget(
+                      onWillAccept: (_) {
+                        Navigator.of(context).pop();
+                        return true;
+                      },
+                      builder: ((context, _, __) => Container(
+                            color: Colors.transparent,
+                            height: 250,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Drag Here',
+                                style: TextStyle(
+                                    color: Colors.white38, fontSize: 30),
+                              ),
+                            ),
+                          )),
+                    ),
+                  ),
+                  Container(
+                      height: 550,
+                      color: Colors.white,
+                      child: MenuEditorScreen(DailyMenuNotifier(dailyMenu))),
+                ],
+              );
+            });
       },
     );
   }

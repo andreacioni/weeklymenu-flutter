@@ -27,9 +27,9 @@ class RecipeTile extends HookConsumerWidget {
     return InkWell(
       onTap: onPressed,
       child: ListTile(
-        leading: editEnable ? Icon(Icons.drag_handle) : null,
+        //leading: editEnable ? Icon(Icons.drag_handle) : null,
         title: Text(_recipe.name),
-        trailing: editEnable
+        /* trailing: editEnable
             ? Checkbox(
                 value: checked.value,
                 onChanged: (newValue) {
@@ -39,7 +39,7 @@ class RecipeTile extends HookConsumerWidget {
                   }
                 },
               )
-            : null,
+            : null, */
       ),
     );
   }

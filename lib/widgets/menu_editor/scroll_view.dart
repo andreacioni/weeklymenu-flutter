@@ -220,21 +220,14 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
       return DragTarget<MealRecipe>(
         builder: (bCtx, accepted, rejected) =>
             _dropTargetBuilder(bCtx, accepted, rejected, meal),
-        onWillAccept: (mealRecipe) {
-          print('onWillAccept - $meal');
-          return true;
-        },
         onAccept: (mealRecipe) {
           print('onAccept - $meal');
           if (dailyMenu.getMenuByMeal(meal) == null) {
             widget._dailyMenuNotifier.addMenu(Menu(
                 id: ObjectId().hexString, date: dailyMenu.day, meal: meal));
           }
-          dailyMenu.moveRecipeToMeal(
-              mealRecipe.meal, meal, mealRecipe.recipe.id);
-        },
-        onLeave: (_) {
-          print('onLeave - $meal');
+          dailyMenu
+              .moveRecipesToMeal(mealRecipe.meal, meal, [mealRecipe.recipe.id]);
         },
       );
     }

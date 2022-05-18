@@ -166,21 +166,23 @@ class DailyMenu {
 
   DailyMenu({required this.day, required this.menus})
       : assert(menus.every((element) => element.date == day));
-  void moveRecipeToMeal(Meal from, to, String recipeId) {
-    /* assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
+
+  void moveRecipesToMeal(Meal from, to, List<String> recipeIds,
+      [Date? toDate]) {
+    assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
     final menuFrom = getMenuByMeal(from);
     final menuTo = getMenuByMeal(to);
 
-    menuFrom?.removeRecipeById(recipeId);
+    menuFrom?.removeRecipeByIdList(recipeIds).save(params: {'update': true});
 
-    assert(initialLength != menuFrom.recipes.length);
-
-    menuTo?.addRecipeById(recipeId);
-
-    */
-
-    throw Error();
+    if (menuTo != null) {
+      menuTo.addRecipes(recipeIds).save(params: {'update': true});
+    } else {
+      menuFrom
+          ?.copyWith(meal: to, recipes: recipeIds)
+          .save(params: {'update': false});
+    }
   }
 
   List<String> getRecipeIdsByMeal(Meal meal) {

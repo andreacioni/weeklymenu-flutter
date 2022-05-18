@@ -336,10 +336,8 @@ class _MenuEditorAppBar extends HookConsumerWidget
     }
 
     return AppBar(
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => _handleBackButton(),
-      ),
+      automaticallyImplyLeading: false,
+      centerTitle: false,
       title: Text(dailyMenu.day.format(_dateParser)),
       actions: <Widget>[
         if (dailyMenu.isPast)
@@ -347,13 +345,6 @@ class _MenuEditorAppBar extends HookConsumerWidget
             icon: Icon(Icons.archive),
             onPressed: () {},
           ),
-        IconButton(
-          icon: Icon(Icons.swap_horiz),
-          onPressed:
-              ref.read(menuRecipeSelectionProvider.notifier).hasSelectedRecipes
-                  ? () => _handleSwapRecipes()
-                  : null,
-        ),
         IconButton(
           icon: Icon(Icons.delete),
           onPressed:

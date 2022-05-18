@@ -11,9 +11,12 @@ import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 
+const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
+
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends StatelessWidget {
   static final extent = 150.0;
+
   static final _dateParser = DateFormat('EEEE, MMMM dd');
 
   final DailyMenu dailyMenu;
