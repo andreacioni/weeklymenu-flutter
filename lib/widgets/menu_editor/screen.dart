@@ -14,6 +14,7 @@ import '../../globals/errors_handlers.dart';
 import '../../models/enums/meal.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
+import '../menu_page/menu_card.dart';
 import './scroll_view.dart';
 import '../../globals/hooks.dart';
 
@@ -336,6 +337,11 @@ class _MenuEditorAppBar extends HookConsumerWidget
     }
 
     return AppBar(
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.only(
+            topLeft: MENU_CARD_ROUNDED_RECT_BORDER,
+            topRight: MENU_CARD_ROUNDED_RECT_BORDER),
+      ),
       automaticallyImplyLeading: false,
       centerTitle: false,
       title: Text(dailyMenu.day.format(_dateParser)),

@@ -106,7 +106,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 5,
                   ),
-                  _recipesRow(dailyMenu.getRecipeIdsByMeal(Meal.Breakfast)),
+                  _recipesRow(dailyMenu, Meal.Breakfast),
                 ],
               ),
             ),
@@ -134,7 +134,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 30,
                   ),
-                  _recipesRow(dailyMenu.getRecipeIdsByMeal(Meal.Lunch)),
+                  _recipesRow(dailyMenu, Meal.Lunch),
                 ],
               ),
             ),
@@ -163,7 +163,7 @@ class MenuCard extends StatelessWidget {
                   SizedBox(
                     width: 28,
                   ),
-                  _recipesRow(dailyMenu.getRecipeIdsByMeal(Meal.Dinner)),
+                  _recipesRow(dailyMenu, Meal.Dinner),
                 ],
               ),
             ),
@@ -173,21 +173,30 @@ class MenuCard extends StatelessWidget {
     );
   }
 
-  Widget _recipesRow(List<String> recipesIds) {
+  Widget _recipesRow(DailyMenu dailyMenu, Meal meal) {
+    final recipesIds = dailyMenu.getRecipeIdsByMeal(meal);
     //TODO recipe rows could be moved to a new separated widget and use a provided Menu to improve performance (changes to a menu/meal won't the entire card)
     return Expanded(
-      child: Row(
-        children: <Widget>[
-          if (recipesIds.isEmpty)
-            Text(
-              "No recipes defined",
-              textAlign: TextAlign.right,
-              style:
-                  TextStyle(fontStyle: FontStyle.italic, color: Colors.black45),
-            ),
-          if (recipesIds.isNotEmpty) MenuRecipesText(recipesIds)
-        ],
-      ),
+      child: DragTarget<MealRecipe>(
+          onWillAccept: (data) {
+            print('on will accept');
+            return true;
+          },
+          onAccept: (_) {},
+          builder: (context, _, __) {
+            return Row(
+              children: <Widget>[
+                if (recipesIds.isEmpty)
+                  Text(
+                    "No recipes defined",
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                        fontStyle: FontStyle.italic, color: Colors.black45),
+                  ),
+                if (recipesIds.isNotEmpty) MenuRecipesText(recipesIds)
+              ],
+            );
+          }),
     );
   }
 }
