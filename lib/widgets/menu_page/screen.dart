@@ -43,7 +43,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     final bottomSheetDailyMenu =
-        ref.watch(homePageModalBottomSheetDailyMenuProvider);
+        ref.watch(homePageModalBottomSheetDailyMenuNotifierProvider);
     final panelController = ref.watch(homePagePanelControllerProvider);
 
     /*
@@ -120,11 +120,13 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
   Widget _buildMenuCard(
       BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
+    final dailyMenuNotifier = DailyMenuNotifier(dailyMenu);
     return MenuCard(
-      dailyMenu,
+      dailyMenuNotifier,
       onTap: () {
-        ref.read(homePageModalBottomSheetDailyMenuProvider.notifier).state =
-            dailyMenu;
+        ref
+            .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)
+            .state = dailyMenuNotifier;
         ref.read(homePagePanelControllerProvider).open();
       },
     );

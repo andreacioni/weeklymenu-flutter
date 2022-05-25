@@ -124,8 +124,11 @@ class MenuEditorScreen extends HookConsumerWidget {
           return true;
         },
         child: Scaffold(
+          primary: false,
+          backgroundColor: Colors.transparent,
           appBar: _MenuEditorAppBar(dailyMenuNotifier),
           body: Container(
+            color: Colors.white,
             child: MenuEditorScrollView(
               dailyMenuNotifier,
             ),
@@ -337,6 +340,7 @@ class _MenuEditorAppBar extends HookConsumerWidget
     }
 
     return AppBar(
+      primary: false,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.only(
             topLeft: MENU_CARD_ROUNDED_RECT_BORDER,

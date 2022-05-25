@@ -216,18 +216,25 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
           });
     }
 
-    DragTarget<MealRecipe> _buildDragTarget(WidgetRef ref, Meal meal) {
+    DragTarget<MealRecipe> _buildDragTarget(
+        WidgetRef ref, Meal destinationMeal) {
       return DragTarget<MealRecipe>(
         builder: (bCtx, accepted, rejected) =>
-            _dropTargetBuilder(bCtx, accepted, rejected, meal),
+            _dropTargetBuilder(bCtx, accepted, rejected, destinationMeal),
         onAccept: (mealRecipe) {
-          print('onAccept - $meal');
-          if (dailyMenu.getMenuByMeal(meal) == null) {
+          print('onAccept - $destinationMeal');
+          if (dailyMenu.getMenuByMeal(destinationMeal) == null) {
             widget._dailyMenuNotifier.addMenu(Menu(
-                id: ObjectId().hexString, date: dailyMenu.day, meal: meal));
+                id: ObjectId().hexString,
+                date: dailyMenu.day,
+                meal: destinationMeal,
+                recipes: [mealRecipe.recipe.id]).init(ref.read));
+            widget._dailyMenuNotifier
+                .removeRecipesFromMeal([mealRecipe.recipe.id]);
+          } else {
+            dailyMenu.moveRecipesToMeal(
+                mealRecipe.meal, destinationMeal, [mealRecipe.recipe.id]);
           }
-          dailyMenu
-              .moveRecipesToMeal(mealRecipe.meal, meal, [mealRecipe.recipe.id]);
         },
       );
     }

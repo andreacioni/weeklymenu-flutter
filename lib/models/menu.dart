@@ -82,7 +82,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
         null);
 
     final res = await newMenu.save(params: {'update': false});
-    state = state = state.copyWith(menus: [...state.menus, newMenu]);
+    state = state.copyWith(menus: [...state.menus, newMenu]);
 
     return res;
   }

@@ -8,9 +8,10 @@ import './widgets/recipes_screen/screen.dart';
 import './widgets/shopping_list_screen/screen.dart';
 import 'models/menu.dart';
 import 'widgets/menu_editor/screen.dart';
+import 'widgets/menu_page/menu_card.dart';
 
-final homePageModalBottomSheetDailyMenuProvider =
-    StateProvider.autoDispose<DailyMenu?>((_) => null);
+final homePageModalBottomSheetDailyMenuNotifierProvider =
+    StateProvider.autoDispose<DailyMenuNotifier?>((_) => null);
 final homePagePanelControllerProvider =
     Provider<PanelController>((_) => PanelController());
 
@@ -94,8 +95,8 @@ class _BottomSheetPanel extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final panelController = ref.read(homePagePanelControllerProvider);
-    final bottomSheetDailyMenu =
-        ref.watch(homePageModalBottomSheetDailyMenuProvider);
+    final bottomSheetDailyMenuNotifier =
+        ref.watch(homePageModalBottomSheetDailyMenuNotifierProvider);
 
     final screenHeight = MediaQuery.of(context).size.height;
     final panelHeight = this.panelHeight ?? screenHeight * 0.60;
@@ -108,8 +109,11 @@ class _BottomSheetPanel extends HookConsumerWidget {
         minHeight: 0,
         color: Colors.transparent,
         boxShadow: [],
+        borderRadius: const BorderRadius.only(
+            topLeft: MENU_CARD_ROUNDED_RECT_BORDER,
+            topRight: MENU_CARD_ROUNDED_RECT_BORDER),
         backdropTapClosesPanel: true,
-        panel: bottomSheetDailyMenu != null
+        panel: bottomSheetDailyMenuNotifier != null
             ? Column(
                 children: [
                   GestureDetector(
@@ -127,9 +131,7 @@ class _BottomSheetPanel extends HookConsumerWidget {
                   ),
                   Container(
                       height: panelHeight,
-                      color: Colors.transparent,
-                      child: MenuEditorScreen(
-                          DailyMenuNotifier(bottomSheetDailyMenu))),
+                      child: MenuEditorScreen(bottomSheetDailyMenuNotifier)),
                 ],
               )
             : Container(),
