@@ -14,6 +14,7 @@ import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
+import '../menu_editor/screen.dart';
 
 const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
 
@@ -56,21 +57,27 @@ class MenuCard extends HookConsumerWidget {
         child: DragTarget<MealRecipe>(onWillAccept: (mealRecipe) {
           print('on will accept');
           return true;
-        }, onAccept: (mealRecipe) {
+        }, onAccept: (mealRecipe) async {
           print('onAccept - $meal');
+          ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
+
           final destinationMenu = dailyMenu.getMenuByMeal(meal);
           if (destinationMenu == null) {
-            dailyMenuNotifier.addMenu(Menu(
+            await dailyMenuNotifier.addMenu(Menu(
                 id: ObjectId().hexString,
                 date: dailyMenu.day,
                 meal: meal,
                 recipes: [mealRecipe.recipe.id]).init(ref.read));
           } else {
-            dailyMenuNotifier.updateMenu(destinationMenu.copyWith(recipes: [...destinationMenu.recipes, mealRecipe.]));
+            await dailyMenuNotifier.updateMenu(destinationMenu.copyWith(
+                recipes: [
+                  ...destinationMenu.recipes,
+                  mealRecipe.recipe.id
+                ]).was(destinationMenu));
           }
 
           originDailyMenuNotifier
-              ?.removeRecipesFromMeal([mealRecipe.recipe.id]);
+              ?.removeRecipesFromMeal(mealRecipe.meal, [mealRecipe.recipe.id]);
         }, builder: (context, _, __) {
           return Row(
             children: <Widget>[

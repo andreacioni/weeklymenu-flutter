@@ -142,10 +142,18 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
-  void removeRecipesFromMeal(List<String> recipeIds) {
-    final copy = [...state.menus];
-    copy.forEach((menu) => menu.removeRecipeByIdList(recipeIds));
-    state = state.copyWith(menus: copy);
+  void removeRecipesFromMeal(Meal meal, List<String> recipeIds) {
+    final menuMeal = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
+
+    if (menuMeal != null) {
+      final newMenu = menuMeal.removeRecipeByIdList(recipeIds);
+
+      if (newMenu.recipes.isEmpty) {
+        removeMenu(newMenu);
+      } else {
+        updateMenu(newMenu);
+      }
+    }
   }
 
   void removeAllRecipesFromMeal(Meal meal) {
@@ -167,20 +175,20 @@ class DailyMenu {
   DailyMenu({required this.day, required this.menus})
       : assert(menus.every((element) => element.date == day));
 
-  void moveRecipesToMeal(Meal from, to, List<String> recipeIds,
-      [Date? toDate]) {
+  Future<Menu> moveRecipesToMeal(Meal from, to, List<String> recipeIds,
+      [Date? toDate]) async {
     assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
     final menuFrom = getMenuByMeal(from);
     final menuTo = getMenuByMeal(to);
 
-    menuFrom?.removeRecipeByIdList(recipeIds).save(params: {'update': true});
+    menuFrom!.removeRecipeByIdList(recipeIds).save(params: {'update': true});
 
     if (menuTo != null) {
-      menuTo.addRecipes(recipeIds).save(params: {'update': true});
+      return await menuTo.addRecipes(recipeIds).save(params: {'update': true});
     } else {
-      menuFrom
-          ?.copyWith(meal: to, recipes: recipeIds)
+      return await menuFrom
+          .copyWith(meal: to, recipes: recipeIds)
           .save(params: {'update': false});
     }
   }

@@ -84,6 +84,7 @@ class _RecipeSuggestionTextFieldState extends State<RecipeSuggestionTextField> {
         suggestionsCallback: (pattern) =>
             _suggestionsCallback(pattern, widget.dailyMenu, recipeRepository),
         hideOnEmpty: true,
+        autoFlipDirection: true,
       );
     });
   }

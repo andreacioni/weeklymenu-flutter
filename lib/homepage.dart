@@ -138,6 +138,7 @@ class _BottomSheetPanel extends HookConsumerWidget {
         onPanelClosed: () {
           //ref.read(_modalBottomSheetDailyMenuProvider.notifier).state = null;
           //panelController.close();
+          ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
         },
         body: child);
   }

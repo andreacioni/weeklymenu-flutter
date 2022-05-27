@@ -22,7 +22,7 @@ final _dateParser = DateFormat('EEEE, MMMM dd');
 
 final menuRecipeSelectionProvider = StateNotifierProvider.autoDispose<
     MenuRecipeSelectionNotifier,
-    Map<Meal, List<String>>>(((ref) => MenuRecipeSelectionNotifier()));
+    Map<Meal, List<String>>>(((_) => MenuRecipeSelectionNotifier()));
 
 class MenuRecipeSelectionNotifier
     extends StateNotifier<Map<Meal, List<String>>> {
@@ -43,7 +43,11 @@ class MenuRecipeSelectionNotifier
     final List<String> recipesList = state[mealRecipe.meal] ?? [];
 
     recipesList.removeWhere((recId) => mealRecipe.recipe.id == recId);
-    newState[mealRecipe.meal] = recipesList;
+    if (recipesList.isEmpty) {
+      newState.remove(mealRecipe.meal);
+    } else {
+      newState[mealRecipe.meal] = recipesList;
+    }
 
     state = newState;
   }
@@ -96,6 +100,8 @@ class MenuEditorScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dailyMenu = useStateNotifier(dailyMenuNotifier);
+    final editingEnabled =
+        ref.watch(menuRecipeSelectionProvider.notifier).hasSelectedRecipes;
 
     final primaryColor = dailyMenu.isPast
         ? consts.pastColor
@@ -153,6 +159,8 @@ class _MenuEditorAppBar extends HookConsumerWidget
     final menuRecipeSelection = ref.watch(menuRecipeSelectionProvider);
     final dailyMenu = useStateNotifier(dailyMenuNotifier);
 
+    final primaryColor = Theme.of(context).primaryColor.withOpacity(0.4);
+
     void _handleDeleteRecipes() {
       menuRecipeSelection.forEach(
         (meal, recipesId) {
@@ -185,160 +193,6 @@ class _MenuEditorAppBar extends HookConsumerWidget
       ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
     }
 
-    void _handleSwapRecipes({bool cut = true}) async {
-      /**    //Ask for destination day
-      final destinationDateTime = await showDatePicker(
-        context: context,
-        initialDate: dailyMenu.day.toDateTime,
-        firstDate: Date.now()
-            .subtract(Duration(days: (consts.pageViewLimitDays / 2).truncate()))
-            .toDateTime,
-        lastDate: Date.now()
-            .add((Duration(days: (consts.pageViewLimitDays / 2).truncate())))
-            .toDateTime,
-      );
-
-      if (destinationDateTime == null) {
-        return;
-      }
-
-      final destinationDay = Date(destinationDateTime);
-
-      //Ask for destination meal
-      final destinationMeal = await showDialog(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: Text("Select meal"),
-          children: Meal.values
-              .map(
-                (meal) => InkWell(
-                    child: ListTile(
-                      title: Text(meal.toString()),
-                    ),
-                    onTap: () => Navigator.of(context).pop(meal)),
-              )
-              .toList(),
-        ),
-      );
-
-      if (destinationMeal == null) {
-        return;
-      }
-
-      //Check for empty/notEmpty destination menu
-      //final menuRepository = context.read(menusRepositoryProvider);
-      //_destinationMenu =
-      //    await menuRepository.findAll(param: {'day': destinationDay}); //TODO fix me
-
-      /* 
-      Ask action to be performed if there are recipes already 
-      defined in selected (day, meal), otherwise just move (and create
-      menu if not defined)
-    */
-      if (_destinationMenu?.menus.isEmpty ?? true) {
-        print("No menus in destination day, creating menu");
-        _newMenu = Menu(
-          id: ObjectId().hexString,
-          meal: destinationMeal,
-          date: destinationDay,
-          recipes: menuRecipeSelectionNotifier.selectedRecipes,
-        );
-      } else {
-        //Check if all selected recipes are in the same meal
-        final sameMeal = menuRecipeSelectionNotifier.selectedRecipesMeal;
-        final alreadyDefinedMenu =
-            _destinationMenu!.getMenuByMeal(destinationMeal);
-
-        if (alreadyDefinedMenu == null) {
-          print("Destination menu is not already defined, creating menu");
-          _newMenu = Menu(
-            id: ObjectId().hexString,
-            meal: destinationMeal,
-            date: destinationDay,
-            recipes: menuRecipeSelectionNotifier.selectedRecipes,
-          );
-        } else if (alreadyDefinedMenu.recipes.isEmpty) {
-          print("Destination menu is defined but empty, add new recipes to it");
-          alreadyDefinedMenu
-              .addRecipes(menuRecipeSelectionNotifier.selectedRecipes);
-        } else {
-          /**
-         * If sameMeal == null it means that selected recipes in current menu
-         * belong to more meals and so it's impossible to ask for move/swap. Instead
-         * we can ask for merge/overwrite current selected recipes in destination menu 
-         * */
-          if (sameMeal == null) {
-            final mergeRecipes = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text("Overwrite or Merge?"),
-                content: Text(
-                    "There are alredy defined recipes for that meal. Would you merge or overwrite them?"),
-                actions: [
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: Text("MERGE")),
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text("OVERWRITE"))
-                ],
-              ),
-            );
-
-            if (!(mergeRecipes ?? false)) {
-              print("Overwriting recipes");
-              _destinationMenu!.removeAllRecipesFromMeal(destinationMeal);
-            }
-            _destinationMenu!.addRecipeIdListToMeal(
-                destinationMeal, menuRecipeSelectionNotifier.selectedRecipes);
-          } else {
-            print(
-                "Destination menu is present, do you want to swap or move recipes?");
-
-            final swapRecipes = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text("Swap or Merge?"),
-                content: Text(
-                    "There are alredy defined recipes for that meal. Would you merge or swap them?"),
-                actions: [
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text("MERGE")),
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: Text("SWAP"))
-                ],
-              ),
-            );
-
-            if (swapRecipes ?? false) {
-              print("Swapping recipes");
-              final destinationRecipes =
-                  _destinationMenu!.getRecipeIdsByMeal(destinationMeal);
-              dailyMenu.addRecipeIdListToMeal(sameMeal, destinationRecipes);
-              _destinationMenu!.removeAllRecipesFromMeal(destinationMeal);
-            }
-            _destinationMenu!.addRecipeIdListToMeal(
-                destinationMeal, menuRecipeSelectionNotifier.selectedRecipes);
-          }
-        }
-      }
-      if (cut) {
-        dailyMenu
-            .removeRecipesFromMeal(menuRecipeSelectionNotifier.selectedRecipes);
-      }
-
-      menuRecipeSelectionNotifier.clearSelected();
-      */
-    }
-
-    void _handleBackButton() {
-      ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
-
-      Navigator.of(context).pop();
-    }
-
     return AppBar(
       primary: false,
       shape: RoundedRectangleBorder(
@@ -355,13 +209,20 @@ class _MenuEditorAppBar extends HookConsumerWidget
             icon: Icon(Icons.archive),
             onPressed: () {},
           ),
-        IconButton(
-          icon: Icon(Icons.delete),
-          onPressed:
-              ref.read(menuRecipeSelectionProvider.notifier).hasSelectedRecipes
-                  ? () => _handleDeleteRecipes()
-                  : null,
-        ),
+        if (menuRecipeSelection.length > 0) ...[
+          Chip(
+            backgroundColor: primaryColor,
+            label: Text(menuRecipeSelection.length.toString()),
+            deleteIcon: Icon(
+              Icons.delete,
+              size: 18,
+            ),
+            onDeleted: _handleDeleteRecipes,
+          ),
+          SizedBox(
+            width: 15,
+          )
+        ]
       ],
     );
   }
