@@ -54,30 +54,37 @@ class MenuCard extends HookConsumerWidget {
 
       //TODO recipe rows could be moved to a new separated widget and use a provided Menu to improve performance (changes to a menu/meal won't the entire card)
       return Expanded(
-        child: DragTarget<MealRecipe>(onWillAccept: (mealRecipe) {
+        child: DragTarget<Map<Meal, List<String>>>(onWillAccept: (mealRecipe) {
           print('on will accept');
           return true;
-        }, onAccept: (mealRecipe) async {
+        }, onAccept: (mealRecipeMap) async {
           print('onAccept - $meal');
           ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
+
+          final recipeIds = mealRecipeMap.values
+              .fold<List<String>>(<String>[], (pv, e) => pv..addAll(e));
+
+          if (recipeIds.isEmpty) return;
 
           final destinationMenu = dailyMenu.getMenuByMeal(meal);
           if (destinationMenu == null) {
             await dailyMenuNotifier.addMenu(Menu(
-                id: ObjectId().hexString,
-                date: dailyMenu.day,
-                meal: meal,
-                recipes: [mealRecipe.recipe.id]).init(ref.read));
+                    id: ObjectId().hexString,
+                    date: dailyMenu.day,
+                    meal: meal,
+                    recipes: recipeIds)
+                .init(ref.read));
           } else {
             await dailyMenuNotifier.updateMenu(destinationMenu.copyWith(
                 recipes: [
                   ...destinationMenu.recipes,
-                  mealRecipe.recipe.id
+                  ...recipeIds
                 ]).was(destinationMenu));
           }
 
-          originDailyMenuNotifier
-              ?.removeRecipesFromMeal(mealRecipe.meal, [mealRecipe.recipe.id]);
+          mealRecipeMap.forEach((meal, recipes) {
+            originDailyMenuNotifier?.removeRecipesFromMeal(meal, recipes);
+          });
         }, builder: (context, _, __) {
           return Row(
             children: <Widget>[

@@ -66,15 +66,8 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
       });
     }
 
-    Widget _dropTargetBuilder(BuildContext context,
-        List<MealRecipe?> candidateRecipes, rejectedRecipes, Meal targetMeal) {
-      candidateRecipes.removeWhere((e) => e == null);
-
-      if (candidateRecipes.isNotEmpty) {
-        return ListTile(title: Text(candidateRecipes[0]!.recipe.name));
-      } else {
-        return Container();
-      }
+    Widget _dropTargetBuilder() {
+      return Container();
     }
 
     Future<void> _addRecipeToMeal(
@@ -167,27 +160,35 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
           });
     }
 
-    DragTarget<MealRecipe> _buildDragTarget(Meal destinationMeal) {
-      return DragTarget<MealRecipe>(
-        builder: (bCtx, accepted, rejected) =>
-            _dropTargetBuilder(bCtx, accepted, rejected, destinationMeal),
-        onAccept: (mealRecipe) async {
+    DragTarget<Map<Meal, List<String>>> _buildDragTarget(Meal destinationMeal) {
+      return DragTarget<Map<Meal, List<String>>>(
+        onAccept: (mealRecipeMap) async {
           print('onAccept - $destinationMeal');
           ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
 
+          final recipeIds = mealRecipeMap.values
+              .fold<List<String>>(<String>[], (pv, e) => pv..addAll(e));
+
+          if (recipeIds.isEmpty) return;
+
           if (dailyMenu.getMenuByMeal(destinationMeal) == null) {
             await widget._dailyMenuNotifier.addMenu(Menu(
-                id: ObjectId().hexString,
-                date: dailyMenu.day,
-                meal: destinationMeal,
-                recipes: [mealRecipe.recipe.id]).init(ref.read));
-            widget._dailyMenuNotifier
-                .removeRecipesFromMeal(mealRecipe.meal, [mealRecipe.recipe.id]);
+                    id: ObjectId().hexString,
+                    date: dailyMenu.day,
+                    meal: destinationMeal,
+                    recipes: recipeIds)
+                .init(ref.read));
+
+            mealRecipeMap.forEach((meal, recipes) {
+              widget._dailyMenuNotifier.removeRecipesFromMeal(meal, recipes);
+            });
           } else {
-            dailyMenu.moveRecipesToMeal(
-                mealRecipe.meal, destinationMeal, [mealRecipe.recipe.id]);
+            mealRecipeMap.forEach((meal, recipes) {
+              dailyMenu.moveRecipesToMeal(meal, destinationMeal, recipes);
+            });
           }
         },
+        builder: (bCtx, accepted, rejected) => _dropTargetBuilder(),
       );
     }
 
