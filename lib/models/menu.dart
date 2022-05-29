@@ -82,7 +82,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
         null);
 
     final res = await newMenu.save(params: {'update': false});
-    state = state = state.copyWith(menus: [...state.menus, newMenu]);
+    state = state.copyWith(menus: [...state.menus, newMenu]);
 
     return res;
   }
@@ -142,10 +142,18 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
-  void removeRecipesFromMeal(List<String> recipeIds) {
-    final copy = [...state.menus];
-    copy.forEach((menu) => menu.removeRecipeByIdList(recipeIds));
-    state = state.copyWith(menus: copy);
+  void removeRecipesFromMeal(Meal meal, List<String> recipeIds) {
+    final menuMeal = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
+
+    if (menuMeal != null) {
+      final newMenu = menuMeal.removeRecipeByIdList(recipeIds);
+
+      if (newMenu.recipes.isEmpty) {
+        removeMenu(newMenu);
+      } else {
+        updateMenu(newMenu);
+      }
+    }
   }
 
   void removeAllRecipesFromMeal(Meal meal) {
@@ -166,21 +174,23 @@ class DailyMenu {
 
   DailyMenu({required this.day, required this.menus})
       : assert(menus.every((element) => element.date == day));
-  void moveRecipeToMeal(Meal from, to, String recipeId) {
-    /* assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
+
+  Future<Menu> moveRecipesToMeal(Meal from, to, List<String> recipeIds,
+      [Date? toDate]) async {
+    assert((getMenuByMeal(from) != null) && (getMenuByMeal(to) != null));
 
     final menuFrom = getMenuByMeal(from);
     final menuTo = getMenuByMeal(to);
 
-    menuFrom?.removeRecipeById(recipeId);
+    menuFrom!.removeRecipeByIdList(recipeIds).save(params: {'update': true});
 
-    assert(initialLength != menuFrom.recipes.length);
-
-    menuTo?.addRecipeById(recipeId);
-
-    */
-
-    throw Error();
+    if (menuTo != null) {
+      return await menuTo.addRecipes(recipeIds).save(params: {'update': true});
+    } else {
+      return await menuFrom
+          .copyWith(meal: to, recipes: recipeIds)
+          .save(params: {'update': false});
+    }
   }
 
   List<String> getRecipeIdsByMeal(Meal meal) {

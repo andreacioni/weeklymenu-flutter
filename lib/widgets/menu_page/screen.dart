@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:weekly_menu_app/models/date.dart';
-import 'package:weekly_menu_app/widgets/menu_page/daily_menu_future_wrapper.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
+import '../../homepage.dart';
+import '../../models/date.dart';
+import '../../main.data.dart';
+import '../../models/date.dart';
+import '../../models/menu.dart';
+import '../../widgets/flutter_data_state_builder.dart';
+import '../../widgets/menu_editor/screen.dart';
+import '../../widgets/menu_page/menu_card.dart';
 import 'menu_app_bar.dart';
 import 'menu_fab.dart';
 import '../../globals/constants.dart';
 import './menu_card.dart';
 
-class MenuScreen extends StatefulWidget {
+class MenuScreen extends StatefulHookConsumerWidget {
   const MenuScreen({Key? key}) : super(key: key);
 
   @override
   _MenuScreenState createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
+class _MenuScreenState extends ConsumerState<MenuScreen> {
   final _todayOffset = (pageViewLimitDays / 2);
   final _itemExtent = MenuCard.extent;
 
@@ -32,6 +42,10 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomSheetDailyMenu =
+        ref.watch(homePageModalBottomSheetDailyMenuNotifierProvider);
+    final panelController = ref.watch(homePagePanelControllerProvider);
+
     /*
     * NOTE: we must avoid using setState in this widget to increase render 
     * performances. The AppBar and the FAB are taking to each other directly 
@@ -43,6 +57,7 @@ class _MenuScreenState extends State<MenuScreen> {
       _scrollController,
       _itemExtent,
     );
+
     return Scaffold(
       appBar: appBar,
       floatingActionButton: MenuFloatingActionButton(
@@ -73,5 +88,47 @@ class _MenuScreenState extends State<MenuScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+}
+
+/*
+* Added this class to prevent FutureBuilder to fire every time a setState in 
+* the parent widget is called. See: https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
+* for more details.
+*/
+
+class DailyMenuFutureWrapper extends HookConsumerWidget {
+  static final _dateParser = DateFormat('y-MM-dd');
+
+  final Date _day;
+
+  DailyMenuFutureWrapper(this._day);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FlutterDataStateBuilder<List<Menu>>(
+      state: ref.menus.watchAll(
+        params: {'day': _day.format(_dateParser)},
+      ),
+      builder: (context, model) {
+        final filtered = model.where((m) => m.date == _day).toList();
+        final dailyMenu = DailyMenu(day: _day, menus: filtered);
+        return _buildMenuCard(context, ref, _day, dailyMenu);
+      },
+    );
+  }
+
+  Widget _buildMenuCard(
+      BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
+    final dailyMenuNotifier = DailyMenuNotifier(dailyMenu);
+    return MenuCard(
+      dailyMenuNotifier,
+      onTap: () {
+        ref
+            .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)
+            .state = dailyMenuNotifier;
+        ref.read(homePagePanelControllerProvider).open();
+      },
+    );
   }
 }

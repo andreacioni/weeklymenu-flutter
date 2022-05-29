@@ -26,7 +26,6 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
   late bool _initialized;
   late ThemeData _theme;
 
-  late bool _dragMode;
   Meal? _fromMeal;
 
   Meal? _addRecipeMealTarget;
@@ -35,7 +34,6 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
   void initState() {
     _addRecipeMealTarget = null;
     _initialized = false;
-    _dragMode = false;
 
     super.initState();
   }
@@ -60,25 +58,16 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
 
     final dailyMenu = useStateNotifier(widget._dailyMenuNotifier);
 
+    final selectionMode = ref.watch(menuRecipeSelectionProvider).isNotEmpty;
+
     void _showRecipeTextFieldForMeal(Meal meal) {
       setState(() {
         _addRecipeMealTarget = meal;
       });
     }
 
-    Widget _dropTargetBuilder(BuildContext context,
-        List<MealRecipe?> candidateRecipes, rejectedRecipes, Meal targetMeal) {
-      candidateRecipes.removeWhere((e) => e == null);
-
-      if (candidateRecipes.isNotEmpty) {
-        return ListTile(title: Text(candidateRecipes[0]!.recipe.name));
-      } else if (_dragMode == true && _fromMeal != targetMeal) {
-        return Center(
-          child: Text('DROP HERE'),
-        );
-      } else {
-        return Container();
-      }
+    Widget _dropTargetBuilder() {
+      return Container();
     }
 
     Future<void> _addRecipeToMeal(
@@ -96,7 +85,6 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
     }
 
     void _createNewRecipeByName(
-        WidgetRef ref,
         Meal meal,
         String recipeName,
         Repository<Recipe> recipeRepository,
@@ -124,16 +112,8 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
       setState(() => _addRecipeMealTarget = null);
     }
 
-    void _openRecipeView(Recipe recipe) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => RecipeView(recipe),
-        ),
-      );
-    }
-
-    void _handleAddRecipe(WidgetRef ref, Meal meal, Recipe recipe,
-        Repository<Menu> menuRepository) async {
+    void _handleAddRecipe(
+        Meal meal, Recipe recipe, Repository<Menu> menuRepository) async {
       showProgressDialog(context);
       try {
         await _addRecipeToMeal(meal, recipe, menuRepository);
@@ -144,19 +124,8 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
       }
     }
 
-    void _handleRecipeCheckChange(WidgetRef ref, DailyMenu dailyMenu,
-        MealRecipe mealRecipe, bool checked) {
-      final menuRecipeSelection =
-          ref.read(menuRecipeSelectionProvider.notifier);
-      if (checked) {
-        menuRecipeSelection.setSelectedRecipe(mealRecipe);
-      } else {
-        menuRecipeSelection.removeSelectedRecipe(mealRecipe);
-      }
-    }
-
-    Widget _buildRecipeTile(WidgetRef ref, DailyMenu dailyMenu, Meal meal,
-        String id, Repository<Recipe> recipeRepository) {
+    Widget _buildRecipeTile(DailyMenu dailyMenu, Meal meal, String id,
+        Repository<Recipe> recipeRepository) {
       return FutureBuilder<Recipe?>(
           future: recipeRepository.findOne(id, remote: false),
           builder: (context, snapshot) {
@@ -173,40 +142,15 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
             }
 
             final recipe = snapshot.data!;
-
             final mealRecipe = MealRecipe(meal, recipe);
-            final recipeTile = RecipeTile(
-              recipe,
-              editEnable: true,
-              isChecked: ref
-                      .read(menuRecipeSelectionProvider)[meal]
-                      ?.contains(recipe.id) ??
-                  false,
-              onPressed: () => _openRecipeView(recipe),
-              onCheckChange: (c) => _handleRecipeCheckChange(
-                  ref, dailyMenu, mealRecipe, c ?? false),
-              key: ValueKey(
-                  mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
-            );
 
             return Column(
               //key: ,
               children: <Widget>[
-                Draggable<MealRecipe>(
-                  child: recipeTile,
-                  feedback: Material(
-                    child: Text(recipe.name),
-                  ),
-                  childWhenDragging: Container(),
-                  data: mealRecipe,
-                  onDragStarted: () => setState(() {
-                    _dragMode = true;
-                    _fromMeal = meal;
-                  }),
-                  onDragCompleted: () => setState(() => _dragMode = false),
-                  onDragEnd: (_) => setState(() => _dragMode = false),
-                  onDraggableCanceled: (_, __) =>
-                      setState(() => _dragMode = false),
+                DraggableRecipeTile(
+                  mealRecipe,
+                  key: ValueKey(
+                      mealRecipe.meal.toString() + '_' + mealRecipe.recipe.id),
                 ),
                 Divider(
                   height: 0,
@@ -216,26 +160,35 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
           });
     }
 
-    DragTarget<MealRecipe> _buildDragTarget(WidgetRef ref, Meal meal) {
-      return DragTarget<MealRecipe>(
-        builder: (bCtx, accepted, rejected) =>
-            _dropTargetBuilder(bCtx, accepted, rejected, meal),
-        onWillAccept: (mealRecipe) {
-          print('onWillAccept - $meal');
-          return true;
-        },
-        onAccept: (mealRecipe) {
-          print('onAccept - $meal');
-          if (dailyMenu.getMenuByMeal(meal) == null) {
-            widget._dailyMenuNotifier.addMenu(Menu(
-                id: ObjectId().hexString, date: dailyMenu.day, meal: meal));
+    DragTarget<Map<Meal, List<String>>> _buildDragTarget(Meal destinationMeal) {
+      return DragTarget<Map<Meal, List<String>>>(
+        onAccept: (mealRecipeMap) async {
+          print('onAccept - $destinationMeal');
+          ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
+
+          final recipeIds = mealRecipeMap.values
+              .fold<List<String>>(<String>[], (pv, e) => pv..addAll(e));
+
+          if (recipeIds.isEmpty) return;
+
+          if (dailyMenu.getMenuByMeal(destinationMeal) == null) {
+            await widget._dailyMenuNotifier.addMenu(Menu(
+                    id: ObjectId().hexString,
+                    date: dailyMenu.day,
+                    meal: destinationMeal,
+                    recipes: recipeIds)
+                .init(ref.read));
+
+            mealRecipeMap.forEach((meal, recipes) {
+              widget._dailyMenuNotifier.removeRecipesFromMeal(meal, recipes);
+            });
+          } else {
+            mealRecipeMap.forEach((meal, recipes) {
+              dailyMenu.moveRecipesToMeal(meal, destinationMeal, recipes);
+            });
           }
-          dailyMenu.moveRecipeToMeal(
-              mealRecipe.meal, meal, mealRecipe.recipe.id);
         },
-        onLeave: (_) {
-          print('onLeave - $meal');
-        },
+        builder: (bCtx, accepted, rejected) => _dropTargetBuilder(),
       );
     }
 
@@ -243,7 +196,7 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
   * We can't pass only the menu object because it could be null if there isn't any recipe defined
   * for that (day, meal)
   **/
-    List<Widget> _buildSliversForMeal(WidgetRef ref, Meal meal, Menu? menu,
+    List<Widget> _buildSliversForMeal(Meal meal, Menu? menu,
         Repository<Recipe> recipeRepository, Repository<Menu> menuRepository) {
       assert(meal.value != null);
 
@@ -279,10 +232,11 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
                   ? () => _swapMenuBetweenDays(menu)
                   : null,
             ), */
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => _showRecipeTextFieldForMeal(meal),
-            ),
+            if (!selectionMode)
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => _showRecipeTextFieldForMeal(meal),
+              ),
           ],
         ),
         SliverList(
@@ -302,16 +256,16 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
                     }
                   },
                   onRecipeSelected: (recipe) =>
-                      _handleAddRecipe(ref, meal, recipe, menuRepository),
+                      _handleAddRecipe(meal, recipe, menuRepository),
                   onSubmitted: (recipeName) => _createNewRecipeByName(
-                      ref, meal, recipeName, recipeRepository, menuRepository),
+                      meal, recipeName, recipeRepository, menuRepository),
                 ),
               if (menu != null && menu.recipes.isNotEmpty)
                 ...menu.recipes
-                    .map((id) => _buildRecipeTile(
-                        ref, dailyMenu, meal, id, recipeRepository))
+                    .map((id) =>
+                        _buildRecipeTile(dailyMenu, meal, id, recipeRepository))
                     .toList(),
-              _buildDragTarget(ref, meal),
+              _buildDragTarget(meal),
             ],
           ),
         ),
@@ -322,7 +276,7 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
       data: _theme,
       child: CustomScrollView(
         slivers: Meal.values
-            .map((m) => _buildSliversForMeal(ref, m, dailyMenu.getMenuByMeal(m),
+            .map((m) => _buildSliversForMeal(m, dailyMenu.getMenuByMeal(m),
                 recipeRepository, menuRepository))
             .expand((element) => element)
             .toList(),
