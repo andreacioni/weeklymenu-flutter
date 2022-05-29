@@ -33,31 +33,24 @@ class RecipeView extends HookConsumerWidget {
     final editEnabled = editEnabledNotifier.value;
 
     void _handleEditToggle(bool newValue) async {
-      if (!_formKey.currentState!.validate()) {
-        print("Validation failed");
-        return;
-      }
+      //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
 
-      //This call save the form's state not the recipe. This operation must be done
-      // here to trigger all the onSaved callback of the form fields
-      _formKey.currentState!.save();
-
-      if (!newValue && originator.isEdited) {
-        //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
-
-        print("Saving all recipe changes");
-
-        showProgressDialog(context);
-
-        try {
-          await ref.recipes.save(originator.save(), params: {'update': true});
-        } catch (e) {
-          showAlertErrorMessage(context);
+      if (!newValue) {
+        if (!_formKey.currentState!.validate()) {
+          print("Validation failed");
           return;
-        } finally {
-          hideProgressDialog(context);
+        }
+        //This call save the form's state not the recipe. This operation must be done
+        // here to trigger all the onSaved callback of the form fields
+        _formKey.currentState!.save();
+
+        if (originator.isEdited) {
+          print("Saving all recipe changes");
+
+          ref.recipes.save(originator.save(), params: {'update': true});
         }
       }
+
       editEnabledNotifier.value = newValue;
     }
 
@@ -100,8 +93,9 @@ class RecipeView extends HookConsumerWidget {
                   recipe.description,
                   editEnabled: editEnabled,
                   hintText: "Description",
-                  onSubmitted: (newDescription) => originator
-                      .update(recipe.copyWith(description: newDescription)),
+                  onSaved: (newDescription) => originator.update(originator
+                      .instance
+                      .copyWith(description: newDescription)),
                 ),
                 SizedBox(
                   height: 5,
@@ -184,8 +178,8 @@ class RecipeView extends HookConsumerWidget {
                   editEnabled: editEnabled,
                   hintText: "Add preparation steps...",
                   maxLines: 1000,
-                  onChanged: (text) =>
-                      originator.update(recipe.copyWith(preparation: text)),
+                  onSaved: (text) => originator
+                      .update(originator.instance.copyWith(preparation: text)),
                 ),
                 SizedBox(
                   height: 5,
@@ -208,8 +202,8 @@ class RecipeView extends HookConsumerWidget {
                   editEnabled: editEnabled,
                   hintText: "Add note...",
                   maxLines: 1000,
-                  onChanged: (text) =>
-                      originator.update(recipe.copyWith(note: text)),
+                  onSaved: (text) => originator
+                      .update(originator.instance.copyWith(note: text)),
                 ),
                 SizedBox(
                   height: 5,

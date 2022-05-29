@@ -11,7 +11,7 @@ class EditableTextField extends StatefulWidget {
   final String? prefixText;
   final TextAlign textAlign;
   final Function(String)? onChanged;
-  final Function(String)? onSubmitted;
+  final Function(String?)? onSaved;
 
   EditableTextField(
     this._text, {
@@ -24,7 +24,7 @@ class EditableTextField extends StatefulWidget {
     this.prefixText,
     this.textAlign = TextAlign.start,
     this.onChanged,
-    this.onSubmitted,
+    this.onSaved,
   });
 
   @override
@@ -32,15 +32,26 @@ class EditableTextField extends StatefulWidget {
 }
 
 class _EditableTextFieldState extends State<EditableTextField> {
-  final TextEditingController textEditingController =
-      new TextEditingController();
+  late final TextEditingController textEditingController;
+
+  @override
+  void initState() {
+    textEditingController = new TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     if (widget._text != null) {
       textEditingController.text = widget._text!;
     }
-    return TextField(
+    return TextFormField(
       controller: textEditingController,
       enabled: widget.editEnabled,
       decoration: InputDecoration(
@@ -55,7 +66,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
       maxLines: widget.maxLines,
       minLines: widget.minLines,
       onChanged: widget.onChanged,
-      onSubmitted: widget.onSubmitted,
+      onSaved: widget.onSaved,
     );
   }
 }
