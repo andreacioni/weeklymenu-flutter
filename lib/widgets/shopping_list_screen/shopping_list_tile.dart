@@ -84,49 +84,46 @@ class ShoppingListItemTile extends HookConsumerWidget {
           onDismissed: onDismiss,
           child: Column(
             children: <Widget>[
-              InkWell(
+              ListTile(
+                selected: selectedItems.contains(shoppingListItem.item),
+                contentPadding: EdgeInsets.only(right: 16),
                 onLongPress: () =>
                     toggleItemToSelectedItems(shoppingListItem.item),
                 onTap: selectedItems.isNotEmpty
                     ? () => toggleItemToSelectedItems(shoppingListItem.item)
                     : null,
-                child: ListTile(
-                  selected: selectedItems.contains(shoppingListItem.item),
-                  contentPadding: EdgeInsets.only(right: 16),
-                  leading:
-                      Container(color: supermarketSection?.color, width: 6),
-                  trailing: selectedItems.isEmpty
-                      ? Checkbox(
-                          value: shoppingListItem.checked,
-                          onChanged: _onCheckChange,
-                        )
-                      : null,
-                  title: Row(
-                    children: [
-                      Flexible(
-                        child: ItemSuggestionTextField(
-                          value: model,
-                          enabled: editable,
-                          showShoppingItemSuggestions: false,
-                          onIngredientSelected: _onIngredientSelected,
-                          onSubmitted: _getOrCreateIngredientByName,
-                          onFocusChanged: _onFocusChanged,
-                          textStyle: shoppingListItem.checked
-                              ? TextStyle(
-                                  decoration: TextDecoration.lineThrough,
-                                  color: Colors.grey)
-                              : null,
-                        ),
+                leading: Container(color: supermarketSection?.color, width: 6),
+                trailing: selectedItems.isEmpty
+                    ? Checkbox(
+                        value: shoppingListItem.checked,
+                        onChanged: _onCheckChange,
+                      )
+                    : null,
+                title: Row(
+                  children: [
+                    Flexible(
+                      child: ItemSuggestionTextField(
+                        value: model,
+                        enabled: editable,
+                        showShoppingItemSuggestions: false,
+                        onIngredientSelected: _onIngredientSelected,
+                        onSubmitted: _getOrCreateIngredientByName,
+                        onFocusChanged: _onFocusChanged,
+                        textStyle: shoppingListItem.checked
+                            ? TextStyle(
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey)
+                            : null,
                       ),
-                      if (selectedItems.isEmpty &&
-                          shopItem.value.quantity != null)
-                        Chip(
-                            label: Text(
-                          "${shopItem.value.quantity}${shopItem.value.unitOfMeasure ?? ''}",
-                          style: TextStyle(fontSize: 12),
-                        ))
-                    ],
-                  ),
+                    ),
+                    if (selectedItems.isEmpty &&
+                        shopItem.value.quantity != null)
+                      Chip(
+                          label: Text(
+                        "${shopItem.value.quantity}${shopItem.value.unitOfMeasure ?? ''}",
+                        style: TextStyle(fontSize: 12),
+                      ))
+                  ],
                 ),
               ),
               Divider(height: 0)

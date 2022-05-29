@@ -8,6 +8,9 @@ import '../../models/recipe.dart';
 import '../recipe_view/screen.dart';
 import 'screen.dart';
 
+final feedbackHorizontalOffsetProvider =
+    StateProvider.autoDispose<Offset>((_) => Offset.zero);
+
 class DraggableRecipeTile extends HookConsumerWidget {
   final MealRecipe mealRecipe;
 
@@ -24,6 +27,11 @@ class DraggableRecipeTile extends HookConsumerWidget {
             ?.contains(mealRecipe.recipe.id) ??
         false;
 
+    final selectedRecipes =
+        selectedMenuRecipesMap.values.fold<int>(0, (pv, e) => pv + e.length);
+
+    final selectionMode = selectedRecipes > 0;
+
     //Always add the current recipe the the selected recipes in case we
     // drag directly without going to selection mode.
     //The below code needs to stay there. DO NOT MOVE IT!
@@ -39,26 +47,22 @@ class DraggableRecipeTile extends HookConsumerWidget {
       }
     }
 
-    final selectedRecipes =
-        selectedMenuRecipesMap.values.fold<int>(0, (pv, e) => pv + e.length);
-
-    final selectionMode = selectedRecipes > 0;
-
     return Draggable<Map<Meal, List<String>>>(
-      feedback: Material(
-        color: Colors.transparent,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            _SelectedRecipesFeedback(selectedRecipes: selectedRecipes),
-          ],
-        ),
-      ),
-      //childWhenDragging: Container(),
+      hitTestBehavior: HitTestBehavior.translucent,
+//      affinity: Axis.vertical,
+//      axis: Axis.vertical,
+      onDragUpdate: (details) {
+        ref.read(feedbackHorizontalOffsetProvider.notifier).state =
+            details.localPosition;
+      },
+      feedback: _SelectedRecipesFeedback(
+          selectedRecipes: selectedRecipes == 0 ? 1 : selectedRecipes),
       data: selectedMenuRecipesMap,
       onDragStarted: () => {},
       onDragCompleted: () {},
-      onDragEnd: (_) {},
+      onDragEnd: (_) {
+        ref.read(feedbackHorizontalOffsetProvider.notifier).state = Offset.zero;
+      },
       onDraggableCanceled: (_, __) {},
       child: RecipeTile(
         mealRecipe,
@@ -102,24 +106,20 @@ class RecipeTile extends HookConsumerWidget {
       }
     }
 
-    final theme = Theme.of(context);
-
-    return InkWell(
+    return ListTile(
+      //enabled: true,
+      selected: selected,
+      leading: selectionMode ? Icon(Icons.drag_handle) : null,
+      title: Text(mealRecipe.recipe.name),
       onTap: () => selectionMode
           ? _handleRecipeCheckChange(ref, mealRecipe, !selected)
           : _openRecipeView(mealRecipe.recipe),
       onLongPress: () => _handleRecipeCheckChange(ref, mealRecipe, !selected),
-      child: ListTile(
-        enabled: true,
-        selected: selected,
-        leading: selectionMode ? Icon(Icons.drag_handle) : null,
-        title: Text(mealRecipe.recipe.name),
-      ),
     );
   }
 }
 
-class _SelectedRecipesFeedback extends StatelessWidget {
+class _SelectedRecipesFeedback extends HookConsumerWidget {
   const _SelectedRecipesFeedback({
     Key? key,
     required this.selectedRecipes,
@@ -128,18 +128,30 @@ class _SelectedRecipesFeedback extends StatelessWidget {
   final int selectedRecipes;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return Container(
-      width: 30,
-      height: 30,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 2),
-          color: theme.primaryColor,
-          shape: BoxShape.circle),
-      child: Text("$selectedRecipes"),
+    final feedbackHorizontalOffset =
+        ref.watch(feedbackHorizontalOffsetProvider);
+
+    print(feedbackHorizontalOffset);
+
+    return Padding(
+      padding: EdgeInsets.only(
+          left: feedbackHorizontalOffset.dx - 15,
+          bottom: feedbackHorizontalOffset.dy - 15),
+      child: Material(
+        child: Container(
+          width: 30,
+          height: 30,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 2),
+              color: theme.primaryColor,
+              shape: BoxShape.circle),
+          child: Text("$selectedRecipes"),
+        ),
+      ),
     );
   }
 }

@@ -159,7 +159,7 @@ class _MenuEditorAppBar extends HookConsumerWidget
     final menuRecipeSelection = ref.watch(menuRecipeSelectionProvider);
     final dailyMenu = useStateNotifier(dailyMenuNotifier);
 
-    final primaryColor = Theme.of(context).primaryColor.withOpacity(0.4);
+    final primaryColor = Theme.of(context).primaryColor.withOpacity(0.7);
 
     void _handleDeleteRecipes() {
       menuRecipeSelection.forEach(
@@ -210,18 +210,25 @@ class _MenuEditorAppBar extends HookConsumerWidget
             onPressed: () {},
           ),
         if (menuRecipeSelection.length > 0) ...[
-          Chip(
-            backgroundColor: primaryColor,
-            label: Text(menuRecipeSelection.length.toString()),
-            deleteIcon: Icon(
-              Icons.delete,
-              size: 18,
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
-            onDeleted: _handleDeleteRecipes,
+            child: Chip(
+              backgroundColor: primaryColor,
+              onDeleted: _handleDeleteRecipes,
+              label: Text(
+                menuRecipeSelection.length.toString(),
+                style: TextStyle(color: Colors.black),
+              ),
+              deleteIcon: Icon(Icons.delete, size: 18),
+              deleteIconColor: Colors.black,
+            ),
           ),
-          SizedBox(
-            width: 15,
-          )
+          SizedBox(width: 15)
         ]
       ],
     );
