@@ -8,9 +8,6 @@ import '../../models/recipe.dart';
 import '../recipe_view/screen.dart';
 import 'screen.dart';
 
-final feedbackHorizontalOffsetProvider =
-    StateProvider.autoDispose<Offset>((_) => Offset.zero);
-
 class DraggableRecipeTile extends HookConsumerWidget {
   final MealRecipe mealRecipe;
 
@@ -48,22 +45,10 @@ class DraggableRecipeTile extends HookConsumerWidget {
     }
 
     return Draggable<Map<Meal, List<String>>>(
-      hitTestBehavior: HitTestBehavior.translucent,
-//      affinity: Axis.vertical,
-//      axis: Axis.vertical,
-      onDragUpdate: (details) {
-        ref.read(feedbackHorizontalOffsetProvider.notifier).state =
-            details.localPosition;
-      },
+      dragAnchorStrategy: pointerDragAnchorStrategy,
       feedback: _SelectedRecipesFeedback(
           selectedRecipes: selectedRecipes == 0 ? 1 : selectedRecipes),
       data: selectedMenuRecipesMap,
-      onDragStarted: () => {},
-      onDragCompleted: () {},
-      onDragEnd: (_) {
-        ref.read(feedbackHorizontalOffsetProvider.notifier).state = Offset.zero;
-      },
-      onDraggableCanceled: (_, __) {},
       child: RecipeTile(
         mealRecipe,
         selected: isSelected,
@@ -131,26 +116,16 @@ class _SelectedRecipesFeedback extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    final feedbackHorizontalOffset =
-        ref.watch(feedbackHorizontalOffsetProvider);
-
-    print(feedbackHorizontalOffset);
-
-    return Padding(
-      padding: EdgeInsets.only(
-          left: feedbackHorizontalOffset.dx - 15,
-          bottom: feedbackHorizontalOffset.dy - 15),
-      child: Material(
-        child: Container(
-          width: 30,
-          height: 30,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 2),
-              color: theme.primaryColor,
-              shape: BoxShape.circle),
-          child: Text("$selectedRecipes"),
+    return Material(
+      color: Colors.transparent,
+      child: Chip(
+        backgroundColor: theme.primaryColor,
+        label: Text("$selectedRecipes"),
+        deleteIcon: Icon(
+          Icons.restaurant_menu,
+          size: 17,
         ),
+        onDeleted: () {},
       ),
     );
   }

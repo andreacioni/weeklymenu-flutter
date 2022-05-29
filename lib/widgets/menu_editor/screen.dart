@@ -156,13 +156,16 @@ class _MenuEditorAppBar extends HookConsumerWidget
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final menuRecipeSelection = ref.watch(menuRecipeSelectionProvider);
+    final selectedMenuRecipesMap = ref.watch(menuRecipeSelectionProvider);
     final dailyMenu = useStateNotifier(dailyMenuNotifier);
 
     final primaryColor = Theme.of(context).primaryColor.withOpacity(0.7);
 
+    final selectedRecipes =
+        selectedMenuRecipesMap.values.fold<int>(0, (pv, e) => pv + e.length);
+
     void _handleDeleteRecipes() {
-      menuRecipeSelection.forEach(
+      selectedMenuRecipesMap.forEach(
         (meal, recipesId) {
           if (recipesId.isNotEmpty) {
             final menu = dailyMenuNotifier.state.getMenuByMeal(meal);
@@ -209,7 +212,7 @@ class _MenuEditorAppBar extends HookConsumerWidget
             icon: Icon(Icons.archive),
             onPressed: () {},
           ),
-        if (menuRecipeSelection.length > 0) ...[
+        if (selectedRecipes > 0) ...[
           Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             padding: EdgeInsets.symmetric(horizontal: 4),
@@ -221,7 +224,7 @@ class _MenuEditorAppBar extends HookConsumerWidget
               backgroundColor: primaryColor,
               onDeleted: _handleDeleteRecipes,
               label: Text(
-                menuRecipeSelection.length.toString(),
+                selectedRecipes.toString(),
                 style: TextStyle(color: Colors.black),
               ),
               deleteIcon: Icon(Icons.delete, size: 18),
