@@ -257,7 +257,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
 }
 
 extension $RecipeCopyWith on Recipe {
-  /// Returns a callable class that can be used as follows: `instanceOfclass Recipe extends BaseModel<Recipe>.name.copyWith(...)` or like so:`instanceOfclass Recipe extends BaseModel<Recipe>.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfRecipe.copyWith(...)` or like so:`instanceOfRecipe.copyWith.fieldName(...)`.
   _$RecipeCWProxy get copyWith => _$RecipeCWProxyImpl(this);
 }
 

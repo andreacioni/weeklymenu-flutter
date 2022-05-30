@@ -85,7 +85,7 @@ class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
 }
 
 extension $IngredientCopyWith on Ingredient {
-  /// Returns a callable class that can be used as follows: `instanceOfclass Ingredient extends BaseModel<Ingredient>.name.copyWith(...)` or like so:`instanceOfclass Ingredient extends BaseModel<Ingredient>.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfIngredient.copyWith(...)` or like so:`instanceOfIngredient.copyWith.fieldName(...)`.
   _$IngredientCWProxy get copyWith => _$IngredientCWProxyImpl(this);
 }
 

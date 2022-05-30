@@ -111,7 +111,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
 }
 
 extension $UserPreferenceCopyWith on UserPreference {
-  /// Returns a callable class that can be used as follows: `instanceOfclass UserPreference extends BaseModel<UserPreference>.name.copyWith(...)` or like so:`instanceOfclass UserPreference extends BaseModel<UserPreference>.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfUserPreference.copyWith(...)` or like so:`instanceOfUserPreference.copyWith.fieldName(...)`.
   _$UserPreferenceCWProxy get copyWith => _$UserPreferenceCWProxyImpl(this);
 }
 

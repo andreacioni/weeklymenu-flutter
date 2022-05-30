@@ -96,7 +96,7 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
 }
 
 extension $ShoppingListCopyWith on ShoppingList {
-  /// Returns a callable class that can be used as follows: `instanceOfclass ShoppingList extends BaseModel<ShoppingList>.name.copyWith(...)` or like so:`instanceOfclass ShoppingList extends BaseModel<ShoppingList>.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfShoppingList.copyWith(...)` or like so:`instanceOfShoppingList.copyWith.fieldName(...)`.
   _$ShoppingListCWProxy get copyWith => _$ShoppingListCWProxyImpl(this);
 }
 
@@ -203,7 +203,7 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
 }
 
 extension $ShoppingListItemCopyWith on ShoppingListItem {
-  /// Returns a callable class that can be used as follows: `instanceOfclass ShoppingListItem with ChangeNotifier.name.copyWith(...)` or like so:`instanceOfclass ShoppingListItem with ChangeNotifier.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfShoppingListItem.copyWith(...)` or like so:`instanceOfShoppingListItem.copyWith.fieldName(...)`.
   _$ShoppingListItemCWProxy get copyWith => _$ShoppingListItemCWProxyImpl(this);
 }
 

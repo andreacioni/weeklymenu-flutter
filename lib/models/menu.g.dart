@@ -107,7 +107,7 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
 }
 
 extension $MenuCopyWith on Menu {
-  /// Returns a callable class that can be used as follows: `instanceOfclass Menu extends BaseModel<Menu>.name.copyWith(...)` or like so:`instanceOfclass Menu extends BaseModel<Menu>.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfMenu.copyWith(...)` or like so:`instanceOfMenu.copyWith.fieldName(...)`.
   _$MenuCWProxy get copyWith => _$MenuCWProxyImpl(this);
 }
 
@@ -166,7 +166,7 @@ class _$DailyMenuCWProxyImpl implements _$DailyMenuCWProxy {
 }
 
 extension $DailyMenuCopyWith on DailyMenu {
-  /// Returns a callable class that can be used as follows: `instanceOfclass DailyMenu.name.copyWith(...)` or like so:`instanceOfclass DailyMenu.name.copyWith.fieldName(...)`.
+  /// Returns a callable class that can be used as follows: `instanceOfDailyMenu.copyWith(...)` or like so:`instanceOfDailyMenu.copyWith.fieldName(...)`.
   _$DailyMenuCWProxy get copyWith => _$DailyMenuCWProxyImpl(this);
 }
 
