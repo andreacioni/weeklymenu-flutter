@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/recipe.dart';
@@ -67,8 +68,8 @@ class RecipeAppBar extends StatelessWidget {
         background: _recipe.instance.imgUrl != null
             ? Hero(
                 tag: heroTag,
-                child: Image.network(
-                  _recipe.instance.imgUrl!,
+                child: Image(
+                  image: CachedNetworkImageProvider(_recipe.instance.imgUrl!),
                   fit: BoxFit.fitWidth,
                 ),
               )

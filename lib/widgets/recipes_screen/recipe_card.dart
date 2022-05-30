@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
@@ -89,7 +90,7 @@ class RecipeCard extends ConsumerWidget {
   DecorationImage _buildImageProvider(String? imgUrl) {
     if (imgUrl != null) {
       return DecorationImage(
-        image: NetworkImage(
+        image: CachedNetworkImageProvider(
           imgUrl,
         ),
         fit: BoxFit.cover,
