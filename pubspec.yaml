@@ -22,6 +22,7 @@ dependencies:
   flutter:
     sdk: flutter
   
+  google_fonts: ^3.0.1
   ffi: ^1.0.0
   dio: ^4.0.0
   flutter_tags: 
@@ -47,7 +48,7 @@ dependencies:
   copy_with_extension: ^4.0.0
   equatable: ^2.0.3
   flutter_colorpicker: ^1.0.3
-  sliding_up_panel: ^2.0.0+1
+  #sliding_up_panel: ^2.0.0+1
   cached_network_image: ^3.2.0
   
   # The following adds the Cupertino Icons font to your application.
@@ -91,25 +92,9 @@ flutter:
   # example
 
   fonts:
-    - family: Rubik
-      fonts:
-        - asset: assets/fonts/Rubik-Regular.ttf
-        - asset: assets/fonts/Rubik-Italic.ttf
-          style: italic
-        - asset: assets/fonts/Rubik-Bold.ttf
-          weight: 700
     - family:  CustomIcons
       fonts:
         - asset: assets/fonts/CustomIcons.ttf
-    - family: Pacifico
-      fonts:
-          - asset: assets/fonts/Pacifico.ttf
-    - family: ChunckFive
-      fonts:
-          - asset: assets/fonts/ChunkFive-Regular.otf
-    - family: Milkshake
-      fonts:
-        - asset: assets/fonts/Milkshake.otf
 
   #   - family: Trajan Pro
   #     fonts:

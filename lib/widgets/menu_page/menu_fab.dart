@@ -6,17 +6,10 @@ import 'package:weekly_menu_app/widgets/menu_page/menu_app_bar.dart';
 import './date_range_picker.dart';
 
 class MenuFloatingActionButton extends StatefulWidget {
-  final MenuAppBar _menuAppBar;
-  final ScrollController _scrollController;
-  final double _itemExtent;
-
-  final Date _day;
+  final Date day;
 
   const MenuFloatingActionButton(
-    this._day,
-    this._menuAppBar,
-    this._scrollController,
-    this._itemExtent, {
+    this.day, {
     Key? key,
   }) : super(key: key);
 
@@ -30,9 +23,7 @@ class _MenuFloatingActionButtonState extends State<MenuFloatingActionButton> {
 
   @override
   void initState() {
-    day = widget._day;
-
-    widget._menuAppBar.addListener(_onDayChanged);
+    day = widget.day;
 
     super.initState();
   }
@@ -40,8 +31,7 @@ class _MenuFloatingActionButtonState extends State<MenuFloatingActionButton> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () =>
-          day.isToday ? _showDateRangePicker(context) : _goToToday(),
+      onPressed: () => _showDateRangePicker(context),
       child: day.isToday
           ? Icon(Icons.lightbulb_outline)
           : Icon(Icons.today_outlined),
@@ -106,20 +96,4 @@ class _MenuFloatingActionButtonState extends State<MenuFloatingActionButton> {
       ),
     );
   }
-
-  void _goToToday() {
-    final today = Date.now();
-
-    setState(() {
-      var oldPageIndex = widget._scrollController.offset ~/ widget._itemExtent;
-      if (today != day) {
-        var newPageIndex = oldPageIndex + today.difference(day).inDays;
-        widget._scrollController
-            .jumpTo(newPageIndex.toDouble() * widget._itemExtent);
-      }
-      day = today;
-    });
-  }
-
-  void _onDayChanged(Date date) => setState(() => day = date);
 }
