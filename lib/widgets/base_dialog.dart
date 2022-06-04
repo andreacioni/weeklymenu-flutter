@@ -1,34 +1,50 @@
 import 'package:flutter/material.dart';
 
 class BaseDialog<T> extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final List<Widget> children;
+
+  BaseDialog({required this.children, required this.title, this.subtitle});
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SimpleDialog(
-      titlePadding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-      contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      titlePadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+      insetPadding: EdgeInsets.zero,
       title: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Title',
+              title,
               style: theme.dialogTheme.titleTextStyle,
             ),
-            Text('Subtitle',
+            if (subtitle != null) ...[
+              SizedBox(height: 3),
+              Text(
+                subtitle!,
                 style: theme.dialogTheme.titleTextStyle!.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.normal,
-                    color: Colors.black54)),
-            Divider()
+                    color: Colors.black54),
+              ),
+            ],
+            SizedBox(height: 5),
+            Divider(height: 1)
           ]),
       children: [
+        ...children,
         Divider(),
         Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            TextButton(onPressed: () {}, child: Text('CANCEL')),
+            TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('CANCEL')),
             SizedBox(width: 10),
             ElevatedButton(onPressed: () {}, child: Text('OK'))
           ],

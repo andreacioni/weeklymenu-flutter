@@ -60,6 +60,14 @@ class App extends StatelessWidget {
                 states.contains(MaterialState.selected) ? Colors.amber : null),
           ),
 
+          radioTheme: RadioThemeData(
+              fillColor: MaterialStateColor.resolveWith((states) {
+            if (states.contains(MaterialState.selected))
+              return Colors.amber;
+            else
+              return Colors.black;
+          })),
+
           dialogTheme: DialogTheme(
             titleTextStyle: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),

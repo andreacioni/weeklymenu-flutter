@@ -61,53 +61,10 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   }
 
   Widget _buildListItem(BuildContext context, int index) {
-    final day = Date.now().add(Duration(days: index - pageViewLimitDays ~/ 2));
+    final day =
+        Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
 
-    final theme = Theme.of(context);
-
-    return DailyMenuFutureWrapper(day);
-    /* return SliverAppBar(
-      toolbarHeight: 50,
-      title: Padding(
-        padding: const EdgeInsets.only(left: 3),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            RichText(
-              text: TextSpan(
-                text: day.format(_appBarDateParser) + ' ',
-                style: theme.textTheme.subtitle1!.copyWith(color: Colors.black),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: day.format(_appBarMonthParser),
-                    style: theme.textTheme.subtitle1!
-                        .copyWith(color: Colors.black38),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: Container(
-                height: 3,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(3),
-                    color: theme.primaryColor.withOpacity(0.8)),
-              ),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Colors.white,
-      centerTitle: false,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: Icon(Icons.add),
-        )
-      ],
-    ); */
+    return DailyMenuFutureWrapper(day, key: GlobalKey());
   }
 
   @override
@@ -126,21 +83,21 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
 class DailyMenuFutureWrapper extends HookConsumerWidget {
   static final _httpParamDateParser = DateFormat('y-MM-dd');
 
-  final Date _day;
+  final Date day;
 
-  DailyMenuFutureWrapper(this._day);
+  DailyMenuFutureWrapper(this.day, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FlutterDataStateBuilder<List<Menu>>(
       state: ref.menus.watchAll(
-        params: {'day': _day.format(_httpParamDateParser)},
+        params: {'day': day.format(_httpParamDateParser)},
       ),
       builder: (context, model) {
-        final filtered = model.where((m) => m.date == _day).toList();
-        final dailyMenu = DailyMenu(day: _day, menus: filtered);
+        final filtered = model.where((m) => m.date == day).toList();
+        final dailyMenu = DailyMenu(day: day, menus: filtered);
 
-        return _buildMenuCard(context, ref, _day, dailyMenu);
+        return _buildMenuCard(context, ref, day, dailyMenu);
       },
     );
   }

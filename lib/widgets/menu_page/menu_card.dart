@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/globals/hooks.dart';
-import 'package:weekly_menu_app/widgets/base_dialog.dart';
 
 import '../../homepage.dart';
 import '../../main.data.dart';
@@ -19,11 +18,13 @@ import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../menu_editor/screen.dart';
+import 'add_recipe_dialog.dart';
 
 const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
 
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends HookConsumerWidget {
+  static final _dialogDateParser = DateFormat('EEEE, dd');
   static final _appBarDateParser = DateFormat('EEE,dd');
   static final _appBarMonthParser = DateFormat('MMM');
 
@@ -58,7 +59,11 @@ class MenuCard extends HookConsumerWidget {
 
     void _openAddRecipeToDailyMenuDialog() async {
       final Recipe recipe = await showDialog(
-          context: context, builder: (context) => BaseDialog<Recipe>());
+          context: context,
+          builder: (context) => RecipeSelectionDialog(
+              title: _dialogDateParser.format(dailyMenu.day.toDateTime)));
+
+      print(recipe);
     }
 
     return Theme(
@@ -127,137 +132,6 @@ class MenuCard extends HookConsumerWidget {
         ],
       ),
     );
-    /* InkWell(
-      borderRadius: BorderRadius.circular(10),
-      splashColor: primaryColor.withOpacity(0.6),
-      onTap: onTap,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Column(children: <Widget>[
-          //HEADER
-          Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              color: primaryColor,
-            ),
-            child: SizedBox(
-              height: rowExtend,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    dailyMenu.day.format(_dateParser),
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  if (dailyMenu.isToday)
-                    Container(
-                      child: Text('TODAY'),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.green,
-                      ),
-                      padding: EdgeInsets.all(5),
-                    ),
-                  if (dailyMenu.isPast)
-                    Icon(
-                      Icons.archive,
-                      color: Colors.black,
-                    ),
-                ],
-              ),
-            ),
-          ),
-          divider,
-          //BREAKFAST
-          Container(
-            padding: padding,
-            color: primaryColor.withOpacity(0.1),
-            child: SizedBox(
-              height: rowExtend,
-              child: Row(
-                children: <Widget>[
-                  Icon(Meal.Dinner.icon, color: primaryColor.withOpacity(0.5)),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    Meal.Breakfast.value!,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.black45),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  _recipesRow(Meal.Breakfast),
-                ],
-              ),
-            ),
-          ),
-          divider,
-          //Lunch
-          Container(
-            padding: padding,
-            color: primaryColor.withOpacity(0.1),
-            child: SizedBox(
-              height: rowExtend,
-              child: Row(
-                children: <Widget>[
-                  Icon(Meal.Lunch.icon, color: primaryColor.withOpacity(0.5)),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    Meal.Lunch.value!,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.black45),
-                  ),
-                  SizedBox(
-                    width: 30,
-                  ),
-                  _recipesRow(Meal.Lunch),
-                ],
-              ),
-            ),
-          ),
-          divider,
-          //DINNER
-          Container(
-            padding: padding,
-            color: primaryColor.withOpacity(0.1),
-            child: SizedBox(
-              height: rowExtend,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  Icon(Meal.Dinner.icon, color: primaryColor.withOpacity(0.5)),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    Meal.Dinner.value!,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.black45),
-                  ),
-                  SizedBox(
-                    width: 28,
-                  ),
-                  _recipesRow(Meal.Dinner),
-                ],
-              ),
-            ),
-          ),
-        ]),
-      ),
-    ); */
   }
 }
 

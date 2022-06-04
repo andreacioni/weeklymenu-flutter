@@ -11,7 +11,6 @@ import '../recipe_view/screen.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
 import './recipe_tile.dart';
-import './recipe_suggestion_text_field.dart';
 
 class MenuEditorScrollView extends StatefulHookConsumerWidget {
   final DailyMenuNotifier _dailyMenuNotifier;
@@ -242,24 +241,6 @@ class _MenuEditorScrollViewState extends ConsumerState<MenuEditorScrollView> {
         SliverList(
           delegate: SliverChildListDelegate.fixed(
             <Widget>[
-              if (_addRecipeMealTarget == meal)
-                RecipeSuggestionTextField(
-                  meal,
-                  dailyMenu: dailyMenu,
-                  autofocus: true,
-                  enabled: true,
-                  hintText: 'Recipe',
-                  showSuggestions: true,
-                  onFocusChanged: (hasFocus) {
-                    if (hasFocus == false) {
-                      _stopMealEditing(dailyMenu);
-                    }
-                  },
-                  onRecipeSelected: (recipe) =>
-                      _handleAddRecipe(meal, recipe, menuRepository),
-                  onSubmitted: (recipeName) => _createNewRecipeByName(
-                      meal, recipeName, recipeRepository, menuRepository),
-                ),
               if (menu != null && menu.recipes.isNotEmpty)
                 ...menu.recipes
                     .map((id) =>
