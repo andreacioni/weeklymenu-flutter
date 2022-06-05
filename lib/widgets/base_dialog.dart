@@ -3,9 +3,16 @@ import 'package:flutter/material.dart';
 class BaseDialog<T> extends StatelessWidget {
   final String title;
   final String? subtitle;
+  final void Function()? onDoneTap;
+  final String doneButtonText;
   final List<Widget> children;
 
-  BaseDialog({required this.children, required this.title, this.subtitle});
+  BaseDialog(
+      {required this.children,
+      required this.title,
+      this.subtitle,
+      this.doneButtonText = 'OK',
+      this.onDoneTap});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +53,7 @@ class BaseDialog<T> extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text('CANCEL')),
             SizedBox(width: 10),
-            ElevatedButton(onPressed: () {}, child: Text('OK'))
+            ElevatedButton(onPressed: onDoneTap, child: Text(doneButtonText))
           ],
         )
       ],

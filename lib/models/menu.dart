@@ -165,6 +165,8 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
       }
     }
   }
+
+  DailyMenu get dailyMenu => state;
 }
 
 @CopyWith()

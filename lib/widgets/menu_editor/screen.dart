@@ -14,7 +14,7 @@ import '../../globals/errors_handlers.dart';
 import '../../models/enums/meal.dart';
 import '../../models/menu.dart';
 import '../../models/recipe.dart';
-import '../menu_page/menu_card.dart';
+import '../menu_page/daily_menu_section.dart';
 import './scroll_view.dart';
 import '../../globals/hooks.dart';
 

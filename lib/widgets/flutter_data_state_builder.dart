@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/models/base_model.dart';
 
 import 'login_screen/screen.dart';
 
@@ -10,6 +11,7 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
   final Future<void> Function()? onRefresh;
   final Widget? notFound;
   final Widget loading;
+  final Widget error;
   final Widget Function(BuildContext context, T model) builder;
 
   FlutterDataStateBuilder(
@@ -17,16 +19,14 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
       required this.builder,
       this.notFound,
       this.onRefresh,
-      this.loading = const Center(child: CircularProgressIndicator())});
+      Widget? error,
+      this.loading = const Center(child: CircularProgressIndicator())})
+      : this.error = error ?? Text('error');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Builder(
       builder: (context) {
-        if (state.isLoading && !state.hasModel) {
-          return loading;
-        }
-
         if (state.hasException) {
           final ex = state.exception;
           if ((ex is DataException && ex.statusCode == 403) ||
@@ -34,6 +34,12 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
             Future.delayed(Duration.zero, () => goToLoginPage(context));
             return loading;
           }
+
+          return error;
+        }
+
+        if (state.isLoading && !state.hasModel) {
+          return loading;
         }
 
         final emptyModel = state.model == null ||
@@ -42,6 +48,11 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
         final baseWidget = emptyModel && notFound != null
             ? notFound!
             : builder(context, state.model!);
+
+        var id;
+        if (!(state.model is List)) {
+          id = (state.model as BaseModel).id;
+        }
 
         return onRefresh != null
             ? RefreshIndicator(

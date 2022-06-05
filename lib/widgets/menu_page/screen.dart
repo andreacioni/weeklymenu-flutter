@@ -10,11 +10,11 @@ import '../../models/date.dart';
 import '../../models/menu.dart';
 import '../../widgets/flutter_data_state_builder.dart';
 import '../../widgets/menu_editor/screen.dart';
-import '../../widgets/menu_page/menu_card.dart';
+import 'daily_menu_section.dart';
 import 'menu_app_bar.dart';
 import 'menu_fab.dart';
 import '../../globals/constants.dart';
-import './menu_card.dart';
+import 'daily_menu_section.dart';
 
 class MenuScreen extends StatefulHookConsumerWidget {
   const MenuScreen({Key? key}) : super(key: key);
@@ -105,7 +105,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
   Widget _buildMenuCard(
       BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
     return MenuCard(
-      dailyMenu,
+      DailyMenuNotifier(dailyMenu),
       onTap: () {
         /*  ref
             .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)
