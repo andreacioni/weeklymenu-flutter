@@ -195,108 +195,12 @@ class MealRecipeCardContainer extends StatelessWidget {
           color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
         ),
         SizedBox(width: 15),
-        Expanded(child: MenuRecipeCard(recipeId))
+        Expanded(
+            child: MenuRecipeWrapper(
+          recipeId,
+          meal: meal,
+        ))
       ],
-    );
-  }
-}
-
-class MenuRecipeCard extends ConsumerWidget {
-  final String recipeId;
-
-  MenuRecipeCard(this.recipeId, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final borderRadius = BorderRadius.circular(10);
-
-    void openRecipeView(Recipe recipe) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => RecipeView(recipe),
-        ),
-      );
-    }
-
-    return FlutterDataStateBuilder<Recipe>(
-        state: ref.recipes.watchOne(recipeId),
-        builder: (context, recipe) {
-          return Card(
-            shape: RoundedRectangleBorder(borderRadius: borderRadius),
-            elevation: 3,
-            child: InkWell(
-              borderRadius: borderRadius,
-              highlightColor: theme.primaryColor.withOpacity(0.4),
-              splashColor: theme.primaryColor.withOpacity(0.6),
-              onTap: () => openRecipeView(recipe),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buildImageAndTitle(recipe, borderRadius, theme),
-                  buildInfoAndDragSection(theme)
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  Widget buildInfoAndDragSection(ThemeData theme) {
-    return Flexible(
-      flex: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Icon(
-              Icons.drag_indicator,
-              color: Colors.black38,
-              size: theme.iconTheme.size! - 1,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildImageAndTitle(
-      Recipe recipe, BorderRadius borderRadius, ThemeData theme) {
-    return Flexible(
-      flex: 5,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          if (recipe.imgUrl != null)
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                  borderRadius: borderRadius.copyWith(
-                      topRight: Radius.circular(5),
-                      bottomRight: Radius.circular(5))),
-              child: Image(
-                  height: 50,
-                  width: 90,
-                  image: CachedNetworkImageProvider(recipe.imgUrl!),
-                  errorBuilder: (_, __, ___) => Container(),
-                  fit: BoxFit.cover),
-            ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              child: AutoSizeText(
-                recipe.name,
-                maxLines: 1,
-                style: theme.textTheme.titleMedium!
-                    .copyWith(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -319,17 +223,14 @@ class MenuContainer extends HookConsumerWidget {
 
     return Padding(
       padding: padding,
-      child: DragTarget<Map<Meal, List<String>>>(onWillAccept: (mealRecipe) {
+      child: DragTarget<MealRecipe>(onWillAccept: (_) {
         print('on will accept');
         return true;
-      }, onAccept: (mealRecipeMap) async {
+      }, onAccept: (mealRecipe) async {
         print('onAccept - $meal');
         ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
 
-        final recipeIds = mealRecipeMap.values
-            .fold<List<String>>(<String>[], (pv, e) => pv..addAll(e));
-
-        if (recipeIds.isEmpty) return;
+        final recipeIds = [mealRecipe.recipe.id];
 
         final destinationMenu = dailyMenu.getMenuByMeal(meal);
         if (destinationMenu == null) {
@@ -346,9 +247,7 @@ class MenuContainer extends HookConsumerWidget {
           ]).was(destinationMenu));
         }
 
-        mealRecipeMap.forEach((meal, recipes) {
-          //originDailyMenuNotifier?.removeRecipesFromMeal(meal, recipes);
-        });
+        originDailyMenuNotifier?.removeRecipesFromMeal(meal, recipes);
       }, builder: (context, _, __) {
         final recipeIds = menu!.recipes;
         if (recipeIds.isEmpty) return Container();
@@ -365,6 +264,139 @@ class MenuContainer extends HookConsumerWidget {
           ],
         );
       }),
+    );
+  }
+}
+
+class MenuRecipeWrapper extends HookConsumerWidget {
+  final String recipeId;
+  final Meal meal;
+
+  MenuRecipeWrapper(this.recipeId, {required this.meal, Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FlutterDataStateBuilder<Recipe>(
+        state: ref.recipes.watchOne(recipeId),
+        builder: (context, recipe) {
+          return MenuRecipeCard(recipe, meal: meal);
+        });
+  }
+}
+
+class MenuRecipeCard extends ConsumerWidget {
+  final Meal meal;
+  final Recipe recipe;
+
+  MenuRecipeCard(this.recipe, {Key? key, required this.meal}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+    final borderRadius = BorderRadius.circular(10);
+
+    void openRecipeView(Recipe recipe) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => RecipeView(recipe),
+        ),
+      );
+    }
+
+    Widget buildDraggableFeedback(MediaQueryData mediaQuery) {
+      return Container(
+          decoration: BoxDecoration(borderRadius: borderRadius),
+          child: MenuRecipeCard(recipe, meal: meal),
+          width: mediaQuery.size.width);
+    }
+
+    Widget buildInfoAndDragSection(ThemeData theme, MediaQueryData mediaQuery) {
+      return Flexible(
+        flex: 1,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Draggable<MealRecipe>(
+                data: MealRecipe(meal, recipe),
+                dragAnchorStrategy: (_, __, ___) {
+                  //print(position);
+                  //TODO improve
+                  return Offset(mediaQuery.size.width - 23, 0);
+                },
+                feedback: buildDraggableFeedback(mediaQuery),
+                axis: Axis.vertical,
+                affinity: Axis.vertical,
+                child: Icon(
+                  Icons.drag_indicator,
+                  color: Colors.black38,
+                  size: theme.iconTheme.size! - 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildImageAndTitle(
+        Recipe recipe, BorderRadius borderRadius, ThemeData theme) {
+      return Flexible(
+        flex: 5,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            if (recipe.imgUrl != null)
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                    borderRadius: borderRadius.copyWith(
+                        topRight: Radius.circular(5),
+                        bottomRight: Radius.circular(5))),
+                child: Image(
+                    height: 50,
+                    width: 90,
+                    image: CachedNetworkImageProvider(recipe.imgUrl!),
+                    errorBuilder: (_, __, ___) => Container(),
+                    fit: BoxFit.cover),
+              ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: AutoSizeText(
+                  recipe.name,
+                  maxLines: 1,
+                  style: theme.textTheme.titleMedium!
+                      .copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      elevation: 3,
+      child: InkWell(
+        borderRadius: borderRadius,
+        highlightColor: theme.primaryColor.withOpacity(0.4),
+        splashColor: theme.primaryColor.withOpacity(0.6),
+        onTap: () => openRecipeView(recipe),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            buildImageAndTitle(recipe, borderRadius, theme),
+            buildInfoAndDragSection(theme, mediaQuery)
+          ],
+        ),
+      ),
     );
   }
 }
