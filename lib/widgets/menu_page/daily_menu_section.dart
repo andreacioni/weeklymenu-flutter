@@ -227,6 +227,8 @@ class MenuContainer extends HookConsumerWidget {
     if (menu == null) return Container();
 
     final meal = menu!.meal;
+    final orignalDailyMenuNotifer =
+        ref.watch(dragOriginDailyMenuNotifierProvider);
 
     return Padding(
       padding: padding,
@@ -253,9 +255,8 @@ class MenuContainer extends HookConsumerWidget {
           ]).was(destinationMenu));
         }
 
-        ref
-            .read(dragOriginDailyMenuNotifierProvider)
-            ?.removeRecipesFromMeal(meal, recipeIds);
+        orignalDailyMenuNotifer?.removeRecipesFromMeal(
+            mealRecipe.meal, recipeIds);
 
         ref.read(dragOriginDailyMenuNotifierProvider.notifier).state = null;
       }, builder: (context, _, __) {
@@ -306,9 +307,15 @@ class MenuRecipeCard extends ConsumerWidget {
   final Meal meal;
   final DailyMenuNotifier dailyMenuNotifier;
 
-  MenuRecipeCard(this.recipe,
-      {Key? key, required this.dailyMenuNotifier, required this.meal})
-      : super(key: key);
+  final bool? disabled;
+
+  MenuRecipeCard(
+    this.recipe, {
+    Key? key,
+    required this.dailyMenuNotifier,
+    required this.meal,
+    this.disabled = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,6 +356,7 @@ class MenuRecipeCard extends ConsumerWidget {
                   return Offset(mediaQuery.size.width - 23, 0);
                 },
                 feedback: buildDraggableFeedback(mediaQuery),
+                childWhenDragging: buildChildWhenDragging(mediaQuery),
                 onDragStarted: () => ref
                     .read(dragOriginDailyMenuNotifierProvider.notifier)
                     .state = dailyMenuNotifier,
@@ -404,6 +412,7 @@ class MenuRecipeCard extends ConsumerWidget {
     }
 
     return Card(
+      color: disabled == true ? Colors.grey.shade400 : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       elevation: 3,
       child: InkWell(
