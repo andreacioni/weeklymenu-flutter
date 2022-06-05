@@ -19,11 +19,13 @@ import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
-import '../menu_editor/screen.dart';
 import '../recipe_view/screen.dart';
 import 'add_recipe_dialog.dart';
 
 const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
+
+final dragOriginDailyMenuNotifierProvider =
+    StateProvider.autoDispose<DailyMenuNotifier?>((_) => null);
 
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
 class MenuCard extends HookConsumerWidget {
@@ -178,12 +180,16 @@ class MenuCard extends HookConsumerWidget {
 }
 
 class MealRecipeCardContainer extends StatelessWidget {
-  final Meal meal;
   final String recipeId;
+  final Meal meal;
+
+  final DailyMenuNotifier dailyMenuNotifier;
   final bool displayLeadingMealIcon;
 
   const MealRecipeCardContainer(this.meal, this.recipeId,
-      {Key? key, this.displayLeadingMealIcon = false})
+      {Key? key,
+      required this.dailyMenuNotifier,
+      this.displayLeadingMealIcon = false})
       : super(key: key);
 
   @override
@@ -199,6 +205,7 @@ class MealRecipeCardContainer extends StatelessWidget {
             child: MenuRecipeWrapper(
           recipeId,
           meal: meal,
+          dailyMenuNotifier: dailyMenuNotifier,
         ))
       ],
     );
@@ -227,8 +234,7 @@ class MenuContainer extends HookConsumerWidget {
         print('on will accept');
         return true;
       }, onAccept: (mealRecipe) async {
-        print('onAccept - $meal');
-        ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
+        print('onAccept - $mealRecipe');
 
         final recipeIds = [mealRecipe.recipe.id];
 
@@ -247,7 +253,11 @@ class MenuContainer extends HookConsumerWidget {
           ]).was(destinationMenu));
         }
 
-        originDailyMenuNotifier?.removeRecipesFromMeal(meal, recipes);
+        ref
+            .read(dragOriginDailyMenuNotifierProvider)
+            ?.removeRecipesFromMeal(meal, recipeIds);
+
+        ref.read(dragOriginDailyMenuNotifierProvider.notifier).state = null;
       }, builder: (context, _, __) {
         final recipeIds = menu!.recipes;
         if (recipeIds.isEmpty) return Container();
@@ -257,6 +267,7 @@ class MenuContainer extends HookConsumerWidget {
                 .map((id) => MealRecipeCardContainer(
                       meal,
                       id,
+                      dailyMenuNotifier: dailyMenuNotifier,
                       displayLeadingMealIcon: id == recipeIds[0],
                     ))
                 .toList(),
@@ -270,9 +281,12 @@ class MenuContainer extends HookConsumerWidget {
 
 class MenuRecipeWrapper extends HookConsumerWidget {
   final String recipeId;
-  final Meal meal;
 
-  MenuRecipeWrapper(this.recipeId, {required this.meal, Key? key})
+  final Meal meal;
+  final DailyMenuNotifier dailyMenuNotifier;
+
+  MenuRecipeWrapper(this.recipeId,
+      {required this.meal, required this.dailyMenuNotifier, Key? key})
       : super(key: key);
 
   @override
@@ -280,16 +294,21 @@ class MenuRecipeWrapper extends HookConsumerWidget {
     return FlutterDataStateBuilder<Recipe>(
         state: ref.recipes.watchOne(recipeId),
         builder: (context, recipe) {
-          return MenuRecipeCard(recipe, meal: meal);
+          return MenuRecipeCard(recipe,
+              meal: meal, dailyMenuNotifier: dailyMenuNotifier);
         });
   }
 }
 
 class MenuRecipeCard extends ConsumerWidget {
-  final Meal meal;
   final Recipe recipe;
 
-  MenuRecipeCard(this.recipe, {Key? key, required this.meal}) : super(key: key);
+  final Meal meal;
+  final DailyMenuNotifier dailyMenuNotifier;
+
+  MenuRecipeCard(this.recipe,
+      {Key? key, required this.dailyMenuNotifier, required this.meal})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -308,7 +327,8 @@ class MenuRecipeCard extends ConsumerWidget {
     Widget buildDraggableFeedback(MediaQueryData mediaQuery) {
       return Container(
           decoration: BoxDecoration(borderRadius: borderRadius),
-          child: MenuRecipeCard(recipe, meal: meal),
+          child: MenuRecipeCard(recipe,
+              meal: meal, dailyMenuNotifier: dailyMenuNotifier),
           width: mediaQuery.size.width);
     }
 
@@ -329,6 +349,9 @@ class MenuRecipeCard extends ConsumerWidget {
                   return Offset(mediaQuery.size.width - 23, 0);
                 },
                 feedback: buildDraggableFeedback(mediaQuery),
+                onDragStarted: () => ref
+                    .read(dragOriginDailyMenuNotifierProvider.notifier)
+                    .state = dailyMenuNotifier,
                 axis: Axis.vertical,
                 affinity: Axis.vertical,
                 child: Icon(

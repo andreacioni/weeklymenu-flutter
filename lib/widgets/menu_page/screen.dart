@@ -9,7 +9,6 @@ import '../../main.data.dart';
 import '../../models/date.dart';
 import '../../models/menu.dart';
 import '../../widgets/flutter_data_state_builder.dart';
-import '../../widgets/menu_editor/screen.dart';
 import 'daily_menu_section.dart';
 import 'menu_app_bar.dart';
 import 'menu_fab.dart';
