@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../homepage.dart';
 import '../../models/date.dart';
@@ -13,27 +14,15 @@ import 'daily_menu_section.dart';
 import 'menu_app_bar.dart';
 import 'menu_fab.dart';
 import '../../globals/constants.dart';
-import 'daily_menu_section.dart';
 
-class MenuScreen extends StatefulHookConsumerWidget {
+final isDraggingMenuStateProvider =
+    StateProvider.autoDispose<bool>((_) => false);
+
+class MenuScreen extends HookConsumerWidget {
   const MenuScreen({Key? key}) : super(key: key);
 
   @override
-  _MenuScreenState createState() => _MenuScreenState();
-}
-
-class _MenuScreenState extends ConsumerState<MenuScreen> {
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    _scrollController = new ScrollController();
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     /*
     * NOTE: we must avoid using setState in this widget to increase render 
     * performances. The AppBar and the FAB are taking to each other directly 
@@ -42,19 +31,43 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     final day = Date.now();
     final appBar = MenuAppBar(day);
 
+    final scrollController = useScrollController();
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
+
+    void onPointerMove(PointerMoveEvent ev) {
+      if (isDraggingMenu && !scrollController.position.outOfRange) {
+        final offset = screenHeight ~/ 4;
+        //final moveDistance = 3;
+        if (ev.position.dy > screenHeight - offset) {
+          final moveDistance = 3 + (7 * (ev.position.dy / screenHeight));
+          scrollController.jumpTo(scrollController.offset + moveDistance);
+        } else if (ev.position.dy < offset) {
+          final moveDistance = 3 + (7 * (ev.position.dy / offset));
+
+          scrollController.jumpTo(scrollController.offset - moveDistance);
+        }
+      }
+    }
+
     return Scaffold(
       appBar: appBar,
       floatingActionButton: MenuFloatingActionButton(day),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: CustomScrollView(
-        slivers: [
-          SliverList(
-              delegate: SliverChildBuilderDelegate(
-            (context, index) => _buildListItem(context, index),
-            childCount: pageViewLimitDays,
-          ))
-        ],
-        controller: _scrollController,
+      body: Listener(
+        onPointerMove: onPointerMove,
+        onPointerUp: (_) =>
+            ref.read(isDraggingMenuStateProvider.state).state = false,
+        child: CustomScrollView(
+          slivers: [
+            SliverList(
+                delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildListItem(context, index),
+              childCount: pageViewLimitDays,
+            ))
+          ],
+          controller: scrollController,
+        ),
       ),
     );
   }
@@ -64,12 +77,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
         Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
 
     return DailyMenuFutureWrapper(day);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 }
 

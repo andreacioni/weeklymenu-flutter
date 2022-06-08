@@ -23,10 +23,11 @@ import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../recipe_view/screen.dart';
 import 'add_recipe_dialog.dart';
+import 'screen.dart';
 
 const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
 
-final dragOriginDailyMenuNotifierProvider =
+final _dragOriginDailyMenuNotifierProvider =
     StateProvider.autoDispose<DailyMenuNotifier?>((_) => null);
 
 //TODO dynamic Meal label (don't want to write new code for every new Meal)
@@ -230,7 +231,7 @@ class MenuContainer extends HookConsumerWidget {
 
     final meal = menu!.meal;
     final originalDailyMenuNotifier =
-        ref.watch(dragOriginDailyMenuNotifierProvider);
+        ref.watch(_dragOriginDailyMenuNotifierProvider);
 
     return Padding(
       padding: padding,
@@ -263,7 +264,7 @@ class MenuContainer extends HookConsumerWidget {
         originalDailyMenuNotifier?.removeRecipesFromMeal(
             mealRecipe.meal, recipeIds);
 
-        ref.read(dragOriginDailyMenuNotifierProvider.notifier).state = null;
+        ref.read(_dragOriginDailyMenuNotifierProvider.notifier).state = null;
       }, builder: (context, _, __) {
         final recipeIds = menu!.recipes;
         if (recipeIds.isEmpty) return Container();
@@ -433,9 +434,14 @@ class MenuRecipeCard extends HookConsumerWidget {
       data: MealRecipe(meal, recipe),
       feedback: buildDraggableFeedback(mediaQuery),
       childWhenDragging: buildChildWhenDragging(mediaQuery),
-      onDragStarted: () => ref
-          .read(dragOriginDailyMenuNotifierProvider.notifier)
-          .state = dailyMenuNotifier,
+      onDragStarted: () {
+        ref.read(isDraggingMenuStateProvider.state).state = true;
+        ref.read(_dragOriginDailyMenuNotifierProvider.notifier).state =
+            dailyMenuNotifier;
+      },
+      onDragEnd: (_) {
+        ref.read(isDraggingMenuStateProvider.state).state = false;
+      },
       axis: Axis.vertical,
       //affinity: Axis.horizontal,
       child: Card(
