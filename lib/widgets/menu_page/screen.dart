@@ -63,7 +63,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     final day =
         Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
 
-    return DailyMenuFutureWrapper(day, key: GlobalKey());
+    return DailyMenuFutureWrapper(day);
   }
 
   @override

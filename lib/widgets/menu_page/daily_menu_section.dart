@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/globals/hooks.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../homepage.dart';
 import '../../main.data.dart';
@@ -227,35 +229,38 @@ class MenuContainer extends HookConsumerWidget {
     if (menu == null) return Container();
 
     final meal = menu!.meal;
-    final orignalDailyMenuNotifer =
+    final originalDailyMenuNotifier =
         ref.watch(dragOriginDailyMenuNotifierProvider);
 
     return Padding(
       padding: padding,
-      child: DragTarget<MealRecipe>(onWillAccept: (_) {
-        print('on will accept');
-        return true;
-      }, onAccept: (mealRecipe) async {
+      child: DragTarget<MealRecipe>(onWillAccept: (mealRecipe) {
+        final menu = dailyMenu.getMenuByMeal(meal);
+        final ret =
+            (menu?.recipes.contains(mealRecipe?.recipe.id) ?? false) == false;
+        print('on will accept: $ret');
+        return ret;
+      }, onAccept: (mealRecipe) {
         print('onAccept - $mealRecipe');
 
         final recipeIds = [mealRecipe.recipe.id];
 
         final destinationMenu = dailyMenu.getMenuByMeal(meal);
         if (destinationMenu == null) {
-          await dailyMenuNotifier.addMenu(Menu(
+          dailyMenuNotifier.addMenu(Menu(
                   id: ObjectId().hexString,
                   date: dailyMenu.day,
                   meal: meal,
                   recipes: recipeIds)
               .init(ref.read));
         } else {
-          await dailyMenuNotifier.updateMenu(destinationMenu.copyWith(recipes: [
+          dailyMenuNotifier.updateMenu(destinationMenu.copyWith(recipes: [
             ...destinationMenu.recipes,
             ...recipeIds
           ]).was(destinationMenu));
         }
 
-        orignalDailyMenuNotifer?.removeRecipesFromMeal(
+        originalDailyMenuNotifier?.removeRecipesFromMeal(
             mealRecipe.meal, recipeIds);
 
         ref.read(dragOriginDailyMenuNotifierProvider.notifier).state = null;
@@ -295,13 +300,16 @@ class MenuRecipeWrapper extends HookConsumerWidget {
     return FlutterDataStateBuilder<Recipe>(
         state: ref.recipes.watchOne(recipeId),
         builder: (context, recipe) {
-          return MenuRecipeCard(recipe,
-              meal: meal, dailyMenuNotifier: dailyMenuNotifier);
+          return MenuRecipeCard(
+            recipe,
+            meal: meal,
+            dailyMenuNotifier: dailyMenuNotifier,
+          );
         });
   }
 }
 
-class MenuRecipeCard extends ConsumerWidget {
+class MenuRecipeCard extends HookConsumerWidget {
   final Recipe recipe;
 
   final Meal meal;
@@ -333,40 +341,36 @@ class MenuRecipeCard extends ConsumerWidget {
 
     Widget buildDraggableFeedback(MediaQueryData mediaQuery) {
       return Container(
-          decoration: BoxDecoration(borderRadius: borderRadius),
-          child: MenuRecipeCard(recipe,
-              meal: meal, dailyMenuNotifier: dailyMenuNotifier),
-          width: mediaQuery.size.width);
+        decoration: BoxDecoration(borderRadius: borderRadius),
+        width: mediaQuery.size.width,
+        child: MenuRecipeCard(recipe,
+            meal: meal, dailyMenuNotifier: dailyMenuNotifier),
+      );
+    }
+
+    Widget buildChildWhenDragging(MediaQueryData mediaQuery) {
+      return MenuRecipeCard(
+        recipe,
+        meal: meal,
+        dailyMenuNotifier: dailyMenuNotifier,
+        disabled: true,
+      );
     }
 
     Widget buildInfoAndDragSection(ThemeData theme, MediaQueryData mediaQuery) {
       return Flexible(
         flex: 1,
+        fit: FlexFit.loose,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Draggable<MealRecipe>(
-                data: MealRecipe(meal, recipe),
-                dragAnchorStrategy: (_, __, ___) {
-                  //print(position);
-                  //TODO improve
-                  return Offset(mediaQuery.size.width - 23, 0);
-                },
-                feedback: buildDraggableFeedback(mediaQuery),
-                childWhenDragging: buildChildWhenDragging(mediaQuery),
-                onDragStarted: () => ref
-                    .read(dragOriginDailyMenuNotifierProvider.notifier)
-                    .state = dailyMenuNotifier,
-                axis: Axis.vertical,
-                affinity: Axis.vertical,
-                child: Icon(
-                  Icons.drag_indicator,
-                  color: Colors.black38,
-                  size: theme.iconTheme.size! - 1,
-                ),
+              Icon(
+                Icons.drag_indicator,
+                color: Colors.black38,
+                size: theme.iconTheme.size! - 1,
               ),
             ],
           ),
@@ -376,57 +380,83 @@ class MenuRecipeCard extends ConsumerWidget {
 
     Widget buildImageAndTitle(
         Recipe recipe, BorderRadius borderRadius, ThemeData theme) {
+      /**
+           * GestureDetector & AbsorbPointer below need to stay there to 
+           * intercept and inhibits the drag gesture. Could be improved.
+           */
       return Flexible(
         flex: 5,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            if (recipe.imgUrl != null)
-              Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                    borderRadius: borderRadius.copyWith(
-                        topRight: Radius.circular(5),
-                        bottomRight: Radius.circular(5))),
-                child: Image(
-                    height: 50,
-                    width: 90,
-                    image: CachedNetworkImageProvider(recipe.imgUrl!),
-                    errorBuilder: (_, __, ___) => Container(),
-                    fit: BoxFit.cover),
-              ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: AutoSizeText(
-                  recipe.name,
-                  maxLines: 1,
-                  style: theme.textTheme.titleMedium!
-                      .copyWith(fontWeight: FontWeight.w700),
+        child: GestureDetector(
+          onLongPress: () {},
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (recipe.imgUrl != null)
+                Container(
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                      borderRadius: borderRadius.copyWith(
+                          topRight: Radius.circular(5),
+                          bottomRight: Radius.circular(5))),
+                  child: Image(
+                      height: 50,
+                      width: 90,
+                      image: CachedNetworkImageProvider(recipe.imgUrl!),
+                      errorBuilder: (_, __, ___) => Container(),
+                      fit: BoxFit.cover),
+                ),
+              Expanded(
+                child: AbsorbPointer(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: AutoSizeText(
+                      recipe.name,
+                      maxLines: 1,
+                      style: theme.textTheme.titleMedium!
+                          .copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
-    return Card(
-      color: disabled == true ? Colors.grey.shade400 : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
-      elevation: 3,
-      child: InkWell(
-        borderRadius: borderRadius,
-        highlightColor: theme.primaryColor.withOpacity(0.4),
-        splashColor: theme.primaryColor.withOpacity(0.6),
-        onTap: () => openRecipeView(recipe),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            buildImageAndTitle(recipe, borderRadius, theme),
-            buildInfoAndDragSection(theme, mediaQuery)
-          ],
+    return LongPressDraggable<MealRecipe>(
+      //delay: Duration(milliseconds: 200),
+      dragAnchorStrategy: (draggable, context, position) {
+        final offset = childDragAnchorStrategy(draggable, context, position);
+        return Offset(offset.dx + 45, offset.dy);
+      },
+      data: MealRecipe(meal, recipe),
+      feedback: buildDraggableFeedback(mediaQuery),
+      childWhenDragging: buildChildWhenDragging(mediaQuery),
+      onDragStarted: () => ref
+          .read(dragOriginDailyMenuNotifierProvider.notifier)
+          .state = dailyMenuNotifier,
+      axis: Axis.vertical,
+      //affinity: Axis.horizontal,
+      child: Card(
+        color: disabled == true
+            ? Color.fromARGB(255, 202, 199, 199)
+            : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        elevation: 3,
+        child: InkWell(
+          borderRadius: borderRadius,
+          highlightColor: theme.primaryColor.withOpacity(0.4),
+          splashColor: theme.primaryColor.withOpacity(0.6),
+          onTap: () => openRecipeView(recipe),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              buildImageAndTitle(recipe, borderRadius, theme),
+              buildInfoAndDragSection(theme, mediaQuery)
+            ],
+          ),
         ),
       ),
     );
