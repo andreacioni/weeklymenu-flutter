@@ -5,36 +5,24 @@ import 'package:weekly_menu_app/widgets/menu_page/menu_app_bar.dart';
 
 import './date_range_picker.dart';
 
-class MenuFloatingActionButton extends StatefulWidget {
-  final Date day;
+class MenuFloatingActionButton extends StatelessWidget {
+  final GlobalKey todayChildGlobalKey;
 
   const MenuFloatingActionButton(
-    this.day, {
+    this.todayChildGlobalKey, {
     Key? key,
   }) : super(key: key);
 
   @override
-  _MenuFloatingActionButtonState createState() =>
-      _MenuFloatingActionButtonState();
-}
-
-class _MenuFloatingActionButtonState extends State<MenuFloatingActionButton> {
-  late Date day;
-
-  @override
-  void initState() {
-    day = widget.day;
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => _showDateRangePicker(context),
-      child: day.isToday
-          ? Icon(Icons.lightbulb_outline)
-          : Icon(Icons.today_outlined),
+      onPressed: () {
+        if (todayChildGlobalKey.currentContext != null)
+          Scrollable.ensureVisible(todayChildGlobalKey.currentContext!);
+      },
+      child: //day.isToday
+          //? Icon(Icons.lightbulb_outline) :
+          Icon(Icons.today_outlined),
     );
   }
 

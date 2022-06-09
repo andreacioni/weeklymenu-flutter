@@ -35,6 +35,8 @@ class MenuScreen extends HookConsumerWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
 
+    final todayKey = GlobalKey();
+
     void onPointerMove(PointerMoveEvent ev) {
       if (isDraggingMenu && !scrollController.position.outOfRange) {
         final offset = screenHeight ~/ 4;
@@ -50,9 +52,16 @@ class MenuScreen extends HookConsumerWidget {
       }
     }
 
+    Widget _buildListItem(BuildContext context, int index) {
+      final day =
+          Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
+
+      return DailyMenuFutureWrapper(day, key: day.isToday ? todayKey : null);
+    }
+
     return Scaffold(
       appBar: appBar,
-      floatingActionButton: MenuFloatingActionButton(day),
+      floatingActionButton: MenuFloatingActionButton(todayKey),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
@@ -70,13 +79,6 @@ class MenuScreen extends HookConsumerWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildListItem(BuildContext context, int index) {
-    final day =
-        Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
-
-    return DailyMenuFutureWrapper(day);
   }
 }
 
@@ -110,7 +112,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
   Widget _buildMenuCard(
       BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
-    return MenuCard(
+    return DailyMenuSection(
       DailyMenuNotifier(dailyMenu),
       onTap: () {
         /*  ref

@@ -30,8 +30,7 @@ const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
 final _dragOriginDailyMenuNotifierProvider =
     StateProvider.autoDispose<DailyMenuNotifier?>((_) => null);
 
-//TODO dynamic Meal label (don't want to write new code for every new Meal)
-class MenuCard extends HookConsumerWidget {
+class DailyMenuSection extends HookConsumerWidget {
   static final _dialogDateParser = DateFormat('EEEE, dd');
   static final _appBarDateParser = DateFormat('EEE,dd');
   static final _appBarMonthParser = DateFormat('MMM');
@@ -39,15 +38,10 @@ class MenuCard extends HookConsumerWidget {
   final DailyMenuNotifier dailyMenuNotifier;
   final void Function()? onTap;
 
-  MenuCard(this.dailyMenuNotifier, {this.onTap});
+  DailyMenuSection(this.dailyMenuNotifier, {this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final divider = Divider(
-      color: Colors.grey.shade500,
-      height: 0,
-    );
-
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 
     final primaryColor = dailyMenuNotifier.dailyMenu.isPast
@@ -56,15 +50,28 @@ class MenuCard extends HookConsumerWidget {
             ? constants.todayColor
             : Colors.amber.shade200);
 
-    Widget buildMealRecipeMenuSection(Menu? menu) {
+    final pointerHovering = useState(false);
+    final isDragging = ref.watch(isDraggingMenuStateProvider);
+
+    Widget buildMenuContainer(Meal meal, [Menu? menu]) {
       //TODO recipe rows could be moved to a new separated widget
       //and use a provided Menu to improve performance
       //(changes to a menu/meal won't the entire card)
-      return MenuContainer(
-        menu,
-        dailyMenuNotifier: dailyMenuNotifier,
-        padding: padding,
-      );
+
+      if (menu != null && menu.recipes.isNotEmpty) {
+        return MenuContainer(
+          menu,
+          dailyMenuNotifier: dailyMenuNotifier,
+          padding: padding,
+        );
+      }
+      return pointerHovering.value && isDragging
+          ? MenuPlaceholderContainer(
+              meal,
+              dailyMenuNotifier: dailyMenuNotifier,
+              padding: padding,
+            )
+          : Container();
     }
 
     Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
@@ -110,73 +117,84 @@ class MenuCard extends HookConsumerWidget {
       }
     }
 
+    Widget buildCardTitle() {
+      return Container(
+        //color: primaryColor.withOpacity(0.4),
+        child: Padding(
+          padding: padding,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                softWrap: false,
+                textAlign: TextAlign.start,
+                text: TextSpan(
+                  text: dailyMenuNotifier.dailyMenu.day
+                          .format(_appBarDateParser) +
+                      ' ',
+                  style: GoogleFonts.b612Mono().copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                    fontFeatures: [
+                      FontFeature.tabularFigures(),
+                    ],
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: dailyMenuNotifier.dailyMenu.day
+                          .format(_appBarMonthParser),
+                      style: GoogleFonts.b612Mono().copyWith(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w200,
+                        color: Colors.black38,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  height: 3,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      color: primaryColor.withOpacity(0.8)),
+                ),
+              ),
+              SizedBox(width: 5),
+              IconButton(
+                icon: Icon(
+                  Icons.add,
+                  color: Colors.black87,
+                ),
+                onPressed: openAddRecipeToDailyMenuDialog,
+                splashRadius: 15.0,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
-      child: Column(
-        children: [
-          Container(
-            //color: primaryColor.withOpacity(0.4),
-            child: Padding(
-              padding: padding,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  RichText(
-                    softWrap: false,
-                    textAlign: TextAlign.start,
-                    text: TextSpan(
-                      text: dailyMenuNotifier.dailyMenu.day
-                              .format(_appBarDateParser) +
-                          ' ',
-                      style: GoogleFonts.b612Mono().copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                        fontFeatures: [
-                          FontFeature.tabularFigures(),
-                        ],
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: dailyMenuNotifier.dailyMenu.day
-                              .format(_appBarMonthParser),
-                          style: GoogleFonts.b612Mono().copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w200,
-                            color: Colors.black38,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Container(
-                      height: 3,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3),
-                          color: primaryColor.withOpacity(0.8)),
-                    ),
-                  ),
-                  SizedBox(width: 5),
-                  IconButton(
-                    icon: Icon(
-                      Icons.add,
-                      color: Colors.black87,
-                    ),
-                    onPressed: openAddRecipeToDailyMenuDialog,
-                    splashRadius: 15.0,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          ...Meal.values
-              .map((m) => buildMealRecipeMenuSection(
-                  dailyMenuNotifier.dailyMenu.getMenuByMeal(m)))
-              .toList()
-        ],
+      child: DragTarget<MealRecipe>(
+        hitTestBehavior: HitTestBehavior.opaque,
+        onWillAccept: (data) => false,
+        onMove: (_) => pointerHovering.value = true,
+        onLeave: (_) => pointerHovering.value = false,
+        builder: (context, _, __) => Column(
+          children: [
+            buildCardTitle(),
+            ...Meal.values.map((m) {
+              final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
+
+              return buildMenuContainer(m, menu);
+            }).toList()
+          ],
+        ),
       ),
     );
   }
@@ -215,8 +233,28 @@ class MealRecipeCardContainer extends StatelessWidget {
   }
 }
 
+class MenuPlaceholderContainer extends HookConsumerWidget {
+  final Meal meal;
+  final DailyMenuNotifier dailyMenuNotifier;
+  final EdgeInsets padding;
+
+  MenuPlaceholderContainer(this.meal,
+      {required this.dailyMenuNotifier, this.padding = EdgeInsets.zero});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MenuRecipeDragTarget(
+      meal: meal,
+      child: Container(
+        color: Colors.red,
+        height: 100,
+      ),
+      dailyMenuNotifier: dailyMenuNotifier,
+    );
+  }
+}
+
 class MenuContainer extends HookConsumerWidget {
-  final Menu? menu;
+  final Menu menu;
   final DailyMenuNotifier dailyMenuNotifier;
   final EdgeInsets padding;
 
@@ -227,62 +265,89 @@ class MenuContainer extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dailyMenu = useStateNotifier(dailyMenuNotifier);
 
-    if (menu == null) return Container();
-
-    final meal = menu!.meal;
+    final meal = menu.meal;
     final originalDailyMenuNotifier =
         ref.watch(_dragOriginDailyMenuNotifierProvider);
 
-    return Padding(
-      padding: padding,
-      child: DragTarget<MealRecipe>(onWillAccept: (mealRecipe) {
-        final menu = dailyMenu.getMenuByMeal(meal);
-        final ret =
-            (menu?.recipes.contains(mealRecipe?.recipe.id) ?? false) == false;
-        print('on will accept: $ret');
-        return ret;
-      }, onAccept: (mealRecipe) {
-        print('onAccept - $mealRecipe');
+    final recipeIds = menu.recipes;
+    //if (recipeIds.isEmpty) return Container();
 
-        final recipeIds = [mealRecipe.recipe.id];
-
-        final destinationMenu = dailyMenu.getMenuByMeal(meal);
-        if (destinationMenu == null) {
-          dailyMenuNotifier.addMenu(Menu(
-                  id: ObjectId().hexString,
-                  date: dailyMenu.day,
-                  meal: meal,
-                  recipes: recipeIds)
-              .init(ref.read));
-        } else {
-          dailyMenuNotifier.updateMenu(destinationMenu.copyWith(recipes: [
-            ...destinationMenu.recipes,
-            ...recipeIds
-          ]).was(destinationMenu));
-        }
-
-        originalDailyMenuNotifier?.removeRecipesFromMeal(
-            mealRecipe.meal, recipeIds);
-
-        ref.read(_dragOriginDailyMenuNotifierProvider.notifier).state = null;
-      }, builder: (context, _, __) {
-        final recipeIds = menu!.recipes;
-        if (recipeIds.isEmpty) return Container();
-        return Column(
-          children: [
-            ...recipeIds
-                .map((id) => MealRecipeCardContainer(
-                      meal,
-                      id,
-                      dailyMenuNotifier: dailyMenuNotifier,
-                      displayLeadingMealIcon: id == recipeIds[0],
-                    ))
-                .toList(),
-            SizedBox(height: 20)
-          ],
-        );
-      }),
+    return MenuRecipeDragTarget(
+      menu: menu,
+      child: Column(
+        children: [
+          ...recipeIds
+              .map((id) => MealRecipeCardContainer(
+                    meal,
+                    id,
+                    dailyMenuNotifier: dailyMenuNotifier,
+                    displayLeadingMealIcon: id == recipeIds[0],
+                  ))
+              .toList(),
+          SizedBox(height: 20)
+        ],
+      ),
+      dailyMenuNotifier: dailyMenuNotifier,
     );
+  }
+}
+
+class MenuRecipeDragTarget extends HookConsumerWidget {
+  final Widget child;
+  final DailyMenuNotifier dailyMenuNotifier;
+  final Menu? menu;
+  final Meal? meal;
+
+  MenuRecipeDragTarget({
+    required this.child,
+    required this.dailyMenuNotifier,
+    this.menu,
+    this.meal,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dailyMenu = useStateNotifier(dailyMenuNotifier);
+
+    final meal = menu?.meal ?? this.meal!;
+    final originalDailyMenuNotifier =
+        ref.watch(_dragOriginDailyMenuNotifierProvider);
+
+    return DragTarget<MealRecipe>(
+        onWillAccept: (mealRecipe) {
+          final menu = dailyMenu.getMenuByMeal(meal);
+          final ret =
+              (menu?.recipes.contains(mealRecipe?.recipe.id) ?? false) == false;
+          print('on will accept: $ret');
+          return ret;
+        },
+        onAccept: (mealRecipe) {
+          print('onAccept - $mealRecipe');
+
+          final recipeIds = [mealRecipe.recipe.id];
+
+          final destinationMenu = dailyMenu.getMenuByMeal(meal);
+          if (destinationMenu == null) {
+            dailyMenuNotifier.addMenu(Menu(
+                    id: ObjectId().hexString,
+                    date: dailyMenu.day,
+                    meal: meal,
+                    recipes: recipeIds)
+                .init(ref.read));
+          } else {
+            dailyMenuNotifier.updateMenu(destinationMenu.copyWith(recipes: [
+              ...destinationMenu.recipes,
+              ...recipeIds
+            ]).was(destinationMenu));
+          }
+
+          originalDailyMenuNotifier?.removeRecipesFromMeal(
+              mealRecipe.meal, recipeIds);
+
+          ref.read(_dragOriginDailyMenuNotifierProvider.notifier).state = null;
+        },
+        builder: (_, __, ___) => child);
   }
 }
 
