@@ -15,8 +15,7 @@ import 'menu_app_bar.dart';
 import 'menu_fab.dart';
 import '../../globals/constants.dart';
 
-final isDraggingMenuStateProvider =
-    StateProvider.autoDispose<bool>((_) => false);
+final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
 
 class MenuScreen extends HookConsumerWidget {
   const MenuScreen({Key? key}) : super(key: key);
@@ -65,8 +64,8 @@ class MenuScreen extends HookConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
-        onPointerUp: (_) =>
-            ref.read(isDraggingMenuStateProvider.state).state = false,
+        //onPointerUp: (_) =>
+        //    ref.read(isDraggingMenuStateProvider.state).state = false,
         child: CustomScrollView(
           slivers: [
             SliverList(

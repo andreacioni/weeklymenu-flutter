@@ -180,12 +180,21 @@ class DailyMenuSection extends HookConsumerWidget {
 
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
-      child: DragTarget<MealRecipe>(
-        hitTestBehavior: HitTestBehavior.opaque,
-        onWillAccept: (data) => false,
-        onMove: (_) => pointerHovering.value = true,
-        onLeave: (_) => pointerHovering.value = false,
-        builder: (context, _, __) => Column(
+      child: Listener(
+        onPointerMove: (_) {
+          if (!pointerHovering.value) {
+            print('on enter');
+            pointerHovering.value = true;
+          }
+          //return false;
+        },
+        onPointerUp: (_) {
+          if (pointerHovering.value) {
+            print('on leave');
+            pointerHovering.value = false;
+          }
+        },
+        child: Column(
           children: [
             buildCardTitle(),
             ...Meal.values.map((m) {
@@ -244,9 +253,29 @@ class MenuPlaceholderContainer extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MenuRecipeDragTarget(
       meal: meal,
-      child: Container(
-        color: Colors.red,
-        height: 100,
+      child: Row(
+        children: [
+          Icon(meal.icon),
+          SizedBox(width: 15),
+          Expanded(
+            child: Container(
+              height: 35,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: [
+                  const BoxShadow(
+                    color: Colors.grey,
+                  ),
+                  const BoxShadow(
+                    color: Colors.white,
+                    spreadRadius: -5.0,
+                    blurRadius: 9.0,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       dailyMenuNotifier: dailyMenuNotifier,
     );
@@ -315,6 +344,7 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
         ref.watch(_dragOriginDailyMenuNotifierProvider);
 
     return DragTarget<MealRecipe>(
+        hitTestBehavior: HitTestBehavior.translucent,
         onWillAccept: (mealRecipe) {
           final menu = dailyMenu.getMenuByMeal(meal);
           final ret =
