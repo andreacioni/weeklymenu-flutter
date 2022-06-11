@@ -64,8 +64,8 @@ class MenuScreen extends HookConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
-        //onPointerUp: (_) =>
-        //    ref.read(isDraggingMenuStateProvider.state).state = false,
+        onPointerUp: (_) =>
+            ref.read(isDraggingMenuStateProvider.state).state = false,
         child: CustomScrollView(
           slivers: [
             SliverList(

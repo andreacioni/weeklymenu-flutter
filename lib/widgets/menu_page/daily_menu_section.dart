@@ -180,21 +180,15 @@ class DailyMenuSection extends HookConsumerWidget {
 
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
-      child: Listener(
-        onPointerMove: (_) {
-          if (!pointerHovering.value) {
-            print('on enter');
-            pointerHovering.value = true;
-          }
-          //return false;
+      child: DragTarget<MealRecipe>(
+        hitTestBehavior: HitTestBehavior.opaque,
+        onWillAccept: (_) {
+          print('onWillAccept ${dailyMenuNotifier.dailyMenu.day}');
+          print('on enter');
+          pointerHovering.value = !pointerHovering.value;
+          return false;
         },
-        onPointerUp: (_) {
-          if (pointerHovering.value) {
-            print('on leave');
-            pointerHovering.value = false;
-          }
-        },
-        child: Column(
+        builder: (_, __, ___) => Column(
           children: [
             buildCardTitle(),
             ...Meal.values.map((m) {
@@ -344,7 +338,7 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
         ref.watch(_dragOriginDailyMenuNotifierProvider);
 
     return DragTarget<MealRecipe>(
-        hitTestBehavior: HitTestBehavior.translucent,
+        //hitTestBehavior: HitTestBehavior.translucent,
         onWillAccept: (mealRecipe) {
           final menu = dailyMenu.getMenuByMeal(meal);
           final ret =
@@ -530,11 +524,13 @@ class MenuRecipeCard extends HookConsumerWidget {
       feedback: buildDraggableFeedback(mediaQuery),
       childWhenDragging: buildChildWhenDragging(mediaQuery),
       onDragStarted: () {
+        print('drag started');
         ref.read(isDraggingMenuStateProvider.state).state = true;
         ref.read(_dragOriginDailyMenuNotifierProvider.notifier).state =
             dailyMenuNotifier;
       },
       onDragEnd: (_) {
+        print('drag end');
         ref.read(isDraggingMenuStateProvider.state).state = false;
       },
       axis: Axis.vertical,
