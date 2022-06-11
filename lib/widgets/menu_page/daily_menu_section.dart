@@ -50,7 +50,6 @@ class DailyMenuSection extends HookConsumerWidget {
             ? constants.todayColor
             : Colors.amber.shade200);
 
-    final pointerHovering = useState(false);
     final isDragging = ref.watch(isDraggingMenuStateProvider);
 
     Widget buildMenuContainer(Meal meal, [Menu? menu]) {
@@ -65,13 +64,17 @@ class DailyMenuSection extends HookConsumerWidget {
           padding: padding,
         );
       }
-      return pointerHovering.value && isDragging
-          ? MenuPlaceholderContainer(
-              meal,
-              dailyMenuNotifier: dailyMenuNotifier,
-              padding: padding,
-            )
-          : Container();
+
+      return AnimatedSwitcher(
+        duration: Duration(milliseconds: 500),
+        child: isDragging
+            ? MenuPlaceholderContainer(
+                meal,
+                dailyMenuNotifier: dailyMenuNotifier,
+                padding: padding,
+              )
+            : Container(),
+      );
     }
 
     Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
@@ -120,84 +123,73 @@ class DailyMenuSection extends HookConsumerWidget {
     Widget buildCardTitle() {
       return Container(
         //color: primaryColor.withOpacity(0.4),
-        child: Padding(
-          padding: padding,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                softWrap: false,
-                textAlign: TextAlign.start,
-                text: TextSpan(
-                  text: dailyMenuNotifier.dailyMenu.day
-                          .format(_appBarDateParser) +
-                      ' ',
-                  style: GoogleFonts.b612Mono().copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                    fontFeatures: [
-                      FontFeature.tabularFigures(),
-                    ],
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: dailyMenuNotifier.dailyMenu.day
-                          .format(_appBarMonthParser),
-                      style: GoogleFonts.b612Mono().copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w200,
-                        color: Colors.black38,
-                      ),
-                    ),
+        //padding: padding,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            RichText(
+              softWrap: false,
+              textAlign: TextAlign.start,
+              text: TextSpan(
+                text:
+                    dailyMenuNotifier.dailyMenu.day.format(_appBarDateParser) +
+                        ' ',
+                style: GoogleFonts.b612Mono().copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                  fontFeatures: [
+                    FontFeature.tabularFigures(),
                   ],
                 ),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: dailyMenuNotifier.dailyMenu.day
+                        .format(_appBarMonthParser),
+                    style: GoogleFonts.b612Mono().copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w200,
+                      color: Colors.black38,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      color: primaryColor.withOpacity(0.8)),
-                ),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: Container(
+                height: 3,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    color: primaryColor.withOpacity(0.8)),
               ),
-              SizedBox(width: 5),
-              IconButton(
-                icon: Icon(
-                  Icons.add,
-                  color: Colors.black87,
-                ),
-                onPressed: openAddRecipeToDailyMenuDialog,
-                splashRadius: 15.0,
+            ),
+            SizedBox(width: 5),
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: Colors.black87,
               ),
-            ],
-          ),
+              onPressed: openAddRecipeToDailyMenuDialog,
+              splashRadius: 15.0,
+            ),
+          ],
         ),
       );
     }
 
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
-      child: DragTarget<MealRecipe>(
-        hitTestBehavior: HitTestBehavior.opaque,
-        onWillAccept: (_) {
-          print('onWillAccept ${dailyMenuNotifier.dailyMenu.day}');
-          print('on enter');
-          pointerHovering.value = !pointerHovering.value;
-          return false;
-        },
-        builder: (_, __, ___) => Column(
-          children: [
-            buildCardTitle(),
-            ...Meal.values.map((m) {
-              final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
+      child: Column(
+        children: [
+          buildCardTitle(),
+          ...Meal.values.map((m) {
+            final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
-              return buildMenuContainer(m, menu);
-            }).toList()
-          ],
-        ),
+            return buildMenuContainer(m, menu);
+          }).toList()
+        ],
       ),
     );
   }
