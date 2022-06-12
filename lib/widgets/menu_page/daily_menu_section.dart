@@ -12,6 +12,7 @@ import 'package:weekly_menu_app/globals/hooks.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../main.data.dart';
+import '../common/area_listener.dart';
 import '../flutter_data_state_builder.dart';
 import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
@@ -46,12 +47,16 @@ class DailyMenuSection extends HookConsumerWidget {
             ? constants.todayColor
             : Colors.amber.shade200);
 
-    Widget buildMenuContainer(Meal meal, Menu? menu) {
+    final isDragOverWidget = useState(false);
+
+    Widget buildMenuContainer(Meal meal, Menu? menu,
+        {bool displayPlaceholder = false}) {
       return MenuContainer(
         meal,
         menu: menu,
         dailyMenuNotifier: dailyMenuNotifier,
         padding: padding,
+        displayRecipePlaceholder: displayPlaceholder,
       );
     }
 
@@ -159,15 +164,20 @@ class DailyMenuSection extends HookConsumerWidget {
 
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
-      child: Column(
-        children: [
-          buildCardTitle(),
-          ...Meal.values.map((m) {
-            final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
+      child: AreaListener(
+        onEnter: () => isDragOverWidget.value = true,
+        onLeave: () => isDragOverWidget.value = false,
+        child: Column(
+          children: [
+            buildCardTitle(),
+            ...Meal.values.map((m) {
+              final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
-            return buildMenuContainer(m, menu);
-          }).toList()
-        ],
+              return buildMenuContainer(m, menu,
+                  displayPlaceholder: isDragOverWidget.value);
+            }).toList()
+          ],
+        ),
       ),
     );
   }
@@ -211,12 +221,14 @@ class MenuContainer extends HookConsumerWidget {
   final Menu? menu;
   final DailyMenuNotifier dailyMenuNotifier;
   final EdgeInsets padding;
+  final bool displayRecipePlaceholder;
 
   MenuContainer(
     this.meal, {
     this.menu,
     required this.dailyMenuNotifier,
     this.padding = EdgeInsets.zero,
+    this.displayRecipePlaceholder = false,
   }) : assert(menu == null || meal == menu.meal);
 
   @override
@@ -226,55 +238,51 @@ class MenuContainer extends HookConsumerWidget {
     final isDragging = ref.watch(isDraggingMenuStateProvider);
 
     Widget buildDragTargetPlaceholder({bool displayLeadingMealIcon = false}) {
-      return Row(
-        children: [
-          Icon(meal.icon,
-              color:
-                  displayLeadingMealIcon ? Colors.black : Colors.transparent),
-          SizedBox(width: 15),
-          Expanded(
-            child: Container(
-              height: 35,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                boxShadow: [
-                  const BoxShadow(
-                    color: Colors.grey,
-                  ),
-                  const BoxShadow(
-                    color: Colors.white,
-                    spreadRadius: -5.0,
-                    blurRadius: 9.0,
-                  ),
-                ],
+      return MenuRecipeDragTarget(
+        menu: menu,
+        meal: meal,
+        dailyMenuNotifier: dailyMenuNotifier,
+        child: Row(
+          children: [
+            Icon(meal.icon,
+                color:
+                    displayLeadingMealIcon ? Colors.black : Colors.transparent),
+            SizedBox(width: 15),
+            Expanded(
+              child: Container(
+                height: 35,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: [
+                    const BoxShadow(
+                      color: Colors.grey,
+                    ),
+                    const BoxShadow(
+                      color: Colors.white,
+                      spreadRadius: -5.0,
+                      blurRadius: 9.0,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
-    return MenuRecipeDragTarget(
-      meal: meal,
-      menu: menu,
-      child: Column(
-        children: [
-          ...recipeIds
-              .map((id) => MealRecipeCardContainer(meal, id,
-                  dailyMenuNotifier: dailyMenuNotifier,
-                  displayLeadingMealIcon: id == recipeIds[0]))
-              .toList(),
-          AnimatedSwitcher(
-            duration: Duration(seconds: 1),
-            child: isDragging
-                ? buildDragTargetPlaceholder(
-                    displayLeadingMealIcon: menu == null)
-                : Container(),
-          ),
-          if (recipeIds.isNotEmpty || isDragging) SizedBox(height: 20),
-        ],
-      ),
-      dailyMenuNotifier: dailyMenuNotifier,
+    return Column(
+      children: [
+        ...recipeIds
+            .map((id) => MealRecipeCardContainer(meal, id,
+                dailyMenuNotifier: dailyMenuNotifier,
+                displayLeadingMealIcon: id == recipeIds[0]))
+            .toList(),
+        isDragging && displayRecipePlaceholder
+            ? buildDragTargetPlaceholder(displayLeadingMealIcon: menu == null)
+            : Container(),
+        if (recipeIds.isNotEmpty || isDragging) SizedBox(height: 20),
+      ],
     );
   }
 }
