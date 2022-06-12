@@ -2,19 +2,15 @@ import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
 import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/globals/hooks.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import '../../homepage.dart';
 import '../../main.data.dart';
 import '../flutter_data_state_builder.dart';
 import '../../models/enums/meal.dart';
@@ -57,24 +53,35 @@ class DailyMenuSection extends HookConsumerWidget {
       //and use a provided Menu to improve performance
       //(changes to a menu/meal won't the entire card)
 
-      if (menu != null && menu.recipes.isNotEmpty) {
-        return MenuContainer(
-          menu,
-          dailyMenuNotifier: dailyMenuNotifier,
-          padding: padding,
-        );
-      }
-
-      return AnimatedSwitcher(
-        duration: Duration(milliseconds: 500),
-        child: isDragging
-            ? MenuPlaceholderContainer(
-                meal,
-                dailyMenuNotifier: dailyMenuNotifier,
-                padding: padding,
-              )
-            : Container(),
+      return Column(
+        children: [
+          if (menu != null && menu.recipes.isNotEmpty)
+            MenuContainer(
+              menu,
+              dailyMenuNotifier: dailyMenuNotifier,
+              padding: padding,
+            ),
+          MenuPlaceholderContainer(
+            meal,
+            dailyMenuNotifier: dailyMenuNotifier,
+            padding: padding,
+          )
+        ],
       );
+
+      /* 
+
+      return DragTarget<MealRecipe>(
+        child: Container(
+          height: 5,
+          child: AnimatedSwitcher(
+            duration: Duration(milliseconds: 500),
+            child: isDragging
+                ? 
+                : Container(),
+          ),
+        ),
+      ); */
     }
 
     Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
@@ -237,31 +244,43 @@ class MenuPlaceholderContainer extends HookConsumerWidget {
       {required this.dailyMenuNotifier, this.padding = EdgeInsets.zero});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dragOverWidget = useState(false);
+    final isDragging = ref.watch(isDraggingMenuStateProvider);
     return MenuRecipeDragTarget(
       meal: meal,
-      child: Row(
-        children: [
-          Icon(meal.icon),
-          SizedBox(width: 15),
-          Expanded(
-            child: Container(
-              height: 35,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                boxShadow: [
-                  const BoxShadow(
-                    color: Colors.grey,
+      onEnter: () => dragOverWidget.value = true,
+      onLeave: () => dragOverWidget.value = false,
+      child: AnimatedSwitcher(
+        duration: Duration(milliseconds: 400),
+        child: dragOverWidget.value && isDragging
+            ? Row(
+                children: [
+                  Icon(
+                    meal.icon,
+                    color: Colors.transparent,
                   ),
-                  const BoxShadow(
-                    color: Colors.white,
-                    spreadRadius: -5.0,
-                    blurRadius: 9.0,
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: Container(
+                      height: 35,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        boxShadow: [
+                          const BoxShadow(
+                            color: Colors.grey,
+                          ),
+                          const BoxShadow(
+                            color: Colors.white,
+                            spreadRadius: -5.0,
+                            blurRadius: 9.0,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
-              ),
-            ),
-          ),
-        ],
+              )
+            : Container(height: 5),
       ),
       dailyMenuNotifier: dailyMenuNotifier,
     );
@@ -278,11 +297,7 @@ class MenuContainer extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dailyMenu = useStateNotifier(dailyMenuNotifier);
-
     final meal = menu.meal;
-    final originalDailyMenuNotifier =
-        ref.watch(_dragOriginDailyMenuNotifierProvider);
 
     final recipeIds = menu.recipes;
     //if (recipeIds.isEmpty) return Container();
@@ -299,7 +314,7 @@ class MenuContainer extends HookConsumerWidget {
                     displayLeadingMealIcon: id == recipeIds[0],
                   ))
               .toList(),
-          SizedBox(height: 20)
+          //SizedBox(height: 20)
         ],
       ),
       dailyMenuNotifier: dailyMenuNotifier,
@@ -313,11 +328,16 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
   final Menu? menu;
   final Meal? meal;
 
+  final void Function()? onEnter;
+  final void Function()? onLeave;
+
   MenuRecipeDragTarget({
     required this.child,
     required this.dailyMenuNotifier,
     this.menu,
     this.meal,
+    this.onEnter,
+    this.onLeave,
     Key? key,
   }) : super(key: key);
 
@@ -336,7 +356,11 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
           final ret =
               (menu?.recipes.contains(mealRecipe?.recipe.id) ?? false) == false;
           print('on will accept: $ret');
+          onEnter?.call();
           return ret;
+        },
+        onLeave: (_) {
+          onLeave?.call();
         },
         onAccept: (mealRecipe) {
           print('onAccept - $mealRecipe');
