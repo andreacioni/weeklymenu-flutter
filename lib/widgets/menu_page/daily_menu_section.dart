@@ -46,42 +46,13 @@ class DailyMenuSection extends HookConsumerWidget {
             ? constants.todayColor
             : Colors.amber.shade200);
 
-    final isDragging = ref.watch(isDraggingMenuStateProvider);
-
-    Widget buildMenuContainer(Meal meal, [Menu? menu]) {
-      //TODO recipe rows could be moved to a new separated widget
-      //and use a provided Menu to improve performance
-      //(changes to a menu/meal won't the entire card)
-
-      return Column(
-        children: [
-          if (menu != null && menu.recipes.isNotEmpty)
-            MenuContainer(
-              menu,
-              dailyMenuNotifier: dailyMenuNotifier,
-              padding: padding,
-            ),
-          MenuPlaceholderContainer(
-            meal,
-            dailyMenuNotifier: dailyMenuNotifier,
-            padding: padding,
-          )
-        ],
+    Widget buildMenuContainer(Meal meal, Menu? menu) {
+      return MenuContainer(
+        meal,
+        menu: menu,
+        dailyMenuNotifier: dailyMenuNotifier,
+        padding: padding,
       );
-
-      /* 
-
-      return DragTarget<MealRecipe>(
-        child: Container(
-          height: 5,
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 500),
-            child: isDragging
-                ? 
-                : Container(),
-          ),
-        ),
-      ); */
     }
 
     Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
@@ -235,86 +206,72 @@ class MealRecipeCardContainer extends StatelessWidget {
   }
 }
 
-class MenuPlaceholderContainer extends HookConsumerWidget {
+class MenuContainer extends HookConsumerWidget {
   final Meal meal;
+  final Menu? menu;
   final DailyMenuNotifier dailyMenuNotifier;
   final EdgeInsets padding;
 
-  MenuPlaceholderContainer(this.meal,
-      {required this.dailyMenuNotifier, this.padding = EdgeInsets.zero});
+  MenuContainer(
+    this.meal, {
+    this.menu,
+    required this.dailyMenuNotifier,
+    this.padding = EdgeInsets.zero,
+  }) : assert(menu == null || meal == menu.meal);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dragOverWidget = useState(false);
+    final recipeIds = menu?.recipes ?? [];
+
     final isDragging = ref.watch(isDraggingMenuStateProvider);
-    return MenuRecipeDragTarget(
-      meal: meal,
-      onEnter: () => dragOverWidget.value = true,
-      onLeave: () => dragOverWidget.value = false,
-      child: AnimatedSwitcher(
-        duration: Duration(milliseconds: 400),
-        child: dragOverWidget.value && isDragging
-            ? Row(
-                children: [
-                  Icon(
-                    meal.icon,
-                    color: Colors.transparent,
+
+    Widget buildDragTargetPlaceholder({bool displayLeadingMealIcon = false}) {
+      return Row(
+        children: [
+          Icon(meal.icon,
+              color:
+                  displayLeadingMealIcon ? Colors.black : Colors.transparent),
+          SizedBox(width: 15),
+          Expanded(
+            child: Container(
+              height: 35,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: [
+                  const BoxShadow(
+                    color: Colors.grey,
                   ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: Container(
-                      height: 35,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        boxShadow: [
-                          const BoxShadow(
-                            color: Colors.grey,
-                          ),
-                          const BoxShadow(
-                            color: Colors.white,
-                            spreadRadius: -5.0,
-                            blurRadius: 9.0,
-                          ),
-                        ],
-                      ),
-                    ),
+                  const BoxShadow(
+                    color: Colors.white,
+                    spreadRadius: -5.0,
+                    blurRadius: 9.0,
                   ),
                 ],
-              )
-            : Container(height: 5),
-      ),
-      dailyMenuNotifier: dailyMenuNotifier,
-    );
-  }
-}
-
-class MenuContainer extends HookConsumerWidget {
-  final Menu menu;
-  final DailyMenuNotifier dailyMenuNotifier;
-  final EdgeInsets padding;
-
-  MenuContainer(this.menu,
-      {required this.dailyMenuNotifier, this.padding = EdgeInsets.zero});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final meal = menu.meal;
-
-    final recipeIds = menu.recipes;
-    //if (recipeIds.isEmpty) return Container();
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return MenuRecipeDragTarget(
+      meal: meal,
       menu: menu,
       child: Column(
         children: [
           ...recipeIds
-              .map((id) => MealRecipeCardContainer(
-                    meal,
-                    id,
-                    dailyMenuNotifier: dailyMenuNotifier,
-                    displayLeadingMealIcon: id == recipeIds[0],
-                  ))
+              .map((id) => MealRecipeCardContainer(meal, id,
+                  dailyMenuNotifier: dailyMenuNotifier,
+                  displayLeadingMealIcon: id == recipeIds[0]))
               .toList(),
-          //SizedBox(height: 20)
+          AnimatedSwitcher(
+            duration: Duration(seconds: 1),
+            child: isDragging
+                ? buildDragTargetPlaceholder(
+                    displayLeadingMealIcon: menu == null)
+                : Container(),
+          ),
+          if (recipeIds.isNotEmpty || isDragging) SizedBox(height: 20),
         ],
       ),
       dailyMenuNotifier: dailyMenuNotifier,
@@ -532,10 +489,10 @@ class MenuRecipeCard extends HookConsumerWidget {
 
     return LongPressDraggable<MealRecipe>(
       //delay: Duration(milliseconds: 200),
-      dragAnchorStrategy: (draggable, context, position) {
+      /*  dragAnchorStrategy: (draggable, context, position) {
         final offset = childDragAnchorStrategy(draggable, context, position);
         return Offset(offset.dx + 45, offset.dy);
-      },
+      }, */
       data: MealRecipe(meal, recipe),
       feedback: buildDraggableFeedback(mediaQuery),
       childWhenDragging: buildChildWhenDragging(mediaQuery),
