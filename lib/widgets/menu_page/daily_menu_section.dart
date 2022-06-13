@@ -25,7 +25,7 @@ import 'screen.dart';
 const MENU_CARD_ROUNDED_RECT_BORDER = const Radius.circular(10);
 
 final _dragOriginDailyMenuNotifierProvider =
-    StateProvider.autoDispose<DailyMenuNotifier?>((_) => null);
+    StateProvider<DailyMenuNotifier?>((_) => null);
 
 class DailyMenuSection extends HookConsumerWidget {
   static final _dialogDateParser = DateFormat('EEEE, dd');
@@ -235,7 +235,7 @@ class MenuContainer extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recipeIds = menu?.recipes ?? [];
 
-    final isDragging = ref.watch(isDraggingMenuStateProvider);
+    final isDragging = ref.read(isDraggingMenuStateProvider);
 
     Widget buildDragTargetPlaceholder({bool displayLeadingMealIcon = false}) {
       return MenuRecipeDragTarget(
@@ -281,7 +281,7 @@ class MenuContainer extends HookConsumerWidget {
         isDragging && displayRecipePlaceholder
             ? buildDragTargetPlaceholder(displayLeadingMealIcon: menu == null)
             : Container(),
-        if (recipeIds.isNotEmpty || isDragging) SizedBox(height: 20),
+        if (recipeIds.isNotEmpty) SizedBox(height: 20),
       ],
     );
   }
@@ -311,11 +311,12 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
     final dailyMenu = useStateNotifier(dailyMenuNotifier);
 
     final meal = menu?.meal ?? this.meal!;
+
     final originalDailyMenuNotifier =
         ref.watch(_dragOriginDailyMenuNotifierProvider);
 
     return DragTarget<MealRecipe>(
-        //hitTestBehavior: HitTestBehavior.translucent,
+        hitTestBehavior: HitTestBehavior.deferToChild,
         onWillAccept: (mealRecipe) {
           final menu = dailyMenu.getMenuByMeal(meal);
           final ret =
@@ -516,6 +517,7 @@ class MenuRecipeCard extends HookConsumerWidget {
       },
       axis: Axis.vertical,
       //affinity: Axis.horizontal,
+
       child: Card(
         color: disabled == true
             ? Color.fromARGB(255, 202, 199, 199)
