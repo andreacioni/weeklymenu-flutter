@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import '../../globals/listener_utils.dart';
 import '../../homepage.dart';
 import '../../models/date.dart';
 import '../../main.data.dart';
@@ -33,10 +35,12 @@ class MenuScreen extends HookConsumerWidget {
     final scrollController = useScrollController();
     final screenHeight = MediaQuery.of(context).size.height;
     final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
+    final pointerOverWidgetIndex = useState(-1);
 
     final todayKey = GlobalKey();
 
     void onPointerMove(PointerMoveEvent ev) {
+      //Handle pointer move at the tob/Bottom of the screen and scroll
       if (isDraggingMenu && !scrollController.position.outOfRange) {
         final offset = screenHeight ~/ 4;
         //final moveDistance = 3;
@@ -49,13 +53,37 @@ class MenuScreen extends HookConsumerWidget {
           scrollController.jumpTo(scrollController.offset - moveDistance);
         }
       }
+
+      //Handle pointer over daily menu container
+      if (isDraggingMenu) {
+        final RenderBox box =
+            context.findAncestorRenderObjectOfType<RenderBox>()!;
+        final result = BoxHitTestResult();
+        Offset local = box.globalToLocal(ev.position);
+        if (box.hitTest(result, position: local)) {
+          for (final hit in result.path) {
+            /// temporary variable so that the [is] allows access of [index]
+            final target = hit.target;
+            if (target is IndexedListenerWrapperRenderObject &&
+                target.index != null &&
+                pointerOverWidgetIndex.value != target.index) {
+              pointerOverWidgetIndex.value = target.index!;
+            }
+          }
+        }
+      }
     }
 
     Widget _buildListItem(BuildContext context, int index) {
       final day =
           Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
 
-      return DailyMenuFutureWrapper(day, key: day.isToday ? todayKey : null);
+      return IndexedListenerWrapper(
+        index: index,
+        child: DailyMenuFutureWrapper(day,
+            key: day.isToday ? todayKey : null,
+            isDragOverWidget: pointerOverWidgetIndex.value == index),
+      );
     }
 
     return Scaffold(
@@ -91,8 +119,10 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
   static final _httpParamDateParser = DateFormat('y-MM-dd');
 
   final Date day;
+  final bool isDragOverWidget;
 
-  DailyMenuFutureWrapper(this.day, {Key? key}) : super(key: key);
+  DailyMenuFutureWrapper(this.day, {Key? key, this.isDragOverWidget = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -113,6 +143,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
       BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
     return DailyMenuSection(
       DailyMenuNotifier(dailyMenu),
+      isDragOverWidget: isDragOverWidget,
       onTap: () {
         /*  ref
             .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)

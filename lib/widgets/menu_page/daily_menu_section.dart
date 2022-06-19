@@ -9,10 +9,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/globals/hooks.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../main.data.dart';
-import '../common/area_listener.dart';
 import '../flutter_data_state_builder.dart';
 import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
@@ -33,9 +31,14 @@ class DailyMenuSection extends HookConsumerWidget {
   static final _appBarMonthParser = DateFormat('MMM');
 
   final DailyMenuNotifier dailyMenuNotifier;
+  final bool isDragOverWidget;
   final void Function()? onTap;
 
-  DailyMenuSection(this.dailyMenuNotifier, {this.onTap});
+  DailyMenuSection(
+    this.dailyMenuNotifier, {
+    this.onTap,
+    this.isDragOverWidget = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,8 +49,6 @@ class DailyMenuSection extends HookConsumerWidget {
         : (dailyMenuNotifier.dailyMenu.isToday
             ? constants.todayColor
             : Colors.amber.shade200);
-
-    final isDragOverWidget = useState(false);
 
     Widget buildMenuContainer(Meal meal, Menu? menu,
         {bool displayPlaceholder = false}) {
@@ -164,20 +165,16 @@ class DailyMenuSection extends HookConsumerWidget {
 
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
-      child: AreaListener(
-        onEnter: () => isDragOverWidget.value = true,
-        onLeave: () => isDragOverWidget.value = false,
-        child: Column(
-          children: [
-            buildCardTitle(),
-            ...Meal.values.map((m) {
-              final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
+      child: Column(
+        children: [
+          buildCardTitle(),
+          ...Meal.values.map((m) {
+            final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
-              return buildMenuContainer(m, menu,
-                  displayPlaceholder: isDragOverWidget.value);
-            }).toList()
-          ],
-        ),
+            return buildMenuContainer(m, menu,
+                displayPlaceholder: isDragOverWidget);
+          }).toList()
+        ],
       ),
     );
   }
