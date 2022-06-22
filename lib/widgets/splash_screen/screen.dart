@@ -21,7 +21,7 @@ class SplashScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
         body: Center(
-      child: ref.watch(repositoryInitializerProvider()).when(
+      child: ref.watch(repositoryInitializerProvider).when(
           data: (_) {
             return ref.watch(_tokenProvider).when(
                   data: (jwt) {

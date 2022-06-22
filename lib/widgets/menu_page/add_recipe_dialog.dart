@@ -150,7 +150,8 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
 
   Future<List<Recipe>> _suggestionsCallback(
       String pattern, Repository<Recipe> recipesRepository) async {
-    final availableRecipes = await recipesRepository.findAll(remote: false);
+    final availableRecipes =
+        await recipesRepository.findAll(remote: false) ?? [];
     final List<Recipe> suggestions = [];
 
     suggestions.addAll(availableRecipes

@@ -59,7 +59,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
       items[idx] = items[idx].copyWith(checked: checked);
     }
 
-    return copyWith(items: items).was(this);
+    return copyWith(items: items);
   }
 
   bool containsItem(String itemId) {

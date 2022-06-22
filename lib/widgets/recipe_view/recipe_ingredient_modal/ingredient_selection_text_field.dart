@@ -72,7 +72,7 @@ class _IngredientSelectionTextFieldState
                 name: RegExp(r'^Add "(.*)" \.\.\.')
                     .firstMatch(selectedIngredient.name)!
                     .group(1)!);
-            selectedIngredient.init(ref.read).save();
+            selectedIngredient.save();
             print('ingredient: ${selectedIngredient.name} created');
           } else {
             this._typeAheadController.text = selectedIngredient.name;
@@ -87,7 +87,8 @@ class _IngredientSelectionTextFieldState
   Future<List<Ingredient>> getIngredientsSuggestion(
       WidgetRef ref, String pattern) async {
     final availableIngredients =
-        await ref.read(ingredientsRepositoryProvider).findAll(remote: false);
+        await ref.read(ingredientsRepositoryProvider).findAll(remote: false) ??
+            [];
 
     var suggestions = availableIngredients
         .where((r) =>

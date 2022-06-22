@@ -117,12 +117,12 @@ class _ItemSuggestionTextFieldState extends State<ItemSuggestionTextField> {
     final ingredientsRepo = ref.read(ingredientsRepositoryProvider);
     final shopListRepo = ref.read(shoppingListsRepositoryProvider);
 
-    availableIngredients = await ingredientsRepo.findAll(remote: false);
+    availableIngredients = await ingredientsRepo.findAll(remote: false) ?? [];
 
     List<dynamic> suggestions = [];
 
     if (widget.showShoppingItemSuggestions) {
-      final shoppingList = (await shopListRepo.findAll(remote: false))[0];
+      final shoppingList = (await shopListRepo.findAll(remote: false))![0];
 
       final checkedItems = shoppingList.getCheckedItems.where((item) {
         var ing = resolveShoppingListItemIngredient(item);

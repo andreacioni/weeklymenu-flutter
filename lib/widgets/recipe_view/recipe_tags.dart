@@ -20,7 +20,7 @@ class RecipeTags extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Repository<Recipe> recipeRepo = ref.read(recipesRepositoryProvider);
 
-    return FutureBuilder<List<Recipe>>(
+    return FutureBuilder<List<Recipe>?>(
       future: recipeRepo.findAll(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {

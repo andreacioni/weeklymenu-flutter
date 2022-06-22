@@ -14,8 +14,7 @@ import '../globals/constants.dart';
 
 final _providerContainer = ProviderContainer();
 
-abstract class BaseModel<T extends DataModel<T>>
-    with DataModel<T>
+abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
     implements Cloneable<T> {
   @override
   @JsonKey(name: ID_FIELD)
@@ -77,19 +76,19 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
   }
 
   @override
-  Map<String, dynamic> serialize(model) {
-    final json = super.serialize(model);
+  Future<Map<String, dynamic>> serialize(model,
+      {bool withRelationships = false}) async {
+    final json = await super.serialize(model);
     json.remove(UPDATE_TIMESTAMP_FIELD);
     json.remove(INSERT_TIMESTAMP_FIELD);
     return json;
   }
 
   @override
-  @override
-  DeserializedData<T> deserialize(Object? data, {String? key}) {
+  Future<DeserializedData<T>> deserialize(Object? data) async {
     final json = data as Map<String, dynamic>;
-    return super.deserialize(
-        json.containsKey('results') ? json['results'] : json,
-        key: key);
+    return await super.deserialize(
+      json.containsKey('results') ? json['results'] : json,
+    );
   }
 }

@@ -10,6 +10,8 @@ class IndexedListenerWrapper extends SingleChildRenderObjectWidget {
 
   @override
   IndexedListenerWrapperRenderObject createRenderObject(BuildContext context) {
+    print('building menu: $index');
+
     return IndexedListenerWrapperRenderObject()..index = index;
   }
 

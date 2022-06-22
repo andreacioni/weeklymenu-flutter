@@ -5,6 +5,7 @@ import './drawer.dart';
 import './widgets/menu_page/screen.dart';
 import './widgets/recipes_screen/screen.dart';
 import './widgets/shopping_list_screen/screen.dart';
+import 'main.data.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage();
@@ -29,6 +30,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.menus.logLevel = 1;
+    ref.recipes.logLevel = 1;
+    ref.ingredients.logLevel = 1;
+    ref.shoppingLists.logLevel = 1;
     return Scaffold(
       bottomNavigationBar: _buildBottomAppBar(context),
       body: DefaultTabController(

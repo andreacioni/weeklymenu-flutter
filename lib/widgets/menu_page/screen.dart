@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../globals/listener_utils.dart';
 import '../../homepage.dart';
@@ -32,7 +33,9 @@ class MenuScreen extends HookConsumerWidget {
     final day = Date.now();
     final appBar = MenuAppBar(day);
 
-    final scrollController = useScrollController();
+    final itemScrollController = ItemScrollController();
+    final itemPositionsListener = ItemPositionsListener.create();
+
     final screenHeight = MediaQuery.of(context).size.height;
     final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
     final pointerOverWidgetIndex = useState(-1);
@@ -41,7 +44,7 @@ class MenuScreen extends HookConsumerWidget {
 
     void onPointerMove(PointerMoveEvent ev) {
       //Handle pointer move at the tob/Bottom of the screen and scroll
-      if (isDraggingMenu && !scrollController.position.outOfRange) {
+      /* if (isDraggingMenu && !scrollController.position.outOfRange) {
         final offset = screenHeight ~/ 4;
         //final moveDistance = 3;
         if (ev.position.dy > screenHeight - offset) {
@@ -52,7 +55,7 @@ class MenuScreen extends HookConsumerWidget {
 
           scrollController.jumpTo(scrollController.offset - moveDistance);
         }
-      }
+      } */
 
       //Handle pointer over daily menu container
       if (isDraggingMenu) {
@@ -74,14 +77,14 @@ class MenuScreen extends HookConsumerWidget {
       }
     }
 
-    Widget _buildListItem(BuildContext context, int index) {
+    Widget _buildListItem(int index) {
       final day =
           Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
 
       return IndexedListenerWrapper(
         index: index,
         child: DailyMenuFutureWrapper(day,
-            key: day.isToday ? todayKey : null,
+            key: day.isToday ? todayKey : ValueKey(day),
             isDragOverWidget: pointerOverWidgetIndex.value == index),
       );
     }
@@ -91,20 +94,15 @@ class MenuScreen extends HookConsumerWidget {
       floatingActionButton: MenuFloatingActionButton(todayKey),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
-        onPointerMove: onPointerMove,
-        onPointerUp: (_) =>
-            ref.read(isDraggingMenuStateProvider.state).state = false,
-        child: CustomScrollView(
-          slivers: [
-            SliverList(
-                delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildListItem(context, index),
-              childCount: pageViewLimitDays,
-            ))
-          ],
-          controller: scrollController,
-        ),
-      ),
+          onPointerMove: onPointerMove,
+          onPointerUp: (_) =>
+              ref.read(isDraggingMenuStateProvider.state).state = false,
+          child: ScrollablePositionedList.builder(
+            itemCount: pageViewLimitDays,
+            itemScrollController: itemScrollController,
+            itemPositionsListener: itemPositionsListener,
+            itemBuilder: (context, index) => _buildListItem(index),
+          )),
     );
   }
 }

@@ -332,17 +332,18 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
 
           final destinationMenu = dailyMenu.getMenuByMeal(meal);
           if (destinationMenu == null) {
-            dailyMenuNotifier.addMenu(Menu(
-                    id: ObjectId().hexString,
-                    date: dailyMenu.day,
-                    meal: meal,
-                    recipes: recipeIds)
-                .init(ref.read));
+            final menu = Menu(
+                id: ObjectId().hexString,
+                date: dailyMenu.day,
+                meal: meal,
+                recipes: recipeIds)
+              ..save();
+            dailyMenuNotifier.addMenu(menu);
           } else {
-            dailyMenuNotifier.updateMenu(destinationMenu.copyWith(recipes: [
-              ...destinationMenu.recipes,
-              ...recipeIds
-            ]).was(destinationMenu));
+            final newMenu = destinationMenu
+                .copyWith(recipes: [...destinationMenu.recipes, ...recipeIds])
+              ..save();
+            dailyMenuNotifier.updateMenu(newMenu);
           }
 
           originalDailyMenuNotifier?.removeRecipesFromMeal(

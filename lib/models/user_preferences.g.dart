@@ -116,6 +116,60 @@ extension $UserPreferenceCopyWith on UserPreference {
 }
 
 // **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $UserPreferenceLocalAdapter on LocalAdapter<UserPreference> {
+  static final Map<String, RelationshipMeta> _kUserPreferenceRelationshipMetas =
+      {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kUserPreferenceRelationshipMetas;
+
+  @override
+  UserPreference deserialize(map) {
+    map = transformDeserialize(map);
+    return UserPreference.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _userPreferencesFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $UserPreferenceHiveLocalAdapter = HiveLocalAdapter<UserPreference>
+    with $UserPreferenceLocalAdapter;
+
+class $UserPreferenceRemoteAdapter = RemoteAdapter<UserPreference>
+    with BaseAdapter<UserPreference>, UserPreferencesAdapter<UserPreference>;
+
+final internalUserPreferencesRemoteAdapterProvider =
+    Provider<RemoteAdapter<UserPreference>>((ref) =>
+        $UserPreferenceRemoteAdapter($UserPreferenceHiveLocalAdapter(ref.read),
+            InternalHolder(_userPreferencesFinders)));
+
+final userPreferencesRepositoryProvider = Provider<Repository<UserPreference>>(
+    (ref) => Repository<UserPreference>(ref.read));
+
+extension UserPreferenceDataRepositoryX on Repository<UserPreference> {
+  BaseAdapter<UserPreference> get baseAdapter =>
+      remoteAdapter as BaseAdapter<UserPreference>;
+  UserPreferencesAdapter<UserPreference> get userPreferencesAdapter =>
+      remoteAdapter as UserPreferencesAdapter<UserPreference>;
+}
+
+extension UserPreferenceRelationshipGraphNodeX
+    on RelationshipGraphNode<UserPreference> {}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -169,134 +223,4 @@ Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
   writeNotNull('supermarket_sections',
       instance.supermarketSections?.map((e) => e.toJson()).toList());
   return val;
-}
-
-// **************************************************************************
-// RepositoryGenerator
-// **************************************************************************
-
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
-
-mixin $UserPreferenceLocalAdapter on LocalAdapter<UserPreference> {
-  @override
-  Map<String, Map<String, Object?>> relationshipsFor([UserPreference? model]) =>
-      {};
-
-  @override
-  UserPreference deserialize(map) {
-    for (final key in relationshipsFor().keys) {
-      map[key] = {
-        '_': [map[key], !map.containsKey(key)],
-      };
-    }
-    return UserPreference.fromJson(map);
-  }
-
-  @override
-  Map<String, dynamic> serialize(model) => model.toJson();
-}
-
-// ignore: must_be_immutable
-class $UserPreferenceHiveLocalAdapter = HiveLocalAdapter<UserPreference>
-    with $UserPreferenceLocalAdapter;
-
-class $UserPreferenceRemoteAdapter = RemoteAdapter<UserPreference>
-    with BaseAdapter<UserPreference>, UserPreferencesAdapter<UserPreference>;
-
-//
-
-final userPreferencesRemoteAdapterProvider =
-    Provider<RemoteAdapter<UserPreference>>((ref) =>
-        $UserPreferenceRemoteAdapter($UserPreferenceHiveLocalAdapter(ref.read),
-            userPreferenceProvider, userPreferencesProvider));
-
-final userPreferencesRepositoryProvider = Provider<Repository<UserPreference>>(
-    (ref) => Repository<UserPreference>(ref.read));
-
-final _userPreferenceProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<UserPreference?>,
-    DataState<UserPreference?>,
-    WatchArgs<UserPreference>>((ref, args) {
-  final adapter = ref.watch(userPreferencesRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
-  return notifier(args.id!,
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      alsoWatch: args.alsoWatch,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<UserPreference?>,
-        DataState<UserPreference?>>
-    userPreferenceProvider(Object? id,
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        AlsoWatch<UserPreference>? alsoWatch,
-        String? finder,
-        String? watcher}) {
-  return _userPreferenceProvider(WatchArgs(
-      id: id,
-      remote: remote,
-      params: params,
-      headers: headers,
-      alsoWatch: alsoWatch,
-      finder: finder,
-      watcher: watcher));
-}
-
-final _userPreferencesProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<List<UserPreference>>,
-    DataState<List<UserPreference>>,
-    WatchArgs<UserPreference>>((ref, args) {
-  final adapter = ref.watch(userPreferencesRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
-  return notifier(
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      syncLocal: args.syncLocal,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<List<UserPreference>>,
-        DataState<List<UserPreference>>>
-    userPreferencesProvider(
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        bool? syncLocal,
-        String? finder,
-        String? watcher}) {
-  return _userPreferencesProvider(WatchArgs(
-      remote: remote,
-      params: params,
-      headers: headers,
-      syncLocal: syncLocal,
-      finder: finder,
-      watcher: watcher));
-}
-
-extension UserPreferenceDataX on UserPreference {
-  /// Initializes "fresh" models (i.e. manually instantiated) to use
-  /// [save], [delete] and so on.
-  ///
-  /// Can be obtained via `ref.read`, `container.read`
-  UserPreference init(Reader read, {bool save = true}) {
-    final repository =
-        internalLocatorFn(userPreferencesRepositoryProvider, read);
-    final updatedModel =
-        repository.remoteAdapter.initializeModel(this, save: save);
-    return save ? updatedModel : this;
-  }
-}
-
-extension UserPreferenceDataRepositoryX on Repository<UserPreference> {
-  BaseAdapter<UserPreference> get baseAdapter =>
-      remoteAdapter as BaseAdapter<UserPreference>;
-  UserPreferencesAdapter<UserPreference> get userPreferencesAdapter =>
-      remoteAdapter as UserPreferencesAdapter<UserPreference>;
 }

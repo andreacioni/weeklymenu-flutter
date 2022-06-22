@@ -41,27 +41,24 @@ class Menu extends BaseModel<Menu> {
             updateTimestamp: updateTimestamp);
 
   Menu addRecipe(String recipeId) {
-    return this.copyWith(recipes: [...recipes, recipeId]).was(this);
+    return this.copyWith(recipes: [...recipes, recipeId]);
   }
 
   Menu addRecipes(List<String> recipeIds) {
-    return this.copyWith(recipes: [...recipes, ...recipeIds]).was(this);
+    return this.copyWith(recipes: [...recipes, ...recipeIds]);
   }
 
   Menu removeRecipeById(String id) {
     return this
-        .copyWith(recipes: recipes..removeWhere((element) => element == id))
-        .was(this);
+        .copyWith(recipes: recipes..removeWhere((element) => element == id));
   }
 
   Menu removeRecipeByIdList(List<String> ids) {
-    return this
-        .copyWith(recipes: recipes..removeWhere((e) => ids.contains(e)))
-        .was(this);
+    return this.copyWith(recipes: recipes..removeWhere((e) => ids.contains(e)));
   }
 
   Menu removeAllRecipes() {
-    return this.copyWith(recipes: []).was(this);
+    return this.copyWith(recipes: []);
   }
 
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);

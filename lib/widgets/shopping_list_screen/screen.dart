@@ -17,7 +17,7 @@ final selectedShoppingListItems =
     StateProvider.autoDispose(((_) => <String>[]));
 
 final supermarketSectionList = Provider.autoDispose(((ref) {
-  final shoppingListItems = ref.shoppingLists.watchAll().model[0].items;
+  final shoppingListItems = ref.shoppingLists.watchAll().model![0].items;
   return (shoppingListItems
         ..removeWhere((e) => e.supermarketSectionName?.isEmpty ?? false))
       .map((e) => e.supermarketSectionName)

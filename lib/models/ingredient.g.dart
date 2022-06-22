@@ -90,6 +90,57 @@ extension $IngredientCopyWith on Ingredient {
 }
 
 // **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $IngredientLocalAdapter on LocalAdapter<Ingredient> {
+  static final Map<String, RelationshipMeta> _kIngredientRelationshipMetas = {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kIngredientRelationshipMetas;
+
+  @override
+  Ingredient deserialize(map) {
+    map = transformDeserialize(map);
+    return Ingredient.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _ingredientsFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $IngredientHiveLocalAdapter = HiveLocalAdapter<Ingredient>
+    with $IngredientLocalAdapter;
+
+class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
+    with BaseAdapter<Ingredient>;
+
+final internalIngredientsRemoteAdapterProvider =
+    Provider<RemoteAdapter<Ingredient>>((ref) => $IngredientRemoteAdapter(
+        $IngredientHiveLocalAdapter(ref.read),
+        InternalHolder(_ingredientsFinders)));
+
+final ingredientsRepositoryProvider =
+    Provider<Repository<Ingredient>>((ref) => Repository<Ingredient>(ref.read));
+
+extension IngredientDataRepositoryX on Repository<Ingredient> {
+  BaseAdapter<Ingredient> get baseAdapter =>
+      remoteAdapter as BaseAdapter<Ingredient>;
+}
+
+extension IngredientRelationshipGraphNodeX
+    on RelationshipGraphNode<Ingredient> {}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -115,129 +166,4 @@ Map<String, dynamic> _$IngredientToJson(Ingredient instance) {
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['name'] = instance.name;
   return val;
-}
-
-// **************************************************************************
-// RepositoryGenerator
-// **************************************************************************
-
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
-
-mixin $IngredientLocalAdapter on LocalAdapter<Ingredient> {
-  @override
-  Map<String, Map<String, Object?>> relationshipsFor([Ingredient? model]) => {};
-
-  @override
-  Ingredient deserialize(map) {
-    for (final key in relationshipsFor().keys) {
-      map[key] = {
-        '_': [map[key], !map.containsKey(key)],
-      };
-    }
-    return Ingredient.fromJson(map);
-  }
-
-  @override
-  Map<String, dynamic> serialize(model) => model.toJson();
-}
-
-// ignore: must_be_immutable
-class $IngredientHiveLocalAdapter = HiveLocalAdapter<Ingredient>
-    with $IngredientLocalAdapter;
-
-class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
-    with BaseAdapter<Ingredient>;
-
-//
-
-final ingredientsRemoteAdapterProvider = Provider<RemoteAdapter<Ingredient>>(
-    (ref) => $IngredientRemoteAdapter($IngredientHiveLocalAdapter(ref.read),
-        ingredientProvider, ingredientsProvider));
-
-final ingredientsRepositoryProvider =
-    Provider<Repository<Ingredient>>((ref) => Repository<Ingredient>(ref.read));
-
-final _ingredientProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<Ingredient?>,
-    DataState<Ingredient?>,
-    WatchArgs<Ingredient>>((ref, args) {
-  final adapter = ref.watch(ingredientsRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
-  return notifier(args.id!,
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      alsoWatch: args.alsoWatch,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<Ingredient?>,
-        DataState<Ingredient?>>
-    ingredientProvider(Object? id,
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        AlsoWatch<Ingredient>? alsoWatch,
-        String? finder,
-        String? watcher}) {
-  return _ingredientProvider(WatchArgs(
-      id: id,
-      remote: remote,
-      params: params,
-      headers: headers,
-      alsoWatch: alsoWatch,
-      finder: finder,
-      watcher: watcher));
-}
-
-final _ingredientsProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<List<Ingredient>>,
-    DataState<List<Ingredient>>,
-    WatchArgs<Ingredient>>((ref, args) {
-  final adapter = ref.watch(ingredientsRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
-  return notifier(
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      syncLocal: args.syncLocal,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<List<Ingredient>>,
-        DataState<List<Ingredient>>>
-    ingredientsProvider(
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        bool? syncLocal,
-        String? finder,
-        String? watcher}) {
-  return _ingredientsProvider(WatchArgs(
-      remote: remote,
-      params: params,
-      headers: headers,
-      syncLocal: syncLocal,
-      finder: finder,
-      watcher: watcher));
-}
-
-extension IngredientDataX on Ingredient {
-  /// Initializes "fresh" models (i.e. manually instantiated) to use
-  /// [save], [delete] and so on.
-  ///
-  /// Can be obtained via `ref.read`, `container.read`
-  Ingredient init(Reader read, {bool save = true}) {
-    final repository = internalLocatorFn(ingredientsRepositoryProvider, read);
-    final updatedModel =
-        repository.remoteAdapter.initializeModel(this, save: save);
-    return save ? updatedModel : this;
-  }
-}
-
-extension IngredientDataRepositoryX on Repository<Ingredient> {
-  BaseAdapter<Ingredient> get baseAdapter =>
-      remoteAdapter as BaseAdapter<Ingredient>;
 }

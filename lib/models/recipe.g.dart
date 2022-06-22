@@ -262,6 +262,53 @@ extension $RecipeCopyWith on Recipe {
 }
 
 // **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $RecipeLocalAdapter on LocalAdapter<Recipe> {
+  static final Map<String, RelationshipMeta> _kRecipeRelationshipMetas = {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kRecipeRelationshipMetas;
+
+  @override
+  Recipe deserialize(map) {
+    map = transformDeserialize(map);
+    return Recipe.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _recipesFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $RecipeHiveLocalAdapter = HiveLocalAdapter<Recipe>
+    with $RecipeLocalAdapter;
+
+class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
+
+final internalRecipesRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
+    (ref) => $RecipeRemoteAdapter(
+        $RecipeHiveLocalAdapter(ref.read), InternalHolder(_recipesFinders)));
+
+final recipesRepositoryProvider =
+    Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref.read));
+
+extension RecipeDataRepositoryX on Repository<Recipe> {
+  BaseAdapter<Recipe> get baseAdapter => remoteAdapter as BaseAdapter<Recipe>;
+}
+
+extension RecipeRelationshipGraphNodeX on RelationshipGraphNode<Recipe> {}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -348,125 +395,4 @@ Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
   writeNotNull('unitOfMeasure', instance.unitOfMeasure);
   writeNotNull('freezed', instance.freezed);
   return val;
-}
-
-// **************************************************************************
-// RepositoryGenerator
-// **************************************************************************
-
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
-
-mixin $RecipeLocalAdapter on LocalAdapter<Recipe> {
-  @override
-  Map<String, Map<String, Object?>> relationshipsFor([Recipe? model]) => {};
-
-  @override
-  Recipe deserialize(map) {
-    for (final key in relationshipsFor().keys) {
-      map[key] = {
-        '_': [map[key], !map.containsKey(key)],
-      };
-    }
-    return Recipe.fromJson(map);
-  }
-
-  @override
-  Map<String, dynamic> serialize(model) => model.toJson();
-}
-
-// ignore: must_be_immutable
-class $RecipeHiveLocalAdapter = HiveLocalAdapter<Recipe>
-    with $RecipeLocalAdapter;
-
-class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
-
-//
-
-final recipesRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>((ref) =>
-    $RecipeRemoteAdapter(
-        $RecipeHiveLocalAdapter(ref.read), recipeProvider, recipesProvider));
-
-final recipesRepositoryProvider =
-    Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref.read));
-
-final _recipeProvider = StateNotifierProvider.autoDispose
-    .family<DataStateNotifier<Recipe?>, DataState<Recipe?>, WatchArgs<Recipe>>(
-        (ref, args) {
-  final adapter = ref.watch(recipesRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
-  return notifier(args.id!,
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      alsoWatch: args.alsoWatch,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<Recipe?>, DataState<Recipe?>>
-    recipeProvider(Object? id,
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        AlsoWatch<Recipe>? alsoWatch,
-        String? finder,
-        String? watcher}) {
-  return _recipeProvider(WatchArgs(
-      id: id,
-      remote: remote,
-      params: params,
-      headers: headers,
-      alsoWatch: alsoWatch,
-      finder: finder,
-      watcher: watcher));
-}
-
-final _recipesProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<List<Recipe>>,
-    DataState<List<Recipe>>,
-    WatchArgs<Recipe>>((ref, args) {
-  final adapter = ref.watch(recipesRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
-  return notifier(
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      syncLocal: args.syncLocal,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<List<Recipe>>,
-        DataState<List<Recipe>>>
-    recipesProvider(
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        bool? syncLocal,
-        String? finder,
-        String? watcher}) {
-  return _recipesProvider(WatchArgs(
-      remote: remote,
-      params: params,
-      headers: headers,
-      syncLocal: syncLocal,
-      finder: finder,
-      watcher: watcher));
-}
-
-extension RecipeDataX on Recipe {
-  /// Initializes "fresh" models (i.e. manually instantiated) to use
-  /// [save], [delete] and so on.
-  ///
-  /// Can be obtained via `ref.read`, `container.read`
-  Recipe init(Reader read, {bool save = true}) {
-    final repository = internalLocatorFn(recipesRepositoryProvider, read);
-    final updatedModel =
-        repository.remoteAdapter.initializeModel(this, save: save);
-    return save ? updatedModel : this;
-  }
-}
-
-extension RecipeDataRepositoryX on Repository<Recipe> {
-  BaseAdapter<Recipe> get baseAdapter => remoteAdapter as BaseAdapter<Recipe>;
 }
