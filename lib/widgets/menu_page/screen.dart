@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:weekly_menu_app/globals/hooks.dart';
+import 'package:weekly_menu_app/widgets/menu_page/date_range_picker.dart';
 
 import '../../globals/listener_utils.dart';
 import '../../homepage.dart';
@@ -15,13 +18,15 @@ import '../../models/menu.dart';
 import '../../widgets/flutter_data_state_builder.dart';
 import 'daily_menu_section.dart';
 import 'menu_app_bar.dart';
-import 'menu_fab.dart';
 import '../../globals/constants.dart';
 
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
 
 class MenuScreen extends HookConsumerWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  MenuScreen({Key? key}) : super(key: key);
+
+  bool centered = false;
+  double todayOffset = -1;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,18 +38,19 @@ class MenuScreen extends HookConsumerWidget {
     final day = Date.now();
     final appBar = MenuAppBar(day);
 
-    final itemScrollController = ItemScrollController();
-    final itemPositionsListener = ItemPositionsListener.create();
+    final scrollController = useScrollController();
 
     final screenHeight = MediaQuery.of(context).size.height;
     final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
     final pointerOverWidgetIndex = useState(-1);
 
+    final displayFAB = useState(true);
+
     final todayKey = GlobalKey();
 
     void onPointerMove(PointerMoveEvent ev) {
       //Handle pointer move at the tob/Bottom of the screen and scroll
-      /* if (isDraggingMenu && !scrollController.position.outOfRange) {
+      if (isDraggingMenu && !scrollController.position.outOfRange) {
         final offset = screenHeight ~/ 4;
         //final moveDistance = 3;
         if (ev.position.dy > screenHeight - offset) {
@@ -55,7 +61,7 @@ class MenuScreen extends HookConsumerWidget {
 
           scrollController.jumpTo(scrollController.offset - moveDistance);
         }
-      } */
+      }
 
       //Handle pointer over daily menu container
       if (isDraggingMenu) {
@@ -89,20 +95,50 @@ class MenuScreen extends HookConsumerWidget {
       );
     }
 
+    void _scrollListener() {
+      const threshold = 50;
+      final bool? newValue;
+      if (scrollController.offset > todayOffset - threshold &&
+          scrollController.offset < todayOffset + threshold) {
+        newValue = false;
+      } else {
+        newValue = true;
+      }
+
+      if (newValue != displayFAB.value) {
+        displayFAB.value = newValue;
+      }
+    }
+
+    // center the scrollable area on today just on the first build
+    // save the offset in order to display the button only when needed
+    if (!centered) {
+      Future.delayed(Duration.zero, () {
+        scrollController.addListener(_scrollListener);
+        if (todayKey.currentContext != null) {
+          Scrollable.ensureVisible(todayKey.currentContext!)
+              .then((_) => todayOffset = scrollController.offset);
+        }
+      });
+      centered = true;
+    }
+
     return Scaffold(
       appBar: appBar,
-      floatingActionButton: MenuFloatingActionButton(todayKey),
+      floatingActionButton:
+          displayFAB.value ? _MenuFloatingActionButton(todayKey) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
-          onPointerMove: onPointerMove,
-          onPointerUp: (_) =>
-              ref.read(isDraggingMenuStateProvider.state).state = false,
-          child: ScrollablePositionedList.builder(
-            itemCount: pageViewLimitDays,
-            itemScrollController: itemScrollController,
-            itemPositionsListener: itemPositionsListener,
-            itemBuilder: (context, index) => _buildListItem(index),
-          )),
+        onPointerMove: onPointerMove,
+        onPointerUp: (_) =>
+            ref.read(isDraggingMenuStateProvider.state).state = false,
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            children: List.generate(pageViewLimitDays, _buildListItem),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -148,6 +184,88 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
             .state = dailyMenuNotifier;
         ref.read(homePagePanelControllerProvider).open(); */
       },
+    );
+  }
+}
+
+class _MenuFloatingActionButton extends StatelessWidget {
+  final GlobalKey todayChildGlobalKey;
+
+  const _MenuFloatingActionButton(
+    this.todayChildGlobalKey, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        if (todayChildGlobalKey.currentContext != null)
+          Scrollable.ensureVisible(todayChildGlobalKey.currentContext!,
+              duration: Duration(milliseconds: 500), curve: Curves.decelerate);
+      },
+      child: //day.isToday
+          //? Icon(Icons.lightbulb_outline) :
+          Icon(Icons.today_outlined),
+    );
+  }
+
+  void _showDateRangePicker(BuildContext context) {
+    DatePickerRangeStyles styles = DatePickerRangeStyles(
+      selectedPeriodLastDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10.0),
+              bottomRight: Radius.circular(10.0))),
+      selectedPeriodStartDecoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10.0), bottomLeft: Radius.circular(10.0)),
+      ),
+      selectedPeriodMiddleDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.3),
+          shape: BoxShape.rectangle),
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.all(15),
+        child: AlertDialog(
+          title: Text('Choose a single date or a range'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              DateRangePicker(
+                selectedPeriod:
+                    DatePeriod(Date.now().toDateTime, Date.now().toDateTime),
+                onChanged: (dp) {
+                  print("${dp.start} - ${dp.end}");
+                },
+                firstDate: Date.now(),
+                lastDate: Date.now().add(Duration(days: 30)),
+                datePickerStyles: styles,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'CANCEL',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            ),
+            FlatButton(
+              onPressed: () {},
+              child: Text(
+                'CONTINUE',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

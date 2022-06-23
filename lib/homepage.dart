@@ -34,6 +34,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     ref.recipes.logLevel = 1;
     ref.ingredients.logLevel = 1;
     ref.shoppingLists.logLevel = 1;
+
     return Scaffold(
       bottomNavigationBar: _buildBottomAppBar(context),
       body: DefaultTabController(
