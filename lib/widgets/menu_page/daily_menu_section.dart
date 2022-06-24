@@ -685,9 +685,14 @@ class _MealRecipeEditingCard extends StatefulWidget {
   final FocusNode? focusNode;
   final Function(bool)? onFocusChange;
   final Function()? onCancel;
+  final Meal initialMeal;
 
   const _MealRecipeEditingCard(
-      {this.onFocusChange, this.onCancel, this.focusNode, Key? key})
+      {this.onFocusChange,
+      this.onCancel,
+      this.focusNode,
+      Key? key,
+      this.initialMeal = Meal.Breakfast})
       : super(key: key);
 
   @override
