@@ -14,6 +14,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../globals/utils.dart';
 import '../../main.data.dart';
+import '../../models/date.dart';
 import '../flutter_data_state_builder.dart';
 import '../../models/enums/meal.dart';
 import '../../models/recipe.dart';
@@ -54,9 +55,9 @@ class DailyMenuSection extends HookConsumerWidget {
             ? constants.todayColor
             : Colors.amber.shade200);
 
-    final displayEnterNewRecipeCard = useState(false);
-
     final focusNode = useFocusNode();
+
+    final displayEnterNewRecipeCard = useState(false);
 
     Widget buildMenuContainer(Meal meal, Menu? menu,
         {bool displayPlaceholder = false}) {
@@ -112,39 +113,6 @@ class DailyMenuSection extends HookConsumerWidget {
       }
     }
 
-    Widget buildEnterNewRecipeCard() {
-      return Row(
-        key: ValueKey('new-recipe-card'),
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          PopupMenuButton(
-            initialValue: Meal.Breakfast,
-            itemBuilder: (context) => Meal.values
-                .map((m) => PopupMenuItem<Meal>(value: m, child: Icon(m.icon)))
-                .toList(),
-          ),
-          const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
-          Expanded(
-            child: _CardPrototype(
-              child: _RecipeSuggestionTextField(
-                focusNode: focusNode,
-                onFocusChange: (hasFocus) {
-                  if (!hasFocus) {
-                    displayEnterNewRecipeCard.value = false;
-                  }
-                },
-                onCancel: () {
-                  displayEnterNewRecipeCard.value = false;
-                },
-                hintText: 'Delicious pizza',
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
     Widget buildCardTitle() {
       return Row(
         key: ValueKey('title'),
@@ -195,6 +163,7 @@ class DailyMenuSection extends HookConsumerWidget {
             ),
             onPressed: () {
               displayEnterNewRecipeCard.value = true;
+
               focusNode.requestFocus();
             },
             splashRadius: 15.0,
@@ -210,7 +179,18 @@ class DailyMenuSection extends HookConsumerWidget {
         child: Column(
           children: [
             buildCardTitle(),
-            if (displayEnterNewRecipeCard.value) buildEnterNewRecipeCard(),
+            if (displayEnterNewRecipeCard.value)
+              _MealRecipeEditingCard(
+                focusNode: focusNode,
+                onFocusChange: (hasFocus) {
+                  if (!hasFocus) {
+                    displayEnterNewRecipeCard.value = false;
+                  }
+                },
+                onCancel: () {
+                  displayEnterNewRecipeCard.value = false;
+                },
+              ),
             ...Meal.values.map((m) {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
@@ -697,6 +677,71 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
     return ListTile(
       title: Text(recipe.name),
       trailing: Icon(Icons.check_box),
+    );
+  }
+}
+
+class _MealRecipeEditingCard extends StatefulWidget {
+  final FocusNode? focusNode;
+  final Function(bool)? onFocusChange;
+  final Function()? onCancel;
+
+  const _MealRecipeEditingCard(
+      {this.onFocusChange, this.onCancel, this.focusNode, Key? key})
+      : super(key: key);
+
+  @override
+  State<_MealRecipeEditingCard> createState() => _MealRecipeEditingCardState();
+}
+
+class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
+  String? recipeName;
+  Meal? meal;
+
+  @override
+  void initState() {
+    meal = Meal.Breakfast;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        PopupMenuButton(
+          tooltip: 'Meal',
+          initialValue: meal,
+          constraints: BoxConstraints(maxWidth: 60),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(6),
+            decoration: BoxDecoration(
+                boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black45)],
+                color: Colors.white,
+                shape: BoxShape.circle),
+            child: Icon(meal?.icon ?? Icons.more_vert),
+          ),
+          elevation: 5,
+          itemBuilder: (context) => Meal.values
+              .map((m) => PopupMenuItem<Meal>(value: m, child: Icon(m.icon)))
+              .toList(),
+          onSelected: (selectedMeal) =>
+              setState(() => meal = selectedMeal as Meal),
+        ),
+        const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD - 9),
+        Expanded(
+          child: _CardPrototype(
+            child: _RecipeSuggestionTextField(
+              onCancel: widget.onCancel,
+              hintText: 'Delicious pizza',
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
