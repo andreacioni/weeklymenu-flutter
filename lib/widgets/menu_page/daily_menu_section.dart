@@ -156,18 +156,30 @@ class DailyMenuSection extends HookConsumerWidget {
             ),
           ),
           SizedBox(width: 5),
-          IconButton(
-            icon: Icon(
-              Icons.add,
-              color: Colors.black87,
-            ),
-            onPressed: () {
-              displayEnterNewRecipeCard.value = true;
+          if (!displayEnterNewRecipeCard.value)
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: Colors.black87,
+              ),
+              onPressed: () {
+                displayEnterNewRecipeCard.value = true;
 
-              focusNode.requestFocus();
-            },
-            splashRadius: 15.0,
-          ),
+                focusNode.requestFocus();
+              },
+              splashRadius: 15.0,
+            )
+          else
+            IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Colors.black87,
+              ),
+              onPressed: () {
+                displayEnterNewRecipeCard.value = false;
+              },
+              splashRadius: 15.0,
+            ),
         ],
       );
     }
@@ -180,16 +192,14 @@ class DailyMenuSection extends HookConsumerWidget {
           children: [
             buildCardTitle(),
             if (displayEnterNewRecipeCard.value)
-              _MealRecipeEditingCard(
-                focusNode: focusNode,
+              Focus(
                 onFocusChange: (hasFocus) {
                   if (!hasFocus) {
                     displayEnterNewRecipeCard.value = false;
                   }
                 },
-                onCancel: () {
-                  displayEnterNewRecipeCard.value = false;
-                },
+                focusNode: focusNode,
+                child: _MealRecipeEditingCard(),
               ),
             ...Meal.values.map((m) {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
@@ -569,7 +579,6 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
   final void Function(String)? onTextChanged;
   final Function()? onTap;
   final Function(bool)? onFocusChange;
-  final Function()? onCancel;
   final bool enabled;
 
   _RecipeSuggestionTextField({
@@ -580,7 +589,6 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
     this.onTap,
     this.hintText,
     this.enabled = true,
-    this.onCancel,
     this.onFocusChange,
     this.focusNode,
   }) : assert(value == null || value is String || value is Recipe);
@@ -610,22 +618,17 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
         enabled: enabled,
         focusNode: focusNode,
         decoration: InputDecoration(
-            contentPadding: const EdgeInsets.all(6.0),
-            hintText: hintText,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            isDense: true,
-            suffixIconConstraints: BoxConstraints(maxHeight: 35),
-            suffixIcon: IconButton(
-              icon: Icon(
-                Icons.close,
-                color: Colors.grey,
-                size: 35 / 2,
-              ),
-              onPressed: onCancel,
-            )),
-        maxLines: 1,
+          contentPadding: EdgeInsets.all(5),
+          hintText: hintText,
+          alignLabelWithHint: false,
+          border: OutlineInputBorder(),
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          isDense: true,
+        ),
+        maxLines: null,
+        minLines: null,
         onChanged: onTextChanged,
       ),
       itemBuilder: _itemBuilder,
@@ -681,15 +684,15 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
   }
 }
 
+enum _MealRecipeEditingCardPhase { MEAL, RECIPE }
+
 class _MealRecipeEditingCard extends StatefulWidget {
   final FocusNode? focusNode;
   final Function(bool)? onFocusChange;
-  final Function()? onCancel;
   final Meal initialMeal;
 
   const _MealRecipeEditingCard(
       {this.onFocusChange,
-      this.onCancel,
       this.focusNode,
       Key? key,
       this.initialMeal = Meal.Breakfast})
@@ -702,51 +705,104 @@ class _MealRecipeEditingCard extends StatefulWidget {
 class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
   String? recipeName;
   Meal? meal;
+  late _MealRecipeEditingCardPhase _mealRecipeEditingCardPhase;
 
   @override
   void initState() {
     meal = Meal.Breakfast;
+    _mealRecipeEditingCardPhase = _MealRecipeEditingCardPhase.MEAL;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        PopupMenuButton(
-          tooltip: 'Meal',
-          initialValue: meal,
-          constraints: BoxConstraints(maxWidth: 60),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(6),
-            decoration: BoxDecoration(
-                boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black45)],
-                color: Colors.white,
-                shape: BoxShape.circle),
-            child: Icon(meal?.icon ?? Icons.more_vert),
-          ),
-          elevation: 5,
-          itemBuilder: (context) => Meal.values
-              .map((m) => PopupMenuItem<Meal>(value: m, child: Icon(m.icon)))
-              .toList(),
-          onSelected: (selectedMeal) =>
-              setState(() => meal = selectedMeal as Meal),
-        ),
-        const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD - 9),
-        Expanded(
-          child: _CardPrototype(
-            child: _RecipeSuggestionTextField(
-              onCancel: widget.onCancel,
-              hintText: 'Delicious pizza',
+    return AnimatedSwitcher(
+      switchOutCurve: Curves.fastOutSlowIn,
+      switchInCurve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: 200),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        final tween = Tween(begin: begin, end: end);
+        final offsetAnimation = animation.drive(tween);
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+      child: _mealRecipeEditingCardPhase == _MealRecipeEditingCardPhase.RECIPE
+          ? _buildMenuCardRecipeSelection()
+          : _buildMealSelectionWidget(),
+    );
+  }
+
+  Widget _buildMenuCardRecipeSelection() {
+    return Expanded(
+      key: ValueKey('recipe-selection'),
+      child: Row(
+        children: [
+          IconButton(
+              splashRadius: 4,
+              padding: EdgeInsets.zero,
+              onPressed: () => setState(() {
+                    _mealRecipeEditingCardPhase =
+                        _MealRecipeEditingCardPhase.MEAL;
+                  }),
+              icon: Icon(meal?.icon)),
+          const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
+          Expanded(
+            child: _CardPrototype(
+              child: Container(
+                alignment: Alignment.center,
+                constraints: BoxConstraints(minHeight: 39),
+                child: _RecipeSuggestionTextField(
+                  focusNode: widget.focusNode,
+                  onFocusChange: widget.onFocusChange,
+                  hintText: 'Delicious pizza',
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMealSelectionWidget() {
+    Widget mapMealToWidget(Meal m) {
+      return Expanded(
+        child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () {
+              setState(() {
+                _mealRecipeEditingCardPhase =
+                    _MealRecipeEditingCardPhase.RECIPE;
+                meal = m;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(m.icon),
+            )),
+      );
+    }
+
+    return Expanded(
+      key: ValueKey('meal-selection'),
+      child: Row(
+        children: [
+          Icon(Icons.abc, color: Colors.transparent),
+          SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
+          Expanded(
+            child: _CardPrototype(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: Meal.values.map(mapMealToWidget).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -754,20 +810,19 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
 class _CardPrototype extends StatelessWidget {
   final Widget child;
   final Color? color;
+  final ShapeBorder? shape;
 
-  const _CardPrototype({
+  _CardPrototype({
     Key? key,
+    ShapeBorder? shape,
     required this.child,
     this.color,
-  }) : super(key: key);
+  })  : this.shape = shape ??
+            RoundedRectangleBorder(borderRadius: MENU_CARD_ROUNDED_RECT_BORDER),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        color: color,
-        shape:
-            RoundedRectangleBorder(borderRadius: MENU_CARD_ROUNDED_RECT_BORDER),
-        elevation: 3,
-        child: child);
+    return Card(color: color, shape: shape, elevation: 3, child: child);
   }
 }
