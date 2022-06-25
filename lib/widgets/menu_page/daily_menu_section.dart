@@ -5,7 +5,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +21,6 @@ import '../../models/recipe.dart';
 import '../../globals/constants.dart' as constants;
 import '../../models/menu.dart';
 import '../recipe_view/screen.dart';
-import 'add_recipe_dialog.dart';
 import 'screen.dart';
 
 final MENU_CARD_ROUNDED_RECT_BORDER = BorderRadius.circular(10);
@@ -186,19 +184,10 @@ class DailyMenuSection extends HookConsumerWidget {
           children: [
             buildCardTitle(),
             if (displayEnterNewRecipeCard.value)
-              Focus(
-                onFocusChange: (hasFocus) {
-                  if (!hasFocus) {
-                    displayEnterNewRecipeCard.value = false;
-                  }
-                },
-                focusNode: focusNode,
-                child: _MealRecipeEditingCard(
-                    onRecipeMealSubmitted: (meal, recipeName) {
-                  newRecipeSubmitted(meal, recipeName);
-                  displayEnterNewRecipeCard.value = false;
-                }),
-              ),
+              _MealRecipeEditingCard(onRecipeMealSubmitted: (meal, recipeName) {
+                newRecipeSubmitted(meal, recipeName);
+                displayEnterNewRecipeCard.value = false;
+              }),
             ...Meal.values.map((m) {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
@@ -614,11 +603,39 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
       textEditingController.text = item.name;
     }
 
-    return TypeAheadField<Recipe>(
+    return Autocomplete(
+        fieldViewBuilder:
+            (context, textEditingController, focusNode, onFieldSubmitted) =>
+                TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  autofocus: true,
+                  maxLines: 1,
+                  minLines: 1,
+                  onEditingComplete: () =>
+                      onEditingComplete?.call(textEditingController.text),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(5),
+                    hintText: hintText,
+                    border: OutlineInputBorder(),
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    isDense: true,
+                  ),
+                ),
+        optionsBuilder: (textEditingValue) async {
+          if (textEditingValue.text.isEmpty) return <Recipe>[];
+          return await _suggestionsCallback(
+              textEditingValue.text, recipeRepository);
+        });
+
+    /* return TypeAheadField<Recipe>(
       textFieldConfiguration: TextFieldConfiguration(
           controller: textEditingController,
           enabled: enabled,
           focusNode: focusNode,
+          autofocus: true,
           decoration: InputDecoration(
             contentPadding: EdgeInsets.all(5),
             hintText: hintText,
@@ -641,8 +658,9 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
       hideOnLoading: true,
       hideSuggestionsOnKeyboardHide: false,
       hideKeyboard: false,
+
       minCharsForSuggestions: 1,
-    );
+    ); */
   }
 
   void _setupFocusListener() {
