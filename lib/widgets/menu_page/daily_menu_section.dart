@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ import 'screen.dart';
 
 final MENU_CARD_ROUNDED_RECT_BORDER = BorderRadius.circular(10);
 const SPACE_BETWEEN_ICON_AND_CARD = 15.0;
+const _ICON_MARGIN = const EdgeInsets.all(5);
 
 final _dragOriginDailyMenuNotifierProvider =
     StateProvider<DailyMenuNotifier?>((_) => null);
@@ -72,11 +74,11 @@ class DailyMenuSection extends HookConsumerWidget {
 
     Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
       if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
-        final menu = await ref.menus.save(Menu(
+        final menu = Menu(
           date: dailyMenuNotifier.dailyMenu.day,
           recipes: [recipe.id],
           meal: meal,
-        ));
+        );
         await dailyMenuNotifier.addMenu(menu);
       } else {
         await dailyMenuNotifier.addRecipeToMeal(meal, recipe);
@@ -85,31 +87,23 @@ class DailyMenuSection extends HookConsumerWidget {
 
     Future<void> createNewRecipeByName(Meal meal, String recipeName) async {
       if (recipeName.trim().isNotEmpty) {
-        Recipe recipe = await ref.recipes
-            .save(Recipe(id: ObjectId().hexString, name: recipeName));
+        Recipe recipe = await ref.recipes.save(
+            Recipe(id: ObjectId().hexString, name: recipeName),
+            params: {'update': false});
         await addRecipeToMeal(meal, recipe);
       } else {
         print("can't create a recipe with empty name");
       }
     }
 
-    Future<void> openAddRecipeToDailyMenuDialog() async {
-      final newMealRecipe = await showDialog(
-          context: context,
-          builder: (context) => RecipeSelectionDialog(
-              title: _dialogDateParser
-                  .format(dailyMenuNotifier.dailyMenu.day.toDateTime)));
+    Future<void> newRecipeSubmitted(Meal meal, String recipeName) async {
+      Recipe? recipe = (await ref.recipes.findAll(remote: false))
+          ?.firstWhereOrNull((r) => r.name == recipeName);
 
-      print('selected $newMealRecipe');
-
-      if (newMealRecipe != null && newMealRecipe['meal'] != null) {
-        if (newMealRecipe['recipeTitle'] != null) {
-          createNewRecipeByName(newMealRecipe['meal'] as Meal,
-              newMealRecipe['recipeTitle'] as String);
-        } else if (newMealRecipe['recipe'] != null) {
-          addRecipeToMeal(
-              newMealRecipe['meal'] as Meal, newMealRecipe['recipe'] as Recipe);
-        }
+      if (recipe == null) {
+        await createNewRecipeByName(meal, recipeName);
+      } else {
+        await addRecipeToMeal(meal, recipe);
       }
     }
 
@@ -199,7 +193,11 @@ class DailyMenuSection extends HookConsumerWidget {
                   }
                 },
                 focusNode: focusNode,
-                child: _MealRecipeEditingCard(),
+                child: _MealRecipeEditingCard(
+                    onRecipeMealSubmitted: (meal, recipeName) {
+                  newRecipeSubmitted(meal, recipeName);
+                  displayEnterNewRecipeCard.value = false;
+                }),
               ),
             ...Meal.values.map((m) {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
@@ -231,11 +229,17 @@ class MealRecipeCardContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          meal.icon,
-          color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
+        Card(
+          elevation: 0,
+          child: Container(
+            margin: _ICON_MARGIN,
+            child: Icon(
+              meal.icon,
+              color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
+            ),
+          ),
         ),
-        SizedBox(width: 15),
+        const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
         Expanded(
             child: MenuRecipeWrapper(
           recipeId,
@@ -571,27 +575,25 @@ class MenuRecipeCard extends HookConsumerWidget {
 }
 
 class _RecipeSuggestionTextField extends HookConsumerWidget {
-  final dynamic value;
+  final String recipeName;
   final String? hintText;
   final bool showSuggestions;
   final FocusNode? focusNode;
-  final void Function(Recipe)? onRecipeSelected;
-  final void Function(String)? onTextChanged;
+  final void Function(String)? onEditingComplete;
   final Function()? onTap;
   final Function(bool)? onFocusChange;
   final bool enabled;
 
   _RecipeSuggestionTextField({
-    this.value,
-    this.onRecipeSelected,
-    this.onTextChanged,
+    String? recipeName,
+    this.onEditingComplete,
     this.showSuggestions = true,
     this.onTap,
     this.hintText,
     this.enabled = true,
     this.onFocusChange,
     this.focusNode,
-  }) : assert(value == null || value is String || value is Recipe);
+  }) : this.recipeName = recipeName ?? '';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -601,36 +603,35 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
 
     final textEditingController = useTextEditingController();
 
-    if (value != null) {
-      if (value is Recipe)
-        textEditingController.text = value!.name;
-      else if (value is String) textEditingController.text = value;
+    textEditingController.text = recipeName;
 
-      textEditingController.selection =
-          TextSelection.collapsed(offset: textEditingController.text.length);
-    }
+    textEditingController.selection =
+        TextSelection.collapsed(offset: textEditingController.text.length);
 
     final recipeRepository = ref.read(recipesRepositoryProvider);
 
+    void _onSuggestionSelected(Recipe item) {
+      textEditingController.text = item.name;
+    }
+
     return TypeAheadField<Recipe>(
       textFieldConfiguration: TextFieldConfiguration(
-        controller: textEditingController,
-        enabled: enabled,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(5),
-          hintText: hintText,
-          alignLabelWithHint: false,
-          border: OutlineInputBorder(),
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          isDense: true,
-        ),
-        maxLines: null,
-        minLines: null,
-        onChanged: onTextChanged,
-      ),
+          controller: textEditingController,
+          enabled: enabled,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.all(5),
+            hintText: hintText,
+            border: OutlineInputBorder(),
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            isDense: true,
+          ),
+          maxLines: null,
+          minLines: null,
+          onEditingComplete: () =>
+              onEditingComplete?.call(textEditingController.text)),
       itemBuilder: _itemBuilder,
       onSuggestionSelected: _onSuggestionSelected,
       suggestionsCallback: (pattern) =>
@@ -639,6 +640,7 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
       autoFlipDirection: true,
       hideOnLoading: true,
       hideSuggestionsOnKeyboardHide: false,
+      hideKeyboard: false,
       minCharsForSuggestions: 1,
     );
   }
@@ -655,12 +657,6 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
 
       return () => focusNode!..removeListener(focusListener);
     }), const []);
-  }
-
-  void _onSuggestionSelected(Recipe item) {
-    if (onRecipeSelected != null) {
-      onRecipeSelected!(item);
-    }
   }
 
   Future<List<Recipe>> _suggestionsCallback(
@@ -689,14 +685,17 @@ enum _MealRecipeEditingCardPhase { MEAL, RECIPE }
 class _MealRecipeEditingCard extends StatefulWidget {
   final FocusNode? focusNode;
   final Function(bool)? onFocusChange;
+  final Function(Meal, String)? onRecipeMealSubmitted;
+
   final Meal initialMeal;
 
-  const _MealRecipeEditingCard(
-      {this.onFocusChange,
-      this.focusNode,
-      Key? key,
-      this.initialMeal = Meal.Breakfast})
-      : super(key: key);
+  const _MealRecipeEditingCard({
+    this.onFocusChange,
+    this.focusNode,
+    Key? key,
+    this.initialMeal = Meal.Breakfast,
+    this.onRecipeMealSubmitted,
+  }) : super(key: key);
 
   @override
   State<_MealRecipeEditingCard> createState() => _MealRecipeEditingCardState();
@@ -741,14 +740,19 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
       key: ValueKey('recipe-selection'),
       child: Row(
         children: [
-          IconButton(
-              splashRadius: 4,
-              padding: EdgeInsets.zero,
-              onPressed: () => setState(() {
-                    _mealRecipeEditingCardPhase =
-                        _MealRecipeEditingCardPhase.MEAL;
-                  }),
-              icon: Icon(meal?.icon)),
+          _CardPrototype(
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => setState(() {
+                _mealRecipeEditingCardPhase = _MealRecipeEditingCardPhase.MEAL;
+              }),
+              child: Container(
+                margin: _ICON_MARGIN,
+                child: Icon(meal?.icon),
+              ),
+            ),
+          ),
           const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
           Expanded(
             child: _CardPrototype(
@@ -756,10 +760,12 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
                 alignment: Alignment.center,
                 constraints: BoxConstraints(minHeight: 39),
                 child: _RecipeSuggestionTextField(
-                  focusNode: widget.focusNode,
-                  onFocusChange: widget.onFocusChange,
-                  hintText: 'Delicious pizza',
-                ),
+                    hintText: 'Delicious pizza',
+                    onEditingComplete: (recipeName) {
+                      if (meal != null && recipeName.trim().isNotEmpty) {
+                        widget.onRecipeMealSubmitted?.call(meal!, recipeName);
+                      }
+                    }),
               ),
             ),
           ),
@@ -769,6 +775,7 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
   }
 
   Widget _buildMealSelectionWidget() {
+    final primaryColor = Theme.of(context).primaryColor;
     Widget mapMealToWidget(Meal m) {
       return Expanded(
         child: InkWell(
@@ -782,7 +789,7 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Icon(m.icon),
+              child: Icon(m.icon, color: m == meal ? primaryColor : null),
             )),
       );
     }
@@ -791,8 +798,14 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
       key: ValueKey('meal-selection'),
       child: Row(
         children: [
-          Icon(Icons.abc, color: Colors.transparent),
-          SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
+          Card(
+            elevation: 0,
+            child: Container(
+              margin: _ICON_MARGIN,
+              child: Icon(Icons.abc, color: Colors.transparent),
+            ),
+          ),
+          const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
           Expanded(
             child: _CardPrototype(
               child: Row(
@@ -823,6 +836,11 @@ class _CardPrototype extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(color: color, shape: shape, elevation: 3, child: child);
+    return Card(
+      color: color,
+      shape: shape,
+      elevation: 3,
+      child: child,
+    );
   }
 }

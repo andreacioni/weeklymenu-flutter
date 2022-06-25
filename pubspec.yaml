@@ -33,8 +33,7 @@ dependencies:
   expandable: ^5.0.0
   grouped_buttons: ^1.0.4
   dotted_border: ^2.0.0
-  flutter_typeahead: 
-    path: /Users/andreacioni/git/flutter_typeahead
+  flutter_typeahead: ^4.0.0
   flutter_keyboard_visibility: ^5.2.0
   autocomplete_textfield: ^1.7.3
   hooks_riverpod: ^1.0.3
