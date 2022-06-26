@@ -120,10 +120,10 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
-  void removeMenu(Menu menu) {
+  Future<void> removeMenu(Menu menu) async {
     final newList = state.menus
       ..removeWhere((element) => element.id == menu.id);
-    menu.delete();
+    await menu.delete();
     state = state.copyWith(menus: newList);
   }
 
@@ -139,20 +139,35 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
-  void removeRecipeFromMeal(Meal meal, String recipeId) {
-    removeRecipesFromMeal(meal, [recipeId]);
+  Future<void> replaceRecipeInMeal(Meal meal,
+      {required String oldRecipeId, required String newRecipeId}) async {
+    Menu? menu = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
+
+    if (menu != null) {
+      final recipeList = [...menu.recipes];
+      final recipeIdx = recipeList.indexOf(oldRecipeId);
+      if (recipeIdx != -1) {
+        recipeList[recipeIdx] = newRecipeId;
+        menu = menu.copyWith(recipes: recipeList);
+        await updateMenu(menu);
+      }
+    }
   }
 
-  void removeRecipesFromMeal(Meal meal, List<String> recipeIds) {
+  Future<void> removeRecipeFromMeal(Meal meal, String recipeId) async {
+    await removeRecipesFromMeal(meal, [recipeId]);
+  }
+
+  Future<void> removeRecipesFromMeal(Meal meal, List<String> recipeIds) async {
     final menuMeal = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
 
     if (menuMeal != null) {
       final newMenu = menuMeal.removeRecipeByIdList(recipeIds);
 
       if (newMenu.recipes.isEmpty) {
-        removeMenu(newMenu);
+        await removeMenu(newMenu);
       } else {
-        updateMenu(newMenu);
+        await updateMenu(newMenu);
       }
     }
   }

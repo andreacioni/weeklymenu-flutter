@@ -12,7 +12,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [
-        configureRepositoryLocalStorage(clear: false),
+        configureRepositoryLocalStorage(clear: true),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
