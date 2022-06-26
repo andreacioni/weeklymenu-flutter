@@ -41,27 +41,24 @@ class Menu extends BaseModel<Menu> {
             updateTimestamp: updateTimestamp);
 
   Menu addRecipe(String recipeId) {
-    return this.copyWith(recipes: [...recipes, recipeId]).was(this);
+    return this.copyWith(recipes: [...recipes, recipeId]);
   }
 
   Menu addRecipes(List<String> recipeIds) {
-    return this.copyWith(recipes: [...recipes, ...recipeIds]).was(this);
+    return this.copyWith(recipes: [...recipes, ...recipeIds]);
   }
 
   Menu removeRecipeById(String id) {
     return this
-        .copyWith(recipes: recipes..removeWhere((element) => element == id))
-        .was(this);
+        .copyWith(recipes: recipes..removeWhere((element) => element == id));
   }
 
   Menu removeRecipeByIdList(List<String> ids) {
-    return this
-        .copyWith(recipes: recipes..removeWhere((e) => ids.contains(e)))
-        .was(this);
+    return this.copyWith(recipes: recipes..removeWhere((e) => ids.contains(e)));
   }
 
   Menu removeAllRecipes() {
-    return this.copyWith(recipes: []).was(this);
+    return this.copyWith(recipes: []);
   }
 
   factory Menu.fromJson(Map<String, dynamic> json) => _$MenuFromJson(json);
@@ -123,10 +120,10 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
-  void removeMenu(Menu menu) {
+  Future<void> removeMenu(Menu menu) async {
     final newList = state.menus
       ..removeWhere((element) => element.id == menu.id);
-    menu.delete();
+    await menu.delete();
     state = state.copyWith(menus: newList);
   }
 
@@ -142,16 +139,35 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
-  void removeRecipesFromMeal(Meal meal, List<String> recipeIds) {
+  Future<void> replaceRecipeInMeal(Meal meal,
+      {required String oldRecipeId, required String newRecipeId}) async {
+    Menu? menu = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
+
+    if (menu != null) {
+      final recipeList = [...menu.recipes];
+      final recipeIdx = recipeList.indexOf(oldRecipeId);
+      if (recipeIdx != -1) {
+        recipeList[recipeIdx] = newRecipeId;
+        menu = menu.copyWith(recipes: recipeList);
+        await updateMenu(menu);
+      }
+    }
+  }
+
+  Future<void> removeRecipeFromMeal(Meal meal, String recipeId) async {
+    await removeRecipesFromMeal(meal, [recipeId]);
+  }
+
+  Future<void> removeRecipesFromMeal(Meal meal, List<String> recipeIds) async {
     final menuMeal = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
 
     if (menuMeal != null) {
       final newMenu = menuMeal.removeRecipeByIdList(recipeIds);
 
       if (newMenu.recipes.isEmpty) {
-        removeMenu(newMenu);
+        await removeMenu(newMenu);
       } else {
-        updateMenu(newMenu);
+        await updateMenu(newMenu);
       }
     }
   }
@@ -165,6 +181,8 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
       }
     }
   }
+
+  DailyMenu get dailyMenu => state;
 }
 
 @CopyWith()

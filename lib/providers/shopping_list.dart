@@ -8,8 +8,8 @@ import '../main.data.dart';
 
 final shoppingListProvider = Provider<ShoppingList?>((ref) {
   final shopList = ref.shoppingLists.watchAll();
-  return shopList.hasModel && shopList.model.isNotEmpty
-      ? shopList.model[0]
+  return shopList.hasModel && (shopList.model?.isNotEmpty ?? false)
+      ? shopList.model![0]
       : null;
 });
 

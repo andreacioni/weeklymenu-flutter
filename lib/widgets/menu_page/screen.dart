@@ -1,93 +1,147 @@
 import 'package:flutter/material.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:weekly_menu_app/globals/hooks.dart';
+import 'package:weekly_menu_app/widgets/menu_page/date_range_picker.dart';
 
+import '../../globals/listener_utils.dart';
 import '../../homepage.dart';
 import '../../models/date.dart';
 import '../../main.data.dart';
 import '../../models/date.dart';
 import '../../models/menu.dart';
 import '../../widgets/flutter_data_state_builder.dart';
-import '../../widgets/menu_editor/screen.dart';
-import '../../widgets/menu_page/menu_card.dart';
+import 'daily_menu_section.dart';
 import 'menu_app_bar.dart';
-import 'menu_fab.dart';
 import '../../globals/constants.dart';
-import './menu_card.dart';
 
-class MenuScreen extends StatefulHookConsumerWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
+final isEditingMenuStateProvider =
+    StateProvider.autoDispose<bool>((_) => false);
 
-  @override
-  _MenuScreenState createState() => _MenuScreenState();
-}
+class MenuScreen extends HookConsumerWidget {
+  MenuScreen({Key? key}) : super(key: key);
 
-class _MenuScreenState extends ConsumerState<MenuScreen> {
-  final _todayOffset = (pageViewLimitDays / 2);
-  final _itemExtent = MenuCard.extent;
-
-  late ScrollController _scrollController;
+  double todayOffset = -1;
 
   @override
-  void initState() {
-    _scrollController = new ScrollController(
-      initialScrollOffset: _todayOffset * _itemExtent,
-      keepScrollOffset: true,
-    );
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomSheetDailyMenu =
-        ref.watch(homePageModalBottomSheetDailyMenuNotifierProvider);
-    final panelController = ref.watch(homePagePanelControllerProvider);
-
+  Widget build(BuildContext context, WidgetRef ref) {
     /*
     * NOTE: we must avoid using setState in this widget to increase render 
     * performances. The AppBar and the FAB are taking to each other directly 
     * (via listeners) to avoid that.
     */
     final day = Date.now();
-    final appBar = MenuAppBar(
-      day,
-      _scrollController,
-      _itemExtent,
-    );
+    final appBar = MenuAppBar(day);
+
+    final scrollController = useScrollController();
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
+    final pointerOverWidgetIndex = useState(-1);
+
+    final displayFAB = useState(true);
+
+    final todayKey = GlobalKey();
+
+    void onPointerMove(PointerMoveEvent ev) {
+      //Handle pointer move at the tob/Bottom of the screen and scroll
+      if (isDraggingMenu && !scrollController.position.outOfRange) {
+        final offset = screenHeight ~/ 4;
+        //final moveDistance = 3;
+        if (ev.position.dy > screenHeight - offset) {
+          final moveDistance = 3 + (7 * (ev.position.dy / screenHeight));
+          scrollController.jumpTo(scrollController.offset + moveDistance);
+        } else if (ev.position.dy < offset) {
+          final moveDistance = 3 + (7 * (ev.position.dy / offset));
+
+          scrollController.jumpTo(scrollController.offset - moveDistance);
+        }
+      }
+
+      //Handle pointer over daily menu container
+      if (isDraggingMenu) {
+        final RenderBox box =
+            context.findAncestorRenderObjectOfType<RenderBox>()!;
+        final result = BoxHitTestResult();
+        Offset local = box.globalToLocal(ev.position);
+        if (box.hitTest(result, position: local)) {
+          for (final hit in result.path) {
+            /// temporary variable so that the [is] allows access of [index]
+            final target = hit.target;
+            if (target is IndexedListenerWrapperRenderObject &&
+                target.index != null &&
+                pointerOverWidgetIndex.value != target.index) {
+              pointerOverWidgetIndex.value = target.index!;
+            }
+          }
+        }
+      }
+    }
+
+    Widget _buildListItem(int index) {
+      final day =
+          Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
+
+      return IndexedListenerWrapper(
+        index: index,
+        child: DailyMenuFutureWrapper(day,
+            key: day.isToday ? todayKey : ValueKey(day),
+            isDragOverWidget: pointerOverWidgetIndex.value == index),
+      );
+    }
+
+    void _scrollListener() {
+      const threshold = 50;
+      final bool? newValue;
+      if (scrollController.offset > todayOffset - threshold &&
+          scrollController.offset < todayOffset + threshold) {
+        newValue = false;
+      } else {
+        newValue = true;
+      }
+
+      if (newValue != displayFAB.value) {
+        //displayFAB.value = newValue;
+      }
+    }
+
+    useEffect(() {
+      // center the scrollable area on today just on the first build
+      // save the offset in order to display the button only when needed
+      scrollController.addListener(_scrollListener);
+
+      Future.delayed(Duration.zero, () {
+        if (todayKey.currentContext != null) {
+          Scrollable.ensureVisible(todayKey.currentContext!)
+              .then((_) => todayOffset = scrollController.offset);
+        }
+      });
+
+      return () => scrollController.removeListener(_scrollListener);
+    }, [scrollController]);
 
     return Scaffold(
       appBar: appBar,
-      floatingActionButton: MenuFloatingActionButton(
-        day,
-        appBar,
-        _scrollController,
-        _itemExtent,
-      ),
+      floatingActionButton: _MenuFloatingActionButton(todayKey),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: ListView.builder(
-        itemExtent: _itemExtent,
-        itemBuilder: _buildListItem,
-        controller: _scrollController,
-        itemCount: pageViewLimitDays,
+      body: Listener(
+        onPointerMove: onPointerMove,
+        onPointerUp: (_) =>
+            ref.read(isDraggingMenuStateProvider.state).state = false,
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            children: List.generate(pageViewLimitDays, _buildListItem),
+          ),
+        ),
       ),
     );
-  }
-
-  Widget _buildListItem(BuildContext context, int index) {
-    final day = Date.now().add(Duration(
-      days: index - _todayOffset.toInt(),
-    ));
-
-    return DailyMenuFutureWrapper(day);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 }
 
@@ -98,37 +152,122 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
 */
 
 class DailyMenuFutureWrapper extends HookConsumerWidget {
-  static final _dateParser = DateFormat('y-MM-dd');
+  static final _httpParamDateParser = DateFormat('y-MM-dd');
 
-  final Date _day;
+  final Date day;
+  final bool isDragOverWidget;
 
-  DailyMenuFutureWrapper(this._day);
+  DailyMenuFutureWrapper(this.day, {Key? key, this.isDragOverWidget = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FlutterDataStateBuilder<List<Menu>>(
       state: ref.menus.watchAll(
-        params: {'day': _day.format(_dateParser)},
+        params: {'day': day.format(_httpParamDateParser)},
       ),
       builder: (context, model) {
-        final filtered = model.where((m) => m.date == _day).toList();
-        final dailyMenu = DailyMenu(day: _day, menus: filtered);
-        return _buildMenuCard(context, ref, _day, dailyMenu);
+        final filtered = model.where((m) => m.date == day).toList();
+        final dailyMenu = DailyMenu(day: day, menus: filtered);
+
+        return _buildMenuCard(context, ref, day, dailyMenu);
       },
     );
   }
 
   Widget _buildMenuCard(
       BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
-    final dailyMenuNotifier = DailyMenuNotifier(dailyMenu);
-    return MenuCard(
-      dailyMenuNotifier,
+    return DailyMenuSection(
+      DailyMenuNotifier(dailyMenu),
+      isDragOverWidget: isDragOverWidget,
       onTap: () {
-        ref
+        /*  ref
             .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)
             .state = dailyMenuNotifier;
-        ref.read(homePagePanelControllerProvider).open();
+        ref.read(homePagePanelControllerProvider).open(); */
       },
+    );
+  }
+}
+
+class _MenuFloatingActionButton extends StatelessWidget {
+  final GlobalKey todayChildGlobalKey;
+
+  const _MenuFloatingActionButton(
+    this.todayChildGlobalKey, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        if (todayChildGlobalKey.currentContext != null)
+          Scrollable.ensureVisible(todayChildGlobalKey.currentContext!,
+              duration: Duration(milliseconds: 500), curve: Curves.decelerate);
+      },
+      child: //day.isToday
+          //? Icon(Icons.lightbulb_outline) :
+          Icon(Icons.today_outlined),
+    );
+  }
+
+  void _showDateRangePicker(BuildContext context) {
+    DatePickerRangeStyles styles = DatePickerRangeStyles(
+      selectedPeriodLastDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10.0),
+              bottomRight: Radius.circular(10.0))),
+      selectedPeriodStartDecoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10.0), bottomLeft: Radius.circular(10.0)),
+      ),
+      selectedPeriodMiddleDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.3),
+          shape: BoxShape.rectangle),
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.all(15),
+        child: AlertDialog(
+          title: Text('Choose a single date or a range'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              DateRangePicker(
+                selectedPeriod:
+                    DatePeriod(Date.now().toDateTime, Date.now().toDateTime),
+                onChanged: (dp) {
+                  print("${dp.start} - ${dp.end}");
+                },
+                firstDate: Date.now(),
+                lastDate: Date.now().add(Duration(days: 30)),
+                datePickerStyles: styles,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'CANCEL',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            ),
+            FlatButton(
+              onPressed: () {},
+              child: Text(
+                'CONTINUE',
+                style: TextStyle(color: Theme.of(ctx).primaryColor),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import './drawer.dart';
 import './widgets/menu_page/screen.dart';
 import './widgets/recipes_screen/screen.dart';
 import './widgets/shopping_list_screen/screen.dart';
-import 'models/menu.dart';
-import 'widgets/menu_editor/screen.dart';
-import 'widgets/menu_page/menu_card.dart';
-
-final homePageModalBottomSheetDailyMenuNotifierProvider =
-    StateProvider.autoDispose<DailyMenuNotifier?>((_) => null);
-final homePagePanelControllerProvider =
-    Provider<PanelController>((_) => PanelController());
+import 'main.data.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage();
@@ -38,19 +30,22 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return _BottomSheetPanel(
-      child: Scaffold(
-        bottomNavigationBar: _buildBottomAppBar(context),
-        body: DefaultTabController(
-          initialIndex: 1,
-          length: 4,
-          child: PageStorage(
-            child: _screens[_activeScreenIndex],
-            bucket: bucket,
-          ),
+    ref.menus.logLevel = 1;
+    ref.recipes.logLevel = 1;
+    ref.ingredients.logLevel = 1;
+    ref.shoppingLists.logLevel = 1;
+
+    return Scaffold(
+      bottomNavigationBar: _buildBottomAppBar(context),
+      body: DefaultTabController(
+        initialIndex: 1,
+        length: 4,
+        child: PageStorage(
+          child: _screens[_activeScreenIndex],
+          bucket: bucket,
         ),
-        drawer: AppDrawer(),
       ),
+      drawer: AppDrawer(),
     );
   }
 
@@ -84,62 +79,5 @@ class _HomePageState extends ConsumerState<HomePage> {
     setState(() {
       _activeScreenIndex = index;
     });
-  }
-}
-
-class _BottomSheetPanel extends HookConsumerWidget {
-  final Widget child;
-  final double? panelHeight;
-  _BottomSheetPanel({required this.child, this.panelHeight});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final panelController = ref.read(homePagePanelControllerProvider);
-    final bottomSheetDailyMenuNotifier =
-        ref.watch(homePageModalBottomSheetDailyMenuNotifierProvider);
-
-    final screenHeight = MediaQuery.of(context).size.height;
-    final panelHeight = this.panelHeight ?? screenHeight * 0.60;
-    final backdropAreaHeight = screenHeight - panelHeight;
-
-    return SlidingUpPanel(
-        backdropEnabled: true,
-        controller: panelController,
-        maxHeight: screenHeight,
-        minHeight: 0,
-        color: Colors.transparent,
-        boxShadow: [],
-        borderRadius: const BorderRadius.only(
-            topLeft: MENU_CARD_ROUNDED_RECT_BORDER,
-            topRight: MENU_CARD_ROUNDED_RECT_BORDER),
-        backdropTapClosesPanel: true,
-        panel: bottomSheetDailyMenuNotifier != null
-            ? Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => panelController.close(),
-                    child: DragTarget(
-                      onWillAccept: (data) {
-                        panelController.close();
-                        return true;
-                      },
-                      builder: ((_, __, ___) => Container(
-                            color: Colors.transparent,
-                            height: backdropAreaHeight,
-                          )),
-                    ),
-                  ),
-                  Container(
-                      height: panelHeight,
-                      child: MenuEditorScreen(bottomSheetDailyMenuNotifier)),
-                ],
-              )
-            : Container(),
-        onPanelClosed: () {
-          //ref.read(_modalBottomSheetDailyMenuProvider.notifier).state = null;
-          //panelController.close();
-          ref.read(menuRecipeSelectionProvider.notifier).clearSelected();
-        },
-        body: child);
   }
 }

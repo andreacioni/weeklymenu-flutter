@@ -205,7 +205,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     Future<void> setSupermarketSectionOnSelectedItems(
         SupermarketSection? section) async {
-      final shoppingList = (await ref.shoppingLists.findAll())[0];
+      final shoppingList = (await ref.shoppingLists.findAll())![0];
       final items = [...shoppingList.items];
 
       selectedItems.forEach((itemId) {
@@ -255,7 +255,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     void openSupermarketSectionSelectionDialog() async {
       final allItems =
-          (await ref.shoppingLists.findAll(remote: false))[0].items;
+          (await ref.shoppingLists.findAll(remote: false))![0].items;
       final availableSupermarketSections =
           (allItems.map((e) => e.supermarketSectionName).toList()
                 ..removeWhere((e) => e == null || e.trim().isEmpty))

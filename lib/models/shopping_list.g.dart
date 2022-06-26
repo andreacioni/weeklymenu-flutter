@@ -208,6 +208,60 @@ extension $ShoppingListItemCopyWith on ShoppingListItem {
 }
 
 // **************************************************************************
+// RepositoryGenerator
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $ShoppingListLocalAdapter on LocalAdapter<ShoppingList> {
+  static final Map<String, RelationshipMeta> _kShoppingListRelationshipMetas =
+      {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kShoppingListRelationshipMetas;
+
+  @override
+  ShoppingList deserialize(map) {
+    map = transformDeserialize(map);
+    return ShoppingList.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _shoppingListsFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $ShoppingListHiveLocalAdapter = HiveLocalAdapter<ShoppingList>
+    with $ShoppingListLocalAdapter;
+
+class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
+    with BaseAdapter<ShoppingList>, ShoppingListAdapter<ShoppingList>;
+
+final internalShoppingListsRemoteAdapterProvider =
+    Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
+        $ShoppingListHiveLocalAdapter(ref.read),
+        InternalHolder(_shoppingListsFinders)));
+
+final shoppingListsRepositoryProvider = Provider<Repository<ShoppingList>>(
+    (ref) => Repository<ShoppingList>(ref.read));
+
+extension ShoppingListDataRepositoryX on Repository<ShoppingList> {
+  BaseAdapter<ShoppingList> get baseAdapter =>
+      remoteAdapter as BaseAdapter<ShoppingList>;
+  ShoppingListAdapter<ShoppingList> get shoppingListAdapter =>
+      remoteAdapter as ShoppingListAdapter<ShoppingList>;
+}
+
+extension ShoppingListRelationshipGraphNodeX
+    on RelationshipGraphNode<ShoppingList> {}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -267,134 +321,4 @@ Map<String, dynamic> _$ShoppingListItemToJson(ShoppingListItem instance) {
   writeNotNull('supermarketSectionName', instance.supermarketSectionName);
   writeNotNull('listPosition', instance.listPosition);
   return val;
-}
-
-// **************************************************************************
-// RepositoryGenerator
-// **************************************************************************
-
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, non_constant_identifier_names
-
-mixin $ShoppingListLocalAdapter on LocalAdapter<ShoppingList> {
-  @override
-  Map<String, Map<String, Object?>> relationshipsFor([ShoppingList? model]) =>
-      {};
-
-  @override
-  ShoppingList deserialize(map) {
-    for (final key in relationshipsFor().keys) {
-      map[key] = {
-        '_': [map[key], !map.containsKey(key)],
-      };
-    }
-    return ShoppingList.fromJson(map);
-  }
-
-  @override
-  Map<String, dynamic> serialize(model) => model.toJson();
-}
-
-// ignore: must_be_immutable
-class $ShoppingListHiveLocalAdapter = HiveLocalAdapter<ShoppingList>
-    with $ShoppingListLocalAdapter;
-
-class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
-    with BaseAdapter<ShoppingList>, ShoppingListAdapter<ShoppingList>;
-
-//
-
-final shoppingListsRemoteAdapterProvider =
-    Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
-        $ShoppingListHiveLocalAdapter(ref.read),
-        shoppingListProvider,
-        shoppingListsProvider));
-
-final shoppingListsRepositoryProvider = Provider<Repository<ShoppingList>>(
-    (ref) => Repository<ShoppingList>(ref.read));
-
-final _shoppingListProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<ShoppingList?>,
-    DataState<ShoppingList?>,
-    WatchArgs<ShoppingList>>((ref, args) {
-  final adapter = ref.watch(shoppingListsRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersOne[args.watcher] ?? adapter.watchOneNotifier;
-  return notifier(args.id!,
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      alsoWatch: args.alsoWatch,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<ShoppingList?>,
-        DataState<ShoppingList?>>
-    shoppingListProvider(Object? id,
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        AlsoWatch<ShoppingList>? alsoWatch,
-        String? finder,
-        String? watcher}) {
-  return _shoppingListProvider(WatchArgs(
-      id: id,
-      remote: remote,
-      params: params,
-      headers: headers,
-      alsoWatch: alsoWatch,
-      finder: finder,
-      watcher: watcher));
-}
-
-final _shoppingListsProvider = StateNotifierProvider.autoDispose.family<
-    DataStateNotifier<List<ShoppingList>>,
-    DataState<List<ShoppingList>>,
-    WatchArgs<ShoppingList>>((ref, args) {
-  final adapter = ref.watch(shoppingListsRemoteAdapterProvider);
-  final notifier =
-      adapter.strategies.watchersAll[args.watcher] ?? adapter.watchAllNotifier;
-  return notifier(
-      remote: args.remote,
-      params: args.params,
-      headers: args.headers,
-      syncLocal: args.syncLocal,
-      finder: args.finder);
-});
-
-AutoDisposeStateNotifierProvider<DataStateNotifier<List<ShoppingList>>,
-        DataState<List<ShoppingList>>>
-    shoppingListsProvider(
-        {bool? remote,
-        Map<String, dynamic>? params,
-        Map<String, String>? headers,
-        bool? syncLocal,
-        String? finder,
-        String? watcher}) {
-  return _shoppingListsProvider(WatchArgs(
-      remote: remote,
-      params: params,
-      headers: headers,
-      syncLocal: syncLocal,
-      finder: finder,
-      watcher: watcher));
-}
-
-extension ShoppingListDataX on ShoppingList {
-  /// Initializes "fresh" models (i.e. manually instantiated) to use
-  /// [save], [delete] and so on.
-  ///
-  /// Can be obtained via `ref.read`, `container.read`
-  ShoppingList init(Reader read, {bool save = true}) {
-    final repository = internalLocatorFn(shoppingListsRepositoryProvider, read);
-    final updatedModel =
-        repository.remoteAdapter.initializeModel(this, save: save);
-    return save ? updatedModel : this;
-  }
-}
-
-extension ShoppingListDataRepositoryX on Repository<ShoppingList> {
-  BaseAdapter<ShoppingList> get baseAdapter =>
-      remoteAdapter as BaseAdapter<ShoppingList>;
-  ShoppingListAdapter<ShoppingList> get shoppingListAdapter =>
-      remoteAdapter as ShoppingListAdapter<ShoppingList>;
 }

@@ -7,8 +7,8 @@ import '../main.data.dart';
 
 final userPreferenceProvider = Provider<UserPreference?>((ref) {
   final userPref = ref.userPreferences.watchAll();
-  return userPref.hasModel && userPref.model.isNotEmpty
-      ? userPref.model[0]
+  return userPref.hasModel && (userPref.model?.isNotEmpty ?? false)
+      ? userPref.model![0]
       : null;
 });
 
