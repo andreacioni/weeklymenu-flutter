@@ -835,41 +835,39 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
   }
 
   Widget _buildMenuCardRecipeSelection() {
-    return Expanded(
+    return Row(
       key: ValueKey('recipe-selection'),
-      child: Row(
-        children: [
-          _CardPrototype(
-            shape: const CircleBorder(),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () => setState(() {
-                _mealRecipeEditingCardPhase = _MealRecipeEditingCardPhase.MEAL;
-              }),
-              child: Container(
-                margin: _ICON_MARGIN,
-                child: Icon(meal?.icon),
-              ),
+      children: [
+        _CardPrototype(
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: () => setState(() {
+              _mealRecipeEditingCardPhase = _MealRecipeEditingCardPhase.MEAL;
+            }),
+            child: Container(
+              margin: _ICON_MARGIN,
+              child: Icon(meal?.icon),
             ),
           ),
-          const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
-          Expanded(
-            child: _CardPrototype(
-              child: Container(
-                alignment: Alignment.center,
-                constraints: BoxConstraints(minHeight: 39),
-                child: _RecipeSuggestionTextField(
-                    hintText: 'Delicious pizza',
-                    onEditingComplete: (recipeName) {
-                      if (meal != null && recipeName.trim().isNotEmpty) {
-                        widget.onRecipeMealSubmitted?.call(meal!, recipeName);
-                      }
-                    }),
-              ),
+        ),
+        const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
+        Expanded(
+          child: _CardPrototype(
+            child: Container(
+              alignment: Alignment.center,
+              constraints: BoxConstraints(minHeight: 39),
+              child: _RecipeSuggestionTextField(
+                  hintText: 'Delicious pizza',
+                  onEditingComplete: (recipeName) {
+                    if (meal != null && recipeName.trim().isNotEmpty) {
+                      widget.onRecipeMealSubmitted?.call(meal!, recipeName);
+                    }
+                  }),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -893,22 +891,20 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
       );
     }
 
-    return Expanded(
+    return Row(
       key: ValueKey('meal-selection'),
-      child: Row(
-        children: [
-          LeadingRecipeIcon(iconData: Icons.abc, color: Colors.transparent),
-          const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
-          Expanded(
-            child: _CardPrototype(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: Meal.values.map(mapMealToWidget).toList(),
-              ),
+      children: [
+        LeadingRecipeIcon(iconData: Icons.abc, color: Colors.transparent),
+        const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
+        Expanded(
+          child: _CardPrototype(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: Meal.values.map(mapMealToWidget).toList(),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
