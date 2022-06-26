@@ -218,15 +218,9 @@ class MealRecipeCardContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Card(
-          elevation: 0,
-          child: Container(
-            margin: _ICON_MARGIN,
-            child: Icon(
-              meal.icon,
-              color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
-            ),
-          ),
+        LeadingRecipeIcon(
+          iconData: meal.icon,
+          color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
         ),
         const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
         Expanded(
@@ -268,10 +262,11 @@ class MenuContainer extends HookConsumerWidget {
         dailyMenuNotifier: dailyMenuNotifier,
         child: Row(
           children: [
-            Icon(meal.icon,
-                color:
-                    displayLeadingMealIcon ? Colors.black : Colors.transparent),
-            SizedBox(width: 15),
+            LeadingRecipeIcon(
+              iconData: meal.icon,
+              color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
+            ),
+            const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
             Expanded(
               child: Container(
                 height: 35,
@@ -520,10 +515,10 @@ class MenuRecipeCard extends HookConsumerWidget {
 
     return LongPressDraggable<MealRecipe>(
       //delay: Duration(milliseconds: 200),
-      /*  dragAnchorStrategy: (draggable, context, position) {
+      /*dragAnchorStrategy: (draggable, context, position) {
         final offset = childDragAnchorStrategy(draggable, context, position);
         return Offset(offset.dx + 45, offset.dy);
-      }, */
+      } ,*/
       data: MealRecipe(meal, recipe),
       feedback: buildDraggableFeedback(mediaQuery),
       childWhenDragging: buildChildWhenDragging(mediaQuery),
@@ -549,6 +544,7 @@ class MenuRecipeCard extends HookConsumerWidget {
           highlightColor: theme.primaryColor.withOpacity(0.4),
           splashColor: theme.primaryColor.withOpacity(0.6),
           onTap: () => openRecipeView(recipe),
+          onDoubleTap: () => print('edit'),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -598,10 +594,6 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
         TextSelection.collapsed(offset: textEditingController.text.length);
 
     final recipeRepository = ref.read(recipesRepositoryProvider);
-
-    void _onSuggestionSelected(Recipe item) {
-      textEditingController.text = item.name;
-    }
 
     return Autocomplete(
         fieldViewBuilder:
@@ -726,7 +718,6 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
 
   @override
   void initState() {
-    meal = Meal.Breakfast;
     _mealRecipeEditingCardPhase = _MealRecipeEditingCardPhase.MEAL;
     super.initState();
   }
@@ -816,13 +807,7 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
       key: ValueKey('meal-selection'),
       child: Row(
         children: [
-          Card(
-            elevation: 0,
-            child: Container(
-              margin: _ICON_MARGIN,
-              child: Icon(Icons.abc, color: Colors.transparent),
-            ),
-          ),
+          LeadingRecipeIcon(iconData: Icons.abc, color: Colors.transparent),
           const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
           Expanded(
             child: _CardPrototype(
@@ -833,6 +818,27 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class LeadingRecipeIcon extends StatelessWidget {
+  final IconData? iconData;
+  final Color? color;
+
+  const LeadingRecipeIcon({Key? key, this.iconData, this.color})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      child: Container(
+        margin: _ICON_MARGIN,
+        child: Icon(
+          iconData,
+          color: color,
+        ),
       ),
     );
   }
