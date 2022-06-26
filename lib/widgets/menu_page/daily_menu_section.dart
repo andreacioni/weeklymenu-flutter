@@ -47,6 +47,7 @@ class DailyMenuSection extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('build');
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 
     final primaryColor = dailyMenuNotifier.dailyMenu.isPast
@@ -569,6 +570,7 @@ class MenuRecipeCard extends HookConsumerWidget {
                     recipeName: recipe.name,
                     autofocus: false,
                     enabled: editingMode,
+                    readOnly: !editingMode,
                     onFocusChange: (b) => print('on focus changed $b'),
                     style: theme.textTheme.titleMedium!
                         .copyWith(fontWeight: FontWeight.w700),
@@ -677,11 +679,16 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
             autofocus: autofocus,
             enabled: enabled,
             readOnly: readOnly,
-            maxLines: 2,
             minLines: 1,
+            maxLines: 2,
+
+            //scrollPhysics: const NeverScrollableScrollPhysics(),
+
             style: style,
-            fullwidth: true,
-            textInputAction: TextInputAction.go,
+            //fullwidth: true,
+            onSubmitted: (_) => print('submitter'),
+            textInputAction: TextInputAction.done,
+            keyboardType: TextInputType.text,
             onEditingComplete: () {
               onEditingComplete?.call(textEditingController.text);
             },

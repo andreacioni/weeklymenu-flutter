@@ -27,7 +27,6 @@ final isEditingMenuStateProvider =
 class MenuScreen extends HookConsumerWidget {
   MenuScreen({Key? key}) : super(key: key);
 
-  bool centered = false;
   double todayOffset = -1;
 
   @override
@@ -108,27 +107,28 @@ class MenuScreen extends HookConsumerWidget {
       }
 
       if (newValue != displayFAB.value) {
-        displayFAB.value = newValue;
+        //displayFAB.value = newValue;
       }
     }
 
-    // center the scrollable area on today just on the first build
-    // save the offset in order to display the button only when needed
-    if (!centered) {
+    useEffect(() {
+      // center the scrollable area on today just on the first build
+      // save the offset in order to display the button only when needed
+      scrollController.addListener(_scrollListener);
+
       Future.delayed(Duration.zero, () {
-        scrollController.addListener(_scrollListener);
         if (todayKey.currentContext != null) {
           Scrollable.ensureVisible(todayKey.currentContext!)
               .then((_) => todayOffset = scrollController.offset);
         }
       });
-      centered = true;
-    }
+
+      return () => scrollController.removeListener(_scrollListener);
+    }, [scrollController]);
 
     return Scaffold(
       appBar: appBar,
-      floatingActionButton:
-          displayFAB.value ? _MenuFloatingActionButton(todayKey) : null,
+      floatingActionButton: _MenuFloatingActionButton(todayKey),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
