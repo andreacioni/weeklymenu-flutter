@@ -153,6 +153,42 @@ class DailyMenuSection extends HookConsumerWidget {
       );
     }
 
+    Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
+      if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
+        final menu = Menu(
+          date: dailyMenuNotifier.dailyMenu.day,
+          recipes: [recipe.id],
+          meal: meal,
+        );
+        await dailyMenuNotifier.addMenu(menu);
+      } else {
+        await dailyMenuNotifier.addRecipeToMeal(meal, recipe);
+      }
+    }
+
+    Future<void> addNewRecipeToMeal(Meal meal, String recipeName) async {
+      if (recipeName.trim().isNotEmpty) {
+        Recipe recipe = await ref.recipes.save(
+            Recipe(id: ObjectId().hexString, name: recipeName.trim()),
+            params: {'update': false});
+        await addRecipeToMeal(meal, recipe);
+      } else {
+        print("can't create a recipe with empty name");
+      }
+    }
+
+    Future<void> newRecipeSubmitted(DailyMenuNotifier dailyMenuNotifier,
+        Meal meal, String recipeName) async {
+      Recipe? recipe = (await ref.recipes.findAll(remote: false))
+          ?.firstWhereOrNull((r) => r.name == recipeName);
+
+      if (recipe == null) {
+        await addNewRecipeToMeal(meal, recipeName);
+      } else {
+        await addRecipeToMeal(meal, recipe);
+      }
+    }
+
     return Theme(
       data: Theme.of(context).copyWith(primaryColor: primaryColor),
       child: Padding(
@@ -163,7 +199,7 @@ class DailyMenuSection extends HookConsumerWidget {
             if (displayEnterNewRecipeCard.value)
               _MealRecipeEditingCard(
                 onRecipeMealSubmitted: (meal, recipeName) {
-                  _newRecipeSubmitted(ref, dailyMenuNotifier, meal, recipeName);
+                  newRecipeSubmitted(dailyMenuNotifier, meal, recipeName);
                   displayEnterNewRecipeCard.value = false;
                 },
               ),
@@ -481,6 +517,26 @@ class MenuRecipeCard extends HookConsumerWidget {
       );
     }
 
+    Future<void> saveRecipe(String recipeName) async {
+      //new recipe name changed from the initial one
+      if (recipeName.trim().isNotEmpty && recipeName != recipe.name) {
+        Recipe? recipe = (await ref.recipes.findAll(remote: false))
+            ?.firstWhereOrNull((r) => r.name == recipeName);
+
+        if (recipe == null) {
+          if (recipeName.trim().isNotEmpty) {
+            recipe = await ref.recipes.save(
+                Recipe(id: ObjectId().hexString, name: recipeName.trim()),
+                params: {'update': false});
+          } else {
+            print("can't create a recipe with empty name");
+          }
+        }
+        await dailyMenuNotifier.replaceRecipeInMeal(meal,
+            oldRecipeId: this.recipe.id, newRecipeId: recipe!.id);
+      }
+    }
+
     Widget buildImageAndTitle() {
       /**
            * GestureDetector & AbsorbPointer below need to stay there to 
@@ -513,13 +569,10 @@ class MenuRecipeCard extends HookConsumerWidget {
                     recipeName: recipe.name,
                     autofocus: false,
                     enabled: editingMode,
+                    onFocusChange: (b) => print('on focus changed $b'),
                     style: theme.textTheme.titleMedium!
                         .copyWith(fontWeight: FontWeight.w700),
-                    onEditingComplete: (recipeName) {
-                      if (recipeName.trim().isNotEmpty)
-                        _newRecipeSubmitted(
-                            ref, dailyMenuNotifier, meal, recipeName);
-                    },
+                    onEditingComplete: saveRecipe,
                   )),
             ),
           ],
@@ -614,33 +667,37 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
     return Autocomplete(
         initialValue: TextEditingValue(text: recipeName),
         fieldViewBuilder:
-            (context, textEditingController, focusNode, onFieldSubmitted) =>
-                AutoSizeTextField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  autofocus: autofocus,
-                  enabled: enabled,
-                  readOnly: readOnly,
-                  maxLines: 2,
-                  minLines: 1,
-                  style: style,
-                  fullwidth: true,
-                  textInputAction: TextInputAction.done,
-                  onEditingComplete: () {
-                    onEditingComplete?.call(textEditingController.text);
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(5),
-                    hintText: hintText,
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
-                    isDense: true,
-                  ),
-                ),
+            (context, textEditingController, focusNode, onFieldSubmitted) {
+          focusNode.addListener(() {
+            onFocusChange?.call(focusNode.hasFocus);
+          });
+          return AutoSizeTextField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            autofocus: autofocus,
+            enabled: enabled,
+            readOnly: readOnly,
+            maxLines: 2,
+            minLines: 1,
+            style: style,
+            fullwidth: true,
+            textInputAction: TextInputAction.go,
+            onEditingComplete: () {
+              onEditingComplete?.call(textEditingController.text);
+            },
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(5),
+              hintText: hintText,
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+              isDense: true,
+            ),
+          );
+        },
         optionsBuilder: (textEditingValue) async {
           if (textEditingValue.text.isEmpty) return <Recipe>[];
           if (textEditingValue.text == recipeName) return <Recipe>[];
@@ -846,44 +903,6 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
         ],
       ),
     );
-  }
-}
-
-Future<void> _addRecipeToMeal(WidgetRef ref,
-    DailyMenuNotifier dailyMenuNotifier, Meal meal, Recipe recipe) async {
-  if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
-    final menu = Menu(
-      date: dailyMenuNotifier.dailyMenu.day,
-      recipes: [recipe.id],
-      meal: meal,
-    );
-    await dailyMenuNotifier.addMenu(menu);
-  } else {
-    await dailyMenuNotifier.addRecipeToMeal(meal, recipe);
-  }
-}
-
-Future<void> _createNewRecipeByName(WidgetRef ref,
-    DailyMenuNotifier dailyMenuNotifier, Meal meal, String recipeName) async {
-  if (recipeName.trim().isNotEmpty) {
-    Recipe recipe = await ref.recipes.save(
-        Recipe(id: ObjectId().hexString, name: recipeName),
-        params: {'update': false});
-    await _addRecipeToMeal(ref, dailyMenuNotifier, meal, recipe);
-  } else {
-    print("can't create a recipe with empty name");
-  }
-}
-
-Future<void> _newRecipeSubmitted(WidgetRef ref,
-    DailyMenuNotifier dailyMenuNotifier, Meal meal, String recipeName) async {
-  Recipe? recipe = (await ref.recipes.findAll(remote: false))
-      ?.firstWhereOrNull((r) => r.name == recipeName);
-
-  if (recipe == null) {
-    await _createNewRecipeByName(ref, dailyMenuNotifier, meal, recipeName);
-  } else {
-    await _addRecipeToMeal(ref, dailyMenuNotifier, meal, recipe);
   }
 }
 
