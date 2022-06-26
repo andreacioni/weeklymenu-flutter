@@ -21,6 +21,8 @@ import 'menu_app_bar.dart';
 import '../../globals/constants.dart';
 
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
+final isEditingMenuStateProvider =
+    StateProvider.autoDispose<bool>((_) => false);
 
 class MenuScreen extends HookConsumerWidget {
   MenuScreen({Key? key}) : super(key: key);

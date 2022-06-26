@@ -139,6 +139,10 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     }
   }
 
+  void removeRecipeFromMeal(Meal meal, String recipeId) {
+    removeRecipesFromMeal(meal, [recipeId]);
+  }
+
   void removeRecipesFromMeal(Meal meal, List<String> recipeIds) {
     final menuMeal = state.menus.firstWhereOrNull((menu) => menu.meal == meal);
 

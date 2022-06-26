@@ -29,13 +29,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
-  auto_size_text:
+  auto_size_text_field:
     dependency: "direct main"
     description:
-      name: auto_size_text
+      name: auto_size_text_field
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "2.1.0"
   autocomplete_textfield:
     dependency: "direct main"
     description:

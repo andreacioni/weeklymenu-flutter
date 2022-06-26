@@ -1,7 +1,7 @@
 import 'dart:ui';
 
+import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:collection/collection.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
@@ -58,6 +58,7 @@ class DailyMenuSection extends HookConsumerWidget {
     final focusNode = useFocusNode();
 
     final displayEnterNewRecipeCard = useState(false);
+    final editingMode = ref.watch(isEditingMenuStateProvider);
 
     Widget buildMenuContainer(Meal meal, Menu? menu,
         {bool displayPlaceholder = false}) {
@@ -67,42 +68,37 @@ class DailyMenuSection extends HookConsumerWidget {
         menu: menu,
         dailyMenuNotifier: dailyMenuNotifier,
         displayRecipePlaceholder: displayPlaceholder,
+        editingMode: editingMode,
       );
     }
 
-    Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
-      if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
-        final menu = Menu(
-          date: dailyMenuNotifier.dailyMenu.day,
-          recipes: [recipe.id],
-          meal: meal,
+    Widget buildTitleTrailingIcon() {
+      if (!displayEnterNewRecipeCard.value)
+        return IconButton(
+          key: ValueKey('add icon'),
+          icon: Icon(
+            Icons.add,
+            color: Colors.black87,
+          ),
+          onPressed: () {
+            displayEnterNewRecipeCard.value = true;
+
+            focusNode.requestFocus();
+          },
+          splashRadius: 15.0,
         );
-        await dailyMenuNotifier.addMenu(menu);
-      } else {
-        await dailyMenuNotifier.addRecipeToMeal(meal, recipe);
-      }
-    }
-
-    Future<void> createNewRecipeByName(Meal meal, String recipeName) async {
-      if (recipeName.trim().isNotEmpty) {
-        Recipe recipe = await ref.recipes.save(
-            Recipe(id: ObjectId().hexString, name: recipeName),
-            params: {'update': false});
-        await addRecipeToMeal(meal, recipe);
-      } else {
-        print("can't create a recipe with empty name");
-      }
-    }
-
-    Future<void> newRecipeSubmitted(Meal meal, String recipeName) async {
-      Recipe? recipe = (await ref.recipes.findAll(remote: false))
-          ?.firstWhereOrNull((r) => r.name == recipeName);
-
-      if (recipe == null) {
-        await createNewRecipeByName(meal, recipeName);
-      } else {
-        await addRecipeToMeal(meal, recipe);
-      }
+      else
+        return IconButton(
+          key: ValueKey('cancel icon'),
+          icon: Icon(
+            Icons.close,
+            color: Colors.black87,
+          ),
+          onPressed: () {
+            displayEnterNewRecipeCard.value = false;
+          },
+          splashRadius: 15.0,
+        );
     }
 
     Widget buildCardTitle() {
@@ -148,30 +144,11 @@ class DailyMenuSection extends HookConsumerWidget {
             ),
           ),
           SizedBox(width: 5),
-          if (!displayEnterNewRecipeCard.value)
-            IconButton(
-              icon: Icon(
-                Icons.add,
-                color: Colors.black87,
-              ),
-              onPressed: () {
-                displayEnterNewRecipeCard.value = true;
-
-                focusNode.requestFocus();
-              },
-              splashRadius: 15.0,
-            )
-          else
-            IconButton(
-              icon: Icon(
-                Icons.close,
-                color: Colors.black87,
-              ),
-              onPressed: () {
-                displayEnterNewRecipeCard.value = false;
-              },
-              splashRadius: 15.0,
-            ),
+          AnimatedContainer(
+            duration: Duration(milliseconds: 500),
+            child: buildTitleTrailingIcon(),
+            width: editingMode ? 40 : 10,
+          )
         ],
       );
     }
@@ -184,10 +161,12 @@ class DailyMenuSection extends HookConsumerWidget {
           children: [
             buildCardTitle(),
             if (displayEnterNewRecipeCard.value)
-              _MealRecipeEditingCard(onRecipeMealSubmitted: (meal, recipeName) {
-                newRecipeSubmitted(meal, recipeName);
-                displayEnterNewRecipeCard.value = false;
-              }),
+              _MealRecipeEditingCard(
+                onRecipeMealSubmitted: (meal, recipeName) {
+                  _newRecipeSubmitted(ref, dailyMenuNotifier, meal, recipeName);
+                  displayEnterNewRecipeCard.value = false;
+                },
+              ),
             ...Meal.values.map((m) {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
@@ -207,12 +186,16 @@ class MealRecipeCardContainer extends StatelessWidget {
 
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayLeadingMealIcon;
+  final bool editingMode;
 
-  const MealRecipeCardContainer(this.meal, this.recipeId,
-      {Key? key,
-      required this.dailyMenuNotifier,
-      this.displayLeadingMealIcon = false})
-      : super(key: key);
+  const MealRecipeCardContainer(
+    this.meal,
+    this.recipeId, {
+    Key? key,
+    required this.dailyMenuNotifier,
+    this.displayLeadingMealIcon = false,
+    this.editingMode = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -224,11 +207,21 @@ class MealRecipeCardContainer extends StatelessWidget {
         ),
         const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
         Expanded(
+          child: Dismissible(
+            direction: editingMode
+                ? DismissDirection.horizontal
+                : DismissDirection.none,
+            key: ValueKey("$meal-$recipeId"),
+            onDismissed: (_) =>
+                dailyMenuNotifier.removeRecipeFromMeal(meal, recipeId),
             child: MenuRecipeWrapper(
-          recipeId,
-          meal: meal,
-          dailyMenuNotifier: dailyMenuNotifier,
-        ))
+              recipeId,
+              meal: meal,
+              editingMode: editingMode,
+              dailyMenuNotifier: dailyMenuNotifier,
+            ),
+          ),
+        )
       ],
     );
   }
@@ -239,6 +232,7 @@ class MenuContainer extends HookConsumerWidget {
   final Menu? menu;
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayRecipePlaceholder;
+  final bool editingMode;
 
   MenuContainer(
     this.meal, {
@@ -246,6 +240,7 @@ class MenuContainer extends HookConsumerWidget {
     this.menu,
     required this.dailyMenuNotifier,
     this.displayRecipePlaceholder = false,
+    this.editingMode = false,
   })  : assert(menu == null || meal == menu.meal),
         super(key: key);
 
@@ -294,9 +289,15 @@ class MenuContainer extends HookConsumerWidget {
       key: key,
       children: [
         ...recipeIds
-            .map((id) => MealRecipeCardContainer(meal, id,
+            .mapIndexed(
+              (i, id) => MealRecipeCardContainer(
+                meal,
+                id,
                 dailyMenuNotifier: dailyMenuNotifier,
-                displayLeadingMealIcon: id == recipeIds[0]))
+                displayLeadingMealIcon: id == recipeIds[0],
+                editingMode: editingMode,
+              ),
+            )
             .toList(),
         isDragging && displayRecipePlaceholder
             ? buildDragTargetPlaceholder(displayLeadingMealIcon: menu == null)
@@ -381,9 +382,13 @@ class MenuRecipeWrapper extends HookConsumerWidget {
 
   final Meal meal;
   final DailyMenuNotifier dailyMenuNotifier;
+  final bool editingMode;
 
   MenuRecipeWrapper(this.recipeId,
-      {required this.meal, required this.dailyMenuNotifier, Key? key})
+      {required this.meal,
+      required this.dailyMenuNotifier,
+      this.editingMode = false,
+      Key? key})
       : super(key: key);
 
   @override
@@ -395,6 +400,7 @@ class MenuRecipeWrapper extends HookConsumerWidget {
             recipe,
             meal: meal,
             dailyMenuNotifier: dailyMenuNotifier,
+            editingMode: editingMode,
           );
         });
   }
@@ -407,6 +413,7 @@ class MenuRecipeCard extends HookConsumerWidget {
   final DailyMenuNotifier dailyMenuNotifier;
 
   final bool? disabled;
+  final editingMode;
 
   MenuRecipeCard(
     this.recipe, {
@@ -414,6 +421,7 @@ class MenuRecipeCard extends HookConsumerWidget {
     required this.dailyMenuNotifier,
     required this.meal,
     this.disabled = false,
+    this.editingMode = false,
   }) : super(key: key);
 
   @override
@@ -433,8 +441,12 @@ class MenuRecipeCard extends HookConsumerWidget {
       return Container(
         decoration: BoxDecoration(borderRadius: MENU_CARD_ROUNDED_RECT_BORDER),
         width: mediaQuery.size.width,
-        child: MenuRecipeCard(recipe,
-            meal: meal, dailyMenuNotifier: dailyMenuNotifier),
+        child: MenuRecipeCard(
+          recipe,
+          meal: meal,
+          dailyMenuNotifier: dailyMenuNotifier,
+          editingMode: editingMode,
+        ),
       );
     }
 
@@ -447,8 +459,9 @@ class MenuRecipeCard extends HookConsumerWidget {
       );
     }
 
-    Widget buildInfoAndDragSection(ThemeData theme, MediaQueryData mediaQuery) {
+    Widget buildInfoAndDragSection() {
       return Flexible(
+        key: ValueKey('drag-section'),
         flex: 1,
         fit: FlexFit.loose,
         child: Padding(
@@ -459,7 +472,7 @@ class MenuRecipeCard extends HookConsumerWidget {
             children: [
               Icon(
                 Icons.drag_indicator,
-                color: Colors.black38,
+                color: editingMode ? Colors.black38 : Colors.transparent,
                 size: theme.iconTheme.size! - 1,
               ),
             ],
@@ -468,47 +481,48 @@ class MenuRecipeCard extends HookConsumerWidget {
       );
     }
 
-    Widget buildImageAndTitle(Recipe recipe, ThemeData theme) {
+    Widget buildImageAndTitle() {
       /**
            * GestureDetector & AbsorbPointer below need to stay there to 
            * intercept and inhibits the drag gesture. Could be improved.
            */
       return Flexible(
+        key: ValueKey('image-title'),
         flex: 5,
-        child: GestureDetector(
-          onLongPress: () {},
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              if (recipe.imgUrl != null)
-                Container(
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                      borderRadius: MENU_CARD_ROUNDED_RECT_BORDER.copyWith(
-                          topRight: Radius.circular(5),
-                          bottomRight: Radius.circular(5))),
-                  child: Image(
-                      height: 50,
-                      width: 90,
-                      image: CachedNetworkImageProvider(recipe.imgUrl!),
-                      errorBuilder: (_, __, ___) => Container(),
-                      fit: BoxFit.cover),
-                ),
-              Expanded(
-                child: AbsorbPointer(
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: AutoSizeText(
-                      recipe.name,
-                      maxLines: 1,
-                      style: theme.textTheme.titleMedium!
-                          .copyWith(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            if (recipe.imgUrl != null)
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                    borderRadius: MENU_CARD_ROUNDED_RECT_BORDER.copyWith(
+                        topRight: Radius.circular(5),
+                        bottomRight: Radius.circular(5))),
+                child: Image(
+                    height: 50,
+                    width: 90,
+                    image: CachedNetworkImageProvider(recipe.imgUrl!),
+                    errorBuilder: (_, __, ___) => Container(),
+                    fit: BoxFit.cover),
               ),
-            ],
-          ),
+            Expanded(
+              child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: _RecipeSuggestionTextField(
+                    recipeName: recipe.name,
+                    autofocus: false,
+                    enabled: editingMode,
+                    style: theme.textTheme.titleMedium!
+                        .copyWith(fontWeight: FontWeight.w700),
+                    onEditingComplete: (recipeName) {
+                      if (recipeName.trim().isNotEmpty)
+                        _newRecipeSubmitted(
+                            ref, dailyMenuNotifier, meal, recipeName);
+                    },
+                  )),
+            ),
+          ],
         ),
       );
     }
@@ -519,6 +533,8 @@ class MenuRecipeCard extends HookConsumerWidget {
         final offset = childDragAnchorStrategy(draggable, context, position);
         return Offset(offset.dx + 45, offset.dy);
       } ,*/
+      maxSimultaneousDrags:
+          editingMode ? 1 : 0, //disable dragging when not in edit mode
       data: MealRecipe(meal, recipe),
       feedback: buildDraggableFeedback(mediaQuery),
       childWhenDragging: buildChildWhenDragging(mediaQuery),
@@ -543,14 +559,15 @@ class MenuRecipeCard extends HookConsumerWidget {
           borderRadius: MENU_CARD_ROUNDED_RECT_BORDER,
           highlightColor: theme.primaryColor.withOpacity(0.4),
           splashColor: theme.primaryColor.withOpacity(0.6),
-          onTap: () => openRecipeView(recipe),
-          onDoubleTap: () => print('edit'),
+          onTap: () {
+            if (!editingMode) openRecipeView(recipe);
+          },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              buildImageAndTitle(recipe, theme),
-              buildInfoAndDragSection(theme, mediaQuery)
+              buildImageAndTitle(),
+              buildInfoAndDragSection(),
             ],
           ),
         ),
@@ -568,6 +585,9 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
   final Function()? onTap;
   final Function(bool)? onFocusChange;
   final bool enabled;
+  final bool readOnly;
+  final bool autofocus;
+  final TextStyle? style;
 
   _RecipeSuggestionTextField({
     String? recipeName,
@@ -576,8 +596,11 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
     this.onTap,
     this.hintText,
     this.enabled = true,
+    this.readOnly = false,
+    this.autofocus = true,
     this.onFocusChange,
     this.focusNode,
+    this.style,
   }) : this.recipeName = recipeName ?? '';
 
   @override
@@ -586,38 +609,41 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
       _setupFocusListener();
     }
 
-    final textEditingController = useTextEditingController();
-
-    textEditingController.text = recipeName;
-
-    textEditingController.selection =
-        TextSelection.collapsed(offset: textEditingController.text.length);
-
     final recipeRepository = ref.read(recipesRepositoryProvider);
 
     return Autocomplete(
+        initialValue: TextEditingValue(text: recipeName),
         fieldViewBuilder:
             (context, textEditingController, focusNode, onFieldSubmitted) =>
-                TextField(
+                AutoSizeTextField(
                   controller: textEditingController,
                   focusNode: focusNode,
-                  autofocus: true,
-                  maxLines: 1,
+                  autofocus: autofocus,
+                  enabled: enabled,
+                  readOnly: readOnly,
+                  maxLines: 2,
                   minLines: 1,
-                  onEditingComplete: () =>
-                      onEditingComplete?.call(textEditingController.text),
+                  style: style,
+                  fullwidth: true,
+                  textInputAction: TextInputAction.done,
+                  onEditingComplete: () {
+                    onEditingComplete?.call(textEditingController.text);
+                  },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(5),
                     hintText: hintText,
-                    border: OutlineInputBorder(),
-                    enabledBorder: InputBorder.none,
+                    border: InputBorder.none,
                     focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
                     disabledBorder: InputBorder.none,
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
                     isDense: true,
                   ),
                 ),
         optionsBuilder: (textEditingValue) async {
           if (textEditingValue.text.isEmpty) return <Recipe>[];
+          if (textEditingValue.text == recipeName) return <Recipe>[];
           return await _suggestionsCallback(
               textEditingValue.text, recipeRepository);
         });
@@ -820,6 +846,44 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
         ],
       ),
     );
+  }
+}
+
+Future<void> _addRecipeToMeal(WidgetRef ref,
+    DailyMenuNotifier dailyMenuNotifier, Meal meal, Recipe recipe) async {
+  if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
+    final menu = Menu(
+      date: dailyMenuNotifier.dailyMenu.day,
+      recipes: [recipe.id],
+      meal: meal,
+    );
+    await dailyMenuNotifier.addMenu(menu);
+  } else {
+    await dailyMenuNotifier.addRecipeToMeal(meal, recipe);
+  }
+}
+
+Future<void> _createNewRecipeByName(WidgetRef ref,
+    DailyMenuNotifier dailyMenuNotifier, Meal meal, String recipeName) async {
+  if (recipeName.trim().isNotEmpty) {
+    Recipe recipe = await ref.recipes.save(
+        Recipe(id: ObjectId().hexString, name: recipeName),
+        params: {'update': false});
+    await _addRecipeToMeal(ref, dailyMenuNotifier, meal, recipe);
+  } else {
+    print("can't create a recipe with empty name");
+  }
+}
+
+Future<void> _newRecipeSubmitted(WidgetRef ref,
+    DailyMenuNotifier dailyMenuNotifier, Meal meal, String recipeName) async {
+  Recipe? recipe = (await ref.recipes.findAll(remote: false))
+      ?.firstWhereOrNull((r) => r.name == recipeName);
+
+  if (recipe == null) {
+    await _createNewRecipeByName(ref, dailyMenuNotifier, meal, recipeName);
+  } else {
+    await _addRecipeToMeal(ref, dailyMenuNotifier, meal, recipe);
   }
 }
 
