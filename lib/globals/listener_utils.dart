@@ -2,8 +2,8 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-class IndexedListenerWrapper extends SingleChildRenderObjectWidget {
-  final int index;
+class IndexedListenerWrapper<T> extends SingleChildRenderObjectWidget {
+  final T index;
 
   IndexedListenerWrapper({Widget? child, required this.index, Key? key})
       : super(child: child, key: key);
@@ -22,6 +22,6 @@ class IndexedListenerWrapper extends SingleChildRenderObjectWidget {
   }
 }
 
-class IndexedListenerWrapperRenderObject extends RenderProxyBox {
-  int? index;
+class IndexedListenerWrapperRenderObject<T> extends RenderProxyBox {
+  T? index;
 }

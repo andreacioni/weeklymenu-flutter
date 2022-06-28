@@ -36,18 +36,15 @@ class DailyMenuSection extends HookConsumerWidget {
   static final _appBarMonthParser = DateFormat('MMM');
 
   final DailyMenuNotifier dailyMenuNotifier;
-  final bool isDragOverWidget;
   final void Function()? onTap;
 
   DailyMenuSection(
     this.dailyMenuNotifier, {
     this.onTap,
-    this.isDragOverWidget = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('build');
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 
     final primaryColor = dailyMenuNotifier.dailyMenu.isPast
@@ -60,6 +57,9 @@ class DailyMenuSection extends HookConsumerWidget {
 
     final displayEnterNewRecipeCard = useState(false);
     final editingMode = ref.watch(isEditingMenuStateProvider);
+
+    final draggingOverThisWidget = ref.watch(pointerOverWidgetIndexStateProvider
+        .select((v) => v == dailyMenuNotifier.dailyMenu.day));
 
     Widget buildMenuContainer(Meal meal, Menu? menu,
         {bool displayPlaceholder = false}) {
@@ -208,7 +208,7 @@ class DailyMenuSection extends HookConsumerWidget {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
               return buildMenuContainer(m, menu,
-                  displayPlaceholder: isDragOverWidget);
+                  displayPlaceholder: draggingOverThisWidget);
             }).toList()
           ],
         ),

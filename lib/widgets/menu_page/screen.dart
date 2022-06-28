@@ -23,6 +23,10 @@ import '../../globals/constants.dart';
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
 final isEditingMenuStateProvider =
     StateProvider.autoDispose<bool>((_) => false);
+final pointerOverWidgetIndexStateProvider =
+    StateProvider.autoDispose<Date?>((_) => null);
+
+const _USE_SLIVER = true;
 
 class MenuScreen extends HookConsumerWidget {
   MenuScreen({Key? key}) : super(key: key);
@@ -36,20 +40,18 @@ class MenuScreen extends HookConsumerWidget {
     * performances. The AppBar and the FAB are taking to each other directly 
     * (via listeners) to avoid that.
     */
+    print('build');
     final day = Date.now();
     final appBar = MenuAppBar(day);
 
     final scrollController = useScrollController();
-
     final screenHeight = MediaQuery.of(context).size.height;
-    final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
-    final pointerOverWidgetIndex = useState(-1);
-
     final displayFAB = useState(true);
-
     final todayKey = GlobalKey();
 
     void onPointerMove(PointerMoveEvent ev) {
+      final isDraggingMenu = ref.read(isDraggingMenuStateProvider);
+
       //Handle pointer move at the tob/Bottom of the screen and scroll
       if (isDraggingMenu && !scrollController.position.outOfRange) {
         final offset = screenHeight ~/ 4;
@@ -74,10 +76,14 @@ class MenuScreen extends HookConsumerWidget {
           for (final hit in result.path) {
             /// temporary variable so that the [is] allows access of [index]
             final target = hit.target;
+            final pointerOverWidgetIndex =
+                ref.read(pointerOverWidgetIndexStateProvider);
             if (target is IndexedListenerWrapperRenderObject &&
                 target.index != null &&
-                pointerOverWidgetIndex.value != target.index) {
-              pointerOverWidgetIndex.value = target.index!;
+                target.index is Date &&
+                pointerOverWidgetIndex != target.index) {
+              ref.read(pointerOverWidgetIndexStateProvider.notifier).state =
+                  target.index as Date;
             }
           }
         }
@@ -89,10 +95,11 @@ class MenuScreen extends HookConsumerWidget {
           Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
 
       return IndexedListenerWrapper(
-        index: index,
-        child: DailyMenuFutureWrapper(day,
-            key: day.isToday ? todayKey : ValueKey(day),
-            isDragOverWidget: pointerOverWidgetIndex.value == index),
+        key: day.isToday ? todayKey : ValueKey(day),
+        index: day,
+        child: DailyMenuFutureWrapper(
+          day,
+        ),
       );
     }
 
@@ -109,6 +116,27 @@ class MenuScreen extends HookConsumerWidget {
       if (newValue != displayFAB.value) {
         //displayFAB.value = newValue;
       }
+    }
+
+    Widget _buildScrollView() {
+      if (_USE_SLIVER) {
+        return CustomScrollView(
+          controller: scrollController,
+          slivers: [
+            SliverList(
+                delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildListItem(index),
+              childCount: pageViewLimitDays,
+            ))
+          ],
+        );
+      }
+      return SingleChildScrollView(
+        controller: scrollController,
+        child: Column(
+          children: List.generate(pageViewLimitDays, _buildListItem),
+        ),
+      );
     }
 
     useEffect(() {
@@ -132,14 +160,11 @@ class MenuScreen extends HookConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
-        onPointerUp: (_) =>
-            ref.read(isDraggingMenuStateProvider.state).state = false,
-        child: SingleChildScrollView(
-          controller: scrollController,
-          child: Column(
-            children: List.generate(pageViewLimitDays, _buildListItem),
-          ),
-        ),
+        onPointerUp: (_) {
+          ref.read(pointerOverWidgetIndexStateProvider.notifier).state = null;
+          ref.read(isDraggingMenuStateProvider.notifier).state = false;
+        },
+        child: _buildScrollView(),
       ),
     );
   }
@@ -155,10 +180,8 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
   static final _httpParamDateParser = DateFormat('y-MM-dd');
 
   final Date day;
-  final bool isDragOverWidget;
 
-  DailyMenuFutureWrapper(this.day, {Key? key, this.isDragOverWidget = false})
-      : super(key: key);
+  DailyMenuFutureWrapper(this.day, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -179,7 +202,6 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
       BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
     return DailyMenuSection(
       DailyMenuNotifier(dailyMenu),
-      isDragOverWidget: isDragOverWidget,
       onTap: () {
         /*  ref
             .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)
