@@ -26,7 +26,7 @@ final isEditingMenuStateProvider =
 final pointerOverWidgetIndexStateProvider =
     StateProvider.autoDispose<Date?>((_) => null);
 
-const _USE_SLIVER = true;
+const _USE_SLIVER = false;
 
 class MenuScreen extends HookConsumerWidget {
   MenuScreen({Key? key}) : super(key: key);
@@ -120,16 +120,8 @@ class MenuScreen extends HookConsumerWidget {
 
     Widget _buildScrollView() {
       if (_USE_SLIVER) {
-        return CustomScrollView(
-          controller: scrollController,
-          slivers: [
-            SliverList(
-                delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildListItem(index),
-              childCount: pageViewLimitDays,
-            ))
-          ],
-        );
+        return ListView.builder(
+            itemBuilder: (context, index) => _buildListItem(index));
       }
       return SingleChildScrollView(
         controller: scrollController,

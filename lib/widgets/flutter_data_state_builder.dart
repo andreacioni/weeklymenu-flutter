@@ -27,14 +27,16 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (state.hasException) {
+      //early catch the forbidden/unauthorized to redirect user to login page
       final ex = state.exception;
-      if ((ex is DataException && ex.statusCode == 403) ||
-          (ex is DataException && ex.statusCode == 401)) {
+      if (ex?.statusCode == 403 || ex?.statusCode == 401) {
         Future.delayed(Duration.zero, () => goToLoginPage(context));
         return loading;
       }
 
-      return error;
+      // for other errors shows popup ?
+      print("FlutterDataStateBuilder caught an error: \n" +
+          (ex?.toString() ?? 'null'));
     }
 
     if (state.isLoading && !state.hasModel) {
@@ -45,11 +47,6 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
         ((state.model is List) && (state.model as List).isEmpty);
 
     final baseWidget = emptyModel ? notFound : builder(context, state.model!);
-
-    var id;
-    if (!(state.model is List)) {
-      id = (state.model as BaseModel).id;
-    }
 
     return onRefresh != null
         ? RefreshIndicator(
