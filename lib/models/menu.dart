@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
@@ -186,7 +187,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
 }
 
 @CopyWith()
-class DailyMenu {
+class DailyMenu with EquatableMixin {
   final Date day;
   final List<Menu> menus;
 
@@ -253,4 +254,11 @@ class DailyMenu {
   bool get isToday => day.isToday;
 
   bool get isPast => day.isPast;
+
+  @override
+  List<Object?> get props => [
+        day,
+        menus.map((e) => e.id).toSet(),
+        menus.map((e) => e.recipes).flattened.toSet()
+      ];
 }

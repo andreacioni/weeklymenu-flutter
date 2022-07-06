@@ -21,7 +21,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   final List<Widget> _screens = [
     MenuScreen(key: PageStorageKey('menuPage')),
     RecipesScreen(key: PageStorageKey('recipesPage')),
-    //IngredientsScreen(),
     ShoppingListScreen(key: PageStorageKey('shoppingListPage')),
   ];
   int _activeScreenIndex = 0;
@@ -30,16 +29,16 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.menus.logLevel = 1;
-    ref.recipes.logLevel = 1;
-    ref.ingredients.logLevel = 1;
-    ref.shoppingLists.logLevel = 1;
+    ref.menus.logLevel = 2;
+    ref.recipes.logLevel = 2;
+    ref.ingredients.logLevel = 2;
+    ref.shoppingLists.logLevel = 2;
 
     return Scaffold(
       bottomNavigationBar: _buildBottomAppBar(context),
       body: DefaultTabController(
         initialIndex: 1,
-        length: 4,
+        length: 3,
         child: PageStorage(
           child: _screens[_activeScreenIndex],
           bucket: bucket,

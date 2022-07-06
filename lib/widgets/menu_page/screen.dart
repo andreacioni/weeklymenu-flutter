@@ -1,6 +1,9 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_data/flutter_data.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +26,27 @@ import '../../globals/constants.dart';
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
 final isEditingMenuStateProvider =
     StateProvider.autoDispose<bool>((_) => false);
+final pointerOverWidgetIndexStateProvider =
+    StateProvider.autoDispose<Date?>((_) => null);
+
+final menuListProvider = StateNotifierProvider.autoDispose
+    .family<DataStateNotifier<List<Menu>?>, DataState<List<Menu>?>, Date>(
+        ((ref, date) {
+  return ref.menus.watchAllNotifier(params: {
+    'day': date.format(_httpParamDateParser)
+  }).where((m) => m.date == date);
+}));
+
+final dailyMenuProvider =
+    Provider.autoDispose.family<DailyMenu, Date>(((ref, date) {
+  final menus = ref.watch(menuListProvider(date)).model ?? [];
+  return DailyMenu(day: date, menus: menus);
+}));
+
+// drag not works when true
+const _USE_SLIVER = false;
+
+final _httpParamDateParser = DateFormat('y-MM-dd');
 
 class MenuScreen extends HookConsumerWidget {
   MenuScreen({Key? key}) : super(key: key);
@@ -40,18 +64,15 @@ class MenuScreen extends HookConsumerWidget {
     final appBar = MenuAppBar(day);
 
     final scrollController = useScrollController();
-
     final screenHeight = MediaQuery.of(context).size.height;
-    final isDraggingMenu = ref.watch(isDraggingMenuStateProvider);
-    final pointerOverWidgetIndex = useState(-1);
-
     final displayFAB = useState(true);
-
     final todayKey = GlobalKey();
 
     void onPointerMove(PointerMoveEvent ev) {
+      final isDraggingMenu = ref.read(isDraggingMenuStateProvider);
+
       //Handle pointer move at the tob/Bottom of the screen and scroll
-      if (isDraggingMenu && !scrollController.position.outOfRange) {
+      if (isDraggingMenu) {
         final offset = screenHeight ~/ 4;
         //final moveDistance = 3;
         if (ev.position.dy > screenHeight - offset) {
@@ -74,57 +95,66 @@ class MenuScreen extends HookConsumerWidget {
           for (final hit in result.path) {
             /// temporary variable so that the [is] allows access of [index]
             final target = hit.target;
+            final pointerOverWidgetIndex =
+                ref.read(pointerOverWidgetIndexStateProvider);
             if (target is IndexedListenerWrapperRenderObject &&
                 target.index != null &&
-                pointerOverWidgetIndex.value != target.index) {
-              pointerOverWidgetIndex.value = target.index!;
+                target.index is Date &&
+                pointerOverWidgetIndex != target.index) {
+              ref.read(pointerOverWidgetIndexStateProvider.notifier).state =
+                  target.index as Date;
             }
           }
         }
       }
     }
 
-    Widget _buildListItem(int index) {
-      final day =
-          Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
-
-      return IndexedListenerWrapper(
-        index: index,
-        child: DailyMenuFutureWrapper(day,
-            key: day.isToday ? todayKey : ValueKey(day),
-            isDragOverWidget: pointerOverWidgetIndex.value == index),
-      );
-    }
-
-    void _scrollListener() {
-      const threshold = 50;
-      final bool? newValue;
-      if (scrollController.offset > todayOffset - threshold &&
-          scrollController.offset < todayOffset + threshold) {
-        newValue = false;
-      } else {
-        newValue = true;
-      }
-
-      if (newValue != displayFAB.value) {
-        //displayFAB.value = newValue;
-      }
-    }
-
     useEffect(() {
       // center the scrollable area on today just on the first build
       // save the offset in order to display the button only when needed
-      scrollController.addListener(_scrollListener);
+      final fn = () => _scrollListener(scrollController, displayFAB);
+      scrollController.addListener(fn);
 
       Future.delayed(Duration.zero, () {
-        if (todayKey.currentContext != null) {
+        if (todayKey.currentContext != null && todayOffset == -1) {
           Scrollable.ensureVisible(todayKey.currentContext!)
               .then((_) => todayOffset = scrollController.offset);
         }
       });
 
-      return () => scrollController.removeListener(_scrollListener);
-    }, [scrollController]);
+      return () => scrollController.removeListener(fn);
+    }, const []);
+
+    Widget _buildListItem(int index) {
+      final day =
+          Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
+
+      return IndexedListenerWrapper(
+        key: day.isToday ? todayKey : ValueKey(day),
+        index: day,
+        child: DailyMenuFutureWrapper(day),
+      );
+    }
+
+    Widget _buildScrollView() {
+      if (_USE_SLIVER) {
+        return CustomScrollView(
+          cacheExtent: 2000,
+          slivers: [
+            SliverList(
+                delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildListItem(index),
+                    childCount: pageViewLimitDays))
+          ],
+        );
+      }
+      return SingleChildScrollView(
+        controller: scrollController,
+        child: Column(
+          children: List.generate(pageViewLimitDays, _buildListItem),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: appBar,
@@ -132,16 +162,29 @@ class MenuScreen extends HookConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
-        onPointerUp: (_) =>
-            ref.read(isDraggingMenuStateProvider.state).state = false,
-        child: SingleChildScrollView(
-          controller: scrollController,
-          child: Column(
-            children: List.generate(pageViewLimitDays, _buildListItem),
-          ),
-        ),
+        onPointerUp: (_) {
+          ref.read(pointerOverWidgetIndexStateProvider.notifier).state = null;
+          ref.read(isDraggingMenuStateProvider.notifier).state = false;
+        },
+        child: _buildScrollView(),
       ),
     );
+  }
+
+  void _scrollListener(
+      ScrollController scrollController, ValueNotifier<bool> displayFAB) {
+    const threshold = 50;
+    final bool? newValue;
+    if (scrollController.offset > todayOffset - threshold &&
+        scrollController.offset < todayOffset + threshold) {
+      newValue = false;
+    } else {
+      newValue = true;
+    }
+
+    if (newValue != displayFAB.value) {
+      //displayFAB.value = newValue;
+    }
   }
 }
 
@@ -152,34 +195,20 @@ class MenuScreen extends HookConsumerWidget {
 */
 
 class DailyMenuFutureWrapper extends HookConsumerWidget {
-  static final _httpParamDateParser = DateFormat('y-MM-dd');
-
   final Date day;
-  final bool isDragOverWidget;
 
-  DailyMenuFutureWrapper(this.day, {Key? key, this.isDragOverWidget = false})
-      : super(key: key);
+  DailyMenuFutureWrapper(this.day, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FlutterDataStateBuilder<List<Menu>>(
-      state: ref.menus.watchAll(
-        params: {'day': day.format(_httpParamDateParser)},
-      ),
-      builder: (context, model) {
-        final filtered = model.where((m) => m.date == day).toList();
-        final dailyMenu = DailyMenu(day: day, menus: filtered);
+    final dailyMenu = ref.watch(dailyMenuProvider(day));
 
-        return _buildMenuCard(context, ref, day, dailyMenu);
-      },
-    );
+    return _buildMenuCard(dailyMenu);
   }
 
-  Widget _buildMenuCard(
-      BuildContext context, WidgetRef ref, Date day, DailyMenu dailyMenu) {
+  Widget _buildMenuCard(DailyMenu dailyMenu) {
     return DailyMenuSection(
       DailyMenuNotifier(dailyMenu),
-      isDragOverWidget: isDragOverWidget,
       onTap: () {
         /*  ref
             .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)

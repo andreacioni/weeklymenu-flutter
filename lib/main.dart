@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -10,9 +12,12 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(clear: false),
+        graphNotifierThrottleDurationProvider
+            .overrideWithValue(Duration(milliseconds: 100))
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

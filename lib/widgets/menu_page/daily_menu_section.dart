@@ -26,28 +26,26 @@ import 'screen.dart';
 final MENU_CARD_ROUNDED_RECT_BORDER = BorderRadius.circular(10);
 const SPACE_BETWEEN_ICON_AND_CARD = 15.0;
 const _ICON_MARGIN = const EdgeInsets.all(5);
+final _appBarDateParser = DateFormat('EEE,dd');
+final _appBarMonthParser = DateFormat('MMM');
 
 final _dragOriginDailyMenuNotifierProvider =
     StateProvider<DailyMenuNotifier?>((_) => null);
 
 class DailyMenuSection extends HookConsumerWidget {
   static final _dialogDateParser = DateFormat('EEEE, dd');
-  static final _appBarDateParser = DateFormat('EEE,dd');
-  static final _appBarMonthParser = DateFormat('MMM');
 
   final DailyMenuNotifier dailyMenuNotifier;
-  final bool isDragOverWidget;
   final void Function()? onTap;
 
   DailyMenuSection(
     this.dailyMenuNotifier, {
     this.onTap,
-    this.isDragOverWidget = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('build');
+    print('build day: ${dailyMenuNotifier.dailyMenu.day}');
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 
     final primaryColor = dailyMenuNotifier.dailyMenu.isPast
@@ -59,7 +57,9 @@ class DailyMenuSection extends HookConsumerWidget {
     final focusNode = useFocusNode();
 
     final displayEnterNewRecipeCard = useState(false);
-    final editingMode = ref.watch(isEditingMenuStateProvider);
+
+    final draggingOverThisWidget = ref.watch(pointerOverWidgetIndexStateProvider
+        .select((v) => v == dailyMenuNotifier.dailyMenu.day));
 
     Widget buildMenuContainer(Meal meal, Menu? menu,
         {bool displayPlaceholder = false}) {
@@ -69,88 +69,6 @@ class DailyMenuSection extends HookConsumerWidget {
         menu: menu,
         dailyMenuNotifier: dailyMenuNotifier,
         displayRecipePlaceholder: displayPlaceholder,
-        editingMode: editingMode,
-      );
-    }
-
-    Widget buildTitleTrailingIcon() {
-      if (!displayEnterNewRecipeCard.value)
-        return IconButton(
-          key: ValueKey('add icon'),
-          icon: Icon(
-            Icons.add,
-            color: Colors.black87,
-          ),
-          onPressed: () {
-            displayEnterNewRecipeCard.value = true;
-
-            focusNode.requestFocus();
-          },
-          splashRadius: 15.0,
-        );
-      else
-        return IconButton(
-          key: ValueKey('cancel icon'),
-          icon: Icon(
-            Icons.close,
-            color: Colors.black87,
-          ),
-          onPressed: () {
-            displayEnterNewRecipeCard.value = false;
-          },
-          splashRadius: 15.0,
-        );
-    }
-
-    Widget buildCardTitle() {
-      return Row(
-        key: ValueKey('title'),
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          RichText(
-            softWrap: false,
-            textAlign: TextAlign.start,
-            text: TextSpan(
-              text: dailyMenuNotifier.dailyMenu.day.format(_appBarDateParser) +
-                  ' ',
-              style: GoogleFonts.b612Mono().copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-                fontFeatures: [
-                  FontFeature.tabularFigures(),
-                ],
-              ),
-              children: <TextSpan>[
-                TextSpan(
-                  text: dailyMenuNotifier.dailyMenu.day
-                      .format(_appBarMonthParser),
-                  style: GoogleFonts.b612Mono().copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w200,
-                    color: Colors.black38,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Container(
-              height: 3,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(3),
-                  color: primaryColor.withOpacity(0.8)),
-            ),
-          ),
-          SizedBox(width: 5),
-          AnimatedContainer(
-            duration: Duration(milliseconds: 500),
-            child: buildTitleTrailingIcon(),
-            width: editingMode ? 40 : 10,
-          )
-        ],
       );
     }
 
@@ -196,7 +114,10 @@ class DailyMenuSection extends HookConsumerWidget {
         padding: padding,
         child: Column(
           children: [
-            buildCardTitle(),
+            _DailyMenuSectionTitle(
+              dailyMenuNotifier: dailyMenuNotifier,
+              displayEnterNewRecipeCard: displayEnterNewRecipeCard,
+            ),
             if (displayEnterNewRecipeCard.value)
               _MealRecipeEditingCard(
                 onRecipeMealSubmitted: (meal, recipeName) {
@@ -208,11 +129,105 @@ class DailyMenuSection extends HookConsumerWidget {
               final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
 
               return buildMenuContainer(m, menu,
-                  displayPlaceholder: isDragOverWidget);
+                  displayPlaceholder: draggingOverThisWidget);
             }).toList()
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DailyMenuSectionTitle extends HookConsumerWidget {
+  final DailyMenuNotifier dailyMenuNotifier;
+  final ValueNotifier<bool> displayEnterNewRecipeCard;
+
+  _DailyMenuSectionTitle(
+      {required this.dailyMenuNotifier,
+      required this.displayEnterNewRecipeCard});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final editingMode = ref.watch(isEditingMenuStateProvider);
+    final primaryColor = Theme.of(context).primaryColor;
+
+    Widget buildTitleTrailingIcon() {
+      if (!displayEnterNewRecipeCard.value)
+        return IconButton(
+          key: ValueKey('add icon'),
+          icon: Icon(
+            Icons.add,
+            color: Colors.black87,
+          ),
+          onPressed: () {
+            displayEnterNewRecipeCard.value = true;
+
+            // focusNode.requestFocus();
+          },
+          splashRadius: 15.0,
+        );
+      else
+        return IconButton(
+          key: ValueKey('cancel icon'),
+          icon: Icon(
+            Icons.close,
+            color: Colors.black87,
+          ),
+          onPressed: () {
+            displayEnterNewRecipeCard.value = false;
+          },
+          splashRadius: 15.0,
+        );
+    }
+
+    return Row(
+      key: ValueKey('title'),
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        RichText(
+          softWrap: false,
+          textAlign: TextAlign.start,
+          text: TextSpan(
+            text:
+                dailyMenuNotifier.dailyMenu.day.format(_appBarDateParser) + ' ',
+            style: GoogleFonts.b612Mono().copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+              fontFeatures: [
+                FontFeature.tabularFigures(),
+              ],
+            ),
+            children: <TextSpan>[
+              TextSpan(
+                text:
+                    dailyMenuNotifier.dailyMenu.day.format(_appBarMonthParser),
+                style: GoogleFonts.b612Mono().copyWith(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w200,
+                  color: Colors.black38,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            height: 3,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(3),
+                color: primaryColor.withOpacity(0.8)),
+          ),
+        ),
+        SizedBox(width: 5),
+        AnimatedContainer(
+          duration: Duration(milliseconds: 500),
+          child: buildTitleTrailingIcon(),
+          width: editingMode ? 40 : 10,
+        )
+      ],
     );
   }
 }
@@ -330,15 +345,15 @@ class MenuContainer extends HookConsumerWidget {
               (i, id) => MealRecipeCardContainer(
                 meal,
                 id,
+                key: ValueKey('$meal-$id'),
                 dailyMenuNotifier: dailyMenuNotifier,
                 displayLeadingMealIcon: id == recipeIds[0],
                 editingMode: editingMode,
               ),
             )
             .toList(),
-        isDragging && displayRecipePlaceholder
-            ? buildDragTargetPlaceholder(displayLeadingMealIcon: menu == null)
-            : Container(),
+        if (isDragging && displayRecipePlaceholder)
+          buildDragTargetPlaceholder(displayLeadingMealIcon: menu == null),
         if (recipeIds.isNotEmpty) SizedBox(height: 20),
       ],
     );
@@ -366,7 +381,7 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dailyMenu = useStateNotifier(dailyMenuNotifier);
+    final dailyMenu = dailyMenuNotifier.dailyMenu;
 
     final meal = menu?.meal ?? this.meal!;
 
@@ -437,7 +452,6 @@ class MenuRecipeWrapper extends HookConsumerWidget {
             recipe,
             meal: meal,
             dailyMenuNotifier: dailyMenuNotifier,
-            editingMode: editingMode,
           );
         });
   }
@@ -450,7 +464,6 @@ class MenuRecipeCard extends HookConsumerWidget {
   final DailyMenuNotifier dailyMenuNotifier;
 
   final bool? disabled;
-  final editingMode;
 
   MenuRecipeCard(
     this.recipe, {
@@ -458,13 +471,14 @@ class MenuRecipeCard extends HookConsumerWidget {
     required this.dailyMenuNotifier,
     required this.meal,
     this.disabled = false,
-    this.editingMode = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
+
+    final editingMode = ref.watch(isEditingMenuStateProvider);
 
     void openRecipeView(Recipe recipe) {
       Navigator.of(context).push(
@@ -482,7 +496,6 @@ class MenuRecipeCard extends HookConsumerWidget {
           recipe,
           meal: meal,
           dailyMenuNotifier: dailyMenuNotifier,
-          editingMode: editingMode,
         ),
       );
     }
@@ -559,7 +572,8 @@ class MenuRecipeCard extends HookConsumerWidget {
                 child: Image(
                     height: 50,
                     width: 90,
-                    image: CachedNetworkImageProvider(recipe.imgUrl!),
+                    image: CachedNetworkImageProvider(recipe.imgUrl!,
+                        maxWidth: 236, maxHeight: 131),
                     errorBuilder: (_, __, ___) => Container(),
                     fit: BoxFit.cover),
               ),
@@ -681,10 +695,8 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
             readOnly: readOnly,
             minLines: 1,
             maxLines: 2,
-
-            //scrollPhysics: const NeverScrollableScrollPhysics(),
-
             style: style,
+            scrollPhysics: const NeverScrollableScrollPhysics(),
             //fullwidth: true,
             onSubmitted: (_) => print('submitter'),
             textInputAction: TextInputAction.done,
@@ -692,6 +704,7 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
             onEditingComplete: () {
               onEditingComplete?.call(textEditingController.text);
             },
+
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(5),
               hintText: hintText,
