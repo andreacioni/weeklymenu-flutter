@@ -40,7 +40,6 @@ final menuListProvider = StateNotifierProvider.autoDispose
 final dailyMenuProvider =
     Provider.autoDispose.family<DailyMenu, Date>(((ref, date) {
   final menus = ref.watch(menuListProvider(date)).model ?? [];
-  print('update $date menus: ${menus.map((e) => e.date)}');
   return DailyMenu(day: date, menus: menus);
 }));
 
@@ -73,7 +72,7 @@ class MenuScreen extends HookConsumerWidget {
       final isDraggingMenu = ref.read(isDraggingMenuStateProvider);
 
       //Handle pointer move at the tob/Bottom of the screen and scroll
-      /* if (isDraggingMenu && !scrollController.position.outOfRange) {
+      if (isDraggingMenu) {
         final offset = screenHeight ~/ 4;
         //final moveDistance = 3;
         if (ev.position.dy > screenHeight - offset) {
@@ -84,7 +83,7 @@ class MenuScreen extends HookConsumerWidget {
 
           scrollController.jumpTo(scrollController.offset - moveDistance);
         }
-      } */
+      }
 
       //Handle pointer over daily menu container
       if (isDraggingMenu) {
@@ -117,14 +116,14 @@ class MenuScreen extends HookConsumerWidget {
       scrollController.addListener(fn);
 
       Future.delayed(Duration.zero, () {
-        if (todayKey.currentContext != null) {
+        if (todayKey.currentContext != null && todayOffset == -1) {
           Scrollable.ensureVisible(todayKey.currentContext!)
               .then((_) => todayOffset = scrollController.offset);
         }
       });
 
       return () => scrollController.removeListener(fn);
-    }, [scrollController]);
+    }, const []);
 
     Widget _buildListItem(int index) {
       final day =
@@ -140,6 +139,7 @@ class MenuScreen extends HookConsumerWidget {
     Widget _buildScrollView() {
       if (_USE_SLIVER) {
         return CustomScrollView(
+          cacheExtent: 2000,
           slivers: [
             SliverList(
                 delegate: SliverChildBuilderDelegate(
