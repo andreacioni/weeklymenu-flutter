@@ -201,7 +201,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dailyMenu = ref.watch(dailyMenuProvider(day).select((v) => v));
+    final dailyMenu = ref.watch(dailyMenuProvider(day));
 
     return _buildMenuCard(dailyMenu);
   }

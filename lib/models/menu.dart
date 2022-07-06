@@ -187,7 +187,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
 }
 
 @CopyWith()
-class DailyMenu {
+class DailyMenu with EquatableMixin {
   final Date day;
   final List<Menu> menus;
 
@@ -254,4 +254,11 @@ class DailyMenu {
   bool get isToday => day.isToday;
 
   bool get isPast => day.isPast;
+
+  @override
+  List<Object?> get props => [
+        day,
+        menus.map((e) => e.id).toSet(),
+        menus.map((e) => e.recipes).flattened.toSet()
+      ];
 }
