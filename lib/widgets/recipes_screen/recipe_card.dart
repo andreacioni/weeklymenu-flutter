@@ -5,6 +5,8 @@ import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
 
 import '../../models/recipe.dart';
 
+const _RECIPE_IMG_CONSTRAINTS = 328;
+
 class RecipeCard extends ConsumerWidget {
   final String recipeId;
   final Function()? onLongPress;
@@ -92,14 +94,19 @@ class RecipeCard extends ConsumerWidget {
       return DecorationImage(
         image: CachedNetworkImageProvider(
           imgUrl,
+          maxHeight: _RECIPE_IMG_CONSTRAINTS,
+          maxWidth: _RECIPE_IMG_CONSTRAINTS,
         ),
         fit: BoxFit.cover,
       );
     } else {
       return DecorationImage(
-        image: AssetImage(
-          "assets/icons/book.png",
-        ),
+        image: ResizeImage(
+            AssetImage(
+              "assets/icons/book.png",
+            ),
+            height: _RECIPE_IMG_CONSTRAINTS,
+            width: _RECIPE_IMG_CONSTRAINTS),
         fit: BoxFit.scaleDown,
       );
     }

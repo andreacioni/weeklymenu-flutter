@@ -122,6 +122,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildRecipeList(List<Recipe> recipes) {
     return GridView.builder(
+      cacheExtent: 2000,
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => Hero(
