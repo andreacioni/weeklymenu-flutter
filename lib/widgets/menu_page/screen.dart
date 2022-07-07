@@ -60,6 +60,8 @@ class MenuScreen extends HookConsumerWidget {
     * performances. The AppBar and the FAB are taking to each other directly 
     * (via listeners) to avoid that.
     */
+    print('build menu screen');
+
     final day = Date.now();
     final appBar = MenuAppBar(day);
 
