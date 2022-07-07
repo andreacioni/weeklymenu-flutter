@@ -232,13 +232,12 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
   }
 }
 
-class MealRecipeCardContainer extends StatelessWidget {
+class MealRecipeCardContainer extends HookConsumerWidget {
   final String recipeId;
   final Meal meal;
 
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayLeadingMealIcon;
-  final bool editingMode;
 
   const MealRecipeCardContainer(
     this.meal,
@@ -246,11 +245,11 @@ class MealRecipeCardContainer extends StatelessWidget {
     Key? key,
     required this.dailyMenuNotifier,
     this.displayLeadingMealIcon = false,
-    this.editingMode = false,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final editingMode = ref.watch(isEditingMenuStateProvider);
     return Row(
       children: [
         LeadingRecipeIcon(
@@ -284,7 +283,6 @@ class MenuContainer extends HookConsumerWidget {
   final Menu? menu;
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayRecipePlaceholder;
-  final bool editingMode;
 
   MenuContainer(
     this.meal, {
@@ -292,7 +290,6 @@ class MenuContainer extends HookConsumerWidget {
     this.menu,
     required this.dailyMenuNotifier,
     this.displayRecipePlaceholder = false,
-    this.editingMode = false,
   })  : assert(menu == null || meal == menu.meal),
         super(key: key);
 
@@ -348,7 +345,6 @@ class MenuContainer extends HookConsumerWidget {
                 key: ValueKey('$meal-$id'),
                 dailyMenuNotifier: dailyMenuNotifier,
                 displayLeadingMealIcon: id == recipeIds[0],
-                editingMode: editingMode,
               ),
             )
             .toList(),
@@ -448,11 +444,10 @@ class MenuRecipeWrapper extends HookConsumerWidget {
     return FlutterDataStateBuilder<Recipe>(
         state: ref.recipes.watchOne(recipeId),
         builder: (context, recipe) {
-          return MenuRecipeCard(
-            recipe,
-            meal: meal,
-            dailyMenuNotifier: dailyMenuNotifier,
-          );
+          return MenuRecipeCard(recipe,
+              meal: meal,
+              dailyMenuNotifier: dailyMenuNotifier,
+              editingMode: editingMode);
         });
   }
 }
@@ -463,6 +458,8 @@ class MenuRecipeCard extends HookConsumerWidget {
   final Meal meal;
   final DailyMenuNotifier dailyMenuNotifier;
 
+  final bool editingMode;
+
   final bool? disabled;
 
   MenuRecipeCard(
@@ -471,14 +468,13 @@ class MenuRecipeCard extends HookConsumerWidget {
     required this.dailyMenuNotifier,
     required this.meal,
     this.disabled = false,
+    this.editingMode = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
-
-    final editingMode = ref.watch(isEditingMenuStateProvider);
 
     void openRecipeView(Recipe recipe) {
       Navigator.of(context).push(
