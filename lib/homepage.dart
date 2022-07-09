@@ -19,9 +19,9 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final PageStorageBucket bucket = PageStorageBucket();
   final List<Widget> _screens = [
-    MenuScreen(key: PageStorageKey('menuPage')),
-    RecipesScreen(key: PageStorageKey('recipesPage')),
-    ShoppingListScreen(key: PageStorageKey('shoppingListPage')),
+    MenuScreen(key: const PageStorageKey('menuPage')),
+    RecipesScreen(key: const PageStorageKey('recipesPage')),
+    ShoppingListScreen(key: const PageStorageKey('shoppingListPage')),
   ];
   int _activeScreenIndex = 0;
 
@@ -36,13 +36,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       bottomNavigationBar: _buildBottomAppBar(context),
-      body: DefaultTabController(
-        initialIndex: 1,
-        length: 3,
-        child: PageStorage(
-          child: _screens[_activeScreenIndex],
-          bucket: bucket,
-        ),
+      body: PageStorage(
+        child: _screens[_activeScreenIndex],
+        bucket: bucket,
       ),
       drawer: AppDrawer(),
     );
