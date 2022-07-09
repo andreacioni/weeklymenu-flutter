@@ -675,6 +675,7 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
     }
 
     final recipeRepository = ref.read(recipesRepositoryProvider);
+    final scrollController = useScrollController(keepScrollOffset: false);
 
     return Autocomplete(
         initialValue: TextEditingValue(text: recipeName),
@@ -693,6 +694,7 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
             maxLines: 2,
             style: style,
             scrollPhysics: const NeverScrollableScrollPhysics(),
+            scrollController: scrollController,
             //fullwidth: true,
             onSubmitted: (_) => print('submitter'),
             textInputAction: TextInputAction.done,
@@ -700,7 +702,6 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
             onEditingComplete: () {
               onEditingComplete?.call(textEditingController.text);
             },
-
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(5),
               hintText: hintText,
