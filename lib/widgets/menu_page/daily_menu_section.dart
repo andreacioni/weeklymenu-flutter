@@ -54,8 +54,6 @@ class DailyMenuSection extends HookConsumerWidget {
             ? constants.todayColor
             : Colors.amber.shade200);
 
-    final focusNode = useFocusNode();
-
     final displayEnterNewRecipeCard = useState(false);
 
     final draggingOverThisWidget = ref.watch(pointerOverWidgetIndexStateProvider
