@@ -11,8 +11,7 @@ import 'package:weekly_menu_app/globals/memento.dart';
 import 'package:weekly_menu_app/services/auth_service.dart';
 
 import '../globals/constants.dart';
-
-final _providerContainer = ProviderContainer();
+import '../providers/common.dart';
 
 abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
     implements Cloneable<T> {
@@ -67,7 +66,7 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
 
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {
-    final token = await _providerContainer.read(authServiceProvider).token;
+    final token = await providerContainer.read(authServiceProvider).token;
     if (token == null) {
       throw StateError("can't get a valid token");
     }

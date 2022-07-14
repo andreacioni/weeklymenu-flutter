@@ -3,6 +3,8 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/globals/constants.dart';
+import 'package:weekly_menu_app/providers/shared_preferences.dart';
 import 'package:weekly_menu_app/widgets/shopping_list_screen/shopping_list_app_bar.dart';
 
 import '../flutter_data_state_builder.dart';
@@ -25,6 +27,23 @@ final supermarketSectionList = Provider.autoDispose(((ref) {
       .toList();
 }));
 
+final firstShoppingListIdProvider = FutureProvider((ref) async {
+  final firstShoppingListId = (await ref.watch(sharedPreferenceProvider.future))
+      .getString(SharedPreferencesKeys.firstShoppingListId);
+  if (firstShoppingListId == null) {
+    final shoppingLists = await ref.shoppingLists.findAll();
+
+    if (shoppingLists == null || shoppingLists.isEmpty) {
+      return null;
+    }
+
+    //Get only the first element, by now only one list per user is supported
+    return shoppingLists[0].id;
+  }
+
+  return firstShoppingListId;
+});
+
 class ShoppingListScreen extends HookConsumerWidget {
   ShoppingListScreen({Key? key}) : super(key: key);
 
@@ -32,6 +51,8 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
     final expandChecked = useState(true);
+
+    final loadingShoppingListId = ref.watch(firstShoppingListIdProvider);
 
     Widget _buildLoadingItem() {
       return SliverList(
@@ -89,7 +110,7 @@ class ShoppingListScreen extends HookConsumerWidget {
       }
     }
 
-    Widget _buildAddItem(WidgetRef ref, ShoppingList shoppingList) {
+    Widget _buildAddItem(WidgetRef ref, String shoppingListId) {
       return SliverList(
         delegate: SliverChildListDelegate.fixed(
           <Widget>[
@@ -105,15 +126,16 @@ class ShoppingListScreen extends HookConsumerWidget {
                 },
                 onSubmitted: (ingredientName) =>
                     _createNewIngredientAndShopItem(
-                        ref, shoppingList, ingredientName),
+                        ref, shoppingListId, ingredientName),
                 onShoppingItemSelected: (shopItem) => _setChecked(
                   ref,
-                  shoppingList,
+                  shoppingListId,
                   shopItem,
                   false,
                 ),
                 onIngredientSelected: (ingredient) =>
-                    _createShopItemForIngredient(ref, shoppingList, ingredient),
+                    _createShopItemForIngredient(
+                        ref, shoppingListId, ingredient),
               ),
             ),
             Divider(
@@ -137,7 +159,7 @@ class ShoppingListScreen extends HookConsumerWidget {
       }
     }
 
-    List<Widget> _buildCheckedList(WidgetRef ref, ShoppingList shoppingList) {
+    List<Widget> _buildCheckedList(WidgetRef ref, String shoppingList) {
       final checkItems = shoppingList.getCheckedItems
         ..sort((a, b) => (a.supermarketSectionName ?? '')
             .compareTo(b.supermarketSectionName ?? ''));
@@ -184,7 +206,7 @@ class ShoppingListScreen extends HookConsumerWidget {
       ];
     }
 
-    List<Widget> _buildUncheckedList(WidgetRef ref, ShoppingList shoppingList) {
+    List<Widget> _buildUncheckedList(WidgetRef ref, String shoppingListId) {
       final uncheckItems = shoppingList.getUncheckedItems
         ..sort((a, b) => (a.supermarketSectionName ?? '')
             .compareTo(b.supermarketSectionName ?? ''));
@@ -240,6 +262,36 @@ class ShoppingListScreen extends HookConsumerWidget {
       );
     }
 
+    Widget buildItemList(String shoppingListId) {
+      return FlutterDataStateBuilder<List<ShoppingListItem>>(
+        state: ref.shoppingListItems.watchAll(syncLocal: true),
+        loading: _buildLoadingItem(),
+        onRefresh: () => ref.shoppingLists.findAll(syncLocal: true),
+        //notFound: _buildNoElementsPage(),
+        builder: (context, data) {
+          if (data.isEmpty) {
+            return _buildNoElementsPage();
+          }
+          final allItems = data;
+
+          return allItems.isEmpty && !newItemMode.value
+              ? _buildNoElementsPage()
+              : CustomScrollView(
+                  slivers: <Widget>[
+                    //if (allItems.isEmpty) _buildNoElementsPage(),
+                    if (newItemMode.value) _buildAddItem(ref, shoppingListId),
+                    //_buildFloatingHeader('Unckecked'),
+                    if (allItems.isNotEmpty)
+                      ..._buildUncheckedList(ref, shoppingListId),
+                    //_buildFloatingHeader('Checked'),
+                    if (allItems.isNotEmpty)
+                      ..._buildCheckedList(ref, shoppingListId),
+                  ],
+                );
+        },
+      );
+    }
+
     return Scaffold(
       appBar: const ShoppingListAppBar(),
       floatingActionButton: newItemMode.value == false
@@ -248,33 +300,19 @@ class ShoppingListScreen extends HookConsumerWidget {
               onPressed: () => newItemMode.value = true,
             )
           : null,
-      body: FlutterDataStateBuilder<List<ShoppingList>>(
-        state: ref.shoppingLists.watchAll(syncLocal: true),
-        onRefresh: () => ref.shoppingLists.findAll(syncLocal: true),
-        //notFound: _buildNoElementsPage(),
-        builder: (context, data) {
-          if (data.isEmpty) {
+      body: loadingShoppingListId.when(
+        data: (shoppingListId) {
+          if (shoppingListId == null) {
+            print('no shopping list available');
             return _buildNoElementsPage();
           }
-          //Get only the first element, by now only one list per user is supported
-          final shoppingList = data[0];
-          final allItems = shoppingList.getAllItems;
-
-          return allItems.isEmpty && !newItemMode.value
-              ? _buildNoElementsPage()
-              : CustomScrollView(
-                  slivers: <Widget>[
-                    //if (allItems.isEmpty) _buildNoElementsPage(),
-                    if (newItemMode.value) _buildAddItem(ref, shoppingList),
-                    //_buildFloatingHeader('Unckecked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildUncheckedList(ref, shoppingList),
-                    //_buildFloatingHeader('Checked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildCheckedList(ref, shoppingList),
-                  ],
-                );
+          return buildItemList(shoppingListId);
         },
+        error: (error, __) {
+          print('failed to read shopping list id: $error');
+          _buildNoElementsPage();
+        },
+        loading: _buildLoadingItem,
       ),
     );
   }

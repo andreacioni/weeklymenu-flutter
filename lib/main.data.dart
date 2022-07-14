@@ -35,14 +35,15 @@ final repositoryProviders = <String, Provider<Repository<DataModel>>>{
   'ingredients': ingredientsRepositoryProvider,
 'menus': menusRepositoryProvider,
 'recipes': recipesRepositoryProvider,
+'shoppingListItems': shoppingListItemsRepositoryProvider,
 'shoppingLists': shoppingListsRepositoryProvider,
 'userPreferences': userPreferencesRepositoryProvider
 };
 
 final repositoryInitializerProvider =
   FutureProvider<RepositoryInitializer>((ref) async {
-    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(internalIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalMenusRemoteAdapterProvider), 'recipes': ref.watch(internalRecipesRemoteAdapterProvider), 'shoppingLists': ref.watch(internalShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalUserPreferencesRemoteAdapterProvider)};
-    final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shoppingLists': true, 'userPreferences': true};
+    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(internalIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalMenusRemoteAdapterProvider), 'recipes': ref.watch(internalRecipesRemoteAdapterProvider), 'shoppingListItems': ref.watch(internalShoppingListItemsRemoteAdapterProvider), 'shoppingLists': ref.watch(internalShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalUserPreferencesRemoteAdapterProvider)};
+    final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shoppingListItems': true, 'shoppingLists': true, 'userPreferences': true};
 
     await ref.watch(graphNotifierProvider).initialize();
 
@@ -63,6 +64,7 @@ extension RepositoryWidgetRefX on WidgetRef {
   Repository<Ingredient> get ingredients => watch(ingredientsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<Menu> get menus => watch(menusRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<Recipe> get recipes => watch(recipesRepositoryProvider)..remoteAdapter.internalWatch = watch;
+  Repository<ShoppingListItem> get shoppingListItems => watch(shoppingListItemsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<ShoppingList> get shoppingLists => watch(shoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<UserPreference> get userPreferences => watch(userPreferencesRepositoryProvider)..remoteAdapter.internalWatch = watch;
 }
@@ -72,6 +74,7 @@ extension RepositoryRefX on Ref {
   Repository<Ingredient> get ingredients => watch(ingredientsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<Menu> get menus => watch(menusRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<Recipe> get recipes => watch(recipesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
+  Repository<ShoppingListItem> get shoppingListItems => watch(shoppingListItemsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<ShoppingList> get shoppingLists => watch(shoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<UserPreference> get userPreferences => watch(userPreferencesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
 }
