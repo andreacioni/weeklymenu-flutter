@@ -719,38 +719,6 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
           return await _suggestionsCallback(
               textEditingValue.text, recipeRepository);
         });
-
-    /* return TypeAheadField<Recipe>(
-      textFieldConfiguration: TextFieldConfiguration(
-          controller: textEditingController,
-          enabled: enabled,
-          focusNode: focusNode,
-          autofocus: true,
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(5),
-            hintText: hintText,
-            border: OutlineInputBorder(),
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            isDense: true,
-          ),
-          maxLines: null,
-          minLines: null,
-          onEditingComplete: () =>
-              onEditingComplete?.call(textEditingController.text)),
-      itemBuilder: _itemBuilder,
-      onSuggestionSelected: _onSuggestionSelected,
-      suggestionsCallback: (pattern) =>
-          _suggestionsCallback(pattern, recipeRepository),
-      hideOnEmpty: true,
-      autoFlipDirection: true,
-      hideOnLoading: true,
-      hideSuggestionsOnKeyboardHide: false,
-      hideKeyboard: false,
-
-      minCharsForSuggestions: 1,
-    ); */
   }
 
   void _setupFocusListener() {

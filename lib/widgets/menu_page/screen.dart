@@ -44,7 +44,9 @@ final dailyMenuProvider =
 }));
 
 // drag not works when true
-const _USE_SLIVER = false;
+enum _MENU_MODE { COLUMN, LISTVIEW, POSITIONED_LISTVIEW }
+
+const _SELECTED_MODE = _MENU_MODE.POSITIONED_LISTVIEW;
 
 final _httpParamDateParser = DateFormat('y-MM-dd');
 
@@ -70,20 +72,51 @@ class MenuScreen extends HookConsumerWidget {
     final displayFAB = useState(true);
     final todayKey = GlobalKey();
 
+    final itemScrollController = useMemoized(() =>
+        _SELECTED_MODE == _MENU_MODE.POSITIONED_LISTVIEW
+            ? ItemScrollController()
+            : null);
+
+    final itemPositionListener = useMemoized(() =>
+        _SELECTED_MODE == _MENU_MODE.POSITIONED_LISTVIEW
+            ? ItemPositionsListener.create()
+            : null);
+
     void onPointerMove(PointerMoveEvent ev) {
       final isDraggingMenu = ref.read(isDraggingMenuStateProvider);
 
       //Handle pointer move at the tob/Bottom of the screen and scroll
       if (isDraggingMenu) {
         final offset = screenHeight ~/ 4;
+
         //final moveDistance = 3;
         if (ev.position.dy > screenHeight - offset) {
-          final moveDistance = 3 + (7 * (ev.position.dy / screenHeight));
-          scrollController.jumpTo(scrollController.offset + moveDistance);
+          final moveDistance = 3 + (2 * (ev.position.dy / screenHeight));
+          if (_SELECTED_MODE != _MENU_MODE.POSITIONED_LISTVIEW) {
+            scrollController.jumpTo(scrollController.offset + moveDistance);
+          } else {
+            final itemPositions = itemPositionListener!.itemPositions.value
+                .toList()
+              ..sort(((a, b) => a.index.compareTo(b.index)));
+            print('down:');
+            itemScrollController!.scrollTo(
+                index: itemPositions.first.index + 1,
+                duration: Duration(milliseconds: 300));
+          }
         } else if (ev.position.dy < offset) {
-          final moveDistance = 3 + (7 * (ev.position.dy / offset));
+          final moveDistance = 3 + (2 * (ev.position.dy / offset));
+          if (_SELECTED_MODE != _MENU_MODE.POSITIONED_LISTVIEW) {
+            scrollController.jumpTo(scrollController.offset - moveDistance);
+          } else {
+            final itemPositions = itemPositionListener!.itemPositions.value
+                .toList()
+              ..sort(((a, b) => a.index.compareTo(b.index)));
 
-          scrollController.jumpTo(scrollController.offset - moveDistance);
+            print('up:');
+            itemScrollController!.scrollTo(
+                index: itemPositions.first.index - 1,
+                duration: Duration(milliseconds: 300));
+          }
         }
       }
 
@@ -139,8 +172,9 @@ class MenuScreen extends HookConsumerWidget {
     }
 
     Widget _buildScrollView() {
-      if (_USE_SLIVER) {
+      if (_SELECTED_MODE == _MENU_MODE.LISTVIEW) {
         return CustomScrollView(
+          controller: scrollController,
           cacheExtent: 2000,
           slivers: [
             SliverList(
@@ -148,6 +182,15 @@ class MenuScreen extends HookConsumerWidget {
                     (context, index) => _buildListItem(index),
                     childCount: pageViewLimitDays))
           ],
+        );
+      }
+      if (_SELECTED_MODE == _MENU_MODE.POSITIONED_LISTVIEW) {
+        return ScrollablePositionedList.builder(
+          itemCount: pageViewLimitDays,
+          initialScrollIndex: pageViewLimitDays ~/ 2,
+          itemBuilder: (context, index) => _buildListItem(index),
+          itemScrollController: itemScrollController,
+          itemPositionsListener: itemPositionListener,
         );
       }
       return SingleChildScrollView(
@@ -160,7 +203,10 @@ class MenuScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: appBar,
-      floatingActionButton: _MenuFloatingActionButton(todayKey),
+      floatingActionButton: _MenuFloatingActionButton(
+        todayKey,
+        itemScrollController: itemScrollController,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Listener(
         onPointerMove: onPointerMove,
@@ -223,10 +269,12 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
 class _MenuFloatingActionButton extends StatelessWidget {
   final GlobalKey todayChildGlobalKey;
+  final ItemScrollController? itemScrollController;
 
   const _MenuFloatingActionButton(
     this.todayChildGlobalKey, {
     Key? key,
+    this.itemScrollController,
   }) : super(key: key);
 
   @override
@@ -236,6 +284,9 @@ class _MenuFloatingActionButton extends StatelessWidget {
         if (todayChildGlobalKey.currentContext != null)
           Scrollable.ensureVisible(todayChildGlobalKey.currentContext!,
               duration: Duration(milliseconds: 500), curve: Curves.decelerate);
+
+        itemScrollController?.scrollTo(
+            index: pageViewLimitDays ~/ 2, duration: Duration(seconds: 1));
       },
       child: //day.isToday
           //? Icon(Icons.lightbulb_outline) :
