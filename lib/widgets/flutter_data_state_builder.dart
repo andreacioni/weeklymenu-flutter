@@ -17,11 +17,10 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
   FlutterDataStateBuilder(
       {required this.state,
       required this.builder,
-      this.notFound,
       this.onRefresh,
-      Widget? error,
-      this.loading = const Center(child: CircularProgressIndicator())})
-      : this.error = error ?? Text('error');
+      this.notFound = const Text('not found'),
+      this.error = const Text('error'),
+      this.loading = const Center(child: CircularProgressIndicator())});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,9 +44,7 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
     final emptyModel = state.model == null ||
         ((state.model is List) && (state.model as List).isEmpty);
 
-    final baseWidget = emptyModel && notFound != null
-        ? notFound
-        : builder(context, state.model!);
+    final baseWidget = emptyModel ? notFound : builder(context, state.model!);
 
     return onRefresh != null
         ? RefreshIndicator(

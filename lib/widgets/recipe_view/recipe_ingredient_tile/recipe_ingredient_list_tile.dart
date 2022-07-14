@@ -23,38 +23,41 @@ class RecipeIngredientListTile extends HookConsumerWidget {
 
     return FlutterDataStateBuilder<Ingredient>(
       state: ingredientsRepo.watchOne(recipeIngredient.ingredientId),
+      notFound: buildListTile(context, false, 'Ingredient'),
       builder: (context, model) {
         final ingredient = model;
-        return buildListTile(context, ingredient);
+        return buildListTile(context, editEnabled, ingredient.name);
       },
     );
-    /* return FutureBuilder<Ingredient>(
-      future: Provider.of<Repository<Ingredient>>(context, listen: false)
-          .findOne(widget._recipeIngredient.ingredientId, remote: false),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text("Error occurred");
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        final ingredient = snapshot.data;
-
-        return buildListTile(ingredient);
-      },
-    ); */
   }
 
-  Widget buildListTile(BuildContext context, Ingredient ingredient) {
+  void openRecipeIngredientUpdateModal(BuildContext context) async {
+    RecipeIngredient? updatedRecipeIng = await showDialog<RecipeIngredient>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => RecipeIngredientModal(recipeIngredient),
+    );
+
+    if (updatedRecipeIng != null) {
+      final recipeIngredients = [..._recipe.instance.ingredients]
+        ..removeWhere((ri) => ri.ingredientId == recipeIngredient.ingredientId)
+        ..add(updatedRecipeIng);
+
+      _recipe.update(_recipe.instance.copyWith(ingredients: recipeIngredients));
+    } else {
+      print("No update ingredient recipe returned");
+    }
+  }
+
+  Widget buildListTile(
+      BuildContext context, bool editEnabled, String ingredientName) {
     return Card(
       child: ListTile(
         leading: Padding(
           padding: EdgeInsets.all(8),
           child: Image.asset("assets/icons/supermarket.png"),
         ),
-        title: Text(ingredient.name),
+        title: Text(ingredientName),
         trailing: editEnabled
             ? IconButton(
                 icon: Icon(Icons.edit),
@@ -82,23 +85,5 @@ class RecipeIngredientListTile extends HookConsumerWidget {
               ),
       ),
     );
-  }
-
-  void openRecipeIngredientUpdateModal(BuildContext context) async {
-    RecipeIngredient? updatedRecipeIng = await showDialog<RecipeIngredient>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => RecipeIngredientModal(recipeIngredient),
-    );
-
-    if (updatedRecipeIng != null) {
-      final recipeIngredients = [..._recipe.instance.ingredients]
-        ..removeWhere((ri) => ri.ingredientId == recipeIngredient.ingredientId)
-        ..add(updatedRecipeIng);
-
-      _recipe.update(_recipe.instance.copyWith(ingredients: recipeIngredients));
-    } else {
-      print("No update ingredient recipe returned");
-    }
   }
 }
