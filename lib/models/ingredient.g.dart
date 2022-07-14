@@ -126,7 +126,7 @@ class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
 
 final internalIngredientsRemoteAdapterProvider =
     Provider<RemoteAdapter<Ingredient>>((ref) => $IngredientRemoteAdapter(
-        $IngredientHiveLocalAdapter(ref.read),
+        $IngredientHiveLocalAdapter(ref.read, typeId: null),
         InternalHolder(_ingredientsFinders)));
 
 final ingredientsRepositoryProvider =

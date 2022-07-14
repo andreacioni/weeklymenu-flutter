@@ -153,7 +153,8 @@ class $UserPreferenceRemoteAdapter = RemoteAdapter<UserPreference>
 
 final internalUserPreferencesRemoteAdapterProvider =
     Provider<RemoteAdapter<UserPreference>>((ref) =>
-        $UserPreferenceRemoteAdapter($UserPreferenceHiveLocalAdapter(ref.read),
+        $UserPreferenceRemoteAdapter(
+            $UserPreferenceHiveLocalAdapter(ref.read, typeId: null),
             InternalHolder(_userPreferencesFinders)));
 
 final userPreferencesRepositoryProvider = Provider<Repository<UserPreference>>(

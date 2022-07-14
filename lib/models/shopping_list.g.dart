@@ -245,7 +245,7 @@ class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
 
 final internalShoppingListsRemoteAdapterProvider =
     Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
-        $ShoppingListHiveLocalAdapter(ref.read),
+        $ShoppingListHiveLocalAdapter(ref.read, typeId: null),
         InternalHolder(_shoppingListsFinders)));
 
 final shoppingListsRepositoryProvider = Provider<Repository<ShoppingList>>(
