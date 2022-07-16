@@ -85,9 +85,15 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
 
   @override
   Future<DeserializedData<T>> deserialize(Object? data) async {
-    final json = data as Map<String, dynamic>;
-    return await super.deserialize(
-      json.containsKey('results') ? json['results'] : json,
-    );
+    if (data is Map) {
+      final json = data as Map<String, dynamic>;
+      return await super.deserialize(
+        json.containsKey('results') ? json['results'] : json,
+      );
+    } else if (data is List) {
+      return await super.deserialize(data);
+    } else {
+      throw 'response data is an unexpected type: $data';
+    }
   }
 }

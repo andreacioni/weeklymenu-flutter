@@ -126,15 +126,23 @@ mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
 mixin ShoppingListItemAdapter<T extends DataModel<ShoppingListItem>>
     on RemoteAdapter<ShoppingListItem> {
   @override
-  String urlForFindAll(Map<String, dynamic> params) => dashCaseType;
+  String urlForFindAll(Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return '$url';
+  }
 
   @override
-  String urlForFindOne(id, Map<String, dynamic> params) => '$dashCaseType/$id';
+  String urlForFindOne(id, Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return '$url/$id';
+  }
 
   @override
-  String urlForSave(id, Map<String, dynamic> params) =>
-      params['update'] == true ? '$dashCaseType/$id' : dashCaseType;
+  String urlForSave(id, Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return params['update'] == true ? "$url/$id" : url;
+  }
 
-  String get dashCaseType =>
-      type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
+  String basePath(String shoppingListId) =>
+      "shopping-lists/$shoppingListId/items";
 }

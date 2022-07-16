@@ -18,7 +18,7 @@ import 'package:weekly_menu_app/main.data.dart';
 final selectedShoppingListItems =
     StateProvider.autoDispose(((_) => <String>[]));
 
-final supermarketSectionList = Provider.autoDispose(((ref) {
+final _supermarketSectionList = Provider.autoDispose(((ref) {
   final shoppingListItems = ref.shoppingLists.watchAll().model![0].items;
   return (shoppingListItems
         ..removeWhere((e) => e.supermarketSectionName?.isEmpty ?? false))
@@ -27,15 +27,22 @@ final supermarketSectionList = Provider.autoDispose(((ref) {
       .toList();
 }));
 
-final firstShoppingListIdProvider = FutureProvider((ref) async {
-  final firstShoppingListId = (await ref.watch(sharedPreferenceProvider.future))
-      .getString(SharedPreferencesKeys.firstShoppingListId);
+final _firstShoppingListIdProvider = FutureProvider((ref) async {
+  final sharedPrefs = await ref.watch(sharedPreferenceProvider.future);
+  final firstShoppingListId =
+      sharedPrefs.getString(SharedPreferencesKeys.firstShoppingListId);
+
   if (firstShoppingListId == null) {
     final shoppingLists = await ref.shoppingLists.findAll();
 
     if (shoppingLists == null || shoppingLists.isEmpty) {
       return null;
     }
+
+    sharedPrefs
+        .setString(
+            SharedPreferencesKeys.firstShoppingListId, shoppingLists[0].id)
+        .ignore();
 
     //Get only the first element, by now only one list per user is supported
     return shoppingLists[0].id;
@@ -50,9 +57,43 @@ class ShoppingListScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
-    final expandChecked = useState(true);
 
-    final loadingShoppingListId = ref.watch(firstShoppingListIdProvider);
+    final shoppingListId = ref.watch(_firstShoppingListIdProvider);
+
+    return Scaffold(
+      appBar: const ShoppingListAppBar(),
+      floatingActionButton: newItemMode.value == false
+          ? FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () => newItemMode.value = true,
+            )
+          : null,
+      body: shoppingListId.when(
+          data: (data) {
+            return _ShoppingListListView(
+              shoppingListId: data!,
+              newItemMode: newItemMode,
+            );
+          },
+          error: (_, __) =>
+              const Center(child: const CircularProgressIndicator()),
+          loading: () =>
+              const Center(child: const CircularProgressIndicator())),
+    );
+  }
+}
+
+class _ShoppingListListView extends HookConsumerWidget {
+  final String shoppingListId;
+  final ValueNotifier<bool> newItemMode;
+
+  const _ShoppingListListView(
+      {Key? key, required this.shoppingListId, required this.newItemMode})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expandChecked = useState(true);
 
     Widget _buildLoadingItem() {
       return SliverList(
@@ -70,47 +111,45 @@ class ShoppingListScreen extends HookConsumerWidget {
     }
 
     Future<void> _createShopItemForIngredient(
-        WidgetRef ref, ShoppingList shoppingList, Ingredient ing) async {
+        WidgetRef ref, String shoppingList, Ingredient ing) async {
       ShoppingListItem item = ShoppingListItem(item: ing.id, checked: false);
 
-      shoppingList.addShoppingListItem(item);
-
       try {
-        await ref.shoppingLists.save(shoppingList, params: {'update': true});
+        await ref.shoppingListItems.save(item,
+            params: {'update': false, 'shopping_list_id': shoppingListId});
       } catch (e) {
         showAlertErrorMessage(context);
-        shoppingList.removeItemFromList(item);
+        ref.shoppingListItems.delete(item);
       }
     }
 
     void _createNewIngredientAndShopItem(
-        WidgetRef ref, ShoppingList shoppingList, String ingredientName) async {
+        WidgetRef ref, String shoppingList, String ingredientName) async {
       Repository<Ingredient> ingredientsRepo =
           ref.read(ingredientsRepositoryProvider);
 
       Ingredient newIngredient =
           Ingredient(id: ObjectId().hexString, name: ingredientName);
-      ingredientsRepo.save(newIngredient, params: {'update': false});
+      ingredientsRepo.save(newIngredient,
+          params: {'update': false, 'shopping_list_id': shoppingListId});
 
       _createShopItemForIngredient(ref, shoppingList, newIngredient);
     }
 
-    Future<void> _setChecked(WidgetRef ref, ShoppingList shoppingList,
-        ShoppingListItem shopItem, bool checked) async {
+    Future<void> _setChecked(ShoppingListItem shopItem, bool checked) async {
       try {
-        await shoppingList
-            .setChecked(shopItem, checked)
-            .save(params: {'update': true});
+        await shopItem
+            .copyWith(checked: checked)
+            .save(params: {'update': true, 'shopping_list_id': shoppingListId});
       } catch (e) {
         showAlertErrorMessage(context);
-        shoppingList.setChecked(
-          shopItem,
-          !checked,
-        );
+        shopItem
+            .copyWith(checked: !checked)
+            .save(params: {'update': true, 'shopping_list_id': shoppingListId});
       }
     }
 
-    Widget _buildAddItem(WidgetRef ref, String shoppingListId) {
+    Widget _buildAddItem(WidgetRef ref) {
       return SliverList(
         delegate: SliverChildListDelegate.fixed(
           <Widget>[
@@ -128,8 +167,6 @@ class ShoppingListScreen extends HookConsumerWidget {
                     _createNewIngredientAndShopItem(
                         ref, shoppingListId, ingredientName),
                 onShoppingItemSelected: (shopItem) => _setChecked(
-                  ref,
-                  shoppingListId,
                   shopItem,
                   false,
                 ),
@@ -146,21 +183,19 @@ class ShoppingListScreen extends HookConsumerWidget {
       );
     }
 
-    Future<void> _removeItemFromList(WidgetRef ref, ShoppingList shoppingList,
-        ShoppingListItem shoppingListItem) async {
-      shoppingList.removeItemFromList(shoppingListItem);
+    Future<void> _removeItemFromList(ShoppingListItem shoppingListItem) async {
       try {
-        await ref
-            .read(shoppingListsRepositoryProvider)
-            .save(shoppingList, params: {'update': true});
+        await shoppingListItem.delete(
+            params: {'update': true, 'shopping_list_id': shoppingListId});
       } catch (e) {
         showAlertErrorMessage(context);
-        shoppingList.addShoppingListItem(shoppingListItem);
+        shoppingListItem.save(
+            params: {'update': false, 'shopping_list_id': shoppingListId});
       }
     }
 
-    List<Widget> _buildCheckedList(WidgetRef ref, String shoppingList) {
-      final checkItems = shoppingList.getCheckedItems
+    List<Widget> _buildCheckedList(List<ShoppingListItem> checkedItems) {
+      final checkItems = checkedItems
         ..sort((a, b) => (a.supermarketSectionName ?? '')
             .compareTo(b.supermarketSectionName ?? ''));
 
@@ -193,21 +228,18 @@ class ShoppingListScreen extends HookConsumerWidget {
                   editable: false,
                   formKey: ValueKey(checkItems[index].item),
                   onCheckChange: (newValue) => _setChecked(
-                        ref,
-                        shoppingList,
                         checkItems[index],
                         newValue,
                       ),
-                  onDismiss: (_) => _removeItemFromList(
-                      ref, shoppingList, checkItems[index])),
+                  onDismiss: (_) => _removeItemFromList(checkItems[index])),
               childCount: checkItems.length,
             ),
           )
       ];
     }
 
-    List<Widget> _buildUncheckedList(WidgetRef ref, String shoppingListId) {
-      final uncheckItems = shoppingList.getUncheckedItems
+    List<Widget> _buildUncheckedList(List<ShoppingListItem> uncheckedItems) {
+      final uncheckItems = uncheckedItems
         ..sort((a, b) => (a.supermarketSectionName ?? '')
             .compareTo(b.supermarketSectionName ?? ''));
       return [
@@ -218,14 +250,10 @@ class ShoppingListScreen extends HookConsumerWidget {
                     formKey: ValueKey(uncheckItems[index].item),
                     editable: false,
                     onCheckChange: (newValue) => _setChecked(
-                      ref,
-                      shoppingList,
                       uncheckItems[index],
                       newValue,
                     ),
                     onDismiss: (_) => _removeItemFromList(
-                      ref,
-                      shoppingList,
                       uncheckItems[index],
                     ),
                   ),
@@ -262,58 +290,29 @@ class ShoppingListScreen extends HookConsumerWidget {
       );
     }
 
-    Widget buildItemList(String shoppingListId) {
-      return FlutterDataStateBuilder<List<ShoppingListItem>>(
-        state: ref.shoppingListItems.watchAll(syncLocal: true),
-        loading: _buildLoadingItem(),
-        onRefresh: () => ref.shoppingLists.findAll(syncLocal: true),
-        //notFound: _buildNoElementsPage(),
-        builder: (context, data) {
-          if (data.isEmpty) {
-            return _buildNoElementsPage();
-          }
-          final allItems = data;
+    return FlutterDataStateBuilder<List<ShoppingListItem>>(
+      state: ref.shoppingListItems
+          .watchAll(params: {'shopping_list_id': shoppingListId}),
+      loading: _buildLoadingItem(),
+      notFound: _buildNoElementsPage(),
+      onRefresh: () => ref.shoppingListItems.findAll(
+          params: {'shopping_list_id': shoppingListId}, syncLocal: true),
+      builder: (context, data) {
+        final allItems = data;
+        final checkedItems = allItems.where((i) => i.checked).toList();
+        final uncheckedItems = allItems.where((i) => !i.checked).toList();
 
-          return allItems.isEmpty && !newItemMode.value
-              ? _buildNoElementsPage()
-              : CustomScrollView(
-                  slivers: <Widget>[
-                    //if (allItems.isEmpty) _buildNoElementsPage(),
-                    if (newItemMode.value) _buildAddItem(ref, shoppingListId),
-                    //_buildFloatingHeader('Unckecked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildUncheckedList(ref, shoppingListId),
-                    //_buildFloatingHeader('Checked'),
-                    if (allItems.isNotEmpty)
-                      ..._buildCheckedList(ref, shoppingListId),
-                  ],
-                );
-        },
-      );
-    }
-
-    return Scaffold(
-      appBar: const ShoppingListAppBar(),
-      floatingActionButton: newItemMode.value == false
-          ? FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () => newItemMode.value = true,
-            )
-          : null,
-      body: loadingShoppingListId.when(
-        data: (shoppingListId) {
-          if (shoppingListId == null) {
-            print('no shopping list available');
-            return _buildNoElementsPage();
-          }
-          return buildItemList(shoppingListId);
-        },
-        error: (error, __) {
-          print('failed to read shopping list id: $error');
-          _buildNoElementsPage();
-        },
-        loading: _buildLoadingItem,
-      ),
+        return CustomScrollView(
+          slivers: <Widget>[
+            //if (allItems.isEmpty) _buildNoElementsPage(),
+            if (newItemMode.value) _buildAddItem(ref),
+            //_buildFloatingHeader('Unckecked'),
+            if (allItems.isNotEmpty) ..._buildUncheckedList(uncheckedItems),
+            //_buildFloatingHeader('Checked'),
+            if (allItems.isNotEmpty) ..._buildCheckedList(checkedItems),
+          ],
+        );
+      },
     );
   }
 }
