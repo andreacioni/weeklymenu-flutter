@@ -19,4 +19,6 @@ class SharedPreferencesKeys {
   static final String tokenSharedPreferencesKey = "token";
   static final String emailSharedPreferencesKey = "username";
   static final String passwordSharedPreferencesKey = "password";
+
+  static final String firstShoppingListId = "first_shopping_list_id";
 }

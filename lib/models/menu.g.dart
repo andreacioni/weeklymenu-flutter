@@ -204,8 +204,8 @@ class $MenuHiveLocalAdapter = HiveLocalAdapter<Menu> with $MenuLocalAdapter;
 class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 
 final internalMenusRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
-    (ref) => $MenuRemoteAdapter(
-        $MenuHiveLocalAdapter(ref.read), InternalHolder(_menusFinders)));
+    (ref) => $MenuRemoteAdapter($MenuHiveLocalAdapter(ref.read, typeId: null),
+        InternalHolder(_menusFinders)));
 
 final menusRepositoryProvider =
     Provider<Repository<Menu>>((ref) => Repository<Menu>(ref.read));

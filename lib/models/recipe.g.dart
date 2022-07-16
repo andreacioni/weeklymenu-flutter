@@ -297,7 +297,8 @@ class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
 
 final internalRecipesRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
     (ref) => $RecipeRemoteAdapter(
-        $RecipeHiveLocalAdapter(ref.read), InternalHolder(_recipesFinders)));
+        $RecipeHiveLocalAdapter(ref.read, typeId: null),
+        InternalHolder(_recipesFinders)));
 
 final recipesRepositoryProvider =
     Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref.read));

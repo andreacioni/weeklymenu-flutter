@@ -72,7 +72,8 @@ class ShoppingList extends BaseModel<ShoppingList> {
 
 @JsonSerializable()
 @CopyWith()
-class ShoppingListItem with ChangeNotifier {
+@DataRepository([BaseAdapter, ShoppingListItemAdapter])
+class ShoppingListItem extends DataModel<ShoppingListItem> {
   final String item;
 
   final bool checked;
@@ -101,6 +102,9 @@ class ShoppingListItem with ChangeNotifier {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
+
+  @override
+  String get id => item;
 }
 
 mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
@@ -117,4 +121,28 @@ mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
 
   String get dashCaseType =>
       type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
+}
+
+mixin ShoppingListItemAdapter<T extends DataModel<ShoppingListItem>>
+    on RemoteAdapter<ShoppingListItem> {
+  @override
+  String urlForFindAll(Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return '$url';
+  }
+
+  @override
+  String urlForFindOne(id, Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return '$url/$id';
+  }
+
+  @override
+  String urlForSave(id, Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return params['update'] == true ? "$url/$id" : url;
+  }
+
+  String basePath(String shoppingListId) =>
+      "shopping-lists/$shoppingListId/items";
 }

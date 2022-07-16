@@ -245,7 +245,7 @@ class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
 
 final internalShoppingListsRemoteAdapterProvider =
     Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
-        $ShoppingListHiveLocalAdapter(ref.read),
+        $ShoppingListHiveLocalAdapter(ref.read, typeId: null),
         InternalHolder(_shoppingListsFinders)));
 
 final shoppingListsRepositoryProvider = Provider<Repository<ShoppingList>>(
@@ -260,6 +260,60 @@ extension ShoppingListDataRepositoryX on Repository<ShoppingList> {
 
 extension ShoppingListRelationshipGraphNodeX
     on RelationshipGraphNode<ShoppingList> {}
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $ShoppingListItemLocalAdapter on LocalAdapter<ShoppingListItem> {
+  static final Map<String, RelationshipMeta>
+      _kShoppingListItemRelationshipMetas = {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kShoppingListItemRelationshipMetas;
+
+  @override
+  ShoppingListItem deserialize(map) {
+    map = transformDeserialize(map);
+    return ShoppingListItem.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _shoppingListItemsFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $ShoppingListItemHiveLocalAdapter = HiveLocalAdapter<ShoppingListItem>
+    with $ShoppingListItemLocalAdapter;
+
+class $ShoppingListItemRemoteAdapter = RemoteAdapter<ShoppingListItem>
+    with
+        BaseAdapter<ShoppingListItem>,
+        ShoppingListItemAdapter<ShoppingListItem>;
+
+final internalShoppingListItemsRemoteAdapterProvider =
+    Provider<RemoteAdapter<ShoppingListItem>>((ref) =>
+        $ShoppingListItemRemoteAdapter(
+            $ShoppingListItemHiveLocalAdapter(ref.read, typeId: null),
+            InternalHolder(_shoppingListItemsFinders)));
+
+final shoppingListItemsRepositoryProvider =
+    Provider<Repository<ShoppingListItem>>(
+        (ref) => Repository<ShoppingListItem>(ref.read));
+
+extension ShoppingListItemDataRepositoryX on Repository<ShoppingListItem> {
+  BaseAdapter<ShoppingListItem> get baseAdapter =>
+      remoteAdapter as BaseAdapter<ShoppingListItem>;
+  ShoppingListItemAdapter<ShoppingListItem> get shoppingListItemAdapter =>
+      remoteAdapter as ShoppingListItemAdapter<ShoppingListItem>;
+}
+
+extension ShoppingListItemRelationshipGraphNodeX
+    on RelationshipGraphNode<ShoppingListItem> {}
 
 // **************************************************************************
 // JsonSerializableGenerator
