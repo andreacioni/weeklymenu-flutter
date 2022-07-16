@@ -98,7 +98,6 @@ class MenuScreen extends HookConsumerWidget {
             final itemPositions = itemPositionListener!.itemPositions.value
                 .toList()
               ..sort(((a, b) => a.index.compareTo(b.index)));
-            print('down:');
             itemScrollController!.scrollTo(
                 index: itemPositions.first.index + 1,
                 duration: Duration(milliseconds: 300));
@@ -112,7 +111,6 @@ class MenuScreen extends HookConsumerWidget {
                 .toList()
               ..sort(((a, b) => a.index.compareTo(b.index)));
 
-            print('up:');
             itemScrollController!.scrollTo(
                 index: itemPositions.first.index - 1,
                 duration: Duration(milliseconds: 300));
