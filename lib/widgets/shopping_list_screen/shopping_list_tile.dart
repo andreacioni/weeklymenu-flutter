@@ -32,7 +32,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
     final ingredientsRepository = ref.ingredients;
     final editingMode = useState(false);
     final shopItem = useState(shoppingListItem);
-    final selectedItems = ref.watch(selectedShoppingListItems);
+    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
     final supermarketSection = ref.watch(supermarketSectionByNameProvider(
         shopItem.value.supermarketSectionName));
 
@@ -63,11 +63,11 @@ class ShoppingListItemTile extends HookConsumerWidget {
     void toggleItemToSelectedItems(String itemId) {
       if (!selectedItems.contains(itemId)) {
         ref
-            .read(selectedShoppingListItems.notifier)
+            .read(selectedShoppingListItemsProvider.notifier)
             .update((state) => [...state, itemId]);
       } else {
         ref
-            .read(selectedShoppingListItems.notifier)
+            .read(selectedShoppingListItemsProvider.notifier)
             .update((state) => [...state..removeWhere((e) => e == itemId)]);
       }
     }

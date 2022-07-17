@@ -177,7 +177,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedItems = ref.watch(selectedShoppingListItems);
+    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
     final supermarketSections = ref.read(supermarketSectionProvider);
 
     Future<void> updateUserPreferences(SupermarketSection section) async {
@@ -245,12 +245,16 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           shoppingList!.copyWith(items: allItems),
           params: {'update': true});
 
-      ref.read(selectedShoppingListItems.notifier).update((state) => []);
+      ref
+          .read(selectedShoppingListItemsProvider.notifier)
+          .update((state) => []);
     }
 
     void removeSupermarketSectionOnSelectedItems() async {
       setSupermarketSectionOnSelectedItems(null);
-      ref.read(selectedShoppingListItems.notifier).update((state) => []);
+      ref
+          .read(selectedShoppingListItemsProvider.notifier)
+          .update((state) => []);
     }
 
     void openSupermarketSectionSelectionDialog() async {
@@ -270,7 +274,9 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
         updateUserPreferences(section);
       }
 
-      ref.read(selectedShoppingListItems.notifier).update((state) => []);
+      ref
+          .read(selectedShoppingListItemsProvider.notifier)
+          .update((state) => []);
     }
 
     return AppBar(
@@ -303,7 +309,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
               ),
               splashRadius: Material.defaultSplashRadius / 2,
               onPressed: () => ref
-                  .read(selectedShoppingListItems.notifier)
+                  .read(selectedShoppingListItemsProvider.notifier)
                   .update((state) => []),
             ),
       actions: <Widget>[
