@@ -19,7 +19,7 @@ class _ColorChooseSelectionDialog extends HookConsumerWidget {
   _ColorChooseSelectionDialog({this.initialColor});
 
   @override
-  Widget build(BuildContext context, _) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<Color?> selectedColor = useState(initialColor);
 
     return AlertDialog(
@@ -205,21 +205,27 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     Future<void> setSupermarketSectionOnSelectedItems(
         SupermarketSection? section) async {
-      final shoppingList = (await ref.shoppingLists.findAll())![0];
-      final items = [...shoppingList.items];
+      final shoppingListId =
+          (await ref.read(firstShoppingListIdProvider.future));
 
-      selectedItems.forEach((itemId) {
+      if (shoppingListId == null) throw 'No shopping list id resolved';
+
+      final allItems = (await ref.shoppingListItems.findAll(
+              remote: false, params: {'shopping_list_id': shoppingListId})) ??
+          [];
+
+      for (final itemId in selectedItems) {
         final previousItem =
-            items.firstWhereOrNull((item) => item.item == itemId);
-        if (previousItem == null) return;
-        items.removeWhere((item) => itemId == item.item);
-        items.add(previousItem.copyWith(supermarketSectionName: section?.name));
-      });
+            allItems.firstWhereOrNull((item) => item.item == itemId);
+        if (previousItem == null ||
+            previousItem.supermarketSectionName == section?.name) return;
 
-      final newShoppingList = shoppingList.copyWith(items: items);
-      await ref
-          .read(shoppingListsRepositoryProvider)
-          .save(newShoppingList, params: {'update': true});
+        final newItem =
+            previousItem.copyWith(supermarketSectionName: section?.name);
+
+        await ref.shoppingListItems.save(newItem,
+            params: {'update': true, 'shopping_list_id': shoppingListId});
+      }
     }
 
     Future<SupermarketSection?> chooseSupermarketSectionToSelection(
@@ -258,8 +264,11 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
     }
 
     void openSupermarketSectionSelectionDialog() async {
-      final allItems =
-          (await ref.shoppingLists.findAll(remote: false))![0].items;
+      final shoppingListId = ref.read(firstShoppingListIdProvider);
+
+      final allItems = (await ref.shoppingListItems.findAll(
+              remote: false, params: {'shopping_list_id': shoppingListId})) ??
+          [];
       final availableSupermarketSections =
           (allItems.map((e) => e.supermarketSectionName).toList()
                 ..removeWhere((e) => e == null || e.trim().isEmpty))

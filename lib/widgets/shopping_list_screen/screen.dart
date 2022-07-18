@@ -19,7 +19,7 @@ import 'package:weekly_menu_app/main.data.dart';
 final selectedShoppingListItemsProvider =
     StateProvider.autoDispose(((_) => <String>[]));
 
-final _firstShoppingListIdProvider = FutureProvider((ref) async {
+final firstShoppingListIdProvider = FutureProvider((ref) async {
   final sharedPrefs = await ref.watch(sharedPreferenceProvider.future);
   final firstShoppingListId =
       sharedPrefs.getString(SharedPreferencesKeys.firstShoppingListId);
@@ -50,7 +50,7 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
 
-    final shoppingListId = ref.watch(_firstShoppingListIdProvider);
+    final shoppingListId = ref.watch(firstShoppingListIdProvider);
 
     return Scaffold(
       appBar: const ShoppingListAppBar(),
@@ -202,6 +202,7 @@ class _ShoppingListListView extends HookConsumerWidget {
               _SupermarketSectionTitle(
                 sectionColor: sectionColor,
                 sectionName: e.key,
+                textColor: Colors.grey,
               ),
               SliverList(
                 delegate: SliverChildListDelegate.fixed(
@@ -374,9 +375,13 @@ class _SupermarketSectionTitle extends StatelessWidget {
 
   final String sectionName;
   final Color? sectionColor;
+  final Color? textColor;
 
   const _SupermarketSectionTitle(
-      {Key? key, this.sectionColor, this.sectionName = ''})
+      {Key? key,
+      this.sectionColor,
+      this.textColor = Colors.black,
+      this.sectionName = ''})
       : super(key: key);
 
   @override
@@ -397,8 +402,10 @@ class _SupermarketSectionTitle extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(5.0),
               child: Text(sectionName,
-                  style: textTheme.subtitle2!
-                      .copyWith(fontWeight: FontWeight.bold)),
+                  style: textTheme.subtitle2!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  )),
             ),
           ],
         ),
