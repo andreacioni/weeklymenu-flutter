@@ -7,6 +7,7 @@ import 'package:weekly_menu_app/globals/constants.dart';
 import 'package:weekly_menu_app/providers/shared_preferences.dart';
 import 'package:weekly_menu_app/widgets/shopping_list_screen/shopping_list_app_bar.dart';
 
+import '../../providers/user_preferences.dart';
 import '../flutter_data_state_builder.dart';
 import '../../models/ingredient.dart';
 import './shopping_list_tile.dart';
@@ -15,19 +16,10 @@ import '../../models/shopping_list.dart';
 import './item_suggestion_text_field.dart';
 import 'package:weekly_menu_app/main.data.dart';
 
-final selectedShoppingListItems =
+final selectedShoppingListItemsProvider =
     StateProvider.autoDispose(((_) => <String>[]));
 
-final _supermarketSectionList = Provider.autoDispose(((ref) {
-  final shoppingListItems = ref.shoppingLists.watchAll().model![0].items;
-  return (shoppingListItems
-        ..removeWhere((e) => e.supermarketSectionName?.isEmpty ?? false))
-      .map((e) => e.supermarketSectionName)
-      .toSet()
-      .toList();
-}));
-
-final _firstShoppingListIdProvider = FutureProvider((ref) async {
+final firstShoppingListIdProvider = FutureProvider((ref) async {
   final sharedPrefs = await ref.watch(sharedPreferenceProvider.future);
   final firstShoppingListId =
       sharedPrefs.getString(SharedPreferencesKeys.firstShoppingListId);
@@ -58,7 +50,7 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
 
-    final shoppingListId = ref.watch(_firstShoppingListIdProvider);
+    final shoppingListId = ref.watch(firstShoppingListIdProvider);
 
     return Scaffold(
       appBar: const ShoppingListAppBar(),
@@ -195,15 +187,53 @@ class _ShoppingListListView extends HookConsumerWidget {
     }
 
     List<Widget> _buildCheckedList(List<ShoppingListItem> checkedItems) {
-      final checkItems = checkedItems
-        ..sort((a, b) => (a.supermarketSectionName ?? '')
-            .compareTo(b.supermarketSectionName ?? ''));
+      final sliverSectionMap = _sortAndFoldShoppingListItem(checkedItems);
+
+      final textTheme = Theme.of(context).textTheme;
+
+      final tilesAndSectionTitle = sliverSectionMap.entries
+          .map((e) {
+            final sectionColor = ref
+                .read(supermarketSectionByNameProvider(
+                    e.value[0].supermarketSectionName))
+                ?.color;
+
+            return <Widget>[
+              _SupermarketSectionTitle(
+                sectionColor: sectionColor,
+                sectionName: e.key,
+                textColor: Colors.grey,
+              ),
+              SliverList(
+                delegate: SliverChildListDelegate.fixed(
+                  e.value
+                      .map(
+                        (item) => ShoppingListItemTile(
+                          item,
+                          formKey: ValueKey(item.item),
+                          editable: false,
+                          onCheckChange: (newValue) => _setChecked(
+                            item,
+                            newValue,
+                          ),
+                          onDismiss: (_) => _removeItemFromList(
+                            item,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ];
+          })
+          .expand((e) => e) //flat
+          .toList();
 
       return [
         SliverAppBar(
           primary: false,
           pinned: true,
-          title: Text("Checked (${checkItems.length})"),
+          title: Text("Checked (${checkedItems.length})"),
           forceElevated: true,
           automaticallyImplyLeading: false,
           backgroundColor: Colors.grey.shade100,
@@ -221,45 +251,51 @@ class _ShoppingListListView extends HookConsumerWidget {
               )
           ],
         ),
-        if (expandChecked.value)
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (_, index) => ShoppingListItemTile(checkItems[index],
-                  editable: false,
-                  formKey: ValueKey(checkItems[index].item),
-                  onCheckChange: (newValue) => _setChecked(
-                        checkItems[index],
-                        newValue,
-                      ),
-                  onDismiss: (_) => _removeItemFromList(checkItems[index])),
-              childCount: checkItems.length,
-            ),
-          )
+        if (expandChecked.value) ...tilesAndSectionTitle
       ];
     }
 
     List<Widget> _buildUncheckedList(List<ShoppingListItem> uncheckedItems) {
-      final uncheckItems = uncheckedItems
-        ..sort((a, b) => (a.supermarketSectionName ?? '')
-            .compareTo(b.supermarketSectionName ?? ''));
-      return [
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-              (_, index) => ShoppingListItemTile(
-                    uncheckItems[index],
-                    formKey: ValueKey(uncheckItems[index].item),
-                    editable: false,
-                    onCheckChange: (newValue) => _setChecked(
-                      uncheckItems[index],
-                      newValue,
-                    ),
-                    onDismiss: (_) => _removeItemFromList(
-                      uncheckItems[index],
-                    ),
-                  ),
-              childCount: uncheckItems.length),
-        ),
-      ];
+      final sliverSectionMap = _sortAndFoldShoppingListItem(uncheckedItems);
+
+      final textTheme = Theme.of(context).textTheme;
+
+      return sliverSectionMap.entries
+          .map((e) {
+            final sectionColor = ref
+                .read(supermarketSectionByNameProvider(
+                    e.value[0].supermarketSectionName))
+                ?.color;
+
+            return <Widget>[
+              _SupermarketSectionTitle(
+                sectionColor: sectionColor,
+                sectionName: e.key,
+              ),
+              SliverList(
+                delegate: SliverChildListDelegate.fixed(
+                  e.value
+                      .map(
+                        (item) => ShoppingListItemTile(
+                          item,
+                          formKey: ValueKey(item.item),
+                          editable: false,
+                          onCheckChange: (newValue) => _setChecked(
+                            item,
+                            newValue,
+                          ),
+                          onDismiss: (_) => _removeItemFromList(
+                            item,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ];
+          })
+          .expand((e) => e) //flat
+          .toList();
     }
 
     Widget _buildNoElementsPage() {
@@ -313,6 +349,67 @@ class _ShoppingListListView extends HookConsumerWidget {
           ],
         );
       },
+    );
+  }
+
+  static Map<String, List<ShoppingListItem>> _sortAndFoldShoppingListItem(
+      List<ShoppingListItem> items) {
+    final ordered = [...items]..sort((a, b) => (b.supermarketSectionName ?? '')
+        .compareTo(a.supermarketSectionName ?? ''));
+
+    return ordered.fold<Map<String, List<ShoppingListItem>>>(
+        <String, List<ShoppingListItem>>{}, (pv, e) {
+      final currentList = pv[e.supermarketSectionName ?? ''];
+      if (currentList == null) {
+        pv[e.supermarketSectionName ?? ''] = [e];
+      } else {
+        pv[e.supermarketSectionName ?? '']!.add(e);
+      }
+      return pv;
+    });
+  }
+}
+
+class _SupermarketSectionTitle extends StatelessWidget {
+  static const SUPERMARKET_SECTION_TITLE_HEIGHT = 30.0;
+
+  final String sectionName;
+  final Color? sectionColor;
+  final Color? textColor;
+
+  const _SupermarketSectionTitle(
+      {Key? key,
+      this.sectionColor,
+      this.textColor = Colors.black,
+      this.sectionName = ''})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return SliverToBoxAdapter(
+      child: Container(
+        height: SUPERMARKET_SECTION_TITLE_HEIGHT,
+        color: sectionColor?.withOpacity(0.1) ?? Colors.grey.withOpacity(0.1),
+        child: Row(
+          children: [
+            Container(
+              color: sectionColor,
+              width: 6,
+              height: SUPERMARKET_SECTION_TITLE_HEIGHT,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Text(sectionName,
+                  style: textTheme.subtitle2!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
