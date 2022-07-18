@@ -76,8 +76,6 @@ class ShoppingListScreen extends HookConsumerWidget {
 }
 
 class _ShoppingListListView extends HookConsumerWidget {
-  static const SUPERMARKET_SECTION_TITLE_HEIGHT = 25.0;
-
   final String shoppingListId;
   final ValueNotifier<bool> newItemMode;
 
@@ -196,32 +194,14 @@ class _ShoppingListListView extends HookConsumerWidget {
       final tilesAndSectionTitle = sliverSectionMap.entries
           .map((e) {
             final sectionColor = ref
-                    .read(supermarketSectionByNameProvider(
-                        e.value[0].supermarketSectionName))
-                    ?.color ??
-                Colors.grey;
+                .read(supermarketSectionByNameProvider(
+                    e.value[0].supermarketSectionName))
+                ?.color;
 
             return <Widget>[
-              SliverToBoxAdapter(
-                child: Container(
-                  height: SUPERMARKET_SECTION_TITLE_HEIGHT,
-                  color: sectionColor.withOpacity(0.1),
-                  child: Row(
-                    children: [
-                      Container(
-                        color: sectionColor,
-                        width: 6,
-                        height: SUPERMARKET_SECTION_TITLE_HEIGHT,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(e.key,
-                            style: textTheme.subtitle2!
-                                .copyWith(fontWeight: FontWeight.w400)),
-                      ),
-                    ],
-                  ),
-                ),
+              _SupermarketSectionTitle(
+                sectionColor: sectionColor,
+                sectionName: e.key,
               ),
               SliverList(
                 delegate: SliverChildListDelegate.fixed(
@@ -282,32 +262,14 @@ class _ShoppingListListView extends HookConsumerWidget {
       return sliverSectionMap.entries
           .map((e) {
             final sectionColor = ref
-                    .read(supermarketSectionByNameProvider(
-                        e.value[0].supermarketSectionName))
-                    ?.color ??
-                Colors.grey;
+                .read(supermarketSectionByNameProvider(
+                    e.value[0].supermarketSectionName))
+                ?.color;
 
             return <Widget>[
-              SliverToBoxAdapter(
-                child: Container(
-                  height: SUPERMARKET_SECTION_TITLE_HEIGHT,
-                  color: sectionColor.withOpacity(0.1),
-                  child: Row(
-                    children: [
-                      Container(
-                        color: sectionColor,
-                        width: 6,
-                        height: SUPERMARKET_SECTION_TITLE_HEIGHT,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(e.key,
-                            style: textTheme.subtitle2!
-                                .copyWith(fontWeight: FontWeight.w400)),
-                      ),
-                    ],
-                  ),
-                ),
+              _SupermarketSectionTitle(
+                sectionColor: sectionColor,
+                sectionName: e.key,
               ),
               SliverList(
                 delegate: SliverChildListDelegate.fixed(
@@ -404,5 +366,43 @@ class _ShoppingListListView extends HookConsumerWidget {
       }
       return pv;
     });
+  }
+}
+
+class _SupermarketSectionTitle extends StatelessWidget {
+  static const SUPERMARKET_SECTION_TITLE_HEIGHT = 30.0;
+
+  final String sectionName;
+  final Color? sectionColor;
+
+  const _SupermarketSectionTitle(
+      {Key? key, this.sectionColor, this.sectionName = ''})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return SliverToBoxAdapter(
+      child: Container(
+        height: SUPERMARKET_SECTION_TITLE_HEIGHT,
+        color: sectionColor?.withOpacity(0.1) ?? Colors.grey.withOpacity(0.1),
+        child: Row(
+          children: [
+            Container(
+              color: sectionColor,
+              width: 6,
+              height: SUPERMARKET_SECTION_TITLE_HEIGHT,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Text(sectionName,
+                  style: textTheme.subtitle2!
+                      .copyWith(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
