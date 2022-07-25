@@ -143,6 +143,12 @@ mixin ShoppingListItemAdapter<T extends DataModel<ShoppingListItem>>
     return params['update'] == true ? "$url/$id" : url;
   }
 
+  @override
+  String urlForDelete(id, Map<String, dynamic> params) {
+    final url = basePath(params['shopping_list_id']);
+    return '$url/$id';
+  }
+
   String basePath(String shoppingListId) =>
       "shopping-lists/$shoppingListId/items";
 }

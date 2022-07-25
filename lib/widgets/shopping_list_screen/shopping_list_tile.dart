@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart' hide Provider;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/providers/user_preferences.dart';
 import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
 
@@ -15,50 +12,26 @@ import 'package:weekly_menu_app/main.data.dart';
 class ShoppingListItemTile extends HookConsumerWidget {
   final Key formKey;
   final ShoppingListItem shoppingListItem;
-  final Function(bool)? onCheckChange;
-  final Function(DismissDirection)? onDismiss;
   final bool editable;
+  final void Function(Object? value)? onSubmitted;
+  final void Function(DismissDirection)? onDismiss;
+  final List<Ingredient> availableIngredients;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
     required this.formKey,
-    this.onCheckChange,
-    this.onDismiss,
+    required this.availableIngredients,
     this.editable = true,
+    this.onSubmitted,
+    this.onDismiss,
   }) : super(key: formKey);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ingredientsRepository = ref.ingredients;
-    final editingMode = useState(false);
-    final shopItem = useState(shoppingListItem);
-    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
-    final supermarketSection = ref.watch(supermarketSectionByNameProvider(
-        shopItem.value.supermarketSectionName));
-
-    void _onFocusChanged(bool hasFocus) {
-      if (hasFocus == false) {
-        editingMode.value = false;
-      } else {
-        editingMode.value = true;
-      }
-    }
-
-    void _onIngredientSelected(Ingredient newIngredient) {
-      editingMode.value = false;
-    }
-
-    void _getOrCreateIngredientByName(ingredientName) {
-      editingMode.value = false;
-    }
-
-    void _onCheckChange(newValue) {
-      shopItem.value = shopItem.value.copyWith(checked: newValue);
-
-      if (onCheckChange != null) {
-        onCheckChange!(newValue);
-      }
-    }
+    final selectedItems = ref.read(selectedShoppingListItemsProvider);
+    final supermarketSection = ref.read(supermarketSectionByNameProvider(
+        shoppingListItem.supermarketSectionName));
 
     void toggleItemToSelectedItems(String itemId) {
       if (!selectedItems.contains(itemId)) {
@@ -96,19 +69,18 @@ class ShoppingListItemTile extends HookConsumerWidget {
                 trailing: selectedItems.isEmpty
                     ? Checkbox(
                         value: shoppingListItem.checked,
-                        onChanged: _onCheckChange,
+                        onChanged: onSubmitted,
                       )
                     : null,
                 title: Row(
                   children: [
                     Flexible(
                       child: ItemSuggestionTextField(
+                        availableIngredients: availableIngredients,
                         value: model,
                         enabled: editable,
                         showShoppingItemSuggestions: false,
-                        onIngredientSelected: _onIngredientSelected,
-                        onSubmitted: _getOrCreateIngredientByName,
-                        onFocusChanged: _onFocusChanged,
+                        onSubmitted: onSubmitted,
                         textStyle: shoppingListItem.checked
                             ? TextStyle(
                                 decoration: TextDecoration.lineThrough,
@@ -117,10 +89,10 @@ class ShoppingListItemTile extends HookConsumerWidget {
                       ),
                     ),
                     if (selectedItems.isEmpty &&
-                        shopItem.value.quantity != null)
+                        shoppingListItem.quantity != null)
                       Chip(
                           label: Text(
-                        "${shopItem.value.quantity}${shopItem.value.unitOfMeasure ?? ''}",
+                        "${shoppingListItem.quantity}${shoppingListItem.unitOfMeasure ?? ''}",
                         style: TextStyle(fontSize: 12),
                       ))
                   ],
