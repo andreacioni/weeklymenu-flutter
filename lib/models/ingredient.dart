@@ -7,7 +7,7 @@ import 'base_model.dart';
 part 'ingredient.g.dart';
 
 @JsonSerializable()
-@DataRepository([BaseAdapter])
+@DataRepository([BaseAdapter], internalType: 'ingredients')
 @CopyWith()
 class Ingredient extends BaseModel<Ingredient> {
   final String name;

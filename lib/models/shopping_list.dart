@@ -9,7 +9,8 @@ import 'package:flutter_data/flutter_data.dart';
 part 'shopping_list.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-@DataRepository([BaseAdapter, ShoppingListAdapter])
+@DataRepository([BaseAdapter, ShoppingListAdapter],
+    internalType: 'shopping-lists')
 @CopyWith()
 class ShoppingList extends BaseModel<ShoppingList> {
   @JsonKey()
@@ -72,7 +73,8 @@ class ShoppingList extends BaseModel<ShoppingList> {
 
 @JsonSerializable()
 @CopyWith()
-@DataRepository([BaseAdapter, ShoppingListItemAdapter])
+@DataRepository([BaseAdapter, ShoppingListItemAdapter],
+    internalType: 'shopping-list-items')
 class ShoppingListItem extends DataModel<ShoppingListItem> {
   final String item;
 
