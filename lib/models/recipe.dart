@@ -19,7 +19,7 @@ class RecipeOriginator extends Originator<Recipe> {
 }
 
 @JsonSerializable(explicitToJson: true, anyMap: true)
-@DataRepository([BaseAdapter])
+@DataRepository([BaseAdapter], internalType: 'recipes')
 @CopyWith()
 class Recipe extends BaseModel<Recipe> {
   final String name;

@@ -18,7 +18,7 @@ import 'enums/meal.dart';
 part 'menu.g.dart';
 
 @JsonSerializable()
-@DataRepository([BaseAdapter])
+@DataRepository([BaseAdapter], internalType: 'menus')
 @CopyWith()
 class Menu extends BaseModel<Menu> {
   @DateConverter()

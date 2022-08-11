@@ -35,15 +35,21 @@ final repositoryProviders = <String, Provider<Repository<DataModel>>>{
   'ingredients': ingredientsRepositoryProvider,
 'menus': menusRepositoryProvider,
 'recipes': recipesRepositoryProvider,
-'shoppingListItems': shoppingListItemsRepositoryProvider,
-'shoppingLists': shoppingListsRepositoryProvider,
+'shopping-list-items': shoppingListItemsRepositoryProvider,
+'shopping-lists': shoppingListsRepositoryProvider,
 'userPreferences': userPreferencesRepositoryProvider
 };
 
 final repositoryInitializerProvider =
   FutureProvider<RepositoryInitializer>((ref) async {
-    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(internalIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalMenusRemoteAdapterProvider), 'recipes': ref.watch(internalRecipesRemoteAdapterProvider), 'shoppingListItems': ref.watch(internalShoppingListItemsRemoteAdapterProvider), 'shoppingLists': ref.watch(internalShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalUserPreferencesRemoteAdapterProvider)};
-    final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shoppingListItems': true, 'shoppingLists': true, 'userPreferences': true};
+    DataHelpers.setInternalType<Ingredient>('ingredients');
+    DataHelpers.setInternalType<Menu>('menus');
+    DataHelpers.setInternalType<Recipe>('recipes');
+    DataHelpers.setInternalType<ShoppingListItem>('shopping-list-items');
+    DataHelpers.setInternalType<ShoppingList>('shopping-lists');
+    DataHelpers.setInternalType<UserPreference>('userPreferences');
+    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(internalIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalMenusRemoteAdapterProvider), 'recipes': ref.watch(internalRecipesRemoteAdapterProvider), 'shopping-list-items': ref.watch(internalShoppingListItemsRemoteAdapterProvider), 'shopping-lists': ref.watch(internalShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalUserPreferencesRemoteAdapterProvider)};
+    final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shopping-list-items': true, 'shopping-lists': true, 'userPreferences': true};
 
     await ref.watch(graphNotifierProvider).initialize();
 

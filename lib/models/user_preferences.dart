@@ -28,7 +28,8 @@ class SupermarketSection {
 }
 
 @JsonSerializable(explicitToJson: true, anyMap: true)
-@DataRepository([BaseAdapter, UserPreferencesAdapter])
+@DataRepository([BaseAdapter, UserPreferencesAdapter],
+    internalType: 'userPreferences')
 @CopyWith()
 class UserPreference extends BaseModel<UserPreference> {
   @JsonKey(name: 'shopping_days')
