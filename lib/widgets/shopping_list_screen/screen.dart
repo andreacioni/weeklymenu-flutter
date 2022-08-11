@@ -20,7 +20,7 @@ import 'package:weekly_menu_app/main.data.dart';
 final selectedShoppingListItemsProvider =
     StateProvider.autoDispose(((_) => <String>[]));
 
-final firstShoppingListIdProvider = FutureProvider((ref) async {
+final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
   final sharedPrefs = await ref.watch(sharedPreferenceProvider.future);
   final firstShoppingListId =
       sharedPrefs.getString(SharedPreferencesKeys.firstShoppingListId);
@@ -29,7 +29,7 @@ final firstShoppingListIdProvider = FutureProvider((ref) async {
     final shoppingLists = await ref.shoppingLists.findAll();
 
     if (shoppingLists == null || shoppingLists.isEmpty) {
-      return null;
+      throw 'unexpected condition: shopping list is null or empty';
     }
 
     sharedPrefs
@@ -39,6 +39,10 @@ final firstShoppingListIdProvider = FutureProvider((ref) async {
 
     //Get only the first element, by now only one list per user is supported
     return shoppingLists[0].id;
+  }
+
+  if (firstShoppingListId == null) {
+    throw 'first shopping list item is null';
   }
 
   return firstShoppingListId;
@@ -53,27 +57,15 @@ final _availableIngredientsProvider =
 });
 
 final _shoppingListScreeDataProvider =
-    FutureProvider.autoDispose<AsyncValue<_ShoppingListScreenData>>((ref) {
-  final ingredients = ref.watch(_availableIngredientsProvider);
-  final shoppingListId = ref.watch(firstShoppingListIdProvider);
+    FutureProvider.autoDispose<_ShoppingListScreenData>((ref) async {
+  try {
+    final ingredients = await ref.watch(_availableIngredientsProvider.future);
+    final shoppingListId = await ref.watch(firstShoppingListIdProvider.future);
 
-  if (ingredients is AsyncError || shoppingListId is AsyncError) {
-    return AsyncValue.error(ingredients is AsyncError
-        ? (ingredients as AsyncError).error
-        : (shoppingListId as AsyncError).error);
+    return _ShoppingListScreenData(shoppingListId, ingredients);
+  } catch (e) {
+    throw e;
   }
-
-  if (ingredients is AsyncLoading || shoppingListId is AsyncLoading) {
-    return const AsyncValue.loading();
-  }
-
-  if (ingredients.value == null || shoppingListId.value == null) {
-    return AsyncValue.error(
-        'ingredients or shoppingListId empty ($ingredients/$shoppingListId)');
-  }
-
-  return AsyncData(
-      _ShoppingListScreenData(shoppingListId.value!, ingredients.value!));
 });
 
 class _ShoppingListScreenData {
@@ -101,8 +93,8 @@ class ShoppingListScreen extends HookConsumerWidget {
           : null,
       body: asyncScreenData.when(
         data: (data) {
-          final shoppingListId = data.value!.shoppingListId;
-          final availableIngredients = data.value!.ingredients;
+          final shoppingListId = data.shoppingListId;
+          final availableIngredients = data.ingredients;
           return _ShoppingListListView(
             shoppingListId: shoppingListId,
             availableIngredients: availableIngredients,

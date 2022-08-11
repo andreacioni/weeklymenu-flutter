@@ -132,7 +132,6 @@ class ItemSuggestionTextField extends HookConsumerWidget {
           style: textStyle,
           scrollPhysics: const NeverScrollableScrollPhysics(),
           scrollController: scrollController,
-          //fullwidth: true,
           onSubmitted: (txt) => onSubmitted?.call(txt),
           textInputAction: TextInputAction.done,
           keyboardType: TextInputType.text,

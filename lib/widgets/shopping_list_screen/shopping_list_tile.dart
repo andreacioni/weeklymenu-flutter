@@ -66,6 +66,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
                     ? () => toggleItemToSelectedItems(shoppingListItem.item)
                     : null,
                 leading: Container(color: supermarketSection?.color, width: 6),
+                minLeadingWidth: 6,
                 trailing: selectedItems.isEmpty
                     ? Checkbox(
                         value: shoppingListItem.checked,
@@ -74,7 +75,13 @@ class ShoppingListItemTile extends HookConsumerWidget {
                     : null,
                 title: Row(
                   children: [
+                    if (selectedItems.isEmpty)
+                      Flexible(
+                        flex: 1,
+                        child: _buildQuantityChip(shoppingListItem),
+                      ),
                     Flexible(
+                      flex: 5,
                       child: ItemSuggestionTextField(
                         availableIngredients: availableIngredients,
                         value: model,
@@ -88,13 +95,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
                             : null,
                       ),
                     ),
-                    if (selectedItems.isEmpty &&
-                        shoppingListItem.quantity != null)
-                      Chip(
-                          label: Text(
-                        "${shoppingListItem.quantity}${shoppingListItem.unitOfMeasure ?? ''}",
-                        style: TextStyle(fontSize: 12),
-                      ))
+                    //some space to allow swipe to dismiss
+                    Flexible(child: Container(), flex: 1),
                   ],
                 ),
               ),
@@ -104,5 +106,15 @@ class ShoppingListItemTile extends HookConsumerWidget {
         );
       },
     );
+  }
+
+  Widget _buildQuantityChip(ShoppingListItem item) {
+    var quantity = shoppingListItem.quantity ?? '-';
+    var uom = shoppingListItem.quantity ?? '';
+    return Chip(
+        label: Text(
+      "$quantity/$uom",
+      style: TextStyle(fontSize: 12),
+    ));
   }
 }
