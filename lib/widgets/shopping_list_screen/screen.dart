@@ -15,7 +15,7 @@ import './shopping_list_tile.dart';
 import '../../globals/errors_handlers.dart';
 import '../../models/shopping_list.dart';
 import './item_suggestion_text_field.dart';
-import 'package:weekly_menu_app/main.data.dart';
+import '../../main.data.dart';
 
 final selectedShoppingListItemsProvider =
     StateProvider.autoDispose(((_) => <String>[]));
@@ -39,10 +39,6 @@ final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
 
     //Get only the first element, by now only one list per user is supported
     return shoppingLists[0].id;
-  }
-
-  if (firstShoppingListId == null) {
-    throw 'first shopping list item is null';
   }
 
   return firstShoppingListId;

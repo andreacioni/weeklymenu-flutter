@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:weekly_menu_app/widgets/recipe_view/number_text_field.dart';
-
 import '../../models/enums/difficulty.dart';
 import '../../models/recipe.dart';
+import '../shared/number_text_field.dart';
 
 class RecipeInformationTiles extends StatelessWidget {
   final RecipeOriginator originator;

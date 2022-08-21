@@ -33,7 +33,7 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
       }
 
       // for other errors shows popup ?
-      print("FlutterDataStateBuilder caught an error: \n" +
+      print("FlutterDataStateBuilder caught an error: " +
           (ex?.toString() ?? 'null'));
     }
 

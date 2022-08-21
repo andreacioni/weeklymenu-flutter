@@ -7,13 +7,13 @@ import '../../globals/memento.dart';
 import '../../main.data.dart';
 import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
+import '../shared/editable_text_field.dart';
 import 'add_ingredient_button.dart';
 import 'recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import 'recipe_information_tiles.dart';
 import '../../models/recipe.dart';
 import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
-import 'editable_text_field.dart';
 
 class RecipeView extends HookConsumerWidget {
   final Recipe originalRecipeInstance;

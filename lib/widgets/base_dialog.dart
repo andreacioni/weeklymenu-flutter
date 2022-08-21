@@ -20,7 +20,6 @@ class BaseDialog<T> extends StatelessWidget {
     return SimpleDialog(
       titlePadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-      insetPadding: EdgeInsets.zero,
       title: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +54,8 @@ class BaseDialog<T> extends StatelessWidget {
             SizedBox(width: 10),
             ElevatedButton(onPressed: onDoneTap, child: Text(doneButtonText))
           ],
-        )
+        ),
+        const SizedBox(height: 10)
       ],
     );
   }

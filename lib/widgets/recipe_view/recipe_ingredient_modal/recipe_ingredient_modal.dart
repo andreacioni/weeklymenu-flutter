@@ -3,10 +3,10 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../number_text_field.dart';
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/enums/unit_of_measure.dart';
+import '../../shared/quantity_and_uom_input_fields.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
 
@@ -157,35 +157,11 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
   }
 
   Widget _buildQuantityAndUomRow() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        Flexible(
-          child: NumberFormField(
-            initialValue: _quantity?.toDouble() ?? 0,
-            minValue: 0,
-            maxValue: 9999,
-            onChanged: (newValue) => setState(() => _quantity = newValue),
-            labelText: "Quantity",
-            hintText: 'Quantity',
-            onSaved: (_) {},
-          ),
-        ),
-        SizedBox(
-          width: 10,
-        ),
-        DropdownButton<String>(
-          value: _unitOfMeasure,
-          hint: Text('Unit of Measure'),
-          underline: null,
-          isDense: true,
-          items: UnitsOfMeasure.map((uom) => _createDropDownItem(uom)).toList(),
-          onChanged: (newValue) => setState(
-            () => _unitOfMeasure = newValue,
-          ),
-        ),
-      ],
+    return QuantityAndUnitOfMeasureInputFormField(
+      quantity: _quantity ?? 0,
+      unitOfMeasure: _unitOfMeasure,
+      onQuantityChanged: (newValue) => _quantity = newValue,
+      onUnitOfMeasureChanged: (newValue) => _unitOfMeasure = newValue,
     );
   }
 
