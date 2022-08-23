@@ -329,8 +329,10 @@ class _ShoppingListListView extends HookConsumerWidget {
                         (item) => ShoppingListItemTile(
                           item,
                           formKey: ValueKey(item.item),
-                          editable: true,
-                          selected: selectionModeOn,
+                          editable: !selectionModeOn,
+                          displayLeading: !selectionModeOn,
+                          displayTrailing: !selectionModeOn,
+                          selected: selectedItems.contains(item.id),
                           onSubmitted: (value) {
                             handleTextFieldSubmission(value, item, true);
                           },
@@ -398,8 +400,10 @@ class _ShoppingListListView extends HookConsumerWidget {
                         (item) => ShoppingListItemTile(
                           item,
                           formKey: ValueKey(item.item),
-                          editable: true,
-                          selected: selectionModeOn,
+                          editable: !selectionModeOn,
+                          displayLeading: !selectionModeOn,
+                          displayTrailing: !selectionModeOn,
+                          selected: selectedItems.contains(item.id),
                           onSubmitted: (value) {
                             handleTextFieldSubmission(value, item, false);
                           },

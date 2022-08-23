@@ -21,6 +21,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final bool selected;
+  final bool displayLeading;
+  final bool displayTrailing;
   final void Function(Object? value)? onSubmitted;
   final void Function()? onLongPress;
   final void Function()? onTap;
@@ -33,6 +35,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
     required this.formKey,
     this.editable = true,
     this.selected = false,
+    this.displayLeading = true,
+    this.displayTrailing = true,
     this.onSubmitted,
     required this.onDismiss,
     this.onLongPress,
@@ -68,6 +72,9 @@ class ShoppingListItemTile extends HookConsumerWidget {
                 onLongPress: onLongPress,
                 onCheckChange: onCheckChange,
                 editable: editable,
+                selected: selected,
+                displayLeading: displayLeading,
+                displayTrailing: displayTrailing,
               ),
               Divider(height: 0)
             ],
@@ -90,6 +97,8 @@ class _ShoppingListItemTile extends HookConsumerWidget {
     this.onCheckChange,
     this.selected = false,
     this.editable = false,
+    this.displayLeading = true,
+    this.displayTrailing = true,
   }) : super(key: key);
 
   final Ingredient item;
@@ -101,6 +110,8 @@ class _ShoppingListItemTile extends HookConsumerWidget {
   final void Function(bool? newValue)? onCheckChange;
   final bool editable;
   final bool selected;
+  final bool displayLeading;
+  final bool displayTrailing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,18 +120,27 @@ class _ShoppingListItemTile extends HookConsumerWidget {
       contentPadding: EdgeInsets.only(right: 16),
       onLongPress: onLongPress,
       onTap: onTap,
-      leading: Container(color: supermarketSection?.color, width: 6),
-      minLeadingWidth: 6,
-      trailing: !selected
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(color: supermarketSection?.color, width: 6),
+          if (displayLeading)
+            Flexible(
+              child: _QuantityAndUomLead(shoppingListItem),
+            ),
+        ],
+      ),
+      //minLeadingWidth: 50,
+      trailing: displayTrailing
           ? Checkbox(
               value: shoppingListItem.checked,
               onChanged: onCheckChange,
             )
           : null,
       title: Row(
+        mainAxisSize: MainAxisSize.max,
         children: [
-          if (!selected) _QuantityAndUomLead(shoppingListItem),
-          const SizedBox(width: 10),
           Flexible(
             flex: 8,
             child: ItemSuggestionTextField(
@@ -229,13 +249,9 @@ class _QuantityAndUomLead extends HookConsumerWidget {
       }
     }
 
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      padding: EdgeInsets.all(5),
-      constraints:
-          const BoxConstraints(maxHeight: 40, maxWidth: 60, minWidth: 60),
-      child: InkWell(
-        onTap: _changeQuantityAndUom,
+    return InkWell(
+      onTap: _changeQuantityAndUom,
+      child: Container(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
