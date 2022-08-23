@@ -20,15 +20,24 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final Key formKey;
   final ShoppingListItem shoppingListItem;
   final bool editable;
+  final bool selected;
   final void Function(Object? value)? onSubmitted;
+  final void Function()? onLongPress;
+  final void Function()? onTap;
+  final void Function(bool? newValue)? onCheckChange;
+
   final void Function(DismissDirection) onDismiss;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
     required this.formKey,
     this.editable = true,
+    this.selected = false,
     this.onSubmitted,
     required this.onDismiss,
+    this.onLongPress,
+    this.onTap,
+    this.onCheckChange,
   }) : super(key: formKey);
 
   @override
@@ -55,6 +64,9 @@ class ShoppingListItemTile extends HookConsumerWidget {
                 shoppingListItem: shoppingListItem,
                 supermarketSection: supermarketSection,
                 onSubmitted: onSubmitted,
+                onTap: onTap,
+                onLongPress: onLongPress,
+                onCheckChange: onCheckChange,
                 editable: editable,
               ),
               Divider(height: 0)
@@ -73,49 +85,41 @@ class _ShoppingListItemTile extends HookConsumerWidget {
     required this.shoppingListItem,
     required this.supermarketSection,
     required this.onSubmitted,
-    required this.editable,
+    this.onLongPress,
+    this.onTap,
+    this.onCheckChange,
+    this.selected = false,
+    this.editable = false,
   }) : super(key: key);
 
   final Ingredient item;
   final ShoppingListItem shoppingListItem;
   final SupermarketSection? supermarketSection;
   final void Function(Object? value)? onSubmitted;
+  final void Function()? onLongPress;
+  final void Function()? onTap;
+  final void Function(bool? newValue)? onCheckChange;
   final bool editable;
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
-
-    void toggleItemToSelectedItems(String itemId) {
-      if (!selectedItems.contains(itemId)) {
-        ref
-            .read(selectedShoppingListItemsProvider.notifier)
-            .update((state) => [...state, itemId]);
-      } else {
-        ref
-            .read(selectedShoppingListItemsProvider.notifier)
-            .update((state) => [...state..removeWhere((e) => e == itemId)]);
-      }
-    }
-
     return ListTile(
-      selected: selectedItems.contains(shoppingListItem.item),
+      selected: selected,
       contentPadding: EdgeInsets.only(right: 16),
-      onLongPress: () => toggleItemToSelectedItems(shoppingListItem.item),
-      onTap: selectedItems.isNotEmpty
-          ? () => toggleItemToSelectedItems(shoppingListItem.item)
-          : null,
+      onLongPress: onLongPress,
+      onTap: onTap,
       leading: Container(color: supermarketSection?.color, width: 6),
       minLeadingWidth: 6,
-      trailing: selectedItems.isEmpty
+      trailing: !selected
           ? Checkbox(
               value: shoppingListItem.checked,
-              onChanged: onSubmitted,
+              onChanged: onCheckChange,
             )
           : null,
       title: Row(
         children: [
-          if (selectedItems.isEmpty) _QuantityAndUomChip(shoppingListItem),
+          if (!selected) _QuantityAndUomLead(shoppingListItem),
           const SizedBox(width: 10),
           Flexible(
             flex: 8,
@@ -197,10 +201,10 @@ class _QuantityAndUomDialogState extends State<_QuantityAndUomDialog> {
   }
 }
 
-class _QuantityAndUomChip extends HookConsumerWidget {
+class _QuantityAndUomLead extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
 
-  const _QuantityAndUomChip(this.shoppingListItem, {Key? key})
+  const _QuantityAndUomLead(this.shoppingListItem, {Key? key})
       : super(key: key);
 
   @override

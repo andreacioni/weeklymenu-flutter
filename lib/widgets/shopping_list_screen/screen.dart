@@ -90,6 +90,8 @@ class _ShoppingListListView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expandChecked = useState(true);
+    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
+    final selectionModeOn = selectedItems.isNotEmpty;
 
     Widget _buildLoadingItem() {
       return SliverList(
@@ -143,12 +145,17 @@ class _ShoppingListListView extends HookConsumerWidget {
       var shoppingListItem =
           shopListItems.firstWhereOrNull((i) => i.id == ingredient.id);
 
-      if (shoppingListItem != null) {
+      if (shoppingListItem != null && shoppingListItem.checked != checked) {
         return _setItemChecked(shoppingListItem, checked);
       }
 
-      shoppingListItem =
-          ShoppingListItem(item: ingredient.id, checked: checked);
+      if (previousItem != null) {
+        shoppingListItem =
+            previousItem.copyWith(item: ingredient.id, checked: checked);
+      } else {
+        shoppingListItem =
+            ShoppingListItem(item: ingredient.id, checked: checked);
+      }
 
       try {
         await shoppingListItem.save(params: {
@@ -187,7 +194,8 @@ class _ShoppingListListView extends HookConsumerWidget {
           .firstWhereOrNull((i) => i.name.trim() == ingredientName.trim());
 
       if (ingredient != null) {
-        return _createShoppingListItemByIngredient(ingredient, checked);
+        return _createShoppingListItemByIngredient(
+            ingredient, checked, previousItem);
       }
 
       ingredient =
@@ -201,7 +209,20 @@ class _ShoppingListListView extends HookConsumerWidget {
         return;
       }
 
-      return _createShoppingListItemByIngredient(ingredient, checked);
+      return _createShoppingListItemByIngredient(
+          ingredient, checked, previousItem);
+    }
+
+    void toggleItemToSelectedItems(String itemId) {
+      if (!selectedItems.contains(itemId)) {
+        ref
+            .read(selectedShoppingListItemsProvider.notifier)
+            .update((state) => [...state, itemId]);
+      } else {
+        ref
+            .read(selectedShoppingListItemsProvider.notifier)
+            .update((state) => [...state..removeWhere((e) => e == itemId)]);
+      }
     }
 
     Future<void> handleTextFieldSubmission(
@@ -210,9 +231,7 @@ class _ShoppingListListView extends HookConsumerWidget {
 
       if (previousItem != null) {
         //UPDATE ITEM
-        if (newValue is bool) {
-          _setItemChecked(previousItem, newValue);
-        } else if (newValue is ShoppingListItem) {
+        if (newValue is ShoppingListItem) {
           if (newValue.item != previousItem.item) {
             //selected item mismatch, delete the previous item before going further
             previousItem.delete(params: {
@@ -311,9 +330,15 @@ class _ShoppingListListView extends HookConsumerWidget {
                           item,
                           formKey: ValueKey(item.item),
                           editable: true,
+                          selected: selectionModeOn,
                           onSubmitted: (value) {
                             handleTextFieldSubmission(value, item, true);
                           },
+                          onTap: selectionModeOn
+                              ? () => toggleItemToSelectedItems(item.id)
+                              : null,
+                          onLongPress: () => toggleItemToSelectedItems(item.id),
+                          onCheckChange: (_) => _setItemChecked(item, false),
                           onDismiss: (_) => _removeItemFromList(item),
                         ),
                       )
@@ -374,9 +399,15 @@ class _ShoppingListListView extends HookConsumerWidget {
                           item,
                           formKey: ValueKey(item.item),
                           editable: true,
+                          selected: selectionModeOn,
                           onSubmitted: (value) {
                             handleTextFieldSubmission(value, item, false);
                           },
+                          onTap: selectionModeOn
+                              ? () => toggleItemToSelectedItems(item.id)
+                              : null,
+                          onLongPress: () => toggleItemToSelectedItems(item.id),
+                          onCheckChange: (_) => _setItemChecked(item, true),
                           onDismiss: (_) => _removeItemFromList(item),
                         ),
                       )
