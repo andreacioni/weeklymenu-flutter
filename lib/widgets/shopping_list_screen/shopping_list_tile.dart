@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
@@ -227,43 +228,35 @@ class _QuantityAndUomChip extends HookConsumerWidget {
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       padding: EdgeInsets.all(5),
-      constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
+      constraints:
+          const BoxConstraints(maxHeight: 40, maxWidth: 60, minWidth: 60),
       child: InkWell(
         onTap: _changeQuantityAndUom,
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (quantity != null)
-              Expanded(
+              Flexible(
                 child: AutoSizeText(
-                  (quantity.toInt().toString()),
-                  textAlign: TextAlign.center,
+                  (quantity.toInt().toString() + ' ' + (uom?.toString() ?? '')),
+                  textAlign: TextAlign.left,
                   wrapWords: false,
                   minFontSize: 10,
                   maxFontSize: 30,
                   softWrap: false,
                 ),
               ),
-            if ((quantity == null && uom == null) ||
-                (quantity != null && uom != null))
+            if (quantity == null)
               Expanded(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Divider(
-                        color: Colors.black,
-                      ))),
-            if (quantity != null && uom != null)
-              Expanded(
-                child: AutoSizeText(
-                  (uom.toString()),
-                  textAlign: TextAlign.center,
-                  wrapWords: false,
-                  minFontSize: 1,
-                  maxFontSize: 20,
-                  softWrap: false,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: Divider(
+                    color: Colors.black,
+                  ),
                 ),
-              )
+              ),
           ],
         ),
       ),

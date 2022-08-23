@@ -55,21 +55,10 @@ class ItemSuggestionTextField extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final focusNode = useFocusNode();
     final scrollController = useScrollController(keepScrollOffset: false);
 
     final shoppingListId = ref.read(firstShoppingListIdProvider).value;
     final availableIngredients = ref.watch(_availableIngredientsProvider);
-
-    useEffect(() {
-      void listener() {
-        onFocusChanged?.call(focusNode.hasFocus);
-      }
-
-      focusNode.addListener(listener);
-
-      return () => focusNode.removeListener(listener);
-    }, const []);
 
     Ingredient? resolveShoppingListItemIngredient(ShoppingListItem item) {
       return availableIngredients
@@ -99,7 +88,9 @@ class ItemSuggestionTextField extends HookConsumerWidget {
 
         final checkedItems = shoppingListItems.where((item) {
           var ing = resolveShoppingListItemIngredient(item);
-          return ing != null ? stringContains(ing.name, value.text) : false;
+          return ing != null
+              ? item.checked && stringContains(ing.name, value.text)
+              : false;
         });
 
         suggestions.addAll(checkedItems);
@@ -141,7 +132,10 @@ class ItemSuggestionTextField extends HookConsumerWidget {
     }
 
     return Autocomplete<Object>(
-      fieldViewBuilder: (context, textEditingController, _, onFieldSubmitted) {
+      fieldViewBuilder:
+          (context, textEditingController, focusNode, onFieldSubmitted) {
+        focusNode.addListener(() => onFocusChanged?.call(focusNode.hasFocus));
+
         return AutoSizeTextField(
           controller: textEditingController,
           focusNode: focusNode,

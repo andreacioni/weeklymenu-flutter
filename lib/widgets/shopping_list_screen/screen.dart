@@ -123,7 +123,16 @@ class _ShoppingListListView extends HookConsumerWidget {
     }
 
     Future<void> _createShoppingListItemByIngredient(
-        Ingredient ingredient, bool checked) async {
+        Ingredient ingredient, bool checked,
+        [ShoppingListItem? previousItem]) async {
+      if (previousItem != null && previousItem.item != ingredient.id) {
+        //selected item mismatch, delete the previous item before going further
+        previousItem.delete(params: {
+          SHOPPING_LIST_ID_PARAM: shoppingListId,
+          UPDATE_PARAM: true
+        });
+      }
+
       final shopListItems = await ref
               .read(shoppingListItemsRepositoryProvider)
               .findAll(
@@ -153,14 +162,29 @@ class _ShoppingListListView extends HookConsumerWidget {
     }
 
     void _createShoppingListItemByIngredientName(
-        String ingredientName, bool checked) async {
+        String ingredientName, bool checked,
+        [ShoppingListItem? previousItem]) async {
+      if (previousItem != null) {
+        final previousIngredient = await ref
+            .read(ingredientsRepositoryProvider)
+            .findOne(previousItem.id);
+
+        if (previousIngredient?.name.trim() != ingredientName.trim()) {
+          //selected item mismatch, delete the previous item before going further
+          previousItem.delete(params: {
+            SHOPPING_LIST_ID_PARAM: shoppingListId,
+            UPDATE_PARAM: true
+          });
+        }
+      }
+
       final ingredientList = await ref
               .read(ingredientsRepositoryProvider)
               .findAll(remote: false) ??
           [];
 
-      var ingredient = ingredientList.firstWhereOrNull((i) =>
-          i.name.trim().toLowerCase() == ingredientName.trim().toLowerCase());
+      var ingredient = ingredientList
+          .firstWhereOrNull((i) => i.name.trim() == ingredientName.trim());
 
       if (ingredient != null) {
         return _createShoppingListItemByIngredient(ingredient, checked);
@@ -203,27 +227,10 @@ class _ShoppingListListView extends HookConsumerWidget {
             }
           }
         } else if (newValue is String) {
-          final previousIngredient = await ref
-              .read(ingredientsRepositoryProvider)
-              .findOne(previousItem.id);
-
-          if (previousIngredient?.name.trim() != newValue.trim()) {
-            //selected item mismatch, delete the previous item before going further
-            previousItem.delete(params: {
-              SHOPPING_LIST_ID_PARAM: shoppingListId,
-              UPDATE_PARAM: true
-            });
-          }
-          _createShoppingListItemByIngredientName(newValue, checked);
+          _createShoppingListItemByIngredientName(
+              newValue, checked, previousItem);
         } else if (newValue is Ingredient) {
-          if (previousItem.item != newValue.id) {
-            //selected item mismatch, delete the previous item before going further
-            previousItem.delete(params: {
-              SHOPPING_LIST_ID_PARAM: shoppingListId,
-              UPDATE_PARAM: true
-            });
-            _createShoppingListItemByIngredient(newValue, checked);
-          }
+          _createShoppingListItemByIngredient(newValue, checked, previousItem);
         }
       } else {
         //CREATE ITEM
@@ -433,8 +440,8 @@ class _ShoppingListListView extends HookConsumerWidget {
         return CustomScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: <Widget>[
-            if (allItems.isNotEmpty) ..._buildUncheckedList(uncheckedItems),
             if (newItemMode.value) _buildAddItem(),
+            if (allItems.isNotEmpty) ..._buildUncheckedList(uncheckedItems),
             if (allItems.isNotEmpty) ..._buildCheckedList(checkedItems),
           ],
         );
