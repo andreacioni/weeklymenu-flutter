@@ -125,8 +125,10 @@ class _ShoppingListItemTile extends HookConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(color: supermarketSection?.color, width: 6),
+          SizedBox(width: 10),
           if (displayLeading)
-            Flexible(
+            Container(
+              width: 60,
               child: _QuantityAndUomLead(shoppingListItem),
             ),
         ],
@@ -234,7 +236,7 @@ class _QuantityAndUomLead extends HookConsumerWidget {
 
     final shoppingListId = ref.read(firstShoppingListIdProvider).value;
 
-    void _changeQuantityAndUom() async {
+    void changeQuantityAndUom() async {
       final newItem = await showDialog<ShoppingListItem?>(
           context: context,
           builder: (context) {
@@ -250,32 +252,34 @@ class _QuantityAndUomLead extends HookConsumerWidget {
     }
 
     return InkWell(
-      onTap: _changeQuantityAndUom,
+      borderRadius: BorderRadius.circular(10),
+      onTap: changeQuantityAndUom,
       child: Container(
+        padding: EdgeInsets.all(3),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), border: Border.all()),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (quantity != null)
-              Flexible(
+              Expanded(
                 child: AutoSizeText(
                   (quantity.toInt().toString() + ' ' + (uom?.toString() ?? '')),
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.center,
                   wrapWords: false,
-                  minFontSize: 10,
-                  maxFontSize: 30,
+                  minFontSize: 1,
+                  maxFontSize: 40,
+                  maxLines: 1,
                   softWrap: false,
+                  overflow: TextOverflow.fade,
                 ),
               ),
             if (quantity == null)
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: Divider(
-                    color: Colors.black,
-                  ),
-                ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Icon(Icons.more_horiz),
               ),
           ],
         ),
