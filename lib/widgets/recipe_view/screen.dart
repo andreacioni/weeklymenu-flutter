@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:weekly_menu_app/globals/hooks.dart';
 
+import '../../globals/constants.dart';
+import '../../globals/hooks.dart';
 import '../../globals/memento.dart';
 import '../../main.data.dart';
 import '../flutter_data_state_builder.dart';
@@ -47,7 +48,7 @@ class RecipeView extends HookConsumerWidget {
         if (originator.isEdited) {
           print("Saving all recipe changes");
 
-          ref.recipes.save(originator.save(), params: {'update': true});
+          ref.recipes.save(originator.save(), params: {UPDATE_PARAM: true});
         }
       }
 

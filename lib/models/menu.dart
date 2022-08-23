@@ -6,8 +6,9 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:objectid/objectid.dart';
-import 'package:weekly_menu_app/main.data.dart';
 
+import '../globals/constants.dart';
+import '../main.data.dart';
 import '../globals/json_converter.dart';
 import 'date.dart';
 import 'base_model.dart';
@@ -79,7 +80,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
         ) ==
         null);
 
-    final res = await newMenu.save(params: {'update': false});
+    final res = await newMenu.save(params: {UPDATE_PARAM: false});
     state = state.copyWith(menus: [...state.menus, newMenu]);
 
     return res;
@@ -92,7 +93,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
         null);
     final menuList = state.menus..removeWhere((m) => m.id == newMenu.id);
 
-    final res = await newMenu.save(params: {'update': true});
+    final res = await newMenu.save(params: {UPDATE_PARAM: true});
     state = state.copyWith(menus: [...menuList, newMenu]);
 
     return res;
@@ -132,10 +133,10 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     for (Menu menu in dailyMenu.menus) {
       if (menu.recipes.isEmpty) {
         // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        await menu.delete(params: {'update': true});
+        await menu.delete(params: {UPDATE_PARAM: true});
         removeMenu(menu);
       } else {
-        await menu.save(params: {'update': true});
+        await menu.save(params: {UPDATE_PARAM: true});
       }
     }
   }
@@ -201,14 +202,18 @@ class DailyMenu with EquatableMixin {
     final menuFrom = getMenuByMeal(from);
     final menuTo = getMenuByMeal(to);
 
-    menuFrom!.removeRecipeByIdList(recipeIds).save(params: {'update': true});
+    menuFrom!
+        .removeRecipeByIdList(recipeIds)
+        .save(params: {UPDATE_PARAM: true});
 
     if (menuTo != null) {
-      return await menuTo.addRecipes(recipeIds).save(params: {'update': true});
+      return await menuTo
+          .addRecipes(recipeIds)
+          .save(params: {UPDATE_PARAM: true});
     } else {
       return await menuFrom
           .copyWith(meal: to, recipes: recipeIds)
-          .save(params: {'update': false});
+          .save(params: {UPDATE_PARAM: false});
     }
   }
 

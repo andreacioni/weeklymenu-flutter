@@ -2,11 +2,13 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:weekly_menu_app/models/base_model.dart';
-
 import 'package:flutter_data/flutter_data.dart';
 
+import 'base_model.dart';
+import '../globals/constants.dart';
 part 'shopping_list.g.dart';
+
+const SHOPPING_LIST_ID_PARAM = 'shopping_list_id';
 
 @JsonSerializable(explicitToJson: true)
 @DataRepository([BaseAdapter, ShoppingListAdapter],
@@ -119,7 +121,7 @@ mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
 
   @override
   String urlForSave(id, Map<String, dynamic> params) =>
-      params['update'] == true ? '$dashCaseType/$id' : dashCaseType;
+      params[UPDATE_PARAM] == true ? '$dashCaseType/$id' : dashCaseType;
 
   String get dashCaseType =>
       type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
@@ -129,25 +131,25 @@ mixin ShoppingListItemAdapter<T extends DataModel<ShoppingListItem>>
     on RemoteAdapter<ShoppingListItem> {
   @override
   String urlForFindAll(Map<String, dynamic> params) {
-    final url = basePath(params['shopping_list_id']);
+    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
     return '$url';
   }
 
   @override
   String urlForFindOne(id, Map<String, dynamic> params) {
-    final url = basePath(params['shopping_list_id']);
+    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
     return '$url/$id';
   }
 
   @override
   String urlForSave(id, Map<String, dynamic> params) {
-    final url = basePath(params['shopping_list_id']);
-    return params['update'] == true ? "$url/$id" : url;
+    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
+    return params[UPDATE_PARAM] == true ? "$url/$id" : url;
   }
 
   @override
   String urlForDelete(id, Map<String, dynamic> params) {
-    final url = basePath(params['shopping_list_id']);
+    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
     return '$url/$id';
   }
 

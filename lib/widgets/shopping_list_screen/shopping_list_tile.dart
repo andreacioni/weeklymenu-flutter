@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 
+import '../../globals/constants.dart';
 import '../../models/user_preferences.dart';
 import '../../providers/user_preferences.dart';
 import '../base_dialog.dart';
@@ -19,16 +20,14 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final void Function(Object? value)? onSubmitted;
-  final void Function(DismissDirection)? onDismiss;
-  final List<Ingredient> availableIngredients;
+  final void Function(DismissDirection) onDismiss;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
     required this.formKey,
-    required this.availableIngredients,
     this.editable = true,
     this.onSubmitted,
-    this.onDismiss,
+    required this.onDismiss,
   }) : super(key: formKey);
 
   @override
@@ -55,7 +54,6 @@ class ShoppingListItemTile extends HookConsumerWidget {
                 shoppingListItem: shoppingListItem,
                 supermarketSection: supermarketSection,
                 onSubmitted: onSubmitted,
-                availableIngredients: availableIngredients,
                 editable: editable,
               ),
               Divider(height: 0)
@@ -74,7 +72,6 @@ class _ShoppingListItemTile extends HookConsumerWidget {
     required this.shoppingListItem,
     required this.supermarketSection,
     required this.onSubmitted,
-    required this.availableIngredients,
     required this.editable,
   }) : super(key: key);
 
@@ -82,12 +79,11 @@ class _ShoppingListItemTile extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
   final SupermarketSection? supermarketSection;
   final void Function(Object? value)? onSubmitted;
-  final List<Ingredient> availableIngredients;
   final bool editable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedItems = ref.read(selectedShoppingListItemsProvider);
+    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
 
     void toggleItemToSelectedItems(String itemId) {
       if (!selectedItems.contains(itemId)) {
@@ -123,10 +119,8 @@ class _ShoppingListItemTile extends HookConsumerWidget {
           Flexible(
             flex: 8,
             child: ItemSuggestionTextField(
-              availableIngredients: availableIngredients,
               value: item,
               enabled: editable,
-              showShoppingItemSuggestions: false,
               onSubmitted: onSubmitted,
               textStyle: shoppingListItem.checked
                   ? TextStyle(
@@ -223,8 +217,10 @@ class _QuantityAndUomChip extends HookConsumerWidget {
           });
 
       if (newItem != null) {
-        newItem
-            .save(params: {'update': true, 'shopping_list_id': shoppingListId});
+        newItem.save(params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       }
     }
 

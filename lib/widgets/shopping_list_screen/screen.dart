@@ -44,32 +44,6 @@ final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
   return firstShoppingListId;
 });
 
-final _availableIngredientsProvider =
-    FutureProvider.autoDispose<List<Ingredient>>((ref) async {
-  final ingredients =
-      await ref.read(ingredientsRepositoryProvider).findAll(remote: false);
-
-  return ingredients ?? [];
-});
-
-final _shoppingListScreeDataProvider =
-    FutureProvider.autoDispose<_ShoppingListScreenData>((ref) async {
-  try {
-    final ingredients = await ref.watch(_availableIngredientsProvider.future);
-    final shoppingListId = await ref.watch(firstShoppingListIdProvider.future);
-
-    return _ShoppingListScreenData(shoppingListId, ingredients);
-  } catch (e) {
-    throw e;
-  }
-});
-
-class _ShoppingListScreenData {
-  final String shoppingListId;
-  final List<Ingredient> ingredients;
-  const _ShoppingListScreenData(this.shoppingListId, this.ingredients);
-}
-
 class ShoppingListScreen extends HookConsumerWidget {
   ShoppingListScreen({Key? key}) : super(key: key);
 
@@ -77,7 +51,7 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final newItemMode = useState(false);
 
-    final asyncScreenData = ref.watch(_shoppingListScreeDataProvider);
+    final firstShoppingListAsyncData = ref.watch(firstShoppingListIdProvider);
 
     return Scaffold(
       appBar: const ShoppingListAppBar(),
@@ -87,14 +61,14 @@ class ShoppingListScreen extends HookConsumerWidget {
               onPressed: () => newItemMode.value = true,
             )
           : null,
-      body: asyncScreenData.when(
-        data: (data) {
-          final shoppingListId = data.shoppingListId;
-          final availableIngredients = data.ingredients;
-          return _ShoppingListListView(
-            shoppingListId: shoppingListId,
-            availableIngredients: availableIngredients,
-            newItemMode: newItemMode,
+      body: firstShoppingListAsyncData.when(
+        data: (shoppingListId) {
+          return GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: _ShoppingListListView(
+              shoppingListId: shoppingListId,
+              newItemMode: newItemMode,
+            ),
           );
         },
         error: (_, __) =>
@@ -108,13 +82,9 @@ class ShoppingListScreen extends HookConsumerWidget {
 class _ShoppingListListView extends HookConsumerWidget {
   final String shoppingListId;
   final ValueNotifier<bool> newItemMode;
-  final List<Ingredient> availableIngredients;
 
   const _ShoppingListListView(
-      {Key? key,
-      required this.shoppingListId,
-      required this.newItemMode,
-      required this.availableIngredients})
+      {Key? key, required this.shoppingListId, required this.newItemMode})
       : super(key: key);
 
   @override
@@ -139,14 +109,16 @@ class _ShoppingListListView extends HookConsumerWidget {
     Future<void> _setItemChecked(
         ShoppingListItem shopItem, bool checked) async {
       try {
-        await shopItem
-            .copyWith(checked: checked)
-            .save(params: {'update': true, 'shopping_list_id': shoppingListId});
+        await shopItem.copyWith(checked: checked).save(params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       } catch (e) {
         showAlertErrorMessage(context);
-        shopItem
-            .copyWith(checked: !checked)
-            .save(params: {'update': true, 'shopping_list_id': shoppingListId});
+        shopItem.copyWith(checked: !checked).save(params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       }
     }
 
@@ -156,7 +128,7 @@ class _ShoppingListListView extends HookConsumerWidget {
               .read(shoppingListItemsRepositoryProvider)
               .findAll(
                   remote: false,
-                  params: {'shopping_list_id': shoppingListId}) ??
+                  params: {SHOPPING_LIST_ID_PARAM: shoppingListId}) ??
           [];
 
       var shoppingListItem =
@@ -170,8 +142,10 @@ class _ShoppingListListView extends HookConsumerWidget {
           ShoppingListItem(item: ingredient.id, checked: checked);
 
       try {
-        await shoppingListItem.save(
-            params: {'update': false, 'shopping_list_id': shoppingListId});
+        await shoppingListItem.save(params: {
+          UPDATE_PARAM: false,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       } catch (e) {
         showAlertErrorMessage(context);
         shoppingListItem.deleteLocal();
@@ -192,7 +166,8 @@ class _ShoppingListListView extends HookConsumerWidget {
         return _createShoppingListItemByIngredient(ingredient, checked);
       }
 
-      ingredient = Ingredient(id: ObjectId().hexString, name: ingredientName);
+      ingredient =
+          Ingredient(id: ObjectId().hexString, name: ingredientName.trim());
 
       try {
         await ingredient.save();
@@ -205,28 +180,70 @@ class _ShoppingListListView extends HookConsumerWidget {
       return _createShoppingListItemByIngredient(ingredient, checked);
     }
 
-    void handleTextFieldSubmission(
-        Object? value, ShoppingListItem item, bool checked) {
-      if (value == null) return;
-      if (value is bool) {
-        _setItemChecked(item, value);
-      } else if (value is ShoppingListItem) {
-        _setItemChecked(item, checked);
-      } else if (value is String) {
-        _createShoppingListItemByIngredientName(value, checked);
-      } else if (value is Ingredient) {
-        _createShoppingListItemByIngredient(value, checked);
+    Future<void> handleTextFieldSubmission(
+        Object? newValue, ShoppingListItem? previousItem, bool checked) async {
+      if (newValue == null) return;
+
+      if (previousItem != null) {
+        //UPDATE ITEM
+        if (newValue is bool) {
+          _setItemChecked(previousItem, newValue);
+        } else if (newValue is ShoppingListItem) {
+          if (newValue.item != previousItem.item) {
+            //selected item mismatch, delete the previous item before going further
+            previousItem.delete(params: {
+              SHOPPING_LIST_ID_PARAM: shoppingListId,
+              UPDATE_PARAM: true
+            });
+            _setItemChecked(newValue, checked);
+          } else {
+            //item is the same, we must check the checked value to understand if we have to toggle the value
+            if (newValue.checked != checked) {
+              _setItemChecked(newValue, checked);
+            }
+          }
+        } else if (newValue is String) {
+          final previousIngredient = await ref
+              .read(ingredientsRepositoryProvider)
+              .findOne(previousItem.id);
+
+          if (previousIngredient?.name.trim() != newValue.trim()) {
+            //selected item mismatch, delete the previous item before going further
+            previousItem.delete(params: {
+              SHOPPING_LIST_ID_PARAM: shoppingListId,
+              UPDATE_PARAM: true
+            });
+          }
+          _createShoppingListItemByIngredientName(newValue, checked);
+        } else if (newValue is Ingredient) {
+          if (previousItem.item != newValue.id) {
+            //selected item mismatch, delete the previous item before going further
+            previousItem.delete(params: {
+              SHOPPING_LIST_ID_PARAM: shoppingListId,
+              UPDATE_PARAM: true
+            });
+            _createShoppingListItemByIngredient(newValue, checked);
+          }
+        }
+      } else {
+        //CREATE ITEM
+        if (newValue is String) {
+          _createShoppingListItemByIngredientName(newValue, checked);
+        } else if (newValue is ShoppingListItem) {
+          _setItemChecked(newValue, checked);
+        } else if (newValue is Ingredient) {
+          _createShoppingListItemByIngredient(newValue, checked);
+        }
       }
     }
 
-    Widget _buildAddItem(WidgetRef ref) {
+    Widget _buildAddItem() {
       return SliverList(
         delegate: SliverChildListDelegate.fixed(
           <Widget>[
             ListTile(
               leading: Icon(Icons.add),
               title: ItemSuggestionTextField(
-                availableIngredients: availableIngredients,
                 hintText: 'Add element...',
                 autofocus: true,
                 onFocusChanged: (hasFocus) {
@@ -235,13 +252,8 @@ class _ShoppingListListView extends HookConsumerWidget {
                   }
                 },
                 onSubmitted: (value) {
-                  if (value is String) {
-                    _createShoppingListItemByIngredientName(value, false);
-                  } else if (value is ShoppingListItem) {
-                    _setItemChecked(value, false);
-                  } else if (value is Ingredient) {
-                    _createShoppingListItemByIngredient(value, false);
-                  }
+                  handleTextFieldSubmission(value, null, false);
+                  newItemMode.value = false;
                 },
               ),
             ),
@@ -255,12 +267,16 @@ class _ShoppingListListView extends HookConsumerWidget {
 
     Future<void> _removeItemFromList(ShoppingListItem shoppingListItem) async {
       try {
-        await shoppingListItem.delete(
-            params: {'update': true, 'shopping_list_id': shoppingListId});
+        await shoppingListItem.delete(params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       } catch (e) {
         showAlertErrorMessage(context);
-        shoppingListItem.save(
-            params: {'update': false, 'shopping_list_id': shoppingListId});
+        shoppingListItem.save(params: {
+          UPDATE_PARAM: false,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       }
     }
 
@@ -286,11 +302,10 @@ class _ShoppingListListView extends HookConsumerWidget {
                       .map(
                         (item) => ShoppingListItemTile(
                           item,
-                          availableIngredients: availableIngredients,
                           formKey: ValueKey(item.item),
                           editable: true,
                           onSubmitted: (value) {
-                            handleTextFieldSubmission(value, item, false);
+                            handleTextFieldSubmission(value, item, true);
                           },
                           onDismiss: (_) => _removeItemFromList(item),
                         ),
@@ -350,12 +365,12 @@ class _ShoppingListListView extends HookConsumerWidget {
                       .map(
                         (item) => ShoppingListItemTile(
                           item,
-                          availableIngredients: availableIngredients,
                           formKey: ValueKey(item.item),
                           editable: true,
                           onSubmitted: (value) {
-                            handleTextFieldSubmission(value, item, true);
+                            handleTextFieldSubmission(value, item, false);
                           },
+                          onDismiss: (_) => _removeItemFromList(item),
                         ),
                       )
                       .toList(),
@@ -365,6 +380,12 @@ class _ShoppingListListView extends HookConsumerWidget {
           })
           .expand((e) => e) //flat
           .toList();
+    }
+
+    Widget _buildAddFirstItemFieldWrapper() {
+      return CustomScrollView(
+        slivers: [_buildAddItem()],
+      );
     }
 
     Widget _buildNoElementsPage() {
@@ -397,20 +418,23 @@ class _ShoppingListListView extends HookConsumerWidget {
 
     return FlutterDataStateBuilder<List<ShoppingListItem>>(
       state: ref.shoppingListItems
-          .watchAll(params: {'shopping_list_id': shoppingListId}),
+          .watchAll(params: {SHOPPING_LIST_ID_PARAM: shoppingListId}),
       loading: _buildLoadingItem(),
-      notFound: _buildNoElementsPage(),
+      notFound: newItemMode.value
+          ? _buildAddFirstItemFieldWrapper()
+          : _buildNoElementsPage(),
       onRefresh: () => ref.shoppingListItems.findAll(
-          params: {'shopping_list_id': shoppingListId}, syncLocal: true),
+          params: {SHOPPING_LIST_ID_PARAM: shoppingListId}, syncLocal: true),
       builder: (context, data) {
         final allItems = data;
         final checkedItems = allItems.where((i) => i.checked).toList();
         final uncheckedItems = allItems.where((i) => !i.checked).toList();
 
         return CustomScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: <Widget>[
-            if (newItemMode.value) _buildAddItem(ref),
             if (allItems.isNotEmpty) ..._buildUncheckedList(uncheckedItems),
+            if (newItemMode.value) _buildAddItem(),
             if (allItems.isNotEmpty) ..._buildCheckedList(checkedItems),
           ],
         );

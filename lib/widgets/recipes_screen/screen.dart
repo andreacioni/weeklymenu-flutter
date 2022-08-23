@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:objectid/objectid.dart';
 
+import '../../globals/constants.dart';
 import '../../main.data.dart';
 import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
@@ -325,7 +326,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               if (textController.text.trim().isNotEmpty) {
                 await ref.read(recipesRepositoryProvider).save(
                     Recipe(id: ObjectId().hexString, name: textController.text),
-                    params: {'update': false});
+                    params: {UPDATE_PARAM: false});
               } else {
                 print("No name supplied");
               }

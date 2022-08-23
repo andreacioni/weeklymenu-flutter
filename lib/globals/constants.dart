@@ -22,3 +22,5 @@ class SharedPreferencesKeys {
 
   static final String firstShoppingListId = "first_shopping_list_id";
 }
+
+const UPDATE_PARAM = 'update';

@@ -6,9 +6,27 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 
+import 'screen.dart';
+import '../../main.data.dart';
 import '../../globals/utils.dart';
 import '../../models/ingredient.dart';
 import '../../models/shopping_list.dart';
+
+final _availableIngredientsFutureProvider =
+    FutureProvider.autoDispose<List<Ingredient>>((ref) async {
+  final ingredients =
+      await ref.watch(ingredientsRepositoryProvider).findAll(remote: false);
+
+  return ingredients ?? [];
+});
+
+final _availableIngredientsProvider =
+    Provider.autoDispose<List<Ingredient>>((ref) {
+  final ingredients = ref.watch(_availableIngredientsFutureProvider);
+
+  return ingredients.when(
+      data: (data) => data, error: (_, __) => [], loading: () => []);
+});
 
 class ItemSuggestionTextField extends HookConsumerWidget {
   final Ingredient? value;
@@ -21,7 +39,6 @@ class ItemSuggestionTextField extends HookConsumerWidget {
   final bool enabled;
   final bool readOnly;
   final TextStyle? textStyle;
-  final List<Ingredient> availableIngredients;
 
   ItemSuggestionTextField({
     this.value,
@@ -34,13 +51,15 @@ class ItemSuggestionTextField extends HookConsumerWidget {
     this.readOnly = false,
     this.hintText,
     this.textStyle,
-    required this.availableIngredients,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final focusNode = useFocusNode();
     final scrollController = useScrollController(keepScrollOffset: false);
+
+    final shoppingListId = ref.read(firstShoppingListIdProvider).value;
+    final availableIngredients = ref.watch(_availableIngredientsProvider);
 
     useEffect(() {
       void listener() {
@@ -68,15 +87,17 @@ class ItemSuggestionTextField extends HookConsumerWidget {
     }
 
     Future<Iterable<Object>> suggestionsCallback(TextEditingValue value) async {
-      final ingredientsRepo = ref.read(ingredientsRepositoryProvider);
-      final shopListRepo = ref.read(shoppingListsRepositoryProvider);
+      final shopListItemsRepo = ref.read(shoppingListItemsRepositoryProvider);
 
       List<Object> suggestions = [];
 
       if (showShoppingItemSuggestions) {
-        final shoppingList = (await shopListRepo.findAll(remote: false))![0];
+        final shoppingListItems = (await shopListItemsRepo.findAll(
+                remote: false,
+                params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
+            [];
 
-        final checkedItems = shoppingList.getCheckedItems.where((item) {
+        final checkedItems = shoppingListItems.where((item) {
           var ing = resolveShoppingListItemIngredient(item);
           return ing != null ? stringContains(ing.name, value.text) : false;
         });
@@ -85,7 +106,8 @@ class ItemSuggestionTextField extends HookConsumerWidget {
         suggestions.addAll(availableIngredients
             .where((ing) =>
                 stringContains(ing.name, value.text) &&
-                shoppingList.containsItem(ing.id) == false)
+                shoppingListItems.firstWhereOrNull((i) => i.item == ing.id) ==
+                    null)
             .toList());
       } else {
         suggestions.addAll(availableIngredients
@@ -119,8 +141,7 @@ class ItemSuggestionTextField extends HookConsumerWidget {
     }
 
     return Autocomplete<Object>(
-      fieldViewBuilder:
-          (context, textEditingController, focusNode, onFieldSubmitted) {
+      fieldViewBuilder: (context, textEditingController, _, onFieldSubmitted) {
         return AutoSizeTextField(
           controller: textEditingController,
           focusNode: focusNode,
@@ -135,9 +156,9 @@ class ItemSuggestionTextField extends HookConsumerWidget {
           onSubmitted: (txt) => onSubmitted?.call(txt),
           textInputAction: TextInputAction.done,
           keyboardType: TextInputType.text,
-          onEditingComplete: () {
+          /*onEditingComplete: () {
             onSubmitted?.call(textEditingController.text);
-          },
+          },*/
           decoration: InputDecoration(
             contentPadding: EdgeInsets.all(5),
             hintText: hintText,

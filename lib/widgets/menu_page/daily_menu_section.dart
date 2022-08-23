@@ -9,9 +9,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:objectid/objectid.dart';
-import 'package:weekly_menu_app/globals/hooks.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import '../../globals/hooks.dart';
+import '../../globals/constants.dart';
 import '../../globals/utils.dart';
 import '../../main.data.dart';
 import '../../models/date.dart';
@@ -87,7 +88,7 @@ class DailyMenuSection extends HookConsumerWidget {
       if (recipeName.trim().isNotEmpty) {
         Recipe recipe = await ref.recipes.save(
             Recipe(id: ObjectId().hexString, name: recipeName.trim()),
-            params: {'update': false});
+            params: {UPDATE_PARAM: false});
         await addRecipeToMeal(meal, recipe);
       } else {
         print("can't create a recipe with empty name");
@@ -535,7 +536,7 @@ class MenuRecipeCard extends HookConsumerWidget {
           if (recipeName.trim().isNotEmpty) {
             recipe = await ref.recipes.save(
                 Recipe(id: ObjectId().hexString, name: recipeName.trim()),
-                params: {'update': false});
+                params: {UPDATE_PARAM: false});
           } else {
             print("can't create a recipe with empty name");
           }
