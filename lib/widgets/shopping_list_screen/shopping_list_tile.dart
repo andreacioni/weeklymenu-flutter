@@ -8,6 +8,7 @@ import '../../globals/constants.dart';
 import '../../models/user_preferences.dart';
 import '../../providers/user_preferences.dart';
 import '../base_dialog.dart';
+import 'quantity_and_uom_dialog.dart';
 import 'screen.dart';
 import '../flutter_data_state_builder.dart';
 import '../../models/shopping_list.dart';
@@ -165,65 +166,6 @@ class _ShoppingListItemTile extends StatelessWidget {
   }
 }
 
-class _QuantityAndUomDialog extends StatefulWidget {
-  final ShoppingListItem item;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  _QuantityAndUomDialog({Key? key, required this.item}) : super(key: key);
-
-  @override
-  State<_QuantityAndUomDialog> createState() => _QuantityAndUomDialogState();
-}
-
-class _QuantityAndUomDialogState extends State<_QuantityAndUomDialog> {
-  late ShoppingListItem newItem;
-
-  @override
-  void initState() {
-    newItem = widget.item.copyWith();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: widget._formKey,
-      child: BaseDialog(
-        title: 'Quantity',
-        subtitle: 'Choose the quantity and the unit of measure',
-        children: [
-          Container(
-            child: QuantityAndUnitOfMeasureInputFormField(
-              quantity: widget.item.quantity ?? 0,
-              unitOfMeasure: widget.item.unitOfMeasure,
-              onQuantitySaved: (q) => _onSaved(quantity: q),
-              onUnitOfMeasureSaved: (u) => _onSaved(unitOfMeasure: u),
-            ),
-          )
-        ],
-        onDoneTap: () => _onDone(context),
-      ),
-    );
-  }
-
-  void _onDone(BuildContext context) {
-    if (widget._formKey.currentState?.validate() ?? false) {
-      widget._formKey.currentState!.save();
-      Navigator.of(context).pop(newItem);
-    }
-  }
-
-  void _onSaved({double? quantity, String? unitOfMeasure}) {
-    if (quantity != null) {
-      newItem = newItem.copyWith(quantity: quantity);
-    }
-
-    if (unitOfMeasure != null) {
-      newItem = newItem.copyWith(unitOfMeasure: unitOfMeasure);
-    }
-  }
-}
-
 class _QuantityAndUomLead extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
 
@@ -241,7 +183,7 @@ class _QuantityAndUomLead extends HookConsumerWidget {
       final newItem = await showDialog<ShoppingListItem?>(
           context: context,
           builder: (context) {
-            return _QuantityAndUomDialog(item: shoppingListItem);
+            return QuantityAndUomDialog(item: shoppingListItem);
           });
 
       if (newItem != null) {

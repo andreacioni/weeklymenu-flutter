@@ -18,6 +18,8 @@ abstract class _$UserPreferenceCWProxy {
   UserPreference supermarketSections(
       List<SupermarketSection>? supermarketSections);
 
+  UserPreference unitOfMeasures(List<String>? unitOfMeasures);
+
   UserPreference updateTimestamp(int? updateTimestamp);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserPreference(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
@@ -32,6 +34,7 @@ abstract class _$UserPreferenceCWProxy {
     String? owner,
     List<int>? shoppingDays,
     List<SupermarketSection>? supermarketSections,
+    List<String>? unitOfMeasures,
     int? updateTimestamp,
   });
 }
@@ -62,6 +65,10 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
       this(supermarketSections: supermarketSections);
 
   @override
+  UserPreference unitOfMeasures(List<String>? unitOfMeasures) =>
+      this(unitOfMeasures: unitOfMeasures);
+
+  @override
   UserPreference updateTimestamp(int? updateTimestamp) =>
       this(updateTimestamp: updateTimestamp);
 
@@ -79,6 +86,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
     Object? owner = const $CopyWithPlaceholder(),
     Object? shoppingDays = const $CopyWithPlaceholder(),
     Object? supermarketSections = const $CopyWithPlaceholder(),
+    Object? unitOfMeasures = const $CopyWithPlaceholder(),
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return UserPreference(
@@ -102,6 +110,10 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
           ? _value.supermarketSections
           // ignore: cast_nullable_to_non_nullable
           : supermarketSections as List<SupermarketSection>?,
+      unitOfMeasures: unitOfMeasures == const $CopyWithPlaceholder()
+          ? _value.unitOfMeasures
+          // ignore: cast_nullable_to_non_nullable
+          : unitOfMeasures as List<String>?,
       updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
           ? _value.updateTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -205,6 +217,31 @@ UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
           ?.map((e) =>
               SupermarketSection.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      unitOfMeasures: (json['unitOfMeasures'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [
+            'pcs',
+            'g',
+            'Kg',
+            'gr',
+            'cup',
+            'tsp',
+            'tbs',
+            'L',
+            'ml',
+            'dl',
+            'cl',
+            'm',
+            'cm',
+            'mm',
+            'glass',
+            'lb',
+            'oz',
+            'pt',
+            'gl',
+            'qt'
+          ],
     );
 
 Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
@@ -223,5 +260,6 @@ Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
   writeNotNull('shopping_days', instance.shoppingDays);
   writeNotNull('supermarket_sections',
       instance.supermarketSections?.map((e) => e.toJson()).toList());
+  writeNotNull('unitOfMeasures', instance.unitOfMeasures);
   return val;
 }

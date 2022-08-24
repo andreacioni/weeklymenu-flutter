@@ -9,6 +9,29 @@ import 'base_model.dart';
 
 part 'user_preferences.g.dart';
 
+const STANDARD_UNIT_OF_MEASURE = const [
+  "pcs",
+  "g",
+  "Kg",
+  "gr",
+  "cup",
+  "tsp",
+  "tbs",
+  "L",
+  "ml",
+  "dl",
+  "cl",
+  "m",
+  "cm",
+  "mm",
+  "glass",
+  "lb",
+  "oz",
+  "pt",
+  "gl",
+  "qt"
+];
+
 @JsonSerializable()
 class SupermarketSection {
   final String name;
@@ -38,6 +61,9 @@ class UserPreference extends BaseModel<UserPreference> {
   @JsonKey(name: 'supermarket_sections')
   final List<SupermarketSection>? supermarketSections;
 
+  @JsonKey(defaultValue: STANDARD_UNIT_OF_MEASURE)
+  final List<String>? unitOfMeasures;
+
   @JsonKey(ignore: true)
   final String? owner;
 
@@ -47,7 +73,8 @@ class UserPreference extends BaseModel<UserPreference> {
       int? insertTimestamp,
       int? updateTimestamp,
       this.shoppingDays,
-      this.supermarketSections})
+      this.supermarketSections,
+      this.unitOfMeasures})
       : super(
             id: id ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
@@ -61,7 +88,7 @@ class UserPreference extends BaseModel<UserPreference> {
   UserPreference clone() => UserPreference.fromJson(this.toJson());
 
   @override
-  String toString() => "$shoppingDays, $supermarketSections";
+  String toString() => "$shoppingDays, $supermarketSections, $unitOfMeasures";
 }
 
 mixin UserPreferencesAdapter<T extends DataModel<UserPreference>>

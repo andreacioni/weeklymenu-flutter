@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../models/recipe.dart';
 import '../../../models/ingredient.dart';
-import '../../../models/enums/unit_of_measure.dart';
 import '../../shared/quantity_and_uom_input_fields.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../presentation/custom_icons_icons.dart';
