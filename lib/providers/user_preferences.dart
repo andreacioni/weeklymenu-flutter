@@ -22,3 +22,8 @@ final supermarketSectionByNameProvider =
 
   return sections?.firstWhereOrNull((s) => s.name == arg);
 }));
+
+final unitOfMeasuresProvider = Provider<List<String>>((ref) {
+  final userPrefs = ref.watch(userPreferenceProvider);
+  return userPrefs?.unitOfMeasures ?? STANDARD_UNIT_OF_MEASURE;
+});
