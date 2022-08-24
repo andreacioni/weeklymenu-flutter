@@ -46,7 +46,9 @@ class _NumberFormFieldState extends State<NumberFormField> {
   Widget build(BuildContext context) {
     return TextFormField(
         decoration: InputDecoration(
-            hintText: widget.hintText, labelText: widget.labelText),
+          hintText: widget.hintText,
+          labelText: widget.labelText,
+        ),
         controller: _controller,
         focusNode: _focusNode,
         validator: _validateNumber,
@@ -57,22 +59,6 @@ class _NumberFormFieldState extends State<NumberFormField> {
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))
         ]);
-    /* return AutoSizeFormField<double>(
-      converter: (value) =>
-          value != null && value.isNotEmpty ? double.tryParse(value) : null,
-      keyboardType: TextInputType.number,
-      maxLength: 5,
-      maxLengthEnforment: true,
-      minWidth: 20,
-      controller: _controller,
-      focusNode: _focusNode,
-      validator: _validateNumber,
-      onChanged: widget.onChanged,
-      onSaved: widget.onSaved,
-      textDirection: TextDirection.rtl,
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))],
-      decoration: InputDecoration(counterText: "", errorText: null),
-    ); */
   }
 
   void _onChanged(String v) {

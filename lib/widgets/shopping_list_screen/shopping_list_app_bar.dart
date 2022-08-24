@@ -4,8 +4,9 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:weekly_menu_app/providers/shopping_list.dart';
 
+import '../../providers/shopping_list.dart';
+import '../../globals/constants.dart';
 import '../../models/user_preferences.dart' hide userPreferenceProvider;
 import '../../providers/user_preferences.dart';
 import '../../globals/extensions.dart';
@@ -200,7 +201,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
       await ref.read(userPreferencesRepositoryProvider).save(
           userPref.copyWith(supermarketSections: newSections),
-          params: {'update': true});
+          params: {UPDATE_PARAM: true});
     }
 
     Future<void> setSupermarketSectionOnSelectedItems(
@@ -211,7 +212,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       if (shoppingListId == null) throw 'No shopping list id resolved';
 
       final allItems = (await ref.shoppingListItems.findAll(
-              remote: false, params: {'shopping_list_id': shoppingListId})) ??
+              remote: false,
+              params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
           [];
 
       for (final itemId in selectedItems) {
@@ -223,8 +225,10 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
         final newItem =
             previousItem.copyWith(supermarketSectionName: section?.name);
 
-        await ref.shoppingListItems.save(newItem,
-            params: {'update': true, 'shopping_list_id': shoppingListId});
+        await ref.shoppingListItems.save(newItem, params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       }
     }
 
@@ -249,7 +253,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
       ref.read(shoppingListsRepositoryProvider).save(
           shoppingList!.copyWith(items: allItems),
-          params: {'update': true});
+          params: {UPDATE_PARAM: true});
 
       ref
           .read(selectedShoppingListItemsProvider.notifier)
@@ -267,7 +271,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       final shoppingListId = ref.read(firstShoppingListIdProvider);
 
       final allItems = (await ref.shoppingListItems.findAll(
-              remote: false, params: {'shopping_list_id': shoppingListId})) ??
+              remote: false,
+              params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
           [];
       final availableSupermarketSections =
           (allItems.map((e) => e.supermarketSectionName).toList()

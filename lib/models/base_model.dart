@@ -58,11 +58,13 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
 
   @override
   DataRequestMethod methodForSave(id, Map<String, dynamic> params) =>
-      params['update'] == true ? DataRequestMethod.PUT : DataRequestMethod.POST;
+      params[UPDATE_PARAM] == true
+          ? DataRequestMethod.PUT
+          : DataRequestMethod.POST;
 
   @override
   String urlForSave(id, Map<String, dynamic> params) =>
-      params['update'] == true ? '$type/$id' : type;
+      params[UPDATE_PARAM] == true ? '$type/$id' : type;
 
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {

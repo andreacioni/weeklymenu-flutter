@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:weekly_menu_app/globals/hooks.dart';
 
+import '../../globals/constants.dart';
+import '../../globals/hooks.dart';
 import '../../globals/memento.dart';
 import '../../main.data.dart';
 import '../flutter_data_state_builder.dart';
 import '../../globals/errors_handlers.dart';
+import '../shared/editable_text_field.dart';
 import 'add_ingredient_button.dart';
 import 'recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import 'recipe_information_tiles.dart';
 import '../../models/recipe.dart';
 import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
-import 'editable_text_field.dart';
 
 class RecipeView extends HookConsumerWidget {
   final Recipe originalRecipeInstance;
@@ -47,7 +48,7 @@ class RecipeView extends HookConsumerWidget {
         if (originator.isEdited) {
           print("Saving all recipe changes");
 
-          ref.recipes.save(originator.save(), params: {'update': true});
+          ref.recipes.save(originator.save(), params: {UPDATE_PARAM: true});
         }
       }
 

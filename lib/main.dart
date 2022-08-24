@@ -55,11 +55,14 @@ class App extends StatelessWidget {
             // Define the default TextTheme. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
             textTheme: TextTheme(
-              headline5: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-              headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-              bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
-              //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
-            ),
+                headline5:
+                    TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+                headline6:
+                    TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
+                bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
+                labelMedium: TextStyle(fontSize: 18)
+                //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
+                ),
             checkboxTheme: CheckboxThemeData(
               fillColor: MaterialStateProperty.resolveWith((states) =>
                   states.contains(MaterialState.selected)
