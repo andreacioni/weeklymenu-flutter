@@ -17,7 +17,6 @@ import './item_suggestion_text_field.dart';
 import '../../main.data.dart';
 
 class ShoppingListItemTile extends HookConsumerWidget {
-  final Key formKey;
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final bool selected;
@@ -32,7 +31,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
 
   ShoppingListItemTile(
     this.shoppingListItem, {
-    required this.formKey,
+    Key? key,
     this.editable = true,
     this.selected = false,
     this.displayLeading = true,
@@ -42,7 +41,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
     this.onLongPress,
     this.onTap,
     this.onCheckChange,
-  }) : super(key: formKey);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +58,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
           direction: selectedItems.isNotEmpty
               ? DismissDirection.none
               : DismissDirection.endToStart,
-          key: formKey,
+          key: ValueKey(
+              'Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
           onDismissed: onDismiss,
           child: Column(
             children: <Widget>[
@@ -85,7 +85,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
   }
 }
 
-class _ShoppingListItemTile extends HookConsumerWidget {
+class _ShoppingListItemTile extends StatelessWidget {
   const _ShoppingListItemTile({
     Key? key,
     required this.item,
@@ -114,7 +114,7 @@ class _ShoppingListItemTile extends HookConsumerWidget {
   final bool displayTrailing;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return ListTile(
       selected: selected,
       contentPadding: EdgeInsets.only(right: 16),
@@ -149,6 +149,7 @@ class _ShoppingListItemTile extends HookConsumerWidget {
               value: item,
               enabled: editable,
               onSubmitted: onSubmitted,
+              //autofocus: true,
               textStyle: shoppingListItem.checked
                   ? TextStyle(
                       decoration: TextDecoration.lineThrough,
@@ -257,7 +258,8 @@ class _QuantityAndUomLead extends HookConsumerWidget {
       child: Container(
         padding: EdgeInsets.all(3),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), border: Border.all()),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,

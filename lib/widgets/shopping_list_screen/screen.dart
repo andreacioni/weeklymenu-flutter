@@ -64,7 +64,12 @@ class ShoppingListScreen extends HookConsumerWidget {
       body: firstShoppingListAsyncData.when(
         data: (shoppingListId) {
           return GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+              if (!currentFocus.hasPrimaryFocus) {
+                currentFocus.focusedChild?.unfocus();
+              }
+            },
             child: _ShoppingListListView(
               shoppingListId: shoppingListId,
               newItemMode: newItemMode,
@@ -328,7 +333,7 @@ class _ShoppingListListView extends HookConsumerWidget {
                       .map(
                         (item) => ShoppingListItemTile(
                           item,
-                          formKey: ValueKey(item.item),
+                          key: ValueKey(item.item),
                           editable: !selectionModeOn,
                           displayLeading: !selectionModeOn,
                           displayTrailing: !selectionModeOn,
@@ -399,7 +404,7 @@ class _ShoppingListListView extends HookConsumerWidget {
                       .map(
                         (item) => ShoppingListItemTile(
                           item,
-                          formKey: ValueKey(item.item),
+                          key: ValueKey(item.item),
                           editable: !selectionModeOn,
                           displayLeading: !selectionModeOn,
                           displayTrailing: !selectionModeOn,
