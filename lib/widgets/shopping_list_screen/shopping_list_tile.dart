@@ -21,6 +21,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final bool selected;
+  final bool dismissible;
   final bool displayLeading;
   final bool displayTrailing;
   final void Function(Object? value)? onSubmitted;
@@ -35,6 +36,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
     Key? key,
     this.editable = true,
     this.selected = false,
+    this.dismissible = false,
     this.displayLeading = true,
     this.displayTrailing = true,
     this.onSubmitted,
@@ -47,7 +49,6 @@ class ShoppingListItemTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ingredientsRepository = ref.ingredients;
-    final selectedItems = ref.read(selectedShoppingListItemsProvider);
     final supermarketSection = ref.read(supermarketSectionByNameProvider(
         shoppingListItem.supermarketSectionName));
 
@@ -56,9 +57,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
       onRefresh: () => ingredientsRepository.findOne(shoppingListItem.item),
       builder: (context, model) {
         return Dismissible(
-          direction: selectedItems.isNotEmpty
-              ? DismissDirection.none
-              : DismissDirection.endToStart,
+          direction:
+              dismissible ? DismissDirection.endToStart : DismissDirection.none,
           key: ValueKey(
               'Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
           onDismissed: onDismiss,
