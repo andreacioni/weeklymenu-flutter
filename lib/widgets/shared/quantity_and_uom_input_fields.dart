@@ -37,7 +37,7 @@ class QuantityAndUnitOfMeasureInputFormField extends HookConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Flexible(
           flex: 2,
@@ -59,22 +59,24 @@ class QuantityAndUnitOfMeasureInputFormField extends HookConsumerWidget {
         ),
         Flexible(
           flex: 1,
-          child: DropdownButtonFormField<String>(
-            value: unitOfMeasure,
-            hint: Text(
-              'Unit',
-              softWrap: true,
-              overflow: TextOverflow.fade,
-            ),
-            items: [null, ...unitOfMeasures]
-                .map((uom) => _createDropDownItem(uom))
-                .toList(),
-            //can't use widget.onUnitOfMeasureChanged directly because DropdownButtonFormField needs
-            //a non-null onChanged to be enabled
-            onChanged: (value) {
-              onUnitOfMeasureChanged?.call(value);
-            },
-            onSaved: onUnitOfMeasureSaved,
+          child: Autocomplete<String>(
+            initialValue: TextEditingValue(text: unitOfMeasure ?? ''),
+            fieldViewBuilder:
+                ((context, textEditingController, focusNode, onFieldSubmitted) {
+              return TextFormField(
+                controller: textEditingController,
+                focusNode: focusNode,
+                onChanged: (value) {
+                  onUnitOfMeasureChanged?.call(value);
+                },
+                onSaved: onUnitOfMeasureSaved,
+                decoration: InputDecoration(hintText: 'Unit'),
+              );
+            }),
+            optionsBuilder: (text) => unitOfMeasures.where((u) => u
+                .toLowerCase()
+                .trim()
+                .startsWith(text.text.toLowerCase().trim())),
           ),
         ),
       ],
@@ -138,6 +140,7 @@ class _NullableNumberFormFieldState extends State<NullableNumberFormField> {
         onSaved: widget.onSaved != null ? (v) => _onSaved(v) : null,
         maxLines: 1,
         keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.next,
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp("[0-9\.,]"))
         ]);
