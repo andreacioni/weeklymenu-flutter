@@ -50,19 +50,18 @@ class SupermarketSection {
   String toString() => "$name, $color";
 }
 
-@JsonSerializable(explicitToJson: true, anyMap: true)
+@JsonSerializable(
+    explicitToJson: true, anyMap: true, fieldRename: FieldRename.snake)
 @DataRepository([BaseAdapter, UserPreferencesAdapter],
     internalType: 'userPreferences')
 @CopyWith()
 class UserPreference extends BaseModel<UserPreference> {
-  @JsonKey(name: 'shopping_days')
   final List<int>? shoppingDays;
 
-  @JsonKey(name: 'supermarket_sections')
   final List<SupermarketSection>? supermarketSections;
 
   @JsonKey(defaultValue: STANDARD_UNIT_OF_MEASURE)
-  final List<String>? unitOfMeasures;
+  final List<String>? unitsOfMeasure;
 
   @JsonKey(ignore: true)
   final String? owner;
@@ -74,7 +73,7 @@ class UserPreference extends BaseModel<UserPreference> {
       int? updateTimestamp,
       this.shoppingDays,
       this.supermarketSections,
-      this.unitOfMeasures})
+      this.unitsOfMeasure})
       : super(
             id: id ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
@@ -88,7 +87,7 @@ class UserPreference extends BaseModel<UserPreference> {
   UserPreference clone() => UserPreference.fromJson(this.toJson());
 
   @override
-  String toString() => "$shoppingDays, $supermarketSections, $unitOfMeasures";
+  String toString() => "$shoppingDays, $supermarketSections, $unitsOfMeasure";
 }
 
 mixin UserPreferencesAdapter<T extends DataModel<UserPreference>>
