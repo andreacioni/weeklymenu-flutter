@@ -234,12 +234,6 @@ class MenuScreen extends HookConsumerWidget {
   }
 }
 
-/*
-* Added this class to prevent FutureBuilder to fire every time a setState in 
-* the parent widget is called. See: https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
-* for more details.
-*/
-
 class DailyMenuFutureWrapper extends HookConsumerWidget {
   final Date day;
 
@@ -249,19 +243,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dailyMenu = ref.watch(dailyMenuProvider(day));
 
-    return _buildMenuCard(dailyMenu);
-  }
-
-  Widget _buildMenuCard(DailyMenu dailyMenu) {
-    return DailyMenuSection(
-      DailyMenuNotifier(dailyMenu),
-      onTap: () {
-        /*  ref
-            .read(homePageModalBottomSheetDailyMenuNotifierProvider.notifier)
-            .state = dailyMenuNotifier;
-        ref.read(homePagePanelControllerProvider).open(); */
-      },
-    );
+    return DailyMenuSection(DailyMenuNotifier(dailyMenu));
   }
 }
 

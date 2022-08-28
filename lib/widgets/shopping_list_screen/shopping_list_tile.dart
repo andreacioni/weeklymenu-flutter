@@ -52,36 +52,41 @@ class ShoppingListItemTile extends HookConsumerWidget {
     final supermarketSection = ref.read(supermarketSectionByNameProvider(
         shoppingListItem.supermarketSectionName));
 
-    return FlutterDataStateBuilder<Ingredient>(
-      state: ingredientsRepository.watchOne(shoppingListItem.item),
-      onRefresh: () => ingredientsRepository.findOne(shoppingListItem.item),
-      builder: (context, model) {
-        return Dismissible(
-          direction:
-              dismissible ? DismissDirection.endToStart : DismissDirection.none,
-          key: ValueKey(
-              'Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
-          onDismissed: onDismiss,
-          child: Column(
-            children: <Widget>[
-              _ShoppingListItemTile(
-                item: model,
-                shoppingListItem: shoppingListItem,
-                supermarketSection: supermarketSection,
-                onSubmitted: onSubmitted,
-                onTap: onTap,
-                onLongPress: onLongPress,
-                onCheckChange: onCheckChange,
-                editable: editable,
-                selected: selected,
-                displayLeading: displayLeading,
-                displayTrailing: displayTrailing,
-              ),
-              Divider(height: 0)
-            ],
-          ),
-        );
-      },
+    Widget buildListTile([Ingredient? ingredient]) {
+      return Column(
+        children: <Widget>[
+          if (ingredient != null)
+            _ShoppingListItemTile(
+              item: ingredient,
+              shoppingListItem: shoppingListItem,
+              supermarketSection: supermarketSection,
+              onSubmitted: onSubmitted,
+              onTap: onTap,
+              onLongPress: onLongPress,
+              onCheckChange: onCheckChange,
+              editable: editable,
+              selected: selected,
+              displayLeading: displayLeading,
+              displayTrailing: displayTrailing,
+            ),
+          if (ingredient == null) Container(),
+          Divider(height: 0)
+        ],
+      );
+    }
+
+    return Dismissible(
+      direction:
+          dismissible ? DismissDirection.endToStart : DismissDirection.none,
+      key: ValueKey('Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
+      onDismissed: onDismiss,
+      child: FlutterDataStateBuilder<Ingredient>(
+          state: ingredientsRepository.watchOne(shoppingListItem.item),
+          onRefresh: () => ingredientsRepository.findOne(shoppingListItem.item),
+          notFound: buildListTile(),
+          builder: (context, model) {
+            return buildListTile(model);
+          }),
     );
   }
 }

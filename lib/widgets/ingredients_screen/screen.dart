@@ -14,6 +14,7 @@ class IngredientsScreen extends HookConsumerWidget {
       appBar: _buildAppBar(context),
       body: FlutterDataStateBuilder<List<Ingredient>>(
           state: ref.ingredients.watchAll(),
+          onRefresh: () => ref.ingredients.findAll(syncLocal: true),
           builder: (context, model) {
             return ListView.builder(
               itemBuilder: (_, index) {

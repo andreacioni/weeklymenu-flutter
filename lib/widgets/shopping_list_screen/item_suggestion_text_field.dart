@@ -14,8 +14,7 @@ import '../../models/shopping_list.dart';
 
 final _availableIngredientsFutureProvider =
     FutureProvider.autoDispose<List<Ingredient>>((ref) async {
-  final ingredients =
-      await ref.watch(ingredientsRepositoryProvider).findAll(remote: false);
+  final ingredients = await ref.ingredients.findAll(remote: false);
 
   return ingredients ?? [];
 });
