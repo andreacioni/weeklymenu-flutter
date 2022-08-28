@@ -32,9 +32,11 @@ final pointerOverWidgetIndexStateProvider =
 final menuListProvider = StateNotifierProvider.autoDispose
     .family<DataStateNotifier<List<Menu>?>, DataState<List<Menu>?>, Date>(
         ((ref, date) {
-  return ref.menus.watchAllNotifier(params: {
-    'day': date.format(_httpParamDateParser)
-  }).where((m) => m.date == date);
+  return ref.menus.watchAllNotifier(
+    syncLocal:
+        true, //there's no other way, otherwise, to sink the local with the remotes
+    params: {'day': date.format(_httpParamDateParser)},
+  ).where((m) => m.date == date);
 }));
 
 final dailyMenuProvider =
