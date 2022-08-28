@@ -18,7 +18,7 @@ import './item_suggestion_text_field.dart';
 import '../../main.data.dart';
 
 final selectedShoppingListItemsProvider =
-    StateProvider.autoDispose(((_) => <String>[]));
+    StateProvider.autoDispose(((_) => <ShoppingListItem>[]));
 
 final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
   final sharedPrefs = await ref.watch(sharedPreferenceProvider.future);
@@ -218,15 +218,15 @@ class _ShoppingListListView extends HookConsumerWidget {
           ingredient, checked, previousItem);
     }
 
-    void toggleItemToSelectedItems(String itemId) {
-      if (!selectedItems.contains(itemId)) {
+    void toggleItemToSelectedItems(ShoppingListItem item) {
+      if (!selectedItems.contains(item)) {
         ref
             .read(selectedShoppingListItemsProvider.notifier)
-            .update((state) => [...state, itemId]);
+            .update((state) => [...state, item]);
       } else {
         ref
             .read(selectedShoppingListItemsProvider.notifier)
-            .update((state) => [...state..removeWhere((e) => e == itemId)]);
+            .update((state) => [...state..removeWhere((e) => e == item)]);
       }
     }
 
@@ -337,14 +337,15 @@ class _ShoppingListListView extends HookConsumerWidget {
                           editable: !selectionModeOn,
                           displayLeading: !selectionModeOn,
                           displayTrailing: !selectionModeOn,
-                          selected: selectedItems.contains(item.id),
+                          dismissible: !selectionModeOn,
+                          selected: selectedItems.contains(item),
                           onSubmitted: (value) {
                             handleTextFieldSubmission(value, item, true);
                           },
                           onTap: selectionModeOn
-                              ? () => toggleItemToSelectedItems(item.id)
+                              ? () => toggleItemToSelectedItems(item)
                               : null,
-                          onLongPress: () => toggleItemToSelectedItems(item.id),
+                          onLongPress: () => toggleItemToSelectedItems(item),
                           onCheckChange: (_) => _setItemChecked(item, false),
                           onDismiss: (_) => _removeItemFromList(item),
                         ),
@@ -408,14 +409,15 @@ class _ShoppingListListView extends HookConsumerWidget {
                           editable: !selectionModeOn,
                           displayLeading: !selectionModeOn,
                           displayTrailing: !selectionModeOn,
-                          selected: selectedItems.contains(item.id),
+                          dismissible: !selectionModeOn,
+                          selected: selectedItems.contains(item),
                           onSubmitted: (value) {
                             handleTextFieldSubmission(value, item, false);
                           },
                           onTap: selectionModeOn
-                              ? () => toggleItemToSelectedItems(item.id)
+                              ? () => toggleItemToSelectedItems(item)
                               : null,
-                          onLongPress: () => toggleItemToSelectedItems(item.id),
+                          onLongPress: () => toggleItemToSelectedItems(item),
                           onCheckChange: (_) => _setItemChecked(item, true),
                           onDismiss: (_) => _removeItemFromList(item),
                         ),

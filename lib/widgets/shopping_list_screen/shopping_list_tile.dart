@@ -21,6 +21,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final bool selected;
+  final bool dismissible;
   final bool displayLeading;
   final bool displayTrailing;
   final void Function(Object? value)? onSubmitted;
@@ -35,6 +36,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
     Key? key,
     this.editable = true,
     this.selected = false,
+    this.dismissible = false,
     this.displayLeading = true,
     this.displayTrailing = true,
     this.onSubmitted,
@@ -47,41 +49,44 @@ class ShoppingListItemTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ingredientsRepository = ref.ingredients;
-    final selectedItems = ref.read(selectedShoppingListItemsProvider);
     final supermarketSection = ref.read(supermarketSectionByNameProvider(
         shoppingListItem.supermarketSectionName));
 
-    return FlutterDataStateBuilder<Ingredient>(
-      state: ingredientsRepository.watchOne(shoppingListItem.item),
-      onRefresh: () => ingredientsRepository.findOne(shoppingListItem.item),
-      builder: (context, model) {
-        return Dismissible(
-          direction: selectedItems.isNotEmpty
-              ? DismissDirection.none
-              : DismissDirection.endToStart,
-          key: ValueKey(
-              'Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
-          onDismissed: onDismiss,
-          child: Column(
-            children: <Widget>[
-              _ShoppingListItemTile(
-                item: model,
-                shoppingListItem: shoppingListItem,
-                supermarketSection: supermarketSection,
-                onSubmitted: onSubmitted,
-                onTap: onTap,
-                onLongPress: onLongPress,
-                onCheckChange: onCheckChange,
-                editable: editable,
-                selected: selected,
-                displayLeading: displayLeading,
-                displayTrailing: displayTrailing,
-              ),
-              Divider(height: 0)
-            ],
-          ),
-        );
-      },
+    Widget buildListTile([Ingredient? ingredient]) {
+      return Column(
+        children: <Widget>[
+          if (ingredient != null)
+            _ShoppingListItemTile(
+              item: ingredient,
+              shoppingListItem: shoppingListItem,
+              supermarketSection: supermarketSection,
+              onSubmitted: onSubmitted,
+              onTap: onTap,
+              onLongPress: onLongPress,
+              onCheckChange: onCheckChange,
+              editable: editable,
+              selected: selected,
+              displayLeading: displayLeading,
+              displayTrailing: displayTrailing,
+            ),
+          if (ingredient == null) Container(),
+          Divider(height: 0)
+        ],
+      );
+    }
+
+    return Dismissible(
+      direction:
+          dismissible ? DismissDirection.endToStart : DismissDirection.none,
+      key: ValueKey('Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
+      onDismissed: onDismiss,
+      child: FlutterDataStateBuilder<Ingredient>(
+          state: ingredientsRepository.watchOne(shoppingListItem.item),
+          onRefresh: () => ingredientsRepository.findOne(shoppingListItem.item),
+          notFound: buildListTile(),
+          builder: (context, model) {
+            return buildListTile(model);
+          }),
     );
   }
 }
