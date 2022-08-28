@@ -3,13 +3,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/io_client.dart';
-
 import 'package:flutter_data/flutter_data.dart';
-
 import 'package:json_annotation/json_annotation.dart';
-import 'package:weekly_menu_app/globals/memento.dart';
-import 'package:weekly_menu_app/services/auth_service.dart';
 
+import '../globals/memento.dart';
 import '../globals/constants.dart';
 import '../providers/common.dart';
 

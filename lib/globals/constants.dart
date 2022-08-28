@@ -15,12 +15,4 @@ const String emailValidationRegex =
 const String alloweSpecialCharacters = "?\$#!'\"=%&/\/\(\)\[\]\{\}";
 const String passwordValidationRegex = "^[a-zA-Z0-9]{7,20}\$";
 
-class SharedPreferencesKeys {
-  static final String tokenSharedPreferencesKey = "token";
-  static final String emailSharedPreferencesKey = "username";
-  static final String passwordSharedPreferencesKey = "password";
-
-  static final String firstShoppingListId = "first_shopping_list_id";
-}
-
 const UPDATE_PARAM = 'update';

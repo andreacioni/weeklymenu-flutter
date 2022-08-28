@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -5,6 +7,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/models/auth_token.dart';
 import 'package:weekly_menu_app/models/menu.dart';
 import 'package:weekly_menu_app/models/recipe.dart';
+import 'package:weekly_menu_app/providers/authentication.dart';
+import 'package:weekly_menu_app/providers/local_preferences.dart';
 import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
 
 import '../../models/ingredient.dart';
@@ -17,14 +21,22 @@ final _tokenProvider = FutureProvider.autoDispose<AuthToken?>((ref) async {
   return ref.read(authServiceProvider).token;
 });
 
+final _bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
+  log("starting up repositoryInitializer");
+  final repositoryInitializer =
+      await ref.read(repositoryInitializerProvider.future);
+  log("starting up local preferences");
+  final localPreferences = await ref.read(localPreferencesProvider.future);
+});
+
 class SplashScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
         body: Center(
-      child: ref.watch(repositoryInitializerProvider).when(
-          data: (_) {
-            return ref.watch(_tokenProvider).when(
+      child: ref.watch(_bootstrapDependenciesProvider).when(
+            data: (_) {
+              return ref.watch(_tokenProvider).when(
                   data: (jwt) {
                     if (jwt != null) {
                       Future.delayed(
@@ -37,11 +49,12 @@ class SplashScreen extends HookConsumerWidget {
                     return loadingIndicator();
                   },
                   loading: () => loadingIndicator(),
-                  error: (_, __) => Text('error'),
-                );
-          },
-          loading: loadingIndicator,
-          error: (_, __) => Text('error')),
+                  error: (_, __) => Text('error') //TODO,
+                  );
+            },
+            loading: loadingIndicator,
+            error: (_, __) => Text('error'), //TODO
+          ),
     ));
   }
 

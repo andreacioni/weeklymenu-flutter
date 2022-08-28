@@ -1,17 +1,22 @@
 import 'dart:async';
 
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:dio/dio.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weekly_menu_app/services/local_preferences.dart';
 
 import '../globals/constants.dart';
 import '../models/auth_token.dart';
 
-final authServiceProvider = Provider((ref) => AuthService());
+@CopyWith()
+class AuthState {
+  final loggingIn;
+  final loggedIn;
+
+  AuthState({this.loggingIn, this.loggedIn});
+}
 
 class AuthService {
-  static final String BASE_URL =
-      'https://heroku-weeklymenu.herokuapp.com/api/v1';
+  static const BASE_URL = 'https://heroku-weeklymenu.herokuapp.com/api/v1';
 
   static final Dio _dio = Dio(
     BaseOptions(
@@ -23,13 +28,17 @@ class AuthService {
     ),
   );
 
+  final LocalPreferences _localPreferences;
+
+  late final StreamController<AuthState> _
+
   AuthToken? _token;
 
   String? _email, _password;
 
   bool _initialized;
 
-  AuthService() : _initialized = false;
+  AuthService(LocalPreferences localPreferences) : _initialized = false, this._localPreferences = localPreferences;
 
   Future<void> register(String name, String email, String password) async {
     await _dio.post('$BASE_URL/auth/register',
@@ -58,54 +67,41 @@ class AuthService {
     await _clearUserInformation();
   }
 
+  Stream<AuthState> get authenticationStream async* {}
+
   Future<void> _storeUserInformation(
       String email, String password, AuthToken token) async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-
     //Email & Password
     _email = email;
     _password = password;
-    await sharedPreferences.setString(
-        SharedPreferencesKeys.emailSharedPreferencesKey, email);
-    await sharedPreferences.setString(
-        SharedPreferencesKeys.passwordSharedPreferencesKey, password);
+    await _localPreferences.setString(LocalPreferenceKey.email, email);
+    await _localPreferences.setString(LocalPreferenceKey.password, password);
 
     //Token
     _token = token;
-    await sharedPreferences.setString(
-        SharedPreferencesKeys.tokenSharedPreferencesKey, _token!.jwt);
+    await _localPreferences.setString(LocalPreferenceKey.token, _token!.jwt);
   }
 
   Future<void> _loadUserInformation() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-
     //Email & Password
-    _email = sharedPreferences
-        .getString(SharedPreferencesKeys.emailSharedPreferencesKey);
-    _password = sharedPreferences
-        .getString(SharedPreferencesKeys.passwordSharedPreferencesKey);
+    _email = _localPreferences.getString(LocalPreferenceKey.email);
+    _password = _localPreferences.getString(LocalPreferenceKey.password);
 
     //Token
-    final jwt = sharedPreferences
-        .getString(SharedPreferencesKeys.tokenSharedPreferencesKey);
+    final jwt = _localPreferences.getString(LocalPreferenceKey.token);
     _token = jwt != null ? AuthToken.fromJWT(jwt) : null;
   }
 
   Future<void> _clearUserInformation() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-
     //Email & Password
     _email = null;
     _password = null;
-    await sharedPreferences
-        .remove(SharedPreferencesKeys.emailSharedPreferencesKey);
-    await sharedPreferences
-        .remove(SharedPreferencesKeys.passwordSharedPreferencesKey);
+    await _localPreferences.remove(LocalPreferenceKey.email);
+    await _localPreferences.remove(LocalPreferenceKey.password);
 
     //Token
     _token = null;
-    await sharedPreferences
-        .remove(SharedPreferencesKeys.tokenSharedPreferencesKey);
+    await _localPreference.remove(LocalPreferenceKey.token);
   }
 
   Future<AuthToken?> get token async {
@@ -130,7 +126,7 @@ class AuthService {
           print(
               "Failed auto login with saved credentials, password changed. Login again...");
         } else {
-          print("Unexpented failure while logging in\n${e.stackTrace}");
+          print("Unexpected failure while logging in\n${e.stackTrace}");
         }
       } catch (e) {
         print("Generic error raised while logging in\n$e");
