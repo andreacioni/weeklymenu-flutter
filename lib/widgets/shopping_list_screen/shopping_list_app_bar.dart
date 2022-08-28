@@ -58,9 +58,9 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
               params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
           [];
 
-      for (final itemId in selectedItems) {
+      for (final selectedItem in selectedItems) {
         final previousItem =
-            allItems.firstWhereOrNull((item) => item.item == itemId);
+            allItems.firstWhereOrNull((item) => item.item == selectedItem.item);
         if (previousItem == null ||
             previousItem.supermarketSectionName == section?.name) return;
 
