@@ -11,7 +11,7 @@ final authServiceProvider = Provider((ref) => AuthService());
 
 class AuthService {
   static final String BASE_URL =
-      'https://heroku-weeklymenu.herokuapp.com/api/v1';
+      'https://weeklymenu.fly.dev/api/v1';
 
   static final Dio _dio = Dio(
     BaseOptions(
