@@ -33,7 +33,7 @@ abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
 }
 
 mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
-  static const BASE_URL = "https://heroku-weeklymenu.herokuapp.com/api/v1/";
+  static const BASE_URL = "https://weeklymenu.fly.dev/api/v1/";
   static const CONNECTION_TIMEOUT = const Duration(seconds: 3);
 
   @override
