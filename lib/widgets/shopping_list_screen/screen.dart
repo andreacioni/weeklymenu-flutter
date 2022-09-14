@@ -4,9 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/providers/local_preferences.dart';
+import 'package:weekly_menu_app/services/local_preferences.dart';
 
 import '../../globals/constants.dart';
-import '../../providers/shared_preferences.dart';
 import 'shopping_list_app_bar.dart';
 import '../../providers/user_preferences.dart';
 import '../flutter_data_state_builder.dart';
@@ -21,9 +22,9 @@ final selectedShoppingListItemsProvider =
     StateProvider.autoDispose(((_) => <ShoppingListItem>[]));
 
 final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
-  final sharedPrefs = await ref.watch(sharedPreferenceProvider.future);
+  final prefs = ref.read(localPreferencesProvider).value!;
   final firstShoppingListId =
-      sharedPrefs.getString(SharedPreferencesKeys.firstShoppingListId);
+      prefs.getString(LocalPreferenceKey.firstShoppingListId);
 
   if (firstShoppingListId == null) {
     final shoppingLists = await ref.shoppingLists.findAll();
@@ -32,9 +33,8 @@ final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
       throw 'unexpected condition: shopping list is null or empty';
     }
 
-    sharedPrefs
-        .setString(
-            SharedPreferencesKeys.firstShoppingListId, shoppingLists[0].id)
+    prefs
+        .setString(LocalPreferenceKey.firstShoppingListId, shoppingLists[0].id)
         .ignore();
 
     //Get only the first element, by now only one list per user is supported

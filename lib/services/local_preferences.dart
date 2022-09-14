@@ -22,7 +22,7 @@ class LocalPreferences {
     return _sharedPreferences.remove(key);
   }
 
-  Future<bool> clear(String key) {
+  Future<bool> clear() {
     return _sharedPreferences.clear();
   }
 

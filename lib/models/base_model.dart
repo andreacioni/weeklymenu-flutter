@@ -8,7 +8,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../globals/memento.dart';
 import '../globals/constants.dart';
-import '../providers/common.dart';
+import '../providers/authentication.dart';
 
 abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
     implements Cloneable<T> {
@@ -30,11 +30,10 @@ abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
 }
 
 mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
-  static const BASE_URL = "https://heroku-weeklymenu.herokuapp.com/api/v1/";
   static const CONNECTION_TIMEOUT = const Duration(seconds: 3);
 
   @override
-  String get baseUrl => BASE_URL;
+  String get baseUrl => API_BASE_PATH;
 
   @override
   FutureOr<Map<String, dynamic>> get defaultParams => {'per_page': 1000};
@@ -65,10 +64,14 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
 
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {
-    final token = await providerContainer.read(authServiceProvider).token;
+    final authService = read(authServiceProvider);
+
+    final token = await authService.token;
+
     if (token == null) {
       throw StateError("can't get a valid token");
     }
+
     final bearerToken = 'Bearer ' + token.jwt;
     return {'Content-Type': 'application/json', 'Authorization': bearerToken};
   }

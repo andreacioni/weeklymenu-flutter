@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/providers/local_preferences.dart';
 
 import 'providers/authentication.dart';
 import 'widgets/tags_screen/screen.dart';
@@ -10,6 +11,7 @@ class AppDrawer extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authService = ref.read(authServiceProvider);
+    final localPreferences = ref.read(localPreferencesProvider).value!;
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
@@ -77,7 +79,9 @@ class AppDrawer extends HookConsumerWidget {
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () async {
-              authService.logout();
+              await authService.logout();
+              await localPreferences.clear();
+
               Navigator.pop(context);
               goToLogin(context);
             },

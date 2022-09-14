@@ -1,61 +1,39 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/models/auth_token.dart';
-import 'package:weekly_menu_app/models/menu.dart';
-import 'package:weekly_menu_app/models/recipe.dart';
 import 'package:weekly_menu_app/providers/authentication.dart';
-import 'package:weekly_menu_app/providers/local_preferences.dart';
-import 'package:weekly_menu_app/widgets/shopping_list_screen/screen.dart';
 
-import '../../models/ingredient.dart';
-import '../../services/auth_service.dart';
-import '../../main.data.dart';
+import '../../providers/bootstrap.dart';
 import '../login_screen/screen.dart';
 import '../../homepage.dart';
-
-final _tokenProvider = FutureProvider.autoDispose<AuthToken?>((ref) async {
-  return ref.read(authServiceProvider).token;
-});
-
-final _bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
-  log("starting up repositoryInitializer");
-  final repositoryInitializer =
-      await ref.read(repositoryInitializerProvider.future);
-  log("starting up local preferences");
-  final localPreferences = await ref.read(localPreferencesProvider.future);
-});
 
 class SplashScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-        body: Center(
-      child: ref.watch(_bootstrapDependenciesProvider).when(
-            data: (_) {
-              return ref.watch(_tokenProvider).when(
-                  data: (jwt) {
-                    if (jwt != null) {
-                      Future.delayed(
-                          Duration.zero, () => goToHomePage(context));
-                    } else {
-                      Future.delayed(
-                          Duration.zero, () => goToLoginPage(context));
-                    }
+      body: Center(
+        child: ref.watch(bootstrapDependenciesProvider).when(
+              data: (_) {
+                return ref.watch(tokenProvider).when(
+                    data: (jwt) {
+                      if (jwt != null) {
+                        Future.delayed(
+                            Duration.zero, () => goToHomePage(context));
+                      } else {
+                        Future.delayed(
+                            Duration.zero, () => goToLoginPage(context));
+                      }
 
-                    return loadingIndicator();
-                  },
-                  loading: () => loadingIndicator(),
-                  error: (_, __) => Text('error') //TODO,
-                  );
-            },
-            loading: loadingIndicator,
-            error: (_, __) => Text('error'), //TODO
-          ),
-    ));
+                      return loadingIndicator();
+                    },
+                    loading: () => loadingIndicator(),
+                    error: (_, __) => Text('error') //TODO,
+                    );
+              },
+              loading: loadingIndicator,
+              error: (_, __) => Text('error'), //TODO
+            ),
+      ),
+    );
   }
 
   Widget loadingIndicator() => Center(
