@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../globals/errors_handlers.dart';
+import '../../../providers/authentication.dart';
 import '../../../services/auth_service.dart';
 import '../screen.dart';
 import 'base_login_form.dart';

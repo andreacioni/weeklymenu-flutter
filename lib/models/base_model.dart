@@ -3,15 +3,13 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/io_client.dart';
-
 import 'package:flutter_data/flutter_data.dart';
-
 import 'package:json_annotation/json_annotation.dart';
-import 'package:weekly_menu_app/globals/memento.dart';
-import 'package:weekly_menu_app/services/auth_service.dart';
 
+import '../globals/memento.dart';
 import '../globals/constants.dart';
-import '../providers/common.dart';
+import '../providers/authentication.dart';
+import 'auth_token.dart';
 
 abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
     implements Cloneable<T> {
@@ -33,11 +31,10 @@ abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
 }
 
 mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
-  static const BASE_URL = "https://weeklymenu.fly.dev/api/v1/";
   static const CONNECTION_TIMEOUT = const Duration(seconds: 3);
 
   @override
-  String get baseUrl => BASE_URL;
+  String get baseUrl => API_BASE_PATH;
 
   @override
   FutureOr<Map<String, dynamic>> get defaultParams => {'per_page': 1000};
@@ -68,10 +65,12 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
 
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {
-    final token = await providerContainer.read(authServiceProvider).token;
+    final token = await read(tokenServiceProvider).token;
+
     if (token == null) {
       throw StateError("can't get a valid token");
     }
+
     final bearerToken = 'Bearer ' + token.jwt;
     return {'Content-Type': 'application/json', 'Authorization': bearerToken};
   }
