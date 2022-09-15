@@ -8,6 +8,7 @@ import 'package:weekly_menu_app/services/auth_service.dart';
 
 import '../../../models/auth_token.dart';
 import '../../../providers/authentication.dart';
+import '../../../providers/bootstrap.dart';
 import '../../../services/local_preferences.dart';
 import 'base_login_form.dart';
 
@@ -30,7 +31,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
   @override
   Widget build(BuildContext context) {
     final authService = ref.read((authServiceProvider));
-    final localPreferences = ref.read(localPreferencesProvider).value!;
+    final localPreferences = ref.read(localPreferencesProvider);
 
     void goToHomepage() {
       Navigator.of(context)

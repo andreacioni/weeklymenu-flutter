@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/providers/authentication.dart';
 
+import '../../models/auth_token.dart';
 import '../../providers/bootstrap.dart';
 import '../login_screen/screen.dart';
 import '../../homepage.dart';
+
+final _authTokenProvider = FutureProvider.autoDispose<AuthToken?>((ref) {
+  final tokenService = ref.read(tokenServiceProvider);
+  return tokenService.token;
+});
 
 class SplashScreen extends HookConsumerWidget {
   @override
@@ -13,7 +19,7 @@ class SplashScreen extends HookConsumerWidget {
       body: Center(
         child: ref.watch(bootstrapDependenciesProvider).when(
               data: (_) {
-                return ref.watch(tokenProvider).when(
+                return ref.watch(_authTokenProvider).when(
                     data: (jwt) {
                       if (jwt != null) {
                         Future.delayed(

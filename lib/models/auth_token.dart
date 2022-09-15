@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:weekly_menu_app/globals/utils.dart' as utils;
 part 'auth_token.g.dart';
 
+@immutable
 class AuthToken {
   final String _jwtString;
   final AuthTokenData _tokenData;

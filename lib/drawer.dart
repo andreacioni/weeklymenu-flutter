@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/main.data.dart';
 import 'package:weekly_menu_app/providers/local_preferences.dart';
 
 import 'providers/authentication.dart';
+import 'providers/bootstrap.dart';
 import 'widgets/tags_screen/screen.dart';
 import './widgets/ingredients_screen/screen.dart';
 import 'widgets/login_screen/screen.dart';
@@ -10,8 +14,22 @@ import 'widgets/login_screen/screen.dart';
 class AppDrawer extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authService = ref.read(authServiceProvider);
-    final localPreferences = ref.read(localPreferencesProvider).value!;
+    void logoutAndClearUserData() async {
+      log('logging out...');
+      final authService = ref.read(authServiceProvider);
+      final localPreferences = ref.read(localPreferencesProvider);
+      final repositoriesProviders = repositoryProviders.values;
+
+      await authService.logout();
+      await localPreferences.clear();
+
+      for (final repositoryProvider in repositoriesProviders) {
+        await ref.read(repositoryProvider).clear();
+      }
+
+      log('user data deleted');
+    }
+
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
@@ -79,9 +97,7 @@ class AppDrawer extends HookConsumerWidget {
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
             onTap: () async {
-              await authService.logout();
-              await localPreferences.clear();
-
+              logoutAndClearUserData();
               Navigator.pop(context);
               goToLogin(context);
             },

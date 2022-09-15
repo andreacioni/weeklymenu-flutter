@@ -9,6 +9,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../globals/memento.dart';
 import '../globals/constants.dart';
 import '../providers/authentication.dart';
+import 'auth_token.dart';
 
 abstract class BaseModel<T extends DataModel<T>> extends DataModel<T>
     implements Cloneable<T> {
@@ -64,9 +65,7 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
 
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {
-    final authService = read(authServiceProvider);
-
-    final token = await authService.token;
+    final token = await read(tokenServiceProvider).token;
 
     if (token == null) {
       throw StateError("can't get a valid token");

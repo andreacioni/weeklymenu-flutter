@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/providers/bootstrap.dart';
 import 'package:weekly_menu_app/providers/local_preferences.dart';
 import 'package:weekly_menu_app/services/local_preferences.dart';
 
@@ -22,7 +23,7 @@ final selectedShoppingListItemsProvider =
     StateProvider.autoDispose(((_) => <ShoppingListItem>[]));
 
 final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
-  final prefs = ref.read(localPreferencesProvider).value!;
+  final prefs = ref.read(localPreferencesProvider);
   final firstShoppingListId =
       prefs.getString(LocalPreferenceKey.firstShoppingListId);
 
