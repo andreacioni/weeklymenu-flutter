@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'package:weekly_menu_app/globals/errors_handlers.dart';
-import 'package:weekly_menu_app/homepage.dart';
-import 'package:weekly_menu_app/providers/local_preferences.dart';
-import 'package:weekly_menu_app/services/auth_service.dart';
-
+import '../../../globals/errors_handlers.dart';
+import '../../../homepage.dart';
+import '../../../services/auth_service.dart';
 import '../../../models/auth_token.dart';
 import '../../../providers/authentication.dart';
 import '../../../providers/bootstrap.dart';
@@ -41,9 +39,11 @@ class _SignInFormState extends ConsumerState<SignInForm> {
     Future<void> storeUserInformation(
         String email, String password, AuthToken token) async {
       await localPreferences.setString(LocalPreferenceKey.email, email);
-      await localPreferences.setString(LocalPreferenceKey.password, password);
+      await localPreferences.setString(LocalPreferenceKey.password, password,
+          secret: true);
 
-      await localPreferences.setString(LocalPreferenceKey.token, token.jwt);
+      await localPreferences.setString(LocalPreferenceKey.token, token.jwt,
+          secret: true);
     }
 
     void doSignIn(AuthService authService) {

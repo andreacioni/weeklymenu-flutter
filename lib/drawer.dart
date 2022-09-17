@@ -2,9 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/main.data.dart';
-import 'package:weekly_menu_app/providers/local_preferences.dart';
 
+import 'main.data.dart';
 import 'providers/authentication.dart';
 import 'providers/bootstrap.dart';
 import 'widgets/tags_screen/screen.dart';

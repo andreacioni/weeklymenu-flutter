@@ -6,7 +6,6 @@ import 'package:weekly_menu_app/services/local_preferences.dart';
 
 import '../globals/constants.dart';
 import '../main.data.dart';
-import 'local_preferences.dart';
 
 final _localPreferencesFutureProvider = FutureProvider<LocalPreferences>(
     (_) async => await LocalPreferences.getInstance());

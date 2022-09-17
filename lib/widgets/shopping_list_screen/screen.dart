@@ -4,10 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:collection/collection.dart';
-import 'package:weekly_menu_app/providers/bootstrap.dart';
-import 'package:weekly_menu_app/providers/local_preferences.dart';
-import 'package:weekly_menu_app/services/local_preferences.dart';
 
+import '../../providers/bootstrap.dart';
+import '../../services/local_preferences.dart';
 import '../../globals/constants.dart';
 import 'shopping_list_app_bar.dart';
 import '../../providers/user_preferences.dart';
@@ -25,7 +24,7 @@ final selectedShoppingListItemsProvider =
 final firstShoppingListIdProvider = FutureProvider<String>((ref) async {
   final prefs = ref.read(localPreferencesProvider);
   final firstShoppingListId =
-      prefs.getString(LocalPreferenceKey.firstShoppingListId);
+      await prefs.getString(LocalPreferenceKey.firstShoppingListId);
 
   if (firstShoppingListId == null) {
     final shoppingLists = await ref.shoppingLists.findAll();
