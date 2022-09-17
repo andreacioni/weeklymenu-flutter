@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/services/local_preferences.dart';
 
+import '../globals/constants.dart';
 import '../main.data.dart';
 import 'local_preferences.dart';
 
@@ -24,4 +26,13 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
 
   log("loading local preferences");
   await ref.read(_localPreferencesFutureProvider.future);
+
+  log("set logging level");
+  for (final repositoryProvider in repositoryProviders.values) {
+    ref.read(repositoryProvider).logLevel = debug ? 2 : 0;
+  }
+
+  if (debug) {
+    CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
+  }
 });

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const debug = true;
+
 final pageViewLimitDays = 100 * 2;
 
 const todayColor = Color.fromRGBO(183, 223, 189, 1);

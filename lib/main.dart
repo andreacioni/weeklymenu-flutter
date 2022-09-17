@@ -12,7 +12,6 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(clear: false),

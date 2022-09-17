@@ -67,7 +67,7 @@ mixin BaseAdapter<T extends DataModel<T>> on RemoteAdapter<T> {
   FutureOr<Map<String, String>> get defaultHeaders async {
     final token = await read(tokenServiceProvider).token;
 
-    if (token == null) {
+    if (token == null || !token.isValid) {
       throw StateError("can't get a valid token");
     }
 

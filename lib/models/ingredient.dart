@@ -1,6 +1,7 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:objectid/objectid.dart';
 
 import 'base_model.dart';
 
@@ -13,12 +14,12 @@ class Ingredient extends BaseModel<Ingredient> {
   final String name;
 
   Ingredient(
-      {required String id,
+      {String? id,
       required this.name,
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            id: id ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 

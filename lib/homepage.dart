@@ -29,13 +29,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.menus.logLevel = 2;
-    ref.recipes.logLevel = 2;
-    ref.ingredients.logLevel = 2;
-    ref.shoppingLists.logLevel = 2;
-    ref.shoppingListItems.logLevel = 2;
-    ref.userPreferences.logLevel = 2;
-
     return Scaffold(
       bottomNavigationBar: _buildBottomAppBar(context),
       body: PageStorage(

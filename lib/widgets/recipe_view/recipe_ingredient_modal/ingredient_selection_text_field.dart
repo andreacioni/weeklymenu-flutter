@@ -28,7 +28,6 @@ class IngredientSelectionTextField extends StatefulWidget {
 
 class _IngredientSelectionTextFieldState
     extends State<IngredientSelectionTextField> {
-  static const TEMP_ID = 'f4k3id';
   final TextEditingController _typeAheadController =
       new TextEditingController();
 
@@ -55,8 +54,9 @@ class _IngredientSelectionTextFieldState
         },
         itemBuilder: (context, ingredient) {
           return ListTile(
-            trailing:
-                Icon(ingredient.id == TEMP_ID ? Icons.add : Icons.call_made),
+            trailing: Icon(ingredient.name.startsWith("Add ")
+                ? Icons.add
+                : Icons.call_made),
             title: Text(ingredient.name),
           );
         },
@@ -66,9 +66,8 @@ class _IngredientSelectionTextFieldState
           );
         },
         onSuggestionSelected: (selectedIngredient) {
-          if (selectedIngredient.id == TEMP_ID) {
+          if (selectedIngredient.id.startsWith("Add ")) {
             selectedIngredient = selectedIngredient.copyWith(
-                id: ObjectId().hexString,
                 name: RegExp(r'^Add "(.*)" \.\.\.')
                     .firstMatch(selectedIngredient.name)!
                     .group(1)!);
@@ -99,8 +98,8 @@ class _IngredientSelectionTextFieldState
         availableIngredients.indexWhere((r) =>
                 r.name.trim().toLowerCase() == pattern.trim().toLowerCase()) ==
             -1) {
-      suggestions.add(Ingredient(
-          id: TEMP_ID, name: 'Add "${_typeAheadController.text}" ...'));
+      suggestions
+          .add(Ingredient(name: 'Add "${_typeAheadController.text}" ...'));
     }
 
     return suggestions;

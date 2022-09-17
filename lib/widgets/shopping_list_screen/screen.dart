@@ -204,8 +204,7 @@ class _ShoppingListListView extends HookConsumerWidget {
             ingredient, checked, previousItem);
       }
 
-      ingredient =
-          Ingredient(id: ObjectId().hexString, name: ingredientName.trim());
+      ingredient = Ingredient(name: ingredientName.trim());
 
       try {
         await ingredient.save();

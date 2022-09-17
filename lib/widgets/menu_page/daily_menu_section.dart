@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:auto_size_text_field/auto_size_text_field.dart';
@@ -44,7 +45,8 @@ class DailyMenuSection extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('build day: ${dailyMenuNotifier.dailyMenu.day}');
+    log('build day: ${dailyMenuNotifier.dailyMenu.day}');
+
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 
     final primaryColor = dailyMenuNotifier.dailyMenu.isPast
@@ -84,8 +86,7 @@ class DailyMenuSection extends HookConsumerWidget {
 
     Future<void> addNewRecipeToMeal(Meal meal, String recipeName) async {
       if (recipeName.trim().isNotEmpty) {
-        Recipe recipe = await ref.recipes.save(
-            Recipe(id: ObjectId().hexString, name: recipeName.trim()),
+        Recipe recipe = await ref.recipes.save(Recipe(name: recipeName.trim()),
             params: {UPDATE_PARAM: false});
         await addRecipeToMeal(meal, recipe);
       } else {
@@ -401,11 +402,8 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
 
           final destinationMenu = dailyMenu.getMenuByMeal(meal);
           if (destinationMenu == null) {
-            final menu = Menu(
-                id: ObjectId().hexString,
-                date: dailyMenu.day,
-                meal: meal,
-                recipes: recipeIds);
+            final menu =
+                Menu(date: dailyMenu.day, meal: meal, recipes: recipeIds);
             dailyMenuNotifier.addMenu(menu);
           } else {
             final newMenu = destinationMenu
@@ -532,8 +530,7 @@ class MenuRecipeCard extends HookConsumerWidget {
 
         if (recipe == null) {
           if (recipeName.trim().isNotEmpty) {
-            recipe = await ref.recipes.save(
-                Recipe(id: ObjectId().hexString, name: recipeName.trim()),
+            recipe = await ref.recipes.save(Recipe(name: recipeName.trim()),
                 params: {UPDATE_PARAM: false});
           } else {
             print("can't create a recipe with empty name");
