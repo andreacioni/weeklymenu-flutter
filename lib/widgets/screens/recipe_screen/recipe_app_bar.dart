@@ -1,7 +1,9 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/recipe.dart';
+import 'screen.dart';
 
 class RecipeAppBar extends StatelessWidget {
   final bool editModeEnabled;
@@ -38,7 +40,7 @@ class RecipeAppBar extends StatelessWidget {
                   color: Colors.black.withOpacity(0.4),
                 ),
                 padding: EdgeInsets.all(3),
-                child: Text(
+                child: AutoSizeText(
                   _recipe.instance.name,
                   maxLines: 1,
                   style: TextStyle(color: Colors.white),
@@ -93,6 +95,7 @@ class RecipeAppBar extends StatelessWidget {
               icon: Icon(Icons.save),
               onPressed: () => onRecipeEditEnabled(!editModeEnabled)),
       ],
+      bottom: const TabBar(tabs: RECIPE_TABS),
     );
   }
 

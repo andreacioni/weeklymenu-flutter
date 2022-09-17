@@ -9,18 +9,17 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../globals/constants.dart';
 import '../../../globals/utils.dart';
 import '../../../main.data.dart';
-import '../../flutter_data_state_builder.dart';
+import '../../shared/flutter_data_state_builder.dart';
 import '../../../models/enums/meal.dart';
 import '../../../models/recipe.dart';
 import '../../../globals/constants.dart' as constants;
 import '../../../models/menu.dart';
-import '../recipe_view/screen.dart';
+import '../recipe_Screen/screen.dart';
 import 'screen.dart';
 
 final MENU_CARD_ROUNDED_RECT_BORDER = BorderRadius.circular(10);

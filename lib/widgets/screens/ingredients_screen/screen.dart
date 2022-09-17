@@ -4,7 +4,7 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../main.data.dart';
-import '../../flutter_data_state_builder.dart';
+import '../../shared/flutter_data_state_builder.dart';
 import '../../../models/ingredient.dart';
 
 class IngredientsScreen extends HookConsumerWidget {

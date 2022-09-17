@@ -4,9 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../globals/constants.dart';
 import '../../../globals/hooks.dart';
-import '../../../globals/memento.dart';
 import '../../../main.data.dart';
-import '../../flutter_data_state_builder.dart';
 import '../../../globals/errors_handlers.dart';
 import '../../shared/editable_text_field.dart';
 import 'add_ingredient_button.dart';
@@ -16,13 +14,19 @@ import '../../../models/recipe.dart';
 import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
 
-class RecipeView extends HookConsumerWidget {
+const RECIPE_TABS = [
+  Tab(icon: Icon(Icons.directions_car)),
+  Tab(icon: Icon(Icons.directions_transit)),
+  Tab(icon: Icon(Icons.directions_bike)),
+];
+
+class RecipeScreen extends HookConsumerWidget {
   final Recipe originalRecipeInstance;
   final Object heroTag;
 
   final RecipeOriginator originator;
 
-  RecipeView(this.originalRecipeInstance, {this.heroTag = const Object()})
+  RecipeScreen(this.originalRecipeInstance, {this.heroTag = const Object()})
       : originator = RecipeOriginator(originalRecipeInstance);
 
   final _formKey = GlobalKey<FormState>();
@@ -242,7 +246,8 @@ class RecipeView extends HookConsumerWidget {
         _handleBackButton(context);
         return true;
       },
-      child: buildForm(),
+      child:
+          DefaultTabController(length: RECIPE_TABS.length, child: buildForm()),
     ));
   }
 }

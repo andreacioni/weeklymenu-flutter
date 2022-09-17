@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'main.data.dart';
-import 'providers/authentication.dart';
-import 'providers/bootstrap.dart';
-import 'widgets/screens/tags_screen/screen.dart';
-import './widgets/screens/ingredients_screen/screen.dart';
-import 'widgets/screens/login_screen/screen.dart';
+import '../main.data.dart';
+import '../providers/authentication.dart';
+import '../providers/bootstrap.dart';
+import 'screens/tags_screen/screen.dart';
+import 'screens/ingredients_screen/screen.dart';
+import 'screens/login_screen/screen.dart';
 
 class AppDrawer extends HookConsumerWidget {
   @override

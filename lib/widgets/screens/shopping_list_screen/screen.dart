@@ -10,7 +10,7 @@ import '../../../services/local_preferences.dart';
 import '../../../globals/constants.dart';
 import 'shopping_list_app_bar.dart';
 import '../../../providers/user_preferences.dart';
-import '../../flutter_data_state_builder.dart';
+import '../../shared/flutter_data_state_builder.dart';
 import '../../../models/ingredient.dart';
 import './shopping_list_tile.dart';
 import '../../../globals/errors_handlers.dart';

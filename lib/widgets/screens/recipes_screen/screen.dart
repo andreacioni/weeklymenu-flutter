@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 
 import '../../../globals/constants.dart';
 import '../../../main.data.dart';
-import '../../flutter_data_state_builder.dart';
+import '../../shared/flutter_data_state_builder.dart';
 import '../../../globals/errors_handlers.dart';
-import '../recipe_view/screen.dart';
+import '../recipe_screen/screen.dart';
 import '../../../globals/utils.dart';
 import '../../../models/recipe.dart';
 import './recipe_card.dart';
 import '../../../presentation/custom_icons_icons.dart';
 
-class RecipesScreen extends StatefulWidget {
+class RecipesScreen extends StatefulHookConsumerWidget {
   const RecipesScreen({Key? key}) : super(key: key);
 
   @override
   _RecipesScreenState createState() => _RecipesScreenState();
 }
 
-class _RecipesScreenState extends State<RecipesScreen> {
+class _RecipesScreenState extends ConsumerState<RecipesScreen> {
   late bool _searchModeEnabled;
   late String _searchText;
 
@@ -39,20 +40,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, _) {
-      final repository = ref.recipes;
-      return Scaffold(
-        appBar: _editingModeEnabled == false
-            ? _buildAppBar(context)
-            : _buildEditingAppBar(ref),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showRecipeNameDialog(ref),
-          child: Icon(Icons.add),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        body: buildDataStateBuilder(repository),
-      );
-    });
+    final repository = ref.recipes;
+    return Scaffold(
+      appBar: _editingModeEnabled == false
+          ? _buildAppBar(context)
+          : _buildEditingAppBar(ref),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showRecipeNameDialog(ref),
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      body: buildDataStateBuilder(repository),
+    );
   }
 
   FlutterDataStateBuilder<List<Recipe>> buildDataStateBuilder(
@@ -156,7 +155,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   void _openRecipeView(Recipe recipe, Object heroTag) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecipeView(recipe, heroTag: heroTag)),
+      MaterialPageRoute(builder: (_) => RecipeScreen(recipe, heroTag: heroTag)),
     );
   }
 
@@ -344,7 +343,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeView(newRecipe),
+        builder: (_) => RecipeScreen(newRecipe),
       ),
     );
   }

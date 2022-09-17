@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../main.data.dart';
-import '../../../flutter_data_state_builder.dart';
+import '../../../shared/flutter_data_state_builder.dart';
 import '../recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import '../../../../models/ingredient.dart';
 import '../../../../models/recipe.dart';

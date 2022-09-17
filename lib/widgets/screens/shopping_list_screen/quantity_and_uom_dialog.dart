@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../models/shopping_list.dart';
-import '../../base_dialog.dart';
+import '../../shared/base_dialog.dart';
 import '../../shared/quantity_and_uom_input_fields.dart';
 
 class QuantityAndUomDialog extends StatefulWidget {

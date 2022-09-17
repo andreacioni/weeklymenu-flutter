@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart'
     hide Provider, DataStateNotifier;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/widgets/flutter_data_state_builder.dart';
+import 'package:weekly_menu_app/widgets/shared/flutter_data_state_builder.dart';
 
 import '../../../models/recipe.dart';
 

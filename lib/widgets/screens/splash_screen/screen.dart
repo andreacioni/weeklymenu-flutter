@@ -5,7 +5,7 @@ import 'package:weekly_menu_app/providers/authentication.dart';
 import '../../../models/auth_token.dart';
 import '../../../providers/bootstrap.dart';
 import '../../screens/login_screen/screen.dart';
-import '../../../homepage.dart';
+import '../../homepage.dart';
 
 final _authTokenProvider = FutureProvider.autoDispose<AuthToken?>((ref) {
   final tokenService = ref.read(tokenServiceProvider);

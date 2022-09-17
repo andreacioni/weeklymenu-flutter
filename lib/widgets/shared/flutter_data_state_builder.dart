@@ -4,7 +4,7 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/models/base_model.dart';
 
-import 'screens/login_screen/screen.dart';
+import '../screens/login_screen/screen.dart';
 
 class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
   final DataState<T?> state;
