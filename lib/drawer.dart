@@ -6,9 +6,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'main.data.dart';
 import 'providers/authentication.dart';
 import 'providers/bootstrap.dart';
-import 'widgets/tags_screen/screen.dart';
-import './widgets/ingredients_screen/screen.dart';
-import 'widgets/login_screen/screen.dart';
+import 'widgets/screens/tags_screen/screen.dart';
+import './widgets/screens/ingredients_screen/screen.dart';
+import 'widgets/screens/login_screen/screen.dart';
 
 class AppDrawer extends HookConsumerWidget {
   @override

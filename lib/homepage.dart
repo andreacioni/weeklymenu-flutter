@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import './drawer.dart';
-import './widgets/menu_page/screen.dart';
-import './widgets/recipes_screen/screen.dart';
-import './widgets/shopping_list_screen/screen.dart';
 import 'main.data.dart';
+import 'widgets/screens/menu_page/screen.dart';
+import 'widgets/screens/recipes_screen/screen.dart';
+import 'widgets/screens/shopping_list_screen/screen.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage();

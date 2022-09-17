@@ -4,8 +4,8 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'widgets/splash_screen/screen.dart';
 import 'main.data.dart';
+import 'widgets/screens/splash_screen/screen.dart';
 
 void main() => runApp(App());
 
