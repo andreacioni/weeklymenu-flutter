@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -15,9 +16,19 @@ import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
 
 const RECIPE_TABS = [
-  Tab(icon: Icon(Icons.directions_car)),
-  Tab(icon: Icon(Icons.directions_transit)),
-  Tab(icon: Icon(Icons.directions_bike)),
+  Tab(
+      //child: Text('Info'),
+      icon: Icon(
+    Icons.info_outline,
+  )),
+  Tab(
+    //text: 'Ingredients',
+    icon: Icon(Icons.list),
+  ),
+  Tab(
+    //text: 'More',
+    icon: Icon(Icons.more_horiz_rounded),
+  ),
 ];
 
 class RecipeScreen extends HookConsumerWidget {
@@ -89,6 +100,40 @@ class RecipeScreen extends HookConsumerWidget {
                   _handleEditToggle(editEnabled),
               onBackPressed: () => _handleBackButton(context),
             ),
+            SliverAppBar(
+              pinned: true,
+              automaticallyImplyLeading: false,
+              stretch: false,
+              //floating: true,
+              expandedHeight: originator.instance.imgUrl != null ? 200.0 : null,
+              flexibleSpace: FlexibleSpaceBar(
+                //centerTitle: false,
+                collapseMode: CollapseMode.pin,
+                title: originator.instance.imgUrl != null
+                    ? Hero(
+                        tag: heroTag,
+                        child: Image(
+                          image: CachedNetworkImageProvider(
+                              originator.instance.imgUrl!),
+                          fit: BoxFit.fitWidth,
+                        ),
+                      )
+                    : null,
+              ),
+              bottom: TabBar(
+                labelColor: Colors.red,
+                unselectedLabelColor: Colors.redAccent,
+                tabs: RECIPE_TABS,
+              ),
+            ),
+            /* SliverPersistentHeader(
+              delegate: _SliverAppBarDelegate(
+                TabBar(
+                  tabs: RECIPE_TABS,
+                ),
+              ),
+              pinned: true,
+            ), */
             SliverList(
               delegate: SliverChildListDelegate([
                 SizedBox(
@@ -249,5 +294,34 @@ class RecipeScreen extends HookConsumerWidget {
       child:
           DefaultTabController(length: RECIPE_TABS.length, child: buildForm()),
     ));
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate(this._tabBar);
+
+  final TabBar _tabBar;
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height;
+  @override
+  double get maxExtent => _tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final primaryColor = Theme.of(context).primaryColor;
+    return Material(
+      elevation: 3,
+      child: Container(
+        color: primaryColor,
+        child: _tabBar,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
   }
 }

@@ -88,7 +88,8 @@ class App extends StatelessWidget {
               color: Colors.black,
               opacity: 1,
               size: 23,
-            )),
+            ),
+            indicatorColor: Colors.amber),
       ),
     );
   }

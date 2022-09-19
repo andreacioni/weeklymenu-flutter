@@ -473,7 +473,7 @@ class MenuRecipeCard extends HookConsumerWidget {
     void openRecipeView(Recipe recipe) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => RecipeView(recipe),
+          builder: (_) => RecipeScreen(recipe),
         ),
       );
     }

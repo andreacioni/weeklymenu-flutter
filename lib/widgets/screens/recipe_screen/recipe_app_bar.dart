@@ -23,50 +23,50 @@ class RecipeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      forceElevated: true,
-      expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
+      //expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
+      elevation: 0,
       pinned: true,
-      stretch: true,
-      flexibleSpace: FlexibleSpaceBar(
+      floating: false,
+      title: Row(
+        children: <Widget>[
+          Flexible(
+            fit: FlexFit.loose,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.black.withOpacity(0.4),
+              ),
+              padding: EdgeInsets.all(3),
+              child: AutoSizeText(
+                _recipe.instance.name,
+                maxLines: 1,
+                style: TextStyle(color: Colors.white),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: SizedBox(
+              width: 10,
+            ),
+          ),
+          if (editModeEnabled)
+            Flexible(
+              fit: FlexFit.loose,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                child: Icon(
+                  Icons.edit,
+                ),
+                onTap: () => _openEditRecipeNameModal(context),
+              ),
+            )
+        ],
+      ),
+      /* flexibleSpace: FlexibleSpaceBar(
         centerTitle: false,
-        title: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Flexible(
-              fit: FlexFit.loose,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.black.withOpacity(0.4),
-                ),
-                padding: EdgeInsets.all(3),
-                child: AutoSizeText(
-                  _recipe.instance.name,
-                  maxLines: 1,
-                  style: TextStyle(color: Colors.white),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            Flexible(
-              fit: FlexFit.loose,
-              child: SizedBox(
-                width: 10,
-              ),
-            ),
-            if (editModeEnabled)
-              Flexible(
-                fit: FlexFit.loose,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Icon(
-                    Icons.edit,
-                  ),
-                  onTap: () => _openEditRecipeNameModal(context),
-                ),
-              )
-          ],
-        ),
+        title: ,
         background: _recipe.instance.imgUrl != null
             ? Hero(
                 tag: heroTag,
@@ -76,7 +76,7 @@ class RecipeAppBar extends StatelessWidget {
                 ),
               )
             : null,
-      ),
+      ), */
       leading:
           IconButton(icon: Icon(Icons.arrow_back), onPressed: onBackPressed),
       actions: <Widget>[
@@ -95,7 +95,6 @@ class RecipeAppBar extends StatelessWidget {
               icon: Icon(Icons.save),
               onPressed: () => onRecipeEditEnabled(!editModeEnabled)),
       ],
-      bottom: const TabBar(tabs: RECIPE_TABS),
     );
   }
 
