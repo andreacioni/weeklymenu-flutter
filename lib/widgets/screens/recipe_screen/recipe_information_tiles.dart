@@ -7,10 +7,8 @@ import '../../shared/number_text_field.dart';
 class RecipeInformationTiles extends StatelessWidget {
   final RecipeOriginator originator;
   final bool editEnabled;
-  final GlobalKey formKey;
 
-  RecipeInformationTiles(this.originator,
-      {this.editEnabled = false, required this.formKey});
+  RecipeInformationTiles(this.originator, {this.editEnabled = false});
 
   @override
   Widget build(BuildContext context) {

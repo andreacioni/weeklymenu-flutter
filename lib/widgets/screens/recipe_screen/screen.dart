@@ -1,8 +1,11 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import 'tabs/general_info_tab.dart';
+import 'tabs/ingredients_tab.dart';
 import '../../../globals/constants.dart';
 import '../../../globals/hooks.dart';
 import '../../../main.data.dart';
@@ -14,22 +17,7 @@ import 'recipe_information_tiles.dart';
 import '../../../models/recipe.dart';
 import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
-
-const RECIPE_TABS = [
-  Tab(
-      //child: Text('Info'),
-      icon: Icon(
-    Icons.info_outline,
-  )),
-  Tab(
-    //text: 'Ingredients',
-    icon: Icon(Icons.list),
-  ),
-  Tab(
-    //text: 'More',
-    icon: Icon(Icons.more_horiz_rounded),
-  ),
-];
+import 'tabs/more_info_tab.dart';
 
 class RecipeScreen extends HookConsumerWidget {
   final Recipe originalRecipeInstance;
@@ -47,6 +35,73 @@ class RecipeScreen extends HookConsumerWidget {
     final editEnabledNotifier = useState(false);
     final recipe = useStateNotifier(originator);
     final editEnabled = editEnabledNotifier.value;
+
+    final autoSizeGroup = AutoSizeGroup();
+
+    final tabs = [
+      Tab(
+        icon: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const Icon(
+              Icons.info_outline,
+            ),
+            const SizedBox(width: 5),
+            AutoSizeText(
+              'Info',
+              group: autoSizeGroup,
+              maxLines: 1,
+              minFontSize: 1,
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
+      ),
+      Tab(
+        icon: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const Icon(
+              Icons.list,
+            ),
+            const SizedBox(width: 5),
+            Flexible(
+              child: AutoSizeText(
+                'Ingredients',
+                minFontSize: 1,
+                maxLines: 1,
+                group: autoSizeGroup,
+                textAlign: TextAlign.center,
+              ),
+            )
+          ],
+        ),
+      ),
+      Tab(
+        icon: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const Icon(
+              Icons.more_horiz_rounded,
+            ),
+            const SizedBox(width: 5),
+            AutoSizeText(
+              'More',
+              group: autoSizeGroup,
+              minFontSize: 1,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
+      ),
+    ];
 
     void _handleEditToggle(bool newValue) async {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
@@ -87,218 +142,78 @@ class RecipeScreen extends HookConsumerWidget {
       Navigator.of(context).pop();
     }
 
-    Form buildForm() {
-      return Form(
-        key: _formKey,
-        child: CustomScrollView(
-          slivers: <Widget>[
-            RecipeAppBar(
-              originator,
-              heroTag: heroTag,
-              editModeEnabled: editEnabled,
-              onRecipeEditEnabled: (editEnabled) =>
-                  _handleEditToggle(editEnabled),
-              onBackPressed: () => _handleBackButton(context),
-            ),
-            SliverAppBar(
-              pinned: true,
-              automaticallyImplyLeading: false,
-              stretch: false,
-              //floating: true,
-              expandedHeight: originator.instance.imgUrl != null ? 200.0 : null,
-              flexibleSpace: FlexibleSpaceBar(
-                //centerTitle: false,
-                collapseMode: CollapseMode.pin,
-                title: originator.instance.imgUrl != null
-                    ? Hero(
-                        tag: heroTag,
-                        child: Image(
-                          image: CachedNetworkImageProvider(
-                              originator.instance.imgUrl!),
-                          fit: BoxFit.fitWidth,
-                        ),
-                      )
-                    : null,
-              ),
-              bottom: TabBar(
-                labelColor: Colors.red,
-                unselectedLabelColor: Colors.redAccent,
-                tabs: RECIPE_TABS,
-              ),
-            ),
-            /* SliverPersistentHeader(
-              delegate: _SliverAppBarDelegate(
-                TabBar(
-                  tabs: RECIPE_TABS,
-                ),
-              ),
-              pinned: true,
-            ), */
-            SliverList(
-              delegate: SliverChildListDelegate([
-                SizedBox(
-                  height: 5,
-                ),
-                EditableTextField(
-                  recipe.description,
-                  editEnabled: editEnabled,
-                  hintText: "Description",
-                  onSaved: (newDescription) => originator.update(originator
-                      .instance
-                      .copyWith(description: newDescription)),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                    "Information",
-                    style: TextStyle(
-                      fontFamily: 'Rubik',
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: RecipeInformationTiles(
+    return DefaultTabController(
+      length: tabs.length,
+      child: WillPopScope(
+        onWillPop: () async {
+          _handleBackButton(context);
+          return true;
+        },
+        child: Scaffold(
+          body: Form(
+              key: _formKey,
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    RecipeAppBar(
                       originator,
-                      editEnabled: editEnabled,
-                      formKey: _formKey,
+                      heroTag: heroTag,
+                      editModeEnabled: editEnabled,
+                      onRecipeEditEnabled: (editEnabled) =>
+                          _handleEditToggle(editEnabled),
+                      onBackPressed: () => _handleBackButton(context),
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                    "Ingredients",
-                    style: TextStyle(
-                      fontFamily: 'Rubik',
-                      fontSize: 18,
+                    if (recipe.imgUrl != null)
+                      SliverPersistentHeader(
+                        delegate: _SliverHeroDelegate(
+                          Hero(
+                              tag: heroTag,
+                              child: Image(
+                                image: CachedNetworkImageProvider(
+                                    originator.instance.imgUrl!),
+                                fit: BoxFit.fitWidth,
+                              )),
+                        ),
+                      ),
+                    SliverPersistentHeader(
+                      delegate: _SliverTabBarDelegate(
+                        TabBar(tabs: tabs),
+                      ),
+                      pinned: true,
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                if (recipe.ingredients.isEmpty && !editEnabled)
-                  EditableTextField(
-                    "",
-                    editEnabled: false,
-                    hintText: "No ingredients",
-                  ),
-                if (recipe.ingredients.isNotEmpty)
-                  ...recipe.ingredients
-                      .map(
-                        (recipeIng) => DismissibleRecipeIngredientTile(
-                            originator, recipeIng, editEnabled),
-                      )
-                      .toList(),
-                if (editEnabled)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AddIngredientButton(originator),
-                  ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                    "Prepation",
-                    style: TextStyle(
-                      fontFamily: 'Rubik',
-                      fontSize: 18,
+                  ];
+                },
+                body: TabBarView(
+                  children: [
+                    SingleChildScrollView(
+                      child: RecipeGeneralInfoTab(
+                        originator: originator,
+                        editEnabled: editEnabled,
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                EditableTextField(
-                  recipe.preparation,
-                  editEnabled: editEnabled,
-                  hintText: "Add preparation steps...",
-                  maxLines: 1000,
-                  onSaved: (text) => originator
-                      .update(originator.instance.copyWith(preparation: text)),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                    "Notes",
-                    style: TextStyle(
-                      fontFamily: 'Rubik',
-                      fontSize: 18,
+                    SingleChildScrollView(
+                      child: RecipeIngredientsTab(
+                        originator: originator,
+                        editEnabled: editEnabled,
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                EditableTextField(
-                  recipe.note,
-                  editEnabled: editEnabled,
-                  hintText: "Add note...",
-                  maxLines: 1000,
-                  onSaved: (text) => originator
-                      .update(originator.instance.copyWith(note: text)),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                    "Tags",
-                    style: TextStyle(
-                      fontFamily: 'Rubik',
-                      fontSize: 18,
+                    SingleChildScrollView(
+                      child: RecipeMoreInfoTab(
+                        originator: originator,
+                        editEnabled: editEnabled,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                SizedBox(
-                  height: 5,
-                ),
-                RecipeTags(
-                  recipe: originator,
-                  editEnabled: editEnabled,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-              ]),
-            ),
-          ],
+              )),
         ),
-      );
-    }
-
-    return Scaffold(
-        body: WillPopScope(
-      onWillPop: () async {
-        _handleBackButton(context);
-        return true;
-      },
-      child:
-          DefaultTabController(length: RECIPE_TABS.length, child: buildForm()),
-    ));
+      ),
+    );
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate(this._tabBar);
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverTabBarDelegate(this._tabBar);
 
   final TabBar _tabBar;
 
@@ -310,18 +225,40 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final primaryColor = Theme.of(context).primaryColor;
     return Material(
       elevation: 3,
       child: Container(
-        color: primaryColor,
+        color: Colors.white,
         child: _tabBar,
       ),
     );
   }
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return false;
+  }
+}
+
+class _SliverHeroDelegate extends SliverPersistentHeaderDelegate {
+  final Hero _hero;
+
+  _SliverHeroDelegate(this._hero);
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return _hero;
+  }
+
+  @override
+  double get maxExtent => 250;
+
+  @override
+  double get minExtent => 0;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
     return false;
   }
 }

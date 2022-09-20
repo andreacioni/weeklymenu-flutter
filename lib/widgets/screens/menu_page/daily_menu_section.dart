@@ -469,11 +469,15 @@ class MenuRecipeCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
+    final heroTag = recipe.id;
 
     void openRecipeView(Recipe recipe) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => RecipeScreen(recipe),
+          builder: (_) => RecipeScreen(
+            recipe,
+            heroTag: heroTag,
+          ),
         ),
       );
     }
@@ -558,13 +562,16 @@ class MenuRecipeCard extends HookConsumerWidget {
                     borderRadius: MENU_CARD_ROUNDED_RECT_BORDER.copyWith(
                         topRight: Radius.circular(5),
                         bottomRight: Radius.circular(5))),
-                child: Image(
-                    height: 50,
-                    width: 90,
-                    image: CachedNetworkImageProvider(recipe.imgUrl!,
-                        maxWidth: 236, maxHeight: 131),
-                    errorBuilder: (_, __, ___) => Container(),
-                    fit: BoxFit.cover),
+                child: Hero(
+                  tag: recipe.id,
+                  child: Image(
+                      height: 50,
+                      width: 90,
+                      image: CachedNetworkImageProvider(recipe.imgUrl!,
+                          maxWidth: 236, maxHeight: 131),
+                      errorBuilder: (_, __, ___) => Container(),
+                      fit: BoxFit.cover),
+                ),
               ),
             Expanded(
               child: Container(

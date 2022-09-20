@@ -24,9 +24,11 @@ class RecipeAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverAppBar(
       //expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
-      elevation: 0,
       pinned: true,
       floating: false,
+      forceElevated: false,
+      scrolledUnderElevation: 2,
+
       title: Row(
         children: <Widget>[
           Flexible(
@@ -64,19 +66,7 @@ class RecipeAppBar extends StatelessWidget {
             )
         ],
       ),
-      /* flexibleSpace: FlexibleSpaceBar(
-        centerTitle: false,
-        title: ,
-        background: _recipe.instance.imgUrl != null
-            ? Hero(
-                tag: heroTag,
-                child: Image(
-                  image: CachedNetworkImageProvider(_recipe.instance.imgUrl!),
-                  fit: BoxFit.fitWidth,
-                ),
-              )
-            : null,
-      ), */
+
       leading:
           IconButton(icon: Icon(Icons.arrow_back), onPressed: onBackPressed),
       actions: <Widget>[
