@@ -4,7 +4,6 @@ import 'package:flutter/src/widgets/framework.dart';
 
 import '../../../../models/recipe.dart';
 import '../../../shared/editable_text_field.dart';
-import '../add_ingredient_button.dart';
 import '../recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 
 class RecipeIngredientsTab extends StatelessWidget {
@@ -38,11 +37,6 @@ class RecipeIngredientsTab extends StatelessWidget {
                     originator, recipeIng, editEnabled),
               )
               .toList(),
-        if (editEnabled)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AddIngredientButton(originator),
-          ),
       ],
     );
   }

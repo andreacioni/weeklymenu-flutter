@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import '../recipe_Screen/recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
 import '../../../globals/constants.dart';
@@ -11,7 +14,6 @@ import '../../../globals/hooks.dart';
 import '../../../main.data.dart';
 import '../../../globals/errors_handlers.dart';
 import '../../shared/editable_text_field.dart';
-import 'add_ingredient_button.dart';
 import 'recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import 'recipe_information_tiles.dart';
 import '../../../models/recipe.dart';
@@ -103,6 +105,11 @@ class RecipeScreen extends HookConsumerWidget {
       ),
     ];
 
+    final tabController = useTabController(
+      initialIndex: 0,
+      initialLength: tabs.length,
+    );
+
     void _handleEditToggle(bool newValue) async {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
 
@@ -142,6 +149,29 @@ class RecipeScreen extends HookConsumerWidget {
       Navigator.of(context).pop();
     }
 
+    void _openAddIngredientModal() async {
+      final newRecipeIngredient = await showDialog<RecipeIngredient>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => RecipeIngredientModal(),
+      );
+
+      final recipeIngredients = recipe.ingredients;
+
+      if (newRecipeIngredient != null) {
+        originator.update(recipe.copyWith(
+            ingredients: [...recipeIngredients, newRecipeIngredient]));
+      } else {
+        log("No recipe ingredient to add");
+      }
+    }
+
+    void handleFloatingButtonActionBasedOnTabIndex() {
+      if (tabController.index == 1) {
+        _openAddIngredientModal();
+      }
+    }
+
     return DefaultTabController(
       length: tabs.length,
       child: WillPopScope(
@@ -151,61 +181,72 @@ class RecipeScreen extends HookConsumerWidget {
         },
         child: Scaffold(
           body: Form(
-              key: _formKey,
-              child: NestedScrollView(
-                headerSliverBuilder: (context, innerBoxIsScrolled) {
-                  return [
-                    RecipeAppBar(
-                      originator,
-                      heroTag: heroTag,
-                      editModeEnabled: editEnabled,
-                      onRecipeEditEnabled: (editEnabled) =>
-                          _handleEditToggle(editEnabled),
-                      onBackPressed: () => _handleBackButton(context),
-                    ),
-                    if (recipe.imgUrl != null)
-                      SliverPersistentHeader(
-                        delegate: _SliverHeroDelegate(
-                          Hero(
-                              tag: heroTag,
-                              child: Image(
-                                image: CachedNetworkImageProvider(
-                                    originator.instance.imgUrl!),
-                                fit: BoxFit.fitWidth,
-                              )),
-                        ),
-                      ),
+            key: _formKey,
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  RecipeAppBar(
+                    originator,
+                    heroTag: heroTag,
+                    editModeEnabled: editEnabled,
+                    onRecipeEditEnabled: (editEnabled) =>
+                        _handleEditToggle(editEnabled),
+                    onBackPressed: () => _handleBackButton(context),
+                  ),
+                  if (recipe.imgUrl != null)
                     SliverPersistentHeader(
-                      delegate: _SliverTabBarDelegate(
-                        TabBar(tabs: tabs),
-                      ),
-                      pinned: true,
-                    ),
-                  ];
-                },
-                body: TabBarView(
-                  children: [
-                    SingleChildScrollView(
-                      child: RecipeGeneralInfoTab(
-                        originator: originator,
-                        editEnabled: editEnabled,
+                      delegate: _SliverHeroDelegate(
+                        Hero(
+                            tag: heroTag,
+                            child: Image(
+                              image: CachedNetworkImageProvider(
+                                  originator.instance.imgUrl!),
+                              fit: BoxFit.fitWidth,
+                            )),
                       ),
                     ),
-                    SingleChildScrollView(
-                      child: RecipeIngredientsTab(
-                        originator: originator,
-                        editEnabled: editEnabled,
+                  SliverPersistentHeader(
+                    delegate: _SliverTabBarDelegate(
+                      TabBar(
+                        tabs: tabs,
+                        controller: tabController,
                       ),
                     ),
-                    SingleChildScrollView(
-                      child: RecipeMoreInfoTab(
-                        originator: originator,
-                        editEnabled: editEnabled,
-                      ),
+                    pinned: true,
+                  ),
+                ];
+              },
+              body: TabBarView(
+                controller: tabController,
+                children: [
+                  SingleChildScrollView(
+                    child: RecipeGeneralInfoTab(
+                      originator: originator,
+                      editEnabled: editEnabled,
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                  SingleChildScrollView(
+                    child: RecipeIngredientsTab(
+                      originator: originator,
+                      editEnabled: editEnabled,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    child: RecipeMoreInfoTab(
+                      originator: originator,
+                      editEnabled: editEnabled,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          floatingActionButton: editEnabled
+              ? FloatingActionButton(
+                  child: Icon(Icons.add),
+                  onPressed: handleFloatingButtonActionBasedOnTabIndex,
+                )
+              : null,
         ),
       ),
     );
