@@ -1,27 +1,95 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/widgets/screens/recipe_screen/notifier.dart';
 
 import '../../../models/recipe.dart';
 import 'screen.dart';
 
-class RecipeAppBar extends StatelessWidget {
+class RecipeAppBar extends HookConsumerWidget {
   final bool editModeEnabled;
-  final RecipeOriginator _recipe;
-  final Object heroTag;
   final Function(bool) onRecipeEditEnabled;
   final void Function() onBackPressed;
 
-  RecipeAppBar(
-    this._recipe, {
-    this.heroTag = const Object(),
+  RecipeAppBar({
     this.editModeEnabled = false,
     required this.onRecipeEditEnabled,
     required this.onBackPressed,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+
+    final recipeName = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator!.instance.name));
+
+    final imageUrl = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator!.instance.imgUrl));
+
+    void _showUpdateImageDialog(BuildContext context) async {
+      final textController = TextEditingController();
+      if (imageUrl != null) {
+        textController.text = imageUrl!;
+      }
+
+      String? newUrl = await showDialog<String>(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: Text('Image URL'),
+                content: TextField(
+                  decoration: InputDecoration(hintText: 'URL'),
+                  controller: textController,
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('CANCEL')),
+                  FlatButton(
+                      onPressed: () =>
+                          Navigator.of(context).pop(textController.text),
+                      child: Text('OK'))
+                ],
+              ));
+
+      if (newUrl != null) {
+        notifier.updateImageUrl(newUrl);
+      }
+    }
+
+    void _openEditRecipeNameModal(BuildContext context) async {
+      final textController = TextEditingController(text: recipeName);
+      String? newRecipeName = await showDialog<String>(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: TextField(
+            controller: textController,
+            decoration: InputDecoration(hintText: 'Recipe name'),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('CANCEL'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              child: Text('CHANGE'),
+              onPressed: () {
+                var text = textController.text.trim();
+                if (text.isNotEmpty) {
+                  Navigator.of(context).pop(text);
+                }
+              },
+            )
+          ],
+        ),
+      );
+
+      if (newRecipeName != null) {
+        notifier.updateRecipeName(newRecipeName);
+      }
+    }
+
     return SliverAppBar(
       //expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
       pinned: true,
@@ -40,7 +108,7 @@ class RecipeAppBar extends StatelessWidget {
               ),
               padding: EdgeInsets.all(3),
               child: AutoSizeText(
-                _recipe.instance.name,
+                recipeName,
                 maxLines: 1,
                 style: TextStyle(color: Colors.white),
                 overflow: TextOverflow.ellipsis,
@@ -86,67 +154,5 @@ class RecipeAppBar extends StatelessWidget {
               onPressed: () => onRecipeEditEnabled(!editModeEnabled)),
       ],
     );
-  }
-
-  void _showUpdateImageDialog(BuildContext context) async {
-    final textController = TextEditingController();
-    if (_recipe.instance.imgUrl != null) {
-      textController.text = _recipe.instance.imgUrl!;
-    }
-
-    String? newUrl = await showDialog<String>(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text('Image URL'),
-              content: TextField(
-                decoration: InputDecoration(hintText: 'URL'),
-                controller: textController,
-              ),
-              actions: <Widget>[
-                FlatButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('CANCEL')),
-                FlatButton(
-                    onPressed: () =>
-                        Navigator.of(context).pop(textController.text),
-                    child: Text('OK'))
-              ],
-            ));
-
-    if (newUrl != null) {
-      _recipe.update(_recipe.instance.copyWith(imgUrl: newUrl));
-    }
-  }
-
-  void _openEditRecipeNameModal(BuildContext context) async {
-    final textController = TextEditingController(text: _recipe.instance.name);
-    String? newRecipeName = await showDialog<String>(
-      context: context,
-      builder: (_) => AlertDialog(
-        content: TextField(
-          controller: textController,
-          decoration: InputDecoration(hintText: 'Recipe name'),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('CANCEL'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FlatButton(
-            child: Text('CHANGE'),
-            onPressed: () {
-              var text = textController.text.trim();
-              if (text.isNotEmpty) {
-                Navigator.of(context).pop(text);
-              }
-            },
-          )
-        ],
-      ),
-    );
-
-    if (newRecipeName != null) {
-      _recipe.update(_recipe.instance.copyWith(name: newRecipeName));
-    }
   }
 }

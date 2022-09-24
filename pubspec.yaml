@@ -21,12 +21,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+
   google_fonts: ^3.0.1
   ffi: ^1.0.0
   dio: ^4.0.0
-  flutter_tags: 
-    git: 
+  flutter_tags:
+    git:
       url: https://github.com/pierrea/flutter_tags
       ref: 56f31f6b426a959c12b747eaf70c6f9fb3670122
   intl: ^0.17.0
@@ -54,7 +54,7 @@ dependencies:
   auto_size_text: ^3.0.0
   auto_size_text_field: ^2.1.0
   scrollable_positioned_list: ^0.3.2
-  
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -72,7 +72,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -96,7 +95,7 @@ flutter:
   # example
 
   fonts:
-    - family:  CustomIcons
+    - family: CustomIcons
       fonts:
         - asset: assets/fonts/CustomIcons.ttf
 

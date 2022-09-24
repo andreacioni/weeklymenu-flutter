@@ -35,9 +35,9 @@ class QuantityAndUnitOfMeasureInputFormField extends HookConsumerWidget {
     final unitOfMeasures = ref.watch(unitOfMeasuresProvider);
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Flexible(
           flex: 2,

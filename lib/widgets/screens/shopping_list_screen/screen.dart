@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
 import '../../../providers/bootstrap.dart';
 import '../../../services/local_preferences.dart';
@@ -437,30 +438,9 @@ class _ShoppingListListView extends HookConsumerWidget {
     }
 
     Widget _buildNoElementsPage() {
-      final _textColor = Colors.grey.shade300;
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.check_box,
-              size: 150,
-              color: _textColor,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              'Your Shopping List Is Empty',
-              style: TextStyle(
-                fontSize: 25,
-                color: _textColor,
-              ),
-            ),
-          ],
-        ),
+      return EmptyPagePlaceholder(
+        text: 'Your Shopping List Is Empty',
+        icon: Icons.check_box,
       );
     }
 

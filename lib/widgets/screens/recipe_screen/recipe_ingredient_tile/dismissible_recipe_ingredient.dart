@@ -19,26 +19,8 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
         ? Dismissible(
             key: Key(_recipeIngredient.ingredientId),
             direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 25.0),
-                    child: Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  )
-                ],
-              ),
-            ),
             child: RecipeIngredientListTile(
-              _recipe,
-              _recipeIngredient,
+              recipeIngredient: _recipeIngredient,
               editEnabled: editEnabled,
             ),
             onDismissed: (_) {
@@ -49,8 +31,8 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
                   _recipe.instance.copyWith(ingredients: recipeIngredients));
             })
         : RecipeIngredientListTile(
-            _recipe,
-            _recipeIngredient,
+            recipeIngredient: _recipeIngredient,
+            editEnabled: editEnabled,
           );
   }
 }

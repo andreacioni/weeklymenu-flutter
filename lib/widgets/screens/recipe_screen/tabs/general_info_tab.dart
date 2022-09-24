@@ -22,9 +22,6 @@ class RecipeGeneralInfoTab extends StatelessWidget {
 
     return Column(
       children: [
-        SizedBox(
-          height: 5,
-        ),
         Card(
           child: Padding(
             padding: EdgeInsets.only(left: 10, right: 10),

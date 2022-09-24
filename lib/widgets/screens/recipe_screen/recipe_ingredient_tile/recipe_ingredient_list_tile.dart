@@ -1,7 +1,13 @@
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weekly_menu_app/widgets/screens/recipe_screen/recipe_ingredient_tile/ingredient_suggestion_text_field.dart';
 
 import '../../../../main.data.dart';
 import '../../../shared/flutter_data_state_builder.dart';
@@ -10,79 +16,81 @@ import '../../../../models/ingredient.dart';
 import '../../../../models/recipe.dart';
 
 class RecipeIngredientListTile extends HookConsumerWidget {
-  final RecipeOriginator _recipe;
-  final RecipeIngredient recipeIngredient;
+  final RecipeIngredient? recipeIngredient;
   final bool editEnabled;
+  final bool autofocus;
 
-  RecipeIngredientListTile(this._recipe, this.recipeIngredient,
-      {this.editEnabled = false});
+  RecipeIngredientListTile({
+    this.recipeIngredient,
+    this.editEnabled = false,
+    this.autofocus = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ingredientsRepo = ref.ingredients;
 
-    return FlutterDataStateBuilder<Ingredient>(
-      state: ingredientsRepo.watchOne(recipeIngredient.ingredientId),
-      notFound: buildListTile(context, false, 'Ingredient'),
-      builder: (context, model) {
-        final ingredient = model;
-        return buildListTile(context, editEnabled, ingredient.name);
-      },
-    );
-  }
+    if (recipeIngredient != null) {
+      return FlutterDataStateBuilder<Ingredient>(
+        state: ingredientsRepo.watchOne(recipeIngredient!.ingredientId),
+        notFound: _RecipeIngredientListTile(),
+        builder: (context, model) {
+          final ingredient = model;
 
-  void openRecipeIngredientUpdateModal(BuildContext context) async {
-    RecipeIngredient? updatedRecipeIng = await showDialog<RecipeIngredient>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => RecipeIngredientModal(recipeIngredient),
-    );
-
-    if (updatedRecipeIng != null) {
-      final recipeIngredients = [..._recipe.instance.ingredients]
-        ..removeWhere((ri) => ri.ingredientId == recipeIngredient.ingredientId)
-        ..add(updatedRecipeIng);
-
-      _recipe.update(_recipe.instance.copyWith(ingredients: recipeIngredients));
+          return _RecipeIngredientListTile(
+            ingredient: ingredient,
+            recipeIngredient: recipeIngredient,
+            editEnabled: editEnabled,
+          );
+        },
+      );
     } else {
-      print("No update ingredient recipe returned");
+      return _RecipeIngredientListTile();
     }
   }
+}
 
-  Widget buildListTile(
-      BuildContext context, bool editEnabled, String ingredientName) {
+class _RecipeIngredientListTile extends StatelessWidget {
+  final RecipeIngredient? recipeIngredient;
+  final Ingredient? ingredient;
+  final bool editEnabled;
+
+  const _RecipeIngredientListTile(
+      {Key? key,
+      this.recipeIngredient,
+      this.ingredient,
+      this.editEnabled = false})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: Padding(
-          padding: EdgeInsets.all(8),
-          child: Image.asset("assets/icons/supermarket.png"),
+        title: IngredientSuggestionTextField(
+          ingredient: ingredient,
         ),
-        title: Text(ingredientName),
-        trailing: editEnabled
-            ? IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () => openRecipeIngredientUpdateModal(context),
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    recipeIngredient.quantity?.toStringAsFixed(0) ?? '-',
-                    style: TextStyle(
-                      fontSize: 27,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    recipeIngredient.unitOfMeasure?.toString() ?? '-',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
+        trailing: InkWell(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                recipeIngredient?.quantity?.toStringAsFixed(0) ?? '-',
+                style: TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
               ),
+              Text(
+                recipeIngredient?.unitOfMeasure ?? '-',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

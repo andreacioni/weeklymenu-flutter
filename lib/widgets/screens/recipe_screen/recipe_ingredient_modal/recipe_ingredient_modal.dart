@@ -9,7 +9,7 @@ import '../../../shared/quantity_and_uom_input_fields.dart';
 import './ingredient_selection_text_field.dart';
 import '../../../../presentation/custom_icons_icons.dart';
 
-class RecipeIngredientModal extends StatefulWidget {
+class RecipeIngredientModal extends StatefulHookConsumerWidget {
   final RecipeIngredient? recipeIngredient;
 
   RecipeIngredientModal([this.recipeIngredient]);
@@ -18,7 +18,7 @@ class RecipeIngredientModal extends StatefulWidget {
   _RecipeIngredientModalState createState() => _RecipeIngredientModalState();
 }
 
-class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
+class _RecipeIngredientModalState extends ConsumerState<RecipeIngredientModal> {
   Ingredient? _selectedIngredient;
   double? _quantity;
   String? _unitOfMeasure;
@@ -29,7 +29,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
 
   @override
   void initState() {
-    _expandMore = false;
+    this._expandMore = false;
 
     if (widget.recipeIngredient == null) {
       _updateMode = false;
@@ -45,47 +45,48 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
 
   @override
   Widget build(BuildContext context) {
-    return HookConsumer(builder: (context, ref, _) {
-      return AlertDialog(
-        content: Container(
-          margin: EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Row(
-                children: [
-                  _buildIngredientSelectionTextField(),
-                  IconButton(
-                      icon: Icon(
-                          _expandMore ? Icons.expand_less : Icons.expand_more),
-                      onPressed: () =>
-                          setState(() => _expandMore = !_expandMore)),
-                ],
-              ),
-              if (_expandMore) ...[
-                _buildQuantityAndUomRow(),
-                SizedBox(
-                  height: 10,
-                ),
-                _buildFreezedRow(),
-              ],
-              SizedBox(
-                height: 10,
-              ),
-            ],
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          _buildIngredientSelectionTextField(),
+          _buildQuantityAndUomRow(),
+          //_buildExpandMoreRow(),
+          const SizedBox(height: 10),
+          if (_expandMore) ...[
+            _buildFreezedRow(),
+          ],
+          const SizedBox(
+            height: 10,
           ),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text("CANCEL"),
-            textColor: Theme.of(context).primaryColor,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          _buildDoneButton(context, ref),
+          _buildBottomRow(),
+          const SizedBox(height: 20),
         ],
-      );
-    });
+      ),
+
+      /* actions: <Widget>[
+        FlatButton(
+          child: Text("CANCEL"),
+          textColor: Theme.of(context).primaryColor,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        _buildDoneButton(context, ref),
+      ], */
+    );
+  }
+
+  Widget _buildBottomRow() {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(onPressed: () {}, child: Text('CANCEL')),
+        const SizedBox(width: 10),
+        ElevatedButton(onPressed: () {}, child: Text('ADD')),
+      ],
+    );
   }
 
   void _handleAddButton(WidgetRef ref) async {
@@ -124,6 +125,7 @@ class _RecipeIngredientModalState extends State<RecipeIngredientModal> {
       child: IngredientSelectionTextField(
         value: _selectedIngredient,
         enabled: _selectedIngredient == null,
+        autofocus: true,
         onIngredientSelected: (ingredient) =>
             setState(() => _selectedIngredient = ingredient),
       ),

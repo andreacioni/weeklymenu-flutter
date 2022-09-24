@@ -21,46 +21,34 @@ class RecipeOriginator extends Originator<Recipe> {
 class Recipe extends BaseModel<Recipe> {
   final String name;
 
-  @JsonKey(includeIfNull: false)
   final String? description;
 
-  @JsonKey(includeIfNull: false)
   final int? rating;
 
-  @JsonKey(includeIfNull: false)
   final int? cost;
 
-  @JsonKey(includeIfNull: false)
   final String? difficulty;
 
-  @JsonKey(includeIfNull: false)
   final List<int> availabilityMonths;
 
-  @JsonKey(includeIfNull: false)
   final int? servs;
 
-  @JsonKey(includeIfNull: false)
   final int? estimatedCookingTime;
 
-  @JsonKey(includeIfNull: false)
   final int? estimatedPreparationTime;
 
-  @JsonKey(includeIfNull: false)
   final List<RecipeIngredient> ingredients;
 
-  @JsonKey(includeIfNull: false)
   final String? preparation;
 
-  @JsonKey(includeIfNull: false)
+  final List<RecipePreparationStep> preparationSteps;
+
   final String? note;
 
-  @JsonKey(includeIfNull: false)
   final String? imgUrl;
 
-  @JsonKey(includeIfNull: false)
   final String? recipeUrl;
 
-  @JsonKey(includeIfNull: false)
   final List<String> tags;
 
   @JsonKey(ignore: true)
@@ -81,6 +69,7 @@ class Recipe extends BaseModel<Recipe> {
       this.imgUrl,
       this.tags = const <String>[],
       this.preparation,
+      this.preparationSteps = const <RecipePreparationStep>[],
       this.recipeUrl,
       this.note,
       this.owner,
@@ -102,15 +91,25 @@ class Recipe extends BaseModel<Recipe> {
 }
 
 @JsonSerializable()
+class RecipePreparationStep {
+  final int position;
+  final String? description;
+
+  const RecipePreparationStep({this.description, this.position = 0});
+
+  factory RecipePreparationStep.fromJson(Map<String, dynamic> json) =>
+      _$RecipePreparationStepFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RecipePreparationStepToJson(this);
+}
+
+@JsonSerializable()
 class RecipeIngredient {
   @JsonKey(name: 'ingredient')
   final String ingredientId;
 
-  @JsonKey(includeIfNull: false)
   final double? quantity;
-  @JsonKey(includeIfNull: false)
   final String? unitOfMeasure;
-  @JsonKey(includeIfNull: false)
   final bool? freezed;
 
   RecipeIngredient(

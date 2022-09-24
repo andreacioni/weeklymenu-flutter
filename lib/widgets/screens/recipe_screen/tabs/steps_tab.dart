@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
 import '../../../../models/recipe.dart';
 import '../../../shared/editable_text_field.dart';
 import '../../recipe_Screen/recipe_tags.dart';
 
-class RecipeMoreInfoTab extends StatelessWidget {
+class RecipeStepsTab extends StatelessWidget {
   final bool editEnabled;
   final RecipeOriginator originator;
 
-  const RecipeMoreInfoTab({
+  const RecipeStepsTab({
     Key? key,
     required this.originator,
     this.editEnabled = false,
@@ -19,31 +20,14 @@ class RecipeMoreInfoTab extends StatelessWidget {
     final recipe = originator.instance;
     return Column(
       children: [
-        SizedBox(
-          height: 5,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Text(
-            "Prepation",
-            style: TextStyle(
-              fontFamily: 'Rubik',
-              fontSize: 18,
-            ),
+        if (recipe.preparationSteps.isEmpty)
+          EmptyPagePlaceholder(
+            icon: Icons.add_circle_outline_sharp,
+            text: 'No steps defined',
+            sizeRate: 0.8,
+            margin: EdgeInsets.only(top: 100),
           ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        EditableTextField(
-          recipe.preparation,
-          editEnabled: editEnabled,
-          hintText: "Add preparation steps...",
-          maxLines: 1000,
-          onSaved: (text) => originator
-              .update(originator.instance.copyWith(preparation: text)),
-        ),
-        SizedBox(
+        /* SizedBox(
           height: 5,
         ),
         Padding(
@@ -89,7 +73,7 @@ class RecipeMoreInfoTab extends StatelessWidget {
         ),
         SizedBox(
           height: 20,
-        ),
+        ), */
       ],
     );
   }
