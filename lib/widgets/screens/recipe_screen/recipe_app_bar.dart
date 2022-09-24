@@ -2,9 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/widgets/screens/recipe_screen/notifier.dart';
 
 import '../../../models/recipe.dart';
+import '../../../providers/screen_notifier.dart';
 import 'screen.dart';
 
 class RecipeAppBar extends HookConsumerWidget {

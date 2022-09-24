@@ -7,8 +7,9 @@ import 'package:weekly_menu_app/widgets/screens/recipe_screen/recipe_ingredient_
 import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
 import '../../../../models/recipe.dart';
+import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
-import '../notifier.dart';
+import '../recipe_screen_state_notifier.dart';
 import '../recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import '../recipe_ingredient_tile/recipe_ingredient_list_tile.dart';
 import '../../../../main.data.dart';

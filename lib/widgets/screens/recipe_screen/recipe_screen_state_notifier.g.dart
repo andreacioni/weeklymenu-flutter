@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'notifier.dart';
+part of 'recipe_screen_state_notifier.dart';
 
 // **************************************************************************
 // CopyWithGenerator

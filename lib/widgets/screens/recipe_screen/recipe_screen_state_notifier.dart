@@ -6,15 +6,7 @@ import 'package:weekly_menu_app/models/recipe.dart';
 import '../../../models/ingredient.dart';
 import '../../../main.data.dart';
 
-part 'notifier.g.dart';
-
-final recipeScreenNotifierProvider = StateNotifierProvider.autoDispose<
-    RecipeScreenStateNotifier,
-    RecipeScreenState>((ref) => RecipeScreenStateNotifier(ref.read));
-
-final recipeOriginatorProvider =
-    StateNotifierProvider.autoDispose<RecipeOriginator, Recipe>(
-        (ref) => ref.read(recipeScreenNotifierProvider).recipeOriginator!);
+part 'recipe_screen_state_notifier.g.dart';
 
 @immutable
 @CopyWith()

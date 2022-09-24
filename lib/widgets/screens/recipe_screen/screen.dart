@@ -5,8 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:weekly_menu_app/widgets/screens/recipe_screen/notifier.dart';
 
+import '../../../providers/screen_notifier.dart';
 import '../recipe_Screen/recipe_ingredient_modal/recipe_ingredient_modal.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
