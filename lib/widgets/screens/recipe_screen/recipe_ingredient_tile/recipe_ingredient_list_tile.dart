@@ -68,8 +68,9 @@ class _RecipeIngredientListTile extends StatelessWidget {
       child: ListTile(
         title: IngredientSuggestionTextField(
           ingredient: ingredient,
+          enabled: editEnabled,
         ),
-        trailing: InkWell(
+        leading: InkWell(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -91,6 +92,7 @@ class _RecipeIngredientListTile extends StatelessWidget {
             ],
           ),
         ),
+        trailing: editEnabled ? Icon(Icons.drag_handle_rounded) : null,
       ),
     );
   }

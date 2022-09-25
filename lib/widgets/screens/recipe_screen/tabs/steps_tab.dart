@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
 import '../../../../models/recipe.dart';
+import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
 import '../../recipe_Screen/recipe_tags.dart';
 
-class RecipeStepsTab extends StatelessWidget {
-  final bool editEnabled;
-  final RecipeOriginator originator;
-
+class RecipeStepsTab extends HookConsumerWidget {
   const RecipeStepsTab({
     Key? key,
-    required this.originator,
-    this.editEnabled = false,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final recipe = originator.instance;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final preparationSteps = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator!.instance.preparationSteps));
     return Column(
       children: [
-        if (recipe.preparationSteps.isEmpty)
+        if (preparationSteps.isEmpty)
           EmptyPagePlaceholder(
             icon: Icons.add_circle_outline_sharp,
             text: 'No steps defined',

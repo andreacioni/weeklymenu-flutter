@@ -31,18 +31,19 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Autocomplete<Object>(
+    return Autocomplete<Ingredient>(
       initialValue: TextEditingValue(text: ingredient?.name ?? ''),
-      optionsMaxHeight: 150,
+      optionsMaxHeight: 100,
       optionsBuilder: (textEditingValue) async {
         if (textEditingValue.text.length < suggestAfter)
-          return const <String>[];
+          return const <Ingredient>[];
         final ingredients =
             await ref.ingredients.findAll(remote: false) ?? <Ingredient>[];
 
-        return ingredients.map((i) => i.name).where((i) =>
-            i.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+        return ingredients.where((i) =>
+            i.name.toLowerCase().contains(textEditingValue.text.toLowerCase()));
       },
+      displayStringForOption: (option) => option.name,
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
         focusNode

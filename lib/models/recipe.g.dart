@@ -419,7 +419,7 @@ Map<String, dynamic> _$RecipePreparationStepToJson(
 RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
       ingredientId: json['ingredient'] as String,
       unitOfMeasure: json['unitOfMeasure'] as String?,
-      quantity: json['quantity'] ?? 0,
+      quantity: json['quantity'] ?? 0.0,
       freezed: json['freezed'] ?? false,
     );
 

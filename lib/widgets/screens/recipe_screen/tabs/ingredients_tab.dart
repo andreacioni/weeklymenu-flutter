@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/models/ingredient.dart';
-import 'package:weekly_menu_app/widgets/screens/recipe_screen/recipe_ingredient_tile/ingredient_suggestion_text_field.dart';
-import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
+import '../../../../globals/utils.dart';
+import '../../../../models/ingredient.dart';
+import '../recipe_ingredient_tile/ingredient_suggestion_text_field.dart';
+import '../../../shared/empty_page_placeholder.dart';
 import '../../../../models/recipe.dart';
 import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
@@ -15,21 +16,20 @@ import '../recipe_ingredient_tile/recipe_ingredient_list_tile.dart';
 import '../../../../main.data.dart';
 
 class RecipeIngredientsTab extends HookConsumerWidget {
-  final bool editEnabled;
-  final RecipeOriginator originator;
-
   const RecipeIngredientsTab({
     Key? key,
-    required this.originator,
-    this.editEnabled = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+
+    final editEnabled =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
     final newIngredientMode = ref
         .watch(recipeScreenNotifierProvider.select((n) => n.newIngredientMode));
-    final recipe = originator.instance;
-    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+    final recipeIngredients = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator!.instance.ingredients));
 
     Widget buildNewIngredientTile() {
       return Card(
@@ -56,17 +56,20 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     }
 
     List<Widget> buildDismissibleRecipeTiles() {
-      return recipe.ingredients
-          .map(
-            (recipeIng) => DismissibleRecipeIngredientTile(
-                originator, recipeIng, editEnabled),
-          )
-          .toList();
+      return recipeIngredients.mapIndexed((recipeIng, idx) {
+        return DismissibleRecipeIngredientTile(
+          recipeIngredient: recipeIng,
+          editEnabled: editEnabled,
+          onDismissed: () {
+            notifier.deleteRecipeIngredientByIndex(idx);
+          },
+        );
+      }).toList();
     }
 
     return Column(
       children: [
-        if (!newIngredientMode && recipe.ingredients.isEmpty)
+        if (!newIngredientMode && recipeIngredients.isEmpty)
           EmptyPagePlaceholder(
             icon: Icons.add_circle_outline_sharp,
             text: 'No ingredients yet',
@@ -74,7 +77,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             margin: EdgeInsets.only(top: 100),
           ),
         if (newIngredientMode) buildNewIngredientTile(),
-        if (recipe.ingredients.isNotEmpty) ...buildDismissibleRecipeTiles(),
+        if (recipeIngredients.isNotEmpty) ...buildDismissibleRecipeTiles(),
       ],
     );
   }

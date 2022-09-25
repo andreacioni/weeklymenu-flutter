@@ -31,7 +31,7 @@ class RecipeAppBar extends HookConsumerWidget {
     void _showUpdateImageDialog(BuildContext context) async {
       final textController = TextEditingController();
       if (imageUrl != null) {
-        textController.text = imageUrl!;
+        textController.text = imageUrl;
       }
 
       String? newUrl = await showDialog<String>(
@@ -96,7 +96,6 @@ class RecipeAppBar extends HookConsumerWidget {
       floating: false,
       forceElevated: false,
       scrolledUnderElevation: 2,
-
       title: Row(
         children: <Widget>[
           Flexible(

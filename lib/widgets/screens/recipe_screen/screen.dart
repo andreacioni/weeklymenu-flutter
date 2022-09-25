@@ -16,7 +16,6 @@ import '../../../main.data.dart';
 import '../../../globals/errors_handlers.dart';
 import '../../shared/editable_text_field.dart';
 import 'recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
-import 'recipe_information_tiles.dart';
 import '../../../models/recipe.dart';
 import 'recipe_app_bar.dart';
 import 'recipe_tags.dart';
@@ -145,17 +144,17 @@ class RecipeScreen extends HookConsumerWidget {
     }
 
     void _handleBackButton() async {
-      if (originator.isEdited) {
+      if (notifier.edited) {
         final wannaSave = await showWannaSaveDialog(context);
 
         if (wannaSave ?? false) {
           _handleEditToggle(false);
         } else {
-          print("Losing all the changes");
+          log("Losing all the changes");
           originator.revert();
         }
       } else {
-        print("No changes made, not save action is necessary");
+        log("No changes made, not save action is necessary");
       }
 
       Navigator.of(context).pop();
@@ -216,22 +215,13 @@ class RecipeScreen extends HookConsumerWidget {
                     controller: tabController,
                     children: [
                       SingleChildScrollView(
-                        child: RecipeGeneralInfoTab(
-                          originator: originator,
-                          editEnabled: editEnabled,
-                        ),
+                        child: RecipeGeneralInfoTab(),
                       ),
                       SingleChildScrollView(
-                        child: RecipeIngredientsTab(
-                          originator: originator,
-                          editEnabled: editEnabled,
-                        ),
+                        child: RecipeIngredientsTab(),
                       ),
                       SingleChildScrollView(
-                        child: RecipeStepsTab(
-                          originator: originator,
-                          editEnabled: editEnabled,
-                        ),
+                        child: RecipeStepsTab(),
                       ),
                     ],
                   ),

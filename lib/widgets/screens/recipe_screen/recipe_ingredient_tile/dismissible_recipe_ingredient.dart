@@ -6,32 +6,28 @@ import '../../../../models/recipe.dart';
 import '../../../../models/ingredient.dart';
 
 class DismissibleRecipeIngredientTile extends StatelessWidget {
-  final RecipeOriginator _recipe;
-  final RecipeIngredient _recipeIngredient;
+  final RecipeIngredient recipeIngredient;
   final bool editEnabled;
+  final void Function()? onDismissed;
 
   DismissibleRecipeIngredientTile(
-      this._recipe, this._recipeIngredient, this.editEnabled);
+      {required this.recipeIngredient,
+      this.editEnabled = false,
+      this.onDismissed});
 
   @override
   Widget build(BuildContext context) {
     return editEnabled
         ? Dismissible(
-            key: Key(_recipeIngredient.ingredientId),
+            key: Key(recipeIngredient.ingredientId),
             direction: DismissDirection.endToStart,
             child: RecipeIngredientListTile(
-              recipeIngredient: _recipeIngredient,
+              recipeIngredient: recipeIngredient,
               editEnabled: editEnabled,
             ),
-            onDismissed: (_) {
-              final recipeIngredients = [..._recipe.instance.ingredients]
-                ..removeWhere(
-                    (ri) => _recipeIngredient.ingredientId == ri.ingredientId);
-              _recipe.update(
-                  _recipe.instance.copyWith(ingredients: recipeIngredients));
-            })
+            onDismissed: (_) => onDismissed?.call())
         : RecipeIngredientListTile(
-            recipeIngredient: _recipeIngredient,
+            recipeIngredient: recipeIngredient,
             editEnabled: editEnabled,
           );
   }
