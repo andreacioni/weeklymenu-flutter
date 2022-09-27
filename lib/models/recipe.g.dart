@@ -274,6 +274,152 @@ extension $RecipeCopyWith on Recipe {
   _$RecipeCWProxy get copyWith => _$RecipeCWProxyImpl(this);
 }
 
+abstract class _$RecipePreparationStepCWProxy {
+  RecipePreparationStep description(String? description);
+
+  RecipePreparationStep position(int position);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipePreparationStep(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipePreparationStep(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipePreparationStep call({
+    String? description,
+    int? position,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfRecipePreparationStep.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfRecipePreparationStep.copyWith.fieldName(...)`
+class _$RecipePreparationStepCWProxyImpl
+    implements _$RecipePreparationStepCWProxy {
+  final RecipePreparationStep _value;
+
+  const _$RecipePreparationStepCWProxyImpl(this._value);
+
+  @override
+  RecipePreparationStep description(String? description) =>
+      this(description: description);
+
+  @override
+  RecipePreparationStep position(int position) => this(position: position);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipePreparationStep(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipePreparationStep(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipePreparationStep call({
+    Object? description = const $CopyWithPlaceholder(),
+    Object? position = const $CopyWithPlaceholder(),
+  }) {
+    return RecipePreparationStep(
+      description: description == const $CopyWithPlaceholder()
+          ? _value.description
+          // ignore: cast_nullable_to_non_nullable
+          : description as String?,
+      position: position == const $CopyWithPlaceholder() || position == null
+          ? _value.position
+          // ignore: cast_nullable_to_non_nullable
+          : position as int,
+    );
+  }
+}
+
+extension $RecipePreparationStepCopyWith on RecipePreparationStep {
+  /// Returns a callable class that can be used as follows: `instanceOfRecipePreparationStep.copyWith(...)` or like so:`instanceOfRecipePreparationStep.copyWith.fieldName(...)`.
+  _$RecipePreparationStepCWProxy get copyWith =>
+      _$RecipePreparationStepCWProxyImpl(this);
+}
+
+abstract class _$RecipeIngredientCWProxy {
+  RecipeIngredient freezed(dynamic freezed);
+
+  RecipeIngredient ingredientId(String ingredientId);
+
+  RecipeIngredient quantity(dynamic quantity);
+
+  RecipeIngredient unitOfMeasure(String? unitOfMeasure);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeIngredient(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipeIngredient(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipeIngredient call({
+    dynamic? freezed,
+    String? ingredientId,
+    dynamic? quantity,
+    String? unitOfMeasure,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfRecipeIngredient.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfRecipeIngredient.copyWith.fieldName(...)`
+class _$RecipeIngredientCWProxyImpl implements _$RecipeIngredientCWProxy {
+  final RecipeIngredient _value;
+
+  const _$RecipeIngredientCWProxyImpl(this._value);
+
+  @override
+  RecipeIngredient freezed(dynamic freezed) => this(freezed: freezed);
+
+  @override
+  RecipeIngredient ingredientId(String ingredientId) =>
+      this(ingredientId: ingredientId);
+
+  @override
+  RecipeIngredient quantity(dynamic quantity) => this(quantity: quantity);
+
+  @override
+  RecipeIngredient unitOfMeasure(String? unitOfMeasure) =>
+      this(unitOfMeasure: unitOfMeasure);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeIngredient(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipeIngredient(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipeIngredient call({
+    Object? freezed = const $CopyWithPlaceholder(),
+    Object? ingredientId = const $CopyWithPlaceholder(),
+    Object? quantity = const $CopyWithPlaceholder(),
+    Object? unitOfMeasure = const $CopyWithPlaceholder(),
+  }) {
+    return RecipeIngredient(
+      freezed: freezed == const $CopyWithPlaceholder() || freezed == null
+          ? _value.freezed
+          // ignore: cast_nullable_to_non_nullable
+          : freezed as dynamic,
+      ingredientId:
+          ingredientId == const $CopyWithPlaceholder() || ingredientId == null
+              ? _value.ingredientId
+              // ignore: cast_nullable_to_non_nullable
+              : ingredientId as String,
+      quantity: quantity == const $CopyWithPlaceholder() || quantity == null
+          ? _value.quantity
+          // ignore: cast_nullable_to_non_nullable
+          : quantity as dynamic,
+      unitOfMeasure: unitOfMeasure == const $CopyWithPlaceholder()
+          ? _value.unitOfMeasure
+          // ignore: cast_nullable_to_non_nullable
+          : unitOfMeasure as String?,
+    );
+  }
+}
+
+extension $RecipeIngredientCopyWith on RecipeIngredient {
+  /// Returns a callable class that can be used as follows: `instanceOfRecipeIngredient.copyWith(...)` or like so:`instanceOfRecipeIngredient.copyWith.fieldName(...)`.
+  _$RecipeIngredientCWProxy get copyWith => _$RecipeIngredientCWProxyImpl(this);
+}
+
 // **************************************************************************
 // RepositoryGenerator
 // **************************************************************************

@@ -45,6 +45,8 @@ class RecipeScreen extends HookConsumerWidget {
 
     final newIngredientMode = ref
         .watch(recipeScreenNotifierProvider.select((n) => n.newIngredientMode));
+    final newStepMode =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.newStepMode));
 
     final autoSizeGroup = AutoSizeGroup();
 
@@ -119,6 +121,8 @@ class RecipeScreen extends HookConsumerWidget {
     );
     tabController.addListener(() {
       _unfocus(context);
+      notifier.newIngredientMode = false;
+      notifier.newStepMode = false;
     });
 
     void _handleEditToggle(bool newValue) async {
@@ -163,6 +167,8 @@ class RecipeScreen extends HookConsumerWidget {
     void handleFloatingButtonActionBasedOnTabIndex() {
       if (tabController.index == 1) {
         notifier.newIngredientMode = true;
+      } else if (tabController.index == 2) {
+        notifier.newStepMode = true;
       }
     }
 
@@ -229,7 +235,9 @@ class RecipeScreen extends HookConsumerWidget {
               ),
             ),
           ),
-          floatingActionButton: editEnabled && !newIngredientMode
+          floatingActionButton: editEnabled &&
+                  !newIngredientMode &&
+                  !newStepMode
               ? FloatingActionButton(
                   child: Icon(Icons.add),
                   onPressed: () => handleFloatingButtonActionBasedOnTabIndex(),

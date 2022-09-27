@@ -13,12 +13,14 @@ part 'recipe_screen_state_notifier.g.dart';
 class RecipeScreenState {
   final bool editEnabled;
   final bool newIngredientMode;
+  final bool newStepMode;
 
   final RecipeOriginator? recipeOriginator;
 
   RecipeScreenState({
     this.editEnabled = false,
     this.newIngredientMode = false,
+    this.newStepMode = false,
     this.recipeOriginator,
   });
 }
@@ -43,6 +45,11 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   bool get newIngredientMode => state.editEnabled;
   set newIngredientMode(bool newValue) {
     state = state.copyWith(newIngredientMode: newValue);
+  }
+
+  bool get newStepMode => state.editEnabled;
+  set newStepMode(bool newValue) {
+    state = state.copyWith(newStepMode: newValue);
   }
 
   bool get edited => state.recipeOriginator!.isEdited;
@@ -125,6 +132,28 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   void updateCost(int cost) {
     state.recipeOriginator!
         .update(state.recipeOriginator!.instance.copyWith(cost: cost));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateRecipeIngredientAtIndex(
+      int idx, RecipeIngredient newRecipeIngredient) {
+    final newList = [...state.recipeOriginator!.instance.ingredients];
+
+    newList.replaceRange(idx, idx + 1, [newRecipeIngredient]);
+
+    state.recipeOriginator!.update(
+        state.recipeOriginator!.instance.copyWith(ingredients: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void addStep(RecipePreparationStep recipePreparationStep) {
+    final newList = [
+      ...state.recipeOriginator!.instance.preparationSteps,
+      recipePreparationStep
+    ];
+
+    state.recipeOriginator!.update(
+        state.recipeOriginator!.instance.copyWith(preparationSteps: newList));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 }

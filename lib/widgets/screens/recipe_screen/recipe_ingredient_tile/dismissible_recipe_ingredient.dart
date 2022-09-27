@@ -9,11 +9,14 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
   final RecipeIngredient recipeIngredient;
   final bool editEnabled;
   final void Function()? onDismissed;
+  final void Function(RecipeIngredient)? updateRecipeIngredient;
 
-  DismissibleRecipeIngredientTile(
-      {required this.recipeIngredient,
-      this.editEnabled = false,
-      this.onDismissed});
+  DismissibleRecipeIngredientTile({
+    required this.recipeIngredient,
+    this.editEnabled = false,
+    this.onDismissed,
+    this.updateRecipeIngredient,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,7 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
             child: RecipeIngredientListTile(
               recipeIngredient: recipeIngredient,
               editEnabled: editEnabled,
+              onChanged: updateRecipeIngredient,
             ),
             onDismissed: (_) => onDismissed?.call())
         : RecipeIngredientListTile(

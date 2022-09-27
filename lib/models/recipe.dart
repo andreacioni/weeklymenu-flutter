@@ -91,6 +91,7 @@ class Recipe extends BaseModel<Recipe> {
 }
 
 @JsonSerializable()
+@CopyWith()
 class RecipePreparationStep {
   final int position;
   final String? description;
@@ -104,6 +105,7 @@ class RecipePreparationStep {
 }
 
 @JsonSerializable()
+@CopyWith()
 class RecipeIngredient {
   @JsonKey(name: 'ingredient')
   final String ingredientId;

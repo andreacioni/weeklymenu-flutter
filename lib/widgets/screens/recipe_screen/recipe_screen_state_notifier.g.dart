@@ -11,6 +11,8 @@ abstract class _$RecipeScreenStateCWProxy {
 
   RecipeScreenState newIngredientMode(bool newIngredientMode);
 
+  RecipeScreenState newStepMode(bool newStepMode);
+
   RecipeScreenState recipeOriginator(RecipeOriginator? recipeOriginator);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeScreenState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
@@ -22,6 +24,7 @@ abstract class _$RecipeScreenStateCWProxy {
   RecipeScreenState call({
     bool? editEnabled,
     bool? newIngredientMode,
+    bool? newStepMode,
     RecipeOriginator? recipeOriginator,
   });
 }
@@ -41,6 +44,10 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
       this(newIngredientMode: newIngredientMode);
 
   @override
+  RecipeScreenState newStepMode(bool newStepMode) =>
+      this(newStepMode: newStepMode);
+
+  @override
   RecipeScreenState recipeOriginator(RecipeOriginator? recipeOriginator) =>
       this(recipeOriginator: recipeOriginator);
 
@@ -55,6 +62,7 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
   RecipeScreenState call({
     Object? editEnabled = const $CopyWithPlaceholder(),
     Object? newIngredientMode = const $CopyWithPlaceholder(),
+    Object? newStepMode = const $CopyWithPlaceholder(),
     Object? recipeOriginator = const $CopyWithPlaceholder(),
   }) {
     return RecipeScreenState(
@@ -68,6 +76,11 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
           ? _value.newIngredientMode
           // ignore: cast_nullable_to_non_nullable
           : newIngredientMode as bool,
+      newStepMode:
+          newStepMode == const $CopyWithPlaceholder() || newStepMode == null
+              ? _value.newStepMode
+              // ignore: cast_nullable_to_non_nullable
+              : newStepMode as bool,
       recipeOriginator: recipeOriginator == const $CopyWithPlaceholder()
           ? _value.recipeOriginator
           // ignore: cast_nullable_to_non_nullable

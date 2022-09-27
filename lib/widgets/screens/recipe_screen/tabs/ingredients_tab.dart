@@ -60,6 +60,9 @@ class RecipeIngredientsTab extends HookConsumerWidget {
         return DismissibleRecipeIngredientTile(
           recipeIngredient: recipeIng,
           editEnabled: editEnabled,
+          updateRecipeIngredient: (newRecipeIngredient) {
+            notifier.updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
+          },
           onDismissed: () {
             notifier.deleteRecipeIngredientByIndex(idx);
           },
