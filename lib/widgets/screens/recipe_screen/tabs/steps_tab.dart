@@ -7,7 +7,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../../../models/recipe.dart';
 import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
-import '../../recipe_Screen/recipe_tags.dart';
 
 class RecipeStepsTab extends HookConsumerWidget {
   const RecipeStepsTab({
@@ -19,7 +18,7 @@ class RecipeStepsTab extends HookConsumerWidget {
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final preparationSteps = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.preparationSteps));
+        .select((n) => n.recipeOriginator.instance.preparationSteps));
 
     final newStepMode =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.newStepMode));
@@ -28,6 +27,7 @@ class RecipeStepsTab extends HookConsumerWidget {
         {RecipePreparationStep? step, bool autofocus = false}) {
       return _StepCard(
         step,
+        key: ValueKey(step),
         autofocus: autofocus,
         onSubmit: (recipePreparationStep) {
           notifier.addStep(recipePreparationStep);

@@ -40,17 +40,17 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
 
     final servs = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.servs));
+        .select((n) => n.recipeOriginator.instance.servs));
     final estimatedPreparationTime = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.estimatedPreparationTime));
+        .select((n) => n.recipeOriginator.instance.estimatedPreparationTime));
     final estimatedCookingTime = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.estimatedCookingTime));
+        .select((n) => n.recipeOriginator.instance.estimatedCookingTime));
     final rating = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.rating));
+        .select((n) => n.recipeOriginator.instance.rating));
     final cost = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.cost));
+        .select((n) => n.recipeOriginator.instance.cost));
     final difficulty = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.difficulty));
+        .select((n) => n.recipeOriginator.instance.difficulty));
 
     Widget _buildDifficultyDropdown(BuildContext context) {
       return !editEnabled

@@ -29,7 +29,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     final newIngredientMode = ref
         .watch(recipeScreenNotifierProvider.select((n) => n.newIngredientMode));
     final recipeIngredients = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.ingredients));
+        .select((n) => n.recipeOriginator.instance.ingredients));
 
     Widget buildNewIngredientTile() {
       return Card(

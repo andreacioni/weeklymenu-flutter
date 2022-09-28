@@ -23,10 +23,10 @@ class RecipeAppBar extends HookConsumerWidget {
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final recipeName = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.name));
+        .select((n) => n.recipeOriginator.instance.name));
 
     final imageUrl = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.imgUrl));
+        .select((n) => n.recipeOriginator.instance.imgUrl));
 
     void _showUpdateImageDialog(BuildContext context) async {
       final textController = TextEditingController();

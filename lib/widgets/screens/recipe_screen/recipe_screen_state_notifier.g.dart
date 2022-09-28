@@ -13,7 +13,7 @@ abstract class _$RecipeScreenStateCWProxy {
 
   RecipeScreenState newStepMode(bool newStepMode);
 
-  RecipeScreenState recipeOriginator(RecipeOriginator? recipeOriginator);
+  RecipeScreenState recipeOriginator(RecipeOriginator recipeOriginator);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeScreenState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -48,7 +48,7 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
       this(newStepMode: newStepMode);
 
   @override
-  RecipeScreenState recipeOriginator(RecipeOriginator? recipeOriginator) =>
+  RecipeScreenState recipeOriginator(RecipeOriginator recipeOriginator) =>
       this(recipeOriginator: recipeOriginator);
 
   @override
@@ -81,10 +81,11 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
               ? _value.newStepMode
               // ignore: cast_nullable_to_non_nullable
               : newStepMode as bool,
-      recipeOriginator: recipeOriginator == const $CopyWithPlaceholder()
+      recipeOriginator: recipeOriginator == const $CopyWithPlaceholder() ||
+              recipeOriginator == null
           ? _value.recipeOriginator
           // ignore: cast_nullable_to_non_nullable
-          : recipeOriginator as RecipeOriginator?,
+          : recipeOriginator as RecipeOriginator,
     );
   }
 }

@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../providers/screen_notifier.dart';
-import '../recipe_Screen/recipe_ingredient_modal/recipe_ingredient_modal.dart';
+import 'recipe_screen_state_notifier.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
 import '../../../globals/constants.dart';
@@ -22,23 +22,35 @@ import 'recipe_tags.dart';
 import 'tabs/steps_tab.dart';
 
 class RecipeScreen extends HookConsumerWidget {
-  final Recipe originalRecipeInstance;
   final Object heroTag;
 
   final RecipeOriginator originator;
 
-  RecipeScreen(this.originalRecipeInstance, {this.heroTag = const Object()})
+  RecipeScreen(Recipe originalRecipeInstance, {this.heroTag = const Object()})
       : originator = RecipeOriginator(originalRecipeInstance);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(overrides: [
+      recipeScreenNotifierProvider.overrideWithValue(RecipeScreenStateNotifier(
+          ref.read, RecipeScreenState(recipeOriginator: originator)))
+    ], child: _RecipeScreen(heroTag: heroTag));
+  }
+}
+
+class _RecipeScreen extends HookConsumerWidget {
+  final Object heroTag;
+
+  _RecipeScreen({this.heroTag = const Object()});
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
-    notifier.recipeOriginator = originator;
 
     final imageUrl = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator!.instance.imgUrl));
+        .select((n) => n.recipeOriginator.instance.imgUrl));
 
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
@@ -137,10 +149,10 @@ class RecipeScreen extends HookConsumerWidget {
         // here to trigger all the onSaved callback of the form fields
         _formKey.currentState!.save();
 
-        if (originator.isEdited) {
+        if (notifier.isRecipeEdited) {
           print("Saving all recipe changes");
 
-          ref.recipes.save(originator.save(), params: {UPDATE_PARAM: true});
+          ref.recipes.save(notifier.saveRecipe(), params: {UPDATE_PARAM: true});
         }
       }
 
@@ -155,7 +167,7 @@ class RecipeScreen extends HookConsumerWidget {
           _handleEditToggle(false);
         } else {
           log("Losing all the changes");
-          originator.revert();
+          notifier.revertRecipe();
         }
       } else {
         log("No changes made, not save action is necessary");
@@ -172,77 +184,80 @@ class RecipeScreen extends HookConsumerWidget {
       }
     }
 
-    return DefaultTabController(
-      length: tabs.length,
-      child: WillPopScope(
-        onWillPop: () async {
-          _handleBackButton();
-          return true;
-        },
-        child: Scaffold(
-          body: GestureDetector(
-            onTap: () => _unfocus(context),
-            child: Form(
-              key: _formKey,
-              child: NestedScrollView(
-                headerSliverBuilder: (context, innerBoxIsScrolled) {
-                  return [
-                    RecipeAppBar(
-                      editModeEnabled: editEnabled,
-                      onRecipeEditEnabled: (editEnabled) =>
-                          _handleEditToggle(editEnabled),
-                      onBackPressed: () => _handleBackButton(),
-                    ),
-                    if (imageUrl != null)
-                      SliverPersistentHeader(
-                        key: ValueKey(imageUrl),
-                        delegate: _SliverHeroDelegate(
-                          tag: heroTag,
-                          child: Image(
-                            image: CachedNetworkImageProvider(imageUrl),
-                            fit: BoxFit.fitWidth,
+    return ProviderScope(
+      overrides: [],
+      child: DefaultTabController(
+        length: tabs.length,
+        child: WillPopScope(
+          onWillPop: () async {
+            _handleBackButton();
+            return true;
+          },
+          child: Scaffold(
+            body: GestureDetector(
+              onTap: () => _unfocus(context),
+              child: Form(
+                key: _formKey,
+                child: NestedScrollView(
+                  headerSliverBuilder: (context, innerBoxIsScrolled) {
+                    return [
+                      RecipeAppBar(
+                        editModeEnabled: editEnabled,
+                        onRecipeEditEnabled: (editEnabled) =>
+                            _handleEditToggle(editEnabled),
+                        onBackPressed: () => _handleBackButton(),
+                      ),
+                      if (imageUrl != null)
+                        SliverPersistentHeader(
+                          key: ValueKey(imageUrl),
+                          delegate: _SliverHeroDelegate(
+                            tag: heroTag,
+                            child: Image(
+                              image: CachedNetworkImageProvider(imageUrl),
+                              fit: BoxFit.fitWidth,
+                            ),
                           ),
                         ),
-                      ),
-                    SliverPersistentHeader(
-                      delegate: _SliverTabBarDelegate(
-                        TabBar(
-                          tabs: tabs,
-                          controller: tabController,
+                      SliverPersistentHeader(
+                        delegate: _SliverTabBarDelegate(
+                          TabBar(
+                            tabs: tabs,
+                            controller: tabController,
+                          ),
                         ),
+                        pinned: true,
                       ),
-                      pinned: true,
+                    ];
+                  },
+                  body: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TabBarView(
+                      controller: tabController,
+                      children: [
+                        SingleChildScrollView(
+                          child: RecipeGeneralInfoTab(),
+                        ),
+                        SingleChildScrollView(
+                          child: RecipeIngredientsTab(),
+                        ),
+                        SingleChildScrollView(
+                          child: RecipeStepsTab(),
+                        ),
+                      ],
                     ),
-                  ];
-                },
-                body: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TabBarView(
-                    controller: tabController,
-                    children: [
-                      SingleChildScrollView(
-                        child: RecipeGeneralInfoTab(),
-                      ),
-                      SingleChildScrollView(
-                        child: RecipeIngredientsTab(),
-                      ),
-                      SingleChildScrollView(
-                        child: RecipeStepsTab(),
-                      ),
-                    ],
                   ),
                 ),
               ),
             ),
+            floatingActionButton:
+                editEnabled && !newIngredientMode && !newStepMode
+                    ? FloatingActionButton(
+                        child: Icon(Icons.add),
+                        onPressed: () =>
+                            handleFloatingButtonActionBasedOnTabIndex(),
+                      )
+                    : null,
           ),
-          floatingActionButton: editEnabled &&
-                  !newIngredientMode &&
-                  !newStepMode
-              ? FloatingActionButton(
-                  child: Icon(Icons.add),
-                  onPressed: () => handleFloatingButtonActionBasedOnTabIndex(),
-                )
-              : null,
         ),
       ),
     );

@@ -19,7 +19,7 @@ import '../../../models/enums/meal.dart';
 import '../../../models/recipe.dart';
 import '../../../globals/constants.dart' as constants;
 import '../../../models/menu.dart';
-import '../recipe_Screen/screen.dart';
+import '../recipe_screen/screen.dart';
 import 'screen.dart';
 
 final MENU_CARD_ROUNDED_RECT_BORDER = BorderRadius.circular(10);
