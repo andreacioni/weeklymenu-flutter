@@ -1,7 +1,9 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../../models/enums/difficulty.dart';
 import '../../../../models/recipe.dart';
@@ -52,6 +54,8 @@ class _RecipeInformationTiles extends HookConsumerWidget {
     final difficulty = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.difficulty));
 
+    final autoSizeGroup = useMemoized(() => AutoSizeGroup());
+
     Widget _buildDifficultyDropdown(BuildContext context) {
       return !editEnabled
           ? Text(
@@ -60,7 +64,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
             )
           : DropdownButton<String>(
               value: difficulty,
-              hint: const Text('Choose'),
+              hint: const AutoSizeText('Choose'),
               iconSize: 24,
               elevation: 16,
               style: const TextStyle(color: Colors.black, fontSize: 18),
@@ -77,7 +81,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
 
     return Column(
       children: <Widget>[
-        EditableInformationTile(
+        _EditableInformationTile(
           servs?.toDouble(),
           "Servings",
           minValue: 1,
@@ -87,10 +91,11 @@ class _RecipeInformationTiles extends HookConsumerWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "ppl",
-          onChanged: () => {}, //_recipe.setEdited(),
-          onSaved: (newValue) => notifier.updateServings(newValue.truncate()),
+          autoSizeGroup: autoSizeGroup,
+          onChanged: (newValue) => notifier
+              .updateServings(newValue.truncate()), //_recipe.setEdited(),
         ),
-        EditableInformationTile(
+        _EditableInformationTile(
           estimatedPreparationTime?.toDouble(),
           "Preparation time",
           icon: Icon(
@@ -99,12 +104,12 @@ class _RecipeInformationTiles extends HookConsumerWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
+          autoSizeGroup: autoSizeGroup,
           minValue: 1,
-          onChanged: () => {}, //_recipe.setEdited(),
-          onSaved: (newValue) =>
+          onChanged: (newValue) =>
               notifier.updateEstimatedPreparationTime(newValue.truncate()),
         ),
-        EditableInformationTile(
+        _EditableInformationTile(
           estimatedCookingTime?.toDouble(),
           "Cooking time",
           icon: Icon(
@@ -113,13 +118,16 @@ class _RecipeInformationTiles extends HookConsumerWidget {
           ),
           editingEnabled: editEnabled,
           suffix: "min",
+          autoSizeGroup: autoSizeGroup,
           minValue: 1,
-          onChanged: () => {}, //_recipe.setEdited(),
-          onSaved: (newValue) =>
+          onChanged: (newValue) =>
               notifier.updateEstimatedCookingTime(newValue.truncate()),
         ),
         ListTile(
-          title: Text("Difficulty"),
+          title: AutoSizeText(
+            "Difficulty",
+            group: autoSizeGroup,
+          ),
           leading: Icon(Icons.work, color: Colors.brown.shade400),
           trailing: _buildDifficultyDropdown(context),
         ),
@@ -130,7 +138,8 @@ class _RecipeInformationTiles extends HookConsumerWidget {
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.3),
           activeColor: Colors.red,
-          onLevelUpdate: (newLevel) => notifier.updateAffinity(rating),
+          autoSizeGroup: autoSizeGroup,
+          onChange: (newLevel) => notifier.updateAffinity(newLevel),
         ),
         _RecipeInformationLevelSelect(
           "Cost",
@@ -139,7 +148,8 @@ class _RecipeInformationTiles extends HookConsumerWidget {
           editEnabled: editEnabled,
           inactiveColor: Colors.grey.withOpacity(0.5),
           activeColor: Colors.green,
-          onLevelUpdate: (newLevel) => notifier.updateCost(newLevel),
+          autoSizeGroup: autoSizeGroup,
+          onChange: (newLevel) => notifier.updateCost(newLevel),
         ),
       ],
     );
@@ -155,13 +165,15 @@ class _RecipeInformationLevelSelect extends StatefulWidget {
   final bool editEnabled;
   final Color activeColor;
   final Color inactiveColor;
-  final Function(int) onLevelUpdate;
+  final Function(int) onChange;
+  final AutoSizeGroup? autoSizeGroup;
 
   _RecipeInformationLevelSelect(this._label, this._icon, this._initialLevel,
       {this.editEnabled = false,
       this.activeColor = Colors.black,
       this.inactiveColor = Colors.grey,
-      required this.onLevelUpdate});
+      this.autoSizeGroup,
+      required this.onChange});
 
   @override
   _RecipeInformationLevelSelectState createState() =>
@@ -177,7 +189,11 @@ class _RecipeInformationLevelSelectState
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(widget._label),
+      title: AutoSizeText(
+        widget._label,
+        group: widget.autoSizeGroup,
+        maxLines: 1,
+      ),
       leading: widget._icon,
       trailing: SizedBox(
         width: 200,
@@ -215,11 +231,11 @@ class _RecipeInformationLevelSelectState
     setState(() {
       _level = newLevel;
     });
-    widget.onLevelUpdate(newLevel);
+    widget.onChange(newLevel);
   }
 }
 
-class EditableInformationTile extends StatelessWidget {
+class _EditableInformationTile extends StatelessWidget {
   final double? value;
   final double minValue;
   final String title;
@@ -227,16 +243,16 @@ class EditableInformationTile extends StatelessWidget {
   final String suffix;
   final bool editingEnabled;
   final String hintText;
-  final void Function(double) onSaved;
-  final void Function() onChanged;
+  final void Function(double) onChanged;
+  final AutoSizeGroup? autoSizeGroup;
 
-  EditableInformationTile(this.value, this.title,
+  _EditableInformationTile(this.value, this.title,
       {this.icon,
       required this.suffix,
       this.editingEnabled = false,
-      required this.onSaved,
       required this.onChanged,
       this.minValue = 0,
+      this.autoSizeGroup,
       String? hintText})
       : this.hintText = hintText ?? title;
 
@@ -249,16 +265,19 @@ class EditableInformationTile extends StatelessWidget {
               fractionDigits: 0,
               labelText: title,
               minValue: minValue,
-              onChanged: (_) => onChanged(),
-              onSaved: onSaved,
+              onChanged: (v) => onChanged(v),
               hintText: hintText,
             )
-          : Text(title),
+          : AutoSizeText(
+              title,
+              group: autoSizeGroup,
+            ),
       leading: icon,
       trailing: !editingEnabled
-          ? Text(
+          ? AutoSizeText(
               "${value?.truncate() ?? '-'} $suffix",
               style: TextStyle(fontSize: 18),
+              group: autoSizeGroup,
             )
           : null,
     );

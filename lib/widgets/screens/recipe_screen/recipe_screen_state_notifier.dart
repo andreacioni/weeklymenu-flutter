@@ -14,6 +14,7 @@ class RecipeScreenState {
   final bool editEnabled;
   final bool newIngredientMode;
   final bool newStepMode;
+  final int currentTab;
 
   final RecipeOriginator recipeOriginator;
 
@@ -22,7 +23,11 @@ class RecipeScreenState {
     this.editEnabled = false,
     this.newIngredientMode = false,
     this.newStepMode = false,
+    this.currentTab = 0,
   });
+
+  get displayFAB =>
+      editEnabled && !newIngredientMode && !newStepMode && currentTab != 0;
 }
 
 class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
@@ -37,6 +42,9 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   } */
 
   bool get isRecipeEdited => state.recipeOriginator.isEdited;
+
+  set currentTab(int currentTab) =>
+      state = state.copyWith(currentTab: currentTab);
 
   Recipe saveRecipe() => state.recipeOriginator.save();
 

@@ -59,8 +59,8 @@ class RecipeStepsTab extends HookConsumerWidget {
             sizeRate: 0.8,
             margin: EdgeInsets.only(top: 100),
           ),
+        if (preparationSteps.isNotEmpty) ...buildStepsList(preparationSteps),
         if (newStepMode) buildAddStepCard(),
-        if (preparationSteps.isNotEmpty) ...buildStepsList(preparationSteps)
         /* SizedBox(
           height: 5,
         ),

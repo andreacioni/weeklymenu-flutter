@@ -563,7 +563,7 @@ class MenuRecipeCard extends HookConsumerWidget {
                         topRight: Radius.circular(5),
                         bottomRight: Radius.circular(5))),
                 child: Hero(
-                  tag: recipe.id,
+                  tag: heroTag,
                   child: Image(
                       height: 50,
                       width: 90,

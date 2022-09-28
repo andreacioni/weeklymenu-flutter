@@ -277,8 +277,6 @@ extension $RecipeCopyWith on Recipe {
 abstract class _$RecipePreparationStepCWProxy {
   RecipePreparationStep description(String? description);
 
-  RecipePreparationStep position(int position);
-
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipePreparationStep(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -287,7 +285,6 @@ abstract class _$RecipePreparationStepCWProxy {
   /// ````
   RecipePreparationStep call({
     String? description,
-    int? position,
   });
 }
 
@@ -303,9 +300,6 @@ class _$RecipePreparationStepCWProxyImpl
       this(description: description);
 
   @override
-  RecipePreparationStep position(int position) => this(position: position);
-
-  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipePreparationStep(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -315,17 +309,12 @@ class _$RecipePreparationStepCWProxyImpl
   /// ````
   RecipePreparationStep call({
     Object? description = const $CopyWithPlaceholder(),
-    Object? position = const $CopyWithPlaceholder(),
   }) {
     return RecipePreparationStep(
       description: description == const $CopyWithPlaceholder()
           ? _value.description
           // ignore: cast_nullable_to_non_nullable
           : description as String?,
-      position: position == const $CopyWithPlaceholder() || position == null
-          ? _value.position
-          // ignore: cast_nullable_to_non_nullable
-          : position as int,
     );
   }
 }
@@ -543,14 +532,11 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
 RecipePreparationStep _$RecipePreparationStepFromJson(Map json) =>
     RecipePreparationStep(
       description: json['description'] as String?,
-      position: json['position'] as int? ?? 0,
     );
 
 Map<String, dynamic> _$RecipePreparationStepToJson(
     RecipePreparationStep instance) {
-  final val = <String, dynamic>{
-    'position': instance.position,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {

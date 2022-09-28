@@ -49,18 +49,12 @@ class _RecipeScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
-    final imageUrl = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.imgUrl));
-
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
+    final displayFAB =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.displayFAB));
 
-    final newIngredientMode = ref
-        .watch(recipeScreenNotifierProvider.select((n) => n.newIngredientMode));
-    final newStepMode =
-        ref.watch(recipeScreenNotifierProvider.select((n) => n.newStepMode));
-
-    final autoSizeGroup = AutoSizeGroup();
+    final autoSizeGroup = useMemoized(() => AutoSizeGroup());
 
     final tabs = [
       Tab(
@@ -131,11 +125,18 @@ class _RecipeScreen extends HookConsumerWidget {
       initialIndex: 0,
       initialLength: tabs.length,
     );
-    tabController.addListener(() {
-      _unfocus(context);
-      notifier.newIngredientMode = false;
-      notifier.newStepMode = false;
-    });
+    useEffect(() {
+      void listener() {
+        _unfocus(context);
+        notifier.newIngredientMode = false;
+        notifier.newStepMode = false;
+        notifier.currentTab = tabController.index;
+      }
+
+      tabController.addListener(listener);
+
+      return () => tabController.removeListener(listener);
+    }, const []);
 
     void _handleEditToggle(bool newValue) async {
       //When switching from 'editEnabled = true' to 'editEnabled = false' means we must update resource on remote (if needed)
@@ -202,22 +203,12 @@ class _RecipeScreen extends HookConsumerWidget {
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
                       RecipeAppBar(
+                        heroTag: heroTag,
                         editModeEnabled: editEnabled,
                         onRecipeEditEnabled: (editEnabled) =>
                             _handleEditToggle(editEnabled),
                         onBackPressed: () => _handleBackButton(),
                       ),
-                      if (imageUrl != null)
-                        SliverPersistentHeader(
-                          key: ValueKey(imageUrl),
-                          delegate: _SliverHeroDelegate(
-                            tag: heroTag,
-                            child: Image(
-                              image: CachedNetworkImageProvider(imageUrl),
-                              fit: BoxFit.fitWidth,
-                            ),
-                          ),
-                        ),
                       SliverPersistentHeader(
                         delegate: _SliverTabBarDelegate(
                           TabBar(
@@ -249,14 +240,13 @@ class _RecipeScreen extends HookConsumerWidget {
                 ),
               ),
             ),
-            floatingActionButton:
-                editEnabled && !newIngredientMode && !newStepMode
-                    ? FloatingActionButton(
-                        child: Icon(Icons.add),
-                        onPressed: () =>
-                            handleFloatingButtonActionBasedOnTabIndex(),
-                      )
-                    : null,
+            floatingActionButton: displayFAB
+                ? FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () =>
+                        handleFloatingButtonActionBasedOnTabIndex(),
+                  )
+                : null,
           ),
         ),
       ),

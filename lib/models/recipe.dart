@@ -93,10 +93,9 @@ class Recipe extends BaseModel<Recipe> {
 @JsonSerializable()
 @CopyWith()
 class RecipePreparationStep {
-  final int position;
   final String? description;
 
-  const RecipePreparationStep({this.description, this.position = 0});
+  const RecipePreparationStep({this.description});
 
   factory RecipePreparationStep.fromJson(Map<String, dynamic> json) =>
       _$RecipePreparationStepFromJson(json);

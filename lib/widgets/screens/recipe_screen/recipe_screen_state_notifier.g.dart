@@ -7,6 +7,8 @@ part of 'recipe_screen_state_notifier.dart';
 // **************************************************************************
 
 abstract class _$RecipeScreenStateCWProxy {
+  RecipeScreenState currentTab(int currentTab);
+
   RecipeScreenState editEnabled(bool editEnabled);
 
   RecipeScreenState newIngredientMode(bool newIngredientMode);
@@ -22,6 +24,7 @@ abstract class _$RecipeScreenStateCWProxy {
   /// RecipeScreenState(...).copyWith(id: 12, name: "My name")
   /// ````
   RecipeScreenState call({
+    int? currentTab,
     bool? editEnabled,
     bool? newIngredientMode,
     bool? newStepMode,
@@ -34,6 +37,9 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
   final RecipeScreenState _value;
 
   const _$RecipeScreenStateCWProxyImpl(this._value);
+
+  @override
+  RecipeScreenState currentTab(int currentTab) => this(currentTab: currentTab);
 
   @override
   RecipeScreenState editEnabled(bool editEnabled) =>
@@ -60,12 +66,18 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
   /// RecipeScreenState(...).copyWith(id: 12, name: "My name")
   /// ````
   RecipeScreenState call({
+    Object? currentTab = const $CopyWithPlaceholder(),
     Object? editEnabled = const $CopyWithPlaceholder(),
     Object? newIngredientMode = const $CopyWithPlaceholder(),
     Object? newStepMode = const $CopyWithPlaceholder(),
     Object? recipeOriginator = const $CopyWithPlaceholder(),
   }) {
     return RecipeScreenState(
+      currentTab:
+          currentTab == const $CopyWithPlaceholder() || currentTab == null
+              ? _value.currentTab
+              // ignore: cast_nullable_to_non_nullable
+              : currentTab as int,
       editEnabled:
           editEnabled == const $CopyWithPlaceholder() || editEnabled == null
               ? _value.editEnabled

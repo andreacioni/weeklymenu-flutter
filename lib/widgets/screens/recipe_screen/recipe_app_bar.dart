@@ -9,10 +9,12 @@ import 'screen.dart';
 
 class RecipeAppBar extends HookConsumerWidget {
   final bool editModeEnabled;
+  final Object heroTag;
   final Function(bool) onRecipeEditEnabled;
   final void Function() onBackPressed;
 
   RecipeAppBar({
+    this.heroTag = const Object(),
     this.editModeEnabled = false,
     required this.onRecipeEditEnabled,
     required this.onBackPressed,
@@ -91,49 +93,67 @@ class RecipeAppBar extends HookConsumerWidget {
     }
 
     return SliverAppBar(
-      //expandedHeight: _recipe.instance.imgUrl != null ? 200.0 : null,
       pinned: true,
       floating: false,
       forceElevated: false,
-      scrolledUnderElevation: 2,
-      title: Row(
-        children: <Widget>[
-          Flexible(
-            fit: FlexFit.loose,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.4),
-              ),
-              padding: EdgeInsets.all(3),
-              child: AutoSizeText(
-                recipeName,
-                maxLines: 1,
-                style: TextStyle(color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.loose,
-            child: SizedBox(
-              width: 10,
-            ),
-          ),
-          if (editModeEnabled)
+      scrolledUnderElevation: 0,
+      expandedHeight: imageUrl != null ? 250.0 : null,
+      flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.none,
+        centerTitle: false,
+        title: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
             Flexible(
               fit: FlexFit.loose,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                child: Icon(
-                  Icons.edit,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.black.withOpacity(0.4),
                 ),
-                onTap: () => _openEditRecipeNameModal(context),
+                padding: EdgeInsets.all(3),
+                child: AutoSizeText(
+                  recipeName,
+                  maxLines: 1,
+                  minFontSize: 1,
+                  softWrap: false,
+                  style: TextStyle(color: Colors.white),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            )
-        ],
+            ),
+            Flexible(
+              fit: FlexFit.loose,
+              child: SizedBox(
+                width: 10,
+              ),
+            ),
+            if (editModeEnabled)
+              Flexible(
+                fit: FlexFit.loose,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Icon(
+                    Icons.edit,
+                  ),
+                  onTap: () => _openEditRecipeNameModal(context),
+                ),
+              )
+          ],
+        ),
+        background: imageUrl != null
+            ? Hero(
+                tag: heroTag,
+                child: Image(
+                  image: CachedNetworkImageProvider(
+                    imageUrl,
+                  ),
+                  errorBuilder: (_, __, ___) => Container(),
+                  fit: BoxFit.fill,
+                ),
+              )
+            : null,
       ),
-
       leading:
           IconButton(icon: Icon(Icons.arrow_back), onPressed: onBackPressed),
       actions: <Widget>[
