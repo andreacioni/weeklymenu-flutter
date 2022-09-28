@@ -35,6 +35,8 @@ abstract class _$RecipeCWProxy {
 
   Recipe preparation(String? preparation);
 
+  Recipe preparationSteps(List<RecipePreparationStep> preparationSteps);
+
   Recipe rating(int? rating);
 
   Recipe recipeUrl(String? recipeUrl);
@@ -66,6 +68,7 @@ abstract class _$RecipeCWProxy {
     String? note,
     String? owner,
     String? preparation,
+    List<RecipePreparationStep>? preparationSteps,
     int? rating,
     String? recipeUrl,
     int? servs,
@@ -128,6 +131,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   Recipe preparation(String? preparation) => this(preparation: preparation);
 
   @override
+  Recipe preparationSteps(List<RecipePreparationStep> preparationSteps) =>
+      this(preparationSteps: preparationSteps);
+
+  @override
   Recipe rating(int? rating) => this(rating: rating);
 
   @override
@@ -166,6 +173,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? note = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
     Object? preparation = const $CopyWithPlaceholder(),
+    Object? preparationSteps = const $CopyWithPlaceholder(),
     Object? rating = const $CopyWithPlaceholder(),
     Object? recipeUrl = const $CopyWithPlaceholder(),
     Object? servs = const $CopyWithPlaceholder(),
@@ -232,6 +240,11 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.preparation
           // ignore: cast_nullable_to_non_nullable
           : preparation as String?,
+      preparationSteps: preparationSteps == const $CopyWithPlaceholder() ||
+              preparationSteps == null
+          ? _value.preparationSteps
+          // ignore: cast_nullable_to_non_nullable
+          : preparationSteps as List<RecipePreparationStep>,
       rating: rating == const $CopyWithPlaceholder()
           ? _value.rating
           // ignore: cast_nullable_to_non_nullable
@@ -259,6 +272,141 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
 extension $RecipeCopyWith on Recipe {
   /// Returns a callable class that can be used as follows: `instanceOfRecipe.copyWith(...)` or like so:`instanceOfRecipe.copyWith.fieldName(...)`.
   _$RecipeCWProxy get copyWith => _$RecipeCWProxyImpl(this);
+}
+
+abstract class _$RecipePreparationStepCWProxy {
+  RecipePreparationStep description(String? description);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipePreparationStep(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipePreparationStep(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipePreparationStep call({
+    String? description,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfRecipePreparationStep.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfRecipePreparationStep.copyWith.fieldName(...)`
+class _$RecipePreparationStepCWProxyImpl
+    implements _$RecipePreparationStepCWProxy {
+  final RecipePreparationStep _value;
+
+  const _$RecipePreparationStepCWProxyImpl(this._value);
+
+  @override
+  RecipePreparationStep description(String? description) =>
+      this(description: description);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipePreparationStep(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipePreparationStep(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipePreparationStep call({
+    Object? description = const $CopyWithPlaceholder(),
+  }) {
+    return RecipePreparationStep(
+      description: description == const $CopyWithPlaceholder()
+          ? _value.description
+          // ignore: cast_nullable_to_non_nullable
+          : description as String?,
+    );
+  }
+}
+
+extension $RecipePreparationStepCopyWith on RecipePreparationStep {
+  /// Returns a callable class that can be used as follows: `instanceOfRecipePreparationStep.copyWith(...)` or like so:`instanceOfRecipePreparationStep.copyWith.fieldName(...)`.
+  _$RecipePreparationStepCWProxy get copyWith =>
+      _$RecipePreparationStepCWProxyImpl(this);
+}
+
+abstract class _$RecipeIngredientCWProxy {
+  RecipeIngredient freezed(dynamic freezed);
+
+  RecipeIngredient ingredientId(String ingredientId);
+
+  RecipeIngredient quantity(dynamic quantity);
+
+  RecipeIngredient unitOfMeasure(String? unitOfMeasure);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeIngredient(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipeIngredient(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipeIngredient call({
+    dynamic? freezed,
+    String? ingredientId,
+    dynamic? quantity,
+    String? unitOfMeasure,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfRecipeIngredient.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfRecipeIngredient.copyWith.fieldName(...)`
+class _$RecipeIngredientCWProxyImpl implements _$RecipeIngredientCWProxy {
+  final RecipeIngredient _value;
+
+  const _$RecipeIngredientCWProxyImpl(this._value);
+
+  @override
+  RecipeIngredient freezed(dynamic freezed) => this(freezed: freezed);
+
+  @override
+  RecipeIngredient ingredientId(String ingredientId) =>
+      this(ingredientId: ingredientId);
+
+  @override
+  RecipeIngredient quantity(dynamic quantity) => this(quantity: quantity);
+
+  @override
+  RecipeIngredient unitOfMeasure(String? unitOfMeasure) =>
+      this(unitOfMeasure: unitOfMeasure);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeIngredient(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipeIngredient(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipeIngredient call({
+    Object? freezed = const $CopyWithPlaceholder(),
+    Object? ingredientId = const $CopyWithPlaceholder(),
+    Object? quantity = const $CopyWithPlaceholder(),
+    Object? unitOfMeasure = const $CopyWithPlaceholder(),
+  }) {
+    return RecipeIngredient(
+      freezed: freezed == const $CopyWithPlaceholder() || freezed == null
+          ? _value.freezed
+          // ignore: cast_nullable_to_non_nullable
+          : freezed as dynamic,
+      ingredientId:
+          ingredientId == const $CopyWithPlaceholder() || ingredientId == null
+              ? _value.ingredientId
+              // ignore: cast_nullable_to_non_nullable
+              : ingredientId as String,
+      quantity: quantity == const $CopyWithPlaceholder() || quantity == null
+          ? _value.quantity
+          // ignore: cast_nullable_to_non_nullable
+          : quantity as dynamic,
+      unitOfMeasure: unitOfMeasure == const $CopyWithPlaceholder()
+          ? _value.unitOfMeasure
+          // ignore: cast_nullable_to_non_nullable
+          : unitOfMeasure as String?,
+    );
+  }
+}
+
+extension $RecipeIngredientCopyWith on RecipeIngredient {
+  /// Returns a callable class that can be used as follows: `instanceOfRecipeIngredient.copyWith(...)` or like so:`instanceOfRecipeIngredient.copyWith.fieldName(...)`.
+  _$RecipeIngredientCWProxy get copyWith => _$RecipeIngredientCWProxyImpl(this);
 }
 
 // **************************************************************************
@@ -337,6 +485,11 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const <String>[],
       preparation: json['preparation'] as String?,
+      preparationSteps: (json['preparationSteps'] as List<dynamic>?)
+              ?.map((e) => RecipePreparationStep.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const <RecipePreparationStep>[],
       recipeUrl: json['recipeUrl'] as String?,
       note: json['note'] as String?,
       insertTimestamp: json['insert_timestamp'] as int?,
@@ -367,6 +520,8 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('estimatedPreparationTime', instance.estimatedPreparationTime);
   val['ingredients'] = instance.ingredients.map((e) => e.toJson()).toList();
   writeNotNull('preparation', instance.preparation);
+  val['preparationSteps'] =
+      instance.preparationSteps.map((e) => e.toJson()).toList();
   writeNotNull('note', instance.note);
   writeNotNull('imgUrl', instance.imgUrl);
   writeNotNull('recipeUrl', instance.recipeUrl);
@@ -374,10 +529,29 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   return val;
 }
 
+RecipePreparationStep _$RecipePreparationStepFromJson(Map json) =>
+    RecipePreparationStep(
+      description: json['description'] as String?,
+    );
+
+Map<String, dynamic> _$RecipePreparationStepToJson(
+    RecipePreparationStep instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('description', instance.description);
+  return val;
+}
+
 RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
       ingredientId: json['ingredient'] as String,
       unitOfMeasure: json['unitOfMeasure'] as String?,
-      quantity: json['quantity'] ?? 0,
+      quantity: json['quantity'] ?? 0.0,
       freezed: json['freezed'] ?? false,
     );
 

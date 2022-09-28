@@ -4,15 +4,14 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'widgets/splash_screen/screen.dart';
 import 'main.data.dart';
+import 'widgets/screens/splash_screen/screen.dart';
 
 void main() => runApp(App());
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(clear: false),
@@ -89,7 +88,8 @@ class App extends StatelessWidget {
               color: Colors.black,
               opacity: 1,
               size: 23,
-            )),
+            ),
+            indicatorColor: Colors.amber),
       ),
     );
   }

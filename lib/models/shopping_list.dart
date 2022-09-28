@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter_data/flutter_data.dart';
+import 'package:objectid/objectid.dart';
 
 import 'base_model.dart';
 import '../globals/constants.dart';
@@ -22,13 +23,13 @@ class ShoppingList extends BaseModel<ShoppingList> {
   String? name;
 
   ShoppingList(
-      {required String id,
+      {String? id,
       this.items = const [],
       this.name,
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            id: id ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 

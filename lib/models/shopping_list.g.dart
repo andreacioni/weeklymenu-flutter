@@ -7,7 +7,7 @@ part of 'shopping_list.dart';
 // **************************************************************************
 
 abstract class _$ShoppingListCWProxy {
-  ShoppingList id(String id);
+  ShoppingList id(String? id);
 
   ShoppingList insertTimestamp(int? insertTimestamp);
 
@@ -39,7 +39,7 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   const _$ShoppingListCWProxyImpl(this._value);
 
   @override
-  ShoppingList id(String id) => this(id: id);
+  ShoppingList id(String? id) => this(id: id);
 
   @override
   ShoppingList insertTimestamp(int? insertTimestamp) =>
@@ -71,10 +71,10 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return ShoppingList(
-      id: id == const $CopyWithPlaceholder() || id == null
+      id: id == const $CopyWithPlaceholder()
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
-          : id as String,
+          : id as String?,
       insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -320,7 +320,7 @@ extension ShoppingListItemRelationshipGraphNodeX
 // **************************************************************************
 
 ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
-      id: json['_id'] as String,
+      id: json['_id'] as String?,
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => ShoppingListItem.fromJson(
                   Map<String, dynamic>.from(e as Map)))

@@ -48,11 +48,11 @@ class TokenService {
 
   Future<void> _loadUserInformation() async {
     //Email & Password
-    _email = _localPreferences.getString(LocalPreferenceKey.email);
-    _password = _localPreferences.getString(LocalPreferenceKey.password);
+    _email = await _localPreferences.getString(LocalPreferenceKey.email);
+    _password = await _localPreferences.getString(LocalPreferenceKey.password);
 
     //Token
-    final jwt = _localPreferences.getString(LocalPreferenceKey.token);
+    final jwt = await _localPreferences.getString(LocalPreferenceKey.token);
     _token = jwt != null ? AuthToken.fromJWT(jwt) : null;
   }
 

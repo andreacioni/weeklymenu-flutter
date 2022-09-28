@@ -2,9 +2,8 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/providers/local_preferences.dart';
-import 'package:weekly_menu_app/services/token_service.dart';
 
+import '../services/token_service.dart';
 import '../models/auth_token.dart';
 import '../services/auth_service.dart';
 import '../services/local_preferences.dart';

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,25 +15,54 @@ class LocalPreferenceKey {
 class LocalPreferences {
   static final LocalPreferences _instance = LocalPreferences();
   static late final SharedPreferences _sharedPreferences;
+  static late final EncryptedSharedPreferences _encryptedSharedPreferences;
 
   static Future<LocalPreferences> getInstance() async {
     _sharedPreferences = await SharedPreferences.getInstance();
+    _encryptedSharedPreferences =
+        EncryptedSharedPreferences(prefs: _sharedPreferences);
     return _instance;
   }
 
-  Future<bool> remove(String key) {
-    return _sharedPreferences.remove(key);
+  Future<bool> remove(String key) async {
+    var b = false;
+
+    b |= await _sharedPreferences.remove(key);
+    b |= await _encryptedSharedPreferences.remove(key);
+
+    return b;
   }
 
-  Future<bool> clear() {
-    return _sharedPreferences.clear();
+  Future<bool> clear() async {
+    var b = false;
+
+    b |= await _sharedPreferences.clear();
+    b |= await _encryptedSharedPreferences.clear();
+
+    return b;
   }
 
-  String? getString(String key) {
-    return _sharedPreferences.getString(key);
+  Future<String?> getString(String key) async {
+    String? res;
+
+    try {
+      res = await _encryptedSharedPreferences.getString(key);
+    } on TypeError {
+      //not found on encrypted values
+    }
+
+    if (res?.isEmpty ?? true) {
+      res = _sharedPreferences.getString(key);
+    }
+
+    return res;
   }
 
-  Future<bool> setString(String key, String value) {
-    return _sharedPreferences.setString(key, value);
+  Future<bool> setString(String key, String value, {secret: false}) {
+    if (!secret) {
+      return _sharedPreferences.setString(key, value);
+    } else {
+      return _encryptedSharedPreferences.setString(key, value);
+    }
   }
 }

@@ -7,7 +7,7 @@ part of 'ingredient.dart';
 // **************************************************************************
 
 abstract class _$IngredientCWProxy {
-  Ingredient id(String id);
+  Ingredient id(String? id);
 
   Ingredient insertTimestamp(int? insertTimestamp);
 
@@ -36,7 +36,7 @@ class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
   const _$IngredientCWProxyImpl(this._value);
 
   @override
-  Ingredient id(String id) => this(id: id);
+  Ingredient id(String? id) => this(id: id);
 
   @override
   Ingredient insertTimestamp(int? insertTimestamp) =>
@@ -64,10 +64,10 @@ class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return Ingredient(
-      id: id == const $CopyWithPlaceholder() || id == null
+      id: id == const $CopyWithPlaceholder()
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
-          : id as String,
+          : id as String?,
       insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -145,7 +145,7 @@ extension IngredientRelationshipGraphNodeX
 // **************************************************************************
 
 Ingredient _$IngredientFromJson(Map json) => Ingredient(
-      id: json['_id'] as String,
+      id: json['_id'] as String?,
       name: json['name'] as String,
       insertTimestamp: json['insert_timestamp'] as int?,
       updateTimestamp: json['update_timestamp'] as int?,
