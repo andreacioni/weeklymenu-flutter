@@ -61,7 +61,7 @@ class DailyMenuSection extends HookConsumerWidget {
 
     Widget buildMenuContainer(Meal meal, Menu? menu,
         {bool displayPlaceholder = false}) {
-      return MenuContainer(
+      return _MenuContainer(
         meal,
         key: ValueKey('$meal'),
         menu: menu,
@@ -229,14 +229,14 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
   }
 }
 
-class MealRecipeCardContainer extends HookConsumerWidget {
+class _MealRecipeCardContainer extends HookConsumerWidget {
   final String recipeId;
   final Meal meal;
 
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayLeadingMealIcon;
 
-  const MealRecipeCardContainer(
+  const _MealRecipeCardContainer(
     this.meal,
     this.recipeId, {
     Key? key,
@@ -249,7 +249,7 @@ class MealRecipeCardContainer extends HookConsumerWidget {
     final editingMode = ref.watch(isEditingMenuStateProvider);
     return Row(
       children: [
-        LeadingRecipeIcon(
+        _LeadingRecipeIcon(
           iconData: meal.icon,
           color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
         ),
@@ -262,7 +262,7 @@ class MealRecipeCardContainer extends HookConsumerWidget {
             key: ValueKey("$meal-$recipeId"),
             onDismissed: (_) =>
                 dailyMenuNotifier.removeRecipeFromMeal(meal, recipeId),
-            child: MenuRecipeWrapper(
+            child: _MenuRecipeWrapper(
               recipeId,
               meal: meal,
               editingMode: editingMode,
@@ -275,13 +275,13 @@ class MealRecipeCardContainer extends HookConsumerWidget {
   }
 }
 
-class MenuContainer extends HookConsumerWidget {
+class _MenuContainer extends HookConsumerWidget {
   final Meal meal;
   final Menu? menu;
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayRecipePlaceholder;
 
-  MenuContainer(
+  _MenuContainer(
     this.meal, {
     Key? key,
     this.menu,
@@ -297,13 +297,13 @@ class MenuContainer extends HookConsumerWidget {
     final isDragging = ref.read(isDraggingMenuStateProvider);
 
     Widget buildDragTargetPlaceholder({bool displayLeadingMealIcon = false}) {
-      return MenuRecipeDragTarget(
+      return _MenuRecipeDragTarget(
         menu: menu,
         meal: meal,
         dailyMenuNotifier: dailyMenuNotifier,
         child: Row(
           children: [
-            LeadingRecipeIcon(
+            _LeadingRecipeIcon(
               iconData: meal.icon,
               color: displayLeadingMealIcon ? Colors.black : Colors.transparent,
             ),
@@ -336,7 +336,7 @@ class MenuContainer extends HookConsumerWidget {
       children: [
         ...recipeIds
             .mapIndexed(
-              (i, id) => MealRecipeCardContainer(
+              (i, id) => _MealRecipeCardContainer(
                 meal,
                 id,
                 key: ValueKey('$meal-$id'),
@@ -353,7 +353,7 @@ class MenuContainer extends HookConsumerWidget {
   }
 }
 
-class MenuRecipeDragTarget extends HookConsumerWidget {
+class _MenuRecipeDragTarget extends HookConsumerWidget {
   final Widget child;
   final DailyMenuNotifier dailyMenuNotifier;
   final Menu? menu;
@@ -362,7 +362,7 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
   final void Function()? onEnter;
   final void Function()? onLeave;
 
-  MenuRecipeDragTarget({
+  _MenuRecipeDragTarget({
     required this.child,
     required this.dailyMenuNotifier,
     this.menu,
@@ -419,14 +419,14 @@ class MenuRecipeDragTarget extends HookConsumerWidget {
   }
 }
 
-class MenuRecipeWrapper extends HookConsumerWidget {
+class _MenuRecipeWrapper extends HookConsumerWidget {
   final String recipeId;
 
   final Meal meal;
   final DailyMenuNotifier dailyMenuNotifier;
   final bool editingMode;
 
-  MenuRecipeWrapper(this.recipeId,
+  _MenuRecipeWrapper(this.recipeId,
       {required this.meal,
       required this.dailyMenuNotifier,
       this.editingMode = false,
@@ -438,7 +438,7 @@ class MenuRecipeWrapper extends HookConsumerWidget {
     return FlutterDataStateBuilder<Recipe>(
         state: ref.recipes.watchOne(recipeId),
         builder: (context, recipe) {
-          return MenuRecipeCard(recipe,
+          return _MenuRecipeCard(recipe,
               meal: meal,
               dailyMenuNotifier: dailyMenuNotifier,
               editingMode: editingMode);
@@ -446,7 +446,7 @@ class MenuRecipeWrapper extends HookConsumerWidget {
   }
 }
 
-class MenuRecipeCard extends HookConsumerWidget {
+class _MenuRecipeCard extends HookConsumerWidget {
   final Recipe recipe;
 
   final Meal meal;
@@ -456,7 +456,7 @@ class MenuRecipeCard extends HookConsumerWidget {
 
   final bool? disabled;
 
-  MenuRecipeCard(
+  _MenuRecipeCard(
     this.recipe, {
     Key? key,
     required this.dailyMenuNotifier,
@@ -486,7 +486,7 @@ class MenuRecipeCard extends HookConsumerWidget {
       return Container(
         decoration: BoxDecoration(borderRadius: MENU_CARD_ROUNDED_RECT_BORDER),
         width: mediaQuery.size.width,
-        child: MenuRecipeCard(
+        child: _MenuRecipeCard(
           recipe,
           meal: meal,
           dailyMenuNotifier: dailyMenuNotifier,
@@ -495,7 +495,7 @@ class MenuRecipeCard extends HookConsumerWidget {
     }
 
     Widget buildChildWhenDragging(MediaQueryData mediaQuery) {
-      return MenuRecipeCard(
+      return _MenuRecipeCard(
         recipe,
         meal: meal,
         dailyMenuNotifier: dailyMenuNotifier,
@@ -570,7 +570,7 @@ class MenuRecipeCard extends HookConsumerWidget {
                       image: CachedNetworkImageProvider(recipe.imgUrl!,
                           maxWidth: 236, maxHeight: 131),
                       errorBuilder: (_, __, ___) => Container(),
-                      fit: BoxFit.cover),
+                      fit: BoxFit.fitWidth),
                 ),
               ),
             Expanded(
@@ -872,7 +872,7 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
     return Row(
       key: ValueKey('meal-selection'),
       children: [
-        LeadingRecipeIcon(iconData: Icons.abc, color: Colors.transparent),
+        _LeadingRecipeIcon(iconData: Icons.abc, color: Colors.transparent),
         const SizedBox(width: SPACE_BETWEEN_ICON_AND_CARD),
         Expanded(
           child: _CardPrototype(
@@ -887,11 +887,11 @@ class _MealRecipeEditingCardState extends State<_MealRecipeEditingCard> {
   }
 }
 
-class LeadingRecipeIcon extends StatelessWidget {
+class _LeadingRecipeIcon extends StatelessWidget {
   final IconData? iconData;
   final Color? color;
 
-  const LeadingRecipeIcon({Key? key, this.iconData, this.color})
+  const _LeadingRecipeIcon({Key? key, this.iconData, this.color})
       : super(key: key);
   @override
   Widget build(BuildContext context) {

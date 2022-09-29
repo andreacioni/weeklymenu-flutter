@@ -31,6 +31,9 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     final recipeIngredients = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.ingredients));
 
+    final servingsMultiplier = ref.watch(
+        recipeScreenNotifierProvider.select((n) => n.servingsMultiplier));
+
     Widget buildNewIngredientTile() {
       return Card(
         child: ListTile(
@@ -58,6 +61,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     List<Widget> buildDismissibleRecipeTiles() {
       return recipeIngredients.mapIndexed((recipeIng, idx) {
         return DismissibleRecipeIngredientTile(
+          servingsMultiplier: servingsMultiplier,
           recipeIngredient: recipeIng,
           editEnabled: editEnabled,
           updateRecipeIngredient: (newRecipeIngredient) {
