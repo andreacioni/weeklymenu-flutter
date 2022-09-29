@@ -17,6 +17,8 @@ abstract class _$RecipeScreenStateCWProxy {
 
   RecipeScreenState recipeOriginator(RecipeOriginator recipeOriginator);
 
+  RecipeScreenState servingsMultiplier(int? servingsMultiplier);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeScreenState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -29,6 +31,7 @@ abstract class _$RecipeScreenStateCWProxy {
     bool? newIngredientMode,
     bool? newStepMode,
     RecipeOriginator? recipeOriginator,
+    int? servingsMultiplier,
   });
 }
 
@@ -58,6 +61,10 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
       this(recipeOriginator: recipeOriginator);
 
   @override
+  RecipeScreenState servingsMultiplier(int? servingsMultiplier) =>
+      this(servingsMultiplier: servingsMultiplier);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeScreenState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -71,6 +78,7 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
     Object? newIngredientMode = const $CopyWithPlaceholder(),
     Object? newStepMode = const $CopyWithPlaceholder(),
     Object? recipeOriginator = const $CopyWithPlaceholder(),
+    Object? servingsMultiplier = const $CopyWithPlaceholder(),
   }) {
     return RecipeScreenState(
       currentTab:
@@ -98,6 +106,10 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
           ? _value.recipeOriginator
           // ignore: cast_nullable_to_non_nullable
           : recipeOriginator as RecipeOriginator,
+      servingsMultiplier: servingsMultiplier == const $CopyWithPlaceholder()
+          ? _value.servingsMultiplier
+          // ignore: cast_nullable_to_non_nullable
+          : servingsMultiplier as int?,
     );
   }
 }

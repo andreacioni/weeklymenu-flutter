@@ -1,10 +1,13 @@
 import 'dart:developer';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
+import 'package:weekly_menu_app/widgets/shared/number_text_field.dart';
 
 import '../../../providers/screen_notifier.dart';
 import 'recipe_screen_state_notifier.dart';
@@ -51,8 +54,14 @@ class _RecipeScreen extends HookConsumerWidget {
 
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
-    final displayFAB =
+    final displayAddFAB =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.displayFAB));
+    final displayServingsFAB = ref.watch(
+        recipeScreenNotifierProvider.select((n) => n.displayServingsFAB));
+    final servings = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.servs));
+    final servingMultiplier =
+        ref.read(recipeScreenNotifierProvider).servingsMultiplier;
 
     final autoSizeGroup = useMemoized(() => AutoSizeGroup());
 
@@ -177,12 +186,52 @@ class _RecipeScreen extends HookConsumerWidget {
       Navigator.of(context).pop();
     }
 
-    void handleFloatingButtonActionBasedOnTabIndex() {
+    void handleAddActionBasedOnTabIndex() {
       if (tabController.index == 1) {
         notifier.newIngredientMode = true;
       } else if (tabController.index == 2) {
         notifier.newStepMode = true;
       }
+    }
+
+    void handleServingsChanged() async {
+      final newValue = await showDialog(
+          context: context,
+          builder: (context) {
+            return _ServingMultiplierDialog(
+              initialValue: servingMultiplier ?? (servings ?? 1),
+            );
+          });
+
+      if (newValue != null) {
+        ref.read(recipeScreenNotifierProvider.notifier).servingsMultiplier =
+            newValue;
+      }
+    }
+
+    Widget? buildFab() {
+      if (displayAddFAB) {
+        return FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () => handleAddActionBasedOnTabIndex(),
+        );
+      }
+
+      if (displayServingsFAB) {
+        return FloatingActionButton(
+          child: Badge(
+              elevation: 2,
+              alignment: Alignment.topRight,
+              position: BadgePosition.topEnd(end: -11, top: -10),
+              badgeColor: Theme.of(context).primaryColor,
+              badgeContent:
+                  Text((servingMultiplier ?? (servings ?? 1)).toString()),
+              child: Icon(Icons.people)),
+          onPressed: () => handleServingsChanged(),
+        );
+      }
+
+      return null;
     }
 
     return ProviderScope(
@@ -195,59 +244,52 @@ class _RecipeScreen extends HookConsumerWidget {
             return true;
           },
           child: Scaffold(
-            body: GestureDetector(
-              onTap: () => _unfocus(context),
-              child: Form(
-                key: _formKey,
-                child: NestedScrollView(
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      RecipeAppBar(
-                        heroTag: heroTag,
-                        editModeEnabled: editEnabled,
-                        onRecipeEditEnabled: (editEnabled) =>
-                            _handleEditToggle(editEnabled),
-                        onBackPressed: () => _handleBackButton(),
-                      ),
-                      SliverPersistentHeader(
-                        delegate: _SliverTabBarDelegate(
-                          TabBar(
-                            tabs: tabs,
-                            controller: tabController,
+              body: GestureDetector(
+                onTap: () => _unfocus(context),
+                child: Form(
+                  key: _formKey,
+                  child: NestedScrollView(
+                    headerSliverBuilder: (context, innerBoxIsScrolled) {
+                      return [
+                        RecipeAppBar(
+                          heroTag: heroTag,
+                          editModeEnabled: editEnabled,
+                          onRecipeEditEnabled: (editEnabled) =>
+                              _handleEditToggle(editEnabled),
+                          onBackPressed: () => _handleBackButton(),
+                        ),
+                        SliverPersistentHeader(
+                          delegate: _SliverTabBarDelegate(
+                            TabBar(
+                              tabs: tabs,
+                              controller: tabController,
+                            ),
                           ),
+                          pinned: true,
                         ),
-                        pinned: true,
+                      ];
+                    },
+                    body: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TabBarView(
+                        controller: tabController,
+                        children: [
+                          SingleChildScrollView(
+                            child: RecipeGeneralInfoTab(),
+                          ),
+                          SingleChildScrollView(
+                            child: RecipeIngredientsTab(),
+                          ),
+                          SingleChildScrollView(
+                            child: RecipeStepsTab(),
+                          ),
+                        ],
                       ),
-                    ];
-                  },
-                  body: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TabBarView(
-                      controller: tabController,
-                      children: [
-                        SingleChildScrollView(
-                          child: RecipeGeneralInfoTab(),
-                        ),
-                        SingleChildScrollView(
-                          child: RecipeIngredientsTab(),
-                        ),
-                        SingleChildScrollView(
-                          child: RecipeStepsTab(),
-                        ),
-                      ],
                     ),
                   ),
                 ),
               ),
-            ),
-            floatingActionButton: displayFAB
-                ? FloatingActionButton(
-                    child: Icon(Icons.add),
-                    onPressed: () =>
-                        handleFloatingButtonActionBasedOnTabIndex(),
-                  )
-                : null,
-          ),
+              floatingActionButton: buildFab()),
         ),
       ),
     );
@@ -258,6 +300,45 @@ class _RecipeScreen extends HookConsumerWidget {
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.focusedChild?.unfocus();
     }
+  }
+}
+
+class _ServingMultiplierDialog extends HookConsumerWidget {
+  final int initialValue;
+
+  _ServingMultiplierDialog({required this.initialValue});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final servingsMultiplier = useState(initialValue);
+    return BaseDialog(
+      title: 'Servings',
+      subtitle: 'For how many people you want to cook?',
+      onDoneTap: () => Navigator.of(context).pop(servingsMultiplier.value),
+      children: [
+        Expanded(
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                  splashRadius: 13,
+                  onPressed: servingsMultiplier.value > 1
+                      ? () => servingsMultiplier.value =
+                          servingsMultiplier.value - 1
+                      : null,
+                  icon: Icon(Icons.remove)),
+              Text(servingsMultiplier.value.toString()),
+              IconButton(
+                  splashRadius: 13,
+                  onPressed: () =>
+                      servingsMultiplier.value = servingsMultiplier.value + 1,
+                  icon: Icon(Icons.add))
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

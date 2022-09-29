@@ -21,10 +21,12 @@ class RecipeIngredientListTile extends HookConsumerWidget {
   final RecipeIngredient? recipeIngredient;
   final bool editEnabled;
   final bool autofocus;
+  final int? servingsMultiplier;
   final Function(RecipeIngredient)? onChanged;
 
   RecipeIngredientListTile({
     this.recipeIngredient,
+    this.servingsMultiplier,
     this.editEnabled = false,
     this.autofocus = false,
     this.onChanged,
@@ -45,6 +47,7 @@ class RecipeIngredientListTile extends HookConsumerWidget {
             ingredient: ingredient,
             recipeIngredient: recipeIngredient,
             editEnabled: editEnabled,
+            servingsMultiplier: servingsMultiplier,
             onChanged: onChanged,
           );
         },
@@ -58,12 +61,14 @@ class RecipeIngredientListTile extends HookConsumerWidget {
 class _RecipeIngredientListTile extends StatelessWidget {
   final RecipeIngredient? recipeIngredient;
   final Ingredient? ingredient;
+  final int? servingsMultiplier;
   final bool editEnabled;
   final Function(RecipeIngredient)? onChanged;
 
   const _RecipeIngredientListTile(
       {Key? key,
       this.recipeIngredient,
+      this.servingsMultiplier,
       this.ingredient,
       this.editEnabled = false,
       this.onChanged})
@@ -71,6 +76,16 @@ class _RecipeIngredientListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String quantityString() {
+      if (recipeIngredient?.quantity != null) {
+        return ((servingsMultiplier ?? 1) *
+                (recipeIngredient!.quantity!.toInt()))
+            .toStringAsFixed(0);
+      }
+
+      return '-';
+    }
+
     return Card(
       child: ListTile(
         title: IngredientSuggestionTextField(
@@ -78,12 +93,12 @@ class _RecipeIngredientListTile extends StatelessWidget {
           enabled: editEnabled,
         ),
         leading: InkWell(
-          onTap: () => _openUpdateDetailsDialog(context),
+          onTap: editEnabled ? () => _openUpdateDetailsDialog(context) : null,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                recipeIngredient?.quantity?.toStringAsFixed(0) ?? '-',
+                quantityString(),
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.bold,

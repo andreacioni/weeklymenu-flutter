@@ -15,19 +15,22 @@ class RecipeScreenState {
   final bool newIngredientMode;
   final bool newStepMode;
   final int currentTab;
+  final int? servingsMultiplier;
 
   final RecipeOriginator recipeOriginator;
 
-  RecipeScreenState({
-    required this.recipeOriginator,
-    this.editEnabled = false,
-    this.newIngredientMode = false,
-    this.newStepMode = false,
-    this.currentTab = 0,
-  });
+  RecipeScreenState(
+      {required this.recipeOriginator,
+      this.editEnabled = false,
+      this.newIngredientMode = false,
+      this.newStepMode = false,
+      this.currentTab = 0,
+      this.servingsMultiplier});
 
   get displayFAB =>
       editEnabled && !newIngredientMode && !newStepMode && currentTab != 0;
+
+  get displayServingsFAB => !editEnabled && currentTab == 1;
 }
 
 class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
@@ -35,13 +38,10 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
   RecipeScreenStateNotifier(this.read, RecipeScreenState state) : super(state);
 
-/*   set recipeOriginator(RecipeOriginator recipeOriginator) {
-    if (state.recipeOriginator == null) {
-      state = state.copyWith(recipeOriginator: recipeOriginator);
-    }
-  } */
-
   bool get isRecipeEdited => state.recipeOriginator.isEdited;
+
+  set servingsMultiplier(int servingsMultiplier) =>
+      state = state.copyWith(servingsMultiplier: servingsMultiplier);
 
   set currentTab(int currentTab) =>
       state = state.copyWith(currentTab: currentTab);
