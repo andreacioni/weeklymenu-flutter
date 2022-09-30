@@ -222,10 +222,12 @@ class _RecipeScreen extends HookConsumerWidget {
           child: Badge(
               elevation: 2,
               alignment: Alignment.topRight,
-              position: BadgePosition.topEnd(end: -11, top: -10),
-              badgeColor: Theme.of(context).primaryColor,
-              badgeContent:
-                  Text((servingMultiplier ?? (servings ?? 1)).toString()),
+              position: BadgePosition.topEnd(end: -10, top: -10),
+              badgeColor: Theme.of(context).splashColor,
+              badgeContent: Text(
+                (servingMultiplier ?? (servings ?? 1)).toString(),
+                style: Theme.of(context).textTheme.caption,
+              ),
               child: Icon(Icons.people)),
           onPressed: () => handleServingsChanged(),
         );
@@ -316,26 +318,24 @@ class _ServingMultiplierDialog extends HookConsumerWidget {
       subtitle: 'For how many people you want to cook?',
       onDoneTap: () => Navigator.of(context).pop(servingsMultiplier.value),
       children: [
-        Expanded(
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                  splashRadius: 13,
-                  onPressed: servingsMultiplier.value > 1
-                      ? () => servingsMultiplier.value =
-                          servingsMultiplier.value - 1
-                      : null,
-                  icon: Icon(Icons.remove)),
-              Text(servingsMultiplier.value.toString()),
-              IconButton(
-                  splashRadius: 13,
-                  onPressed: () =>
-                      servingsMultiplier.value = servingsMultiplier.value + 1,
-                  icon: Icon(Icons.add))
-            ],
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+                splashRadius: 13,
+                onPressed: servingsMultiplier.value > 1
+                    ? () =>
+                        servingsMultiplier.value = servingsMultiplier.value - 1
+                    : null,
+                icon: Icon(Icons.remove)),
+            Text(servingsMultiplier.value.toString()),
+            IconButton(
+                splashRadius: 13,
+                onPressed: () =>
+                    servingsMultiplier.value = servingsMultiplier.value + 1,
+                icon: Icon(Icons.add))
+          ],
         ),
       ],
     );

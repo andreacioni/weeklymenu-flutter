@@ -31,6 +31,14 @@ class RecipeScreenState {
       editEnabled && !newIngredientMode && !newStepMode && currentTab != 0;
 
   get displayServingsFAB => !editEnabled && currentTab == 1;
+
+  double get servingsMultiplierFactor {
+    if (servingsMultiplier != null) {
+      return servingsMultiplier! / (recipeOriginator.instance.servs ?? 1);
+    }
+
+    return 1;
+  }
 }
 
 class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {

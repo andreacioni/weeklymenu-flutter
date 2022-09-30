@@ -7,7 +7,7 @@ import '../../../../models/ingredient.dart';
 
 class DismissibleRecipeIngredientTile extends StatelessWidget {
   final RecipeIngredient recipeIngredient;
-  final int? servingsMultiplier;
+  final double? servingsMultiplierFactor;
   final bool editEnabled;
   final void Function()? onDismissed;
   final void Function(RecipeIngredient)? updateRecipeIngredient;
@@ -17,7 +17,7 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
     this.editEnabled = false,
     this.onDismissed,
     this.updateRecipeIngredient,
-    this.servingsMultiplier,
+    this.servingsMultiplierFactor,
   });
 
   @override
@@ -35,7 +35,7 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
         : RecipeIngredientListTile(
             recipeIngredient: recipeIngredient,
             editEnabled: editEnabled,
-            servingsMultiplier: servingsMultiplier,
+            servingsMultiplierFactor: servingsMultiplierFactor,
           );
   }
 }
