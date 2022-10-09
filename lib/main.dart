@@ -12,6 +12,7 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final appColor = Color.fromRGBO(255, 223, 117, 1);
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(clear: false),
@@ -25,17 +26,17 @@ class App extends StatelessWidget {
         theme: ThemeData(
             // Define the default brightness and colors.
             brightness: Brightness.light,
-            primaryColor: Colors.amber.shade300,
+            primaryColor: appColor,
             splashColor: Colors.amberAccent,
             highlightColor: Colors.amberAccent.withOpacity(0.3),
             scaffoldBackgroundColor: Colors.white,
 
             // Define the default font family.
             fontFamily: 'Rubik',
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-                backgroundColor: Colors.amber.shade300),
+            floatingActionButtonTheme:
+                FloatingActionButtonThemeData(backgroundColor: appColor),
             appBarTheme: AppBarTheme(
-                color: Colors.amber.shade300,
+                color: appColor,
                 titleTextStyle:
                     GoogleFonts.rubik(fontSize: 20, color: Colors.black),
                 iconTheme: IconThemeData(color: Colors.black)),
@@ -44,8 +45,8 @@ class App extends StatelessWidget {
             bottomAppBarTheme: BottomAppBarTheme(
               color: Colors.white,
             ),
-            listTileTheme: ListTileThemeData(
-                selectedTileColor: Colors.amber.withOpacity(0.2)),
+            listTileTheme:
+                ListTileThemeData(selectedTileColor: appColor.withOpacity(0.2)),
 
             //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
             colorScheme: ColorScheme.light(
@@ -54,12 +55,14 @@ class App extends StatelessWidget {
             // Define the default TextTheme. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
             textTheme: TextTheme(
-                headline5:
-                    TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-                headline6:
-                    TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-                bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
-                labelMedium: TextStyle(fontSize: 18)
+                titleMedium: GoogleFonts.aleo(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black.withOpacity(0.8)),
+                labelMedium: GoogleFonts.aleo(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black.withOpacity(0.8))
                 //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
                 ),
             checkboxTheme: CheckboxThemeData(
@@ -89,6 +92,7 @@ class App extends StatelessWidget {
               opacity: 1,
               size: 23,
             ),
+            visualDensity: VisualDensity.comfortable,
             indicatorColor: Colors.amber),
       ),
     );

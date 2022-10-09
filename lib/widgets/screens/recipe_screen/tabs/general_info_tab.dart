@@ -4,6 +4,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
 import '../../../../models/enums/difficulty.dart';
 import '../../../../models/recipe.dart';
@@ -20,11 +21,9 @@ class RecipeGeneralInfoTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Card(
-          child: Padding(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: _RecipeInformationTiles(),
-          ),
+        Padding(
+          padding: EdgeInsets.only(left: 10, right: 10),
+          child: _RecipeInformationTiles(),
         ),
       ],
     );
@@ -41,116 +40,116 @@ class _RecipeInformationTiles extends HookConsumerWidget {
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
 
-    final servs = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.servs));
-    final estimatedPreparationTime = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.estimatedPreparationTime));
-    final estimatedCookingTime = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.estimatedCookingTime));
-    final rating = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.rating));
-    final cost = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.cost));
-    final difficulty = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.difficulty));
-
-    final autoSizeGroup = useMemoized(() => AutoSizeGroup());
-
-    Widget _buildDifficultyDropdown(BuildContext context) {
-      return !editEnabled
-          ? Text(
-              difficulty ?? '-',
-              style: const TextStyle(fontSize: 18),
-            )
-          : DropdownButton<String>(
-              value: difficulty,
-              hint: const AutoSizeText('Choose'),
-              iconSize: 24,
-              elevation: 16,
-              style: const TextStyle(color: Colors.black, fontSize: 18),
-              onChanged: (String? newValue) =>
-                  notifier.updateDifficulty(newValue),
-              items: Difficulties.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            );
-    }
-
     return Column(
       children: <Widget>[
-        _EditableInformationTile(
-          servs?.toDouble(),
-          "Servings",
-          minValue: 1,
-          icon: Icon(
-            Icons.people,
-            color: Colors.black,
+        SizedBox(height: 20),
+        _RecipeTitle(),
+        SizedBox(height: 20),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 20),
+          height: 2,
+          width: double.maxFinite,
+          decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.1),
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+        ),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Column(
+              children: [
+                Icon(Icons.schedule, size: 25, color: Colors.amber.shade400),
+                SizedBox(height: 9),
+                Text('50 min', style: Theme.of(context).textTheme.labelMedium)
+              ],
+            ),
+            Column(
+              children: [
+                Icon(Icons.people_outline,
+                    size: 25, color: Colors.amber.shade400),
+                SizedBox(height: 9),
+                Text('2 servs.', style: Theme.of(context).textTheme.labelMedium)
+              ],
+            ),
+            Column(
+              children: [
+                Icon(
+                  Icons.favorite_border_outlined,
+                  size: 25,
+                  color: Colors.amber.shade400,
+                ),
+                SizedBox(height: 9),
+                Text('70 %', style: Theme.of(context).textTheme.labelMedium)
+              ],
+            )
+          ],
+        ),
+        SizedBox(height: 20),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 20),
+          height: 2,
+          width: double.maxFinite,
+          decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.1),
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+}
+
+class _RecipeTitle extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+
+    final editEnabled =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
+    final recipeName = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.name));
+
+    void openEditRecipeNameModal() async {
+      final textController = TextEditingController(text: recipeName);
+      String? newRecipeName = await showDialog<String>(
+        context: context,
+        builder: (_) => BaseDialog<String?>(
+          title: 'Name',
+          children: [
+            TextField(controller: textController),
+          ],
+          onDoneTap: () {
+            var text = textController.text.trim();
+            if (text.isNotEmpty) {
+              Navigator.of(context).pop(text);
+            }
+          },
+        ),
+      );
+
+      if (newRecipeName != null) {
+        notifier.updateRecipeName(newRecipeName);
+      }
+    }
+
+    return Row(
+      children: [
+        Flexible(
+          child: AutoSizeText(
+            recipeName,
+            maxLines: 2,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          editingEnabled: editEnabled,
-          suffix: "ppl",
-          autoSizeGroup: autoSizeGroup,
-          onChanged: (newValue) => notifier
-              .updateServings(newValue.truncate()), //_recipe.setEdited(),
         ),
-        _EditableInformationTile(
-          estimatedPreparationTime?.toDouble(),
-          "Preparation time",
-          icon: Icon(
-            Icons.timer,
-            color: Colors.blueAccent,
+        if (editEnabled) ...[
+          SizedBox(width: 10),
+          IconButton(
+            onPressed: openEditRecipeNameModal,
+            icon: Icon(Icons.edit),
+            splashRadius: 15,
           ),
-          editingEnabled: editEnabled,
-          suffix: "min",
-          autoSizeGroup: autoSizeGroup,
-          minValue: 1,
-          onChanged: (newValue) =>
-              notifier.updateEstimatedPreparationTime(newValue.truncate()),
-        ),
-        _EditableInformationTile(
-          estimatedCookingTime?.toDouble(),
-          "Cooking time",
-          icon: Icon(
-            Icons.timelapse,
-            color: Colors.blue,
-          ),
-          editingEnabled: editEnabled,
-          suffix: "min",
-          autoSizeGroup: autoSizeGroup,
-          minValue: 1,
-          onChanged: (newValue) =>
-              notifier.updateEstimatedCookingTime(newValue.truncate()),
-        ),
-        ListTile(
-          title: AutoSizeText(
-            "Difficulty",
-            group: autoSizeGroup,
-          ),
-          leading: Icon(Icons.work, color: Colors.brown.shade400),
-          trailing: _buildDifficultyDropdown(context),
-        ),
-        _RecipeInformationLevelSelect(
-          "Affinity",
-          Icon(Icons.favorite, color: Colors.red.shade300),
-          rating,
-          editEnabled: editEnabled,
-          inactiveColor: Colors.grey.withOpacity(0.3),
-          activeColor: Colors.red,
-          autoSizeGroup: autoSizeGroup,
-          onChange: (newLevel) => notifier.updateAffinity(newLevel),
-        ),
-        _RecipeInformationLevelSelect(
-          "Cost",
-          Icon(Icons.attach_money, color: Colors.green.shade300),
-          cost,
-          editEnabled: editEnabled,
-          inactiveColor: Colors.grey.withOpacity(0.5),
-          activeColor: Colors.green,
-          autoSizeGroup: autoSizeGroup,
-          onChange: (newLevel) => notifier.updateCost(newLevel),
-        ),
+        ]
       ],
     );
   }

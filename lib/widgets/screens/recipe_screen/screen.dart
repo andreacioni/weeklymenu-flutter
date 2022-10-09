@@ -56,12 +56,6 @@ class _RecipeScreen extends HookConsumerWidget {
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
     final displayAddFAB =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.displayFAB));
-    final displayServingsFAB = ref.watch(
-        recipeScreenNotifierProvider.select((n) => n.displayServingsFAB));
-    final servings = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.servs));
-    final servingMultiplier =
-        ref.read(recipeScreenNotifierProvider).servingsMultiplier;
 
     final autoSizeGroup = useMemoized(() => AutoSizeGroup());
 
@@ -186,26 +180,40 @@ class _RecipeScreen extends HookConsumerWidget {
       Navigator.of(context).pop();
     }
 
+    Future<void> showAddInfoDialog() async {
+      await showDialog(
+          context: context,
+          builder: (context) => BaseDialog(
+                title: "New section",
+                subtitle: "Add more information to your recipe",
+                children: [
+                  ListTile(
+                      leading: Icon(Icons.restaurant), title: Text("Section")),
+                  ListTile(
+                      leading: Icon(Icons.description_outlined),
+                      title: Text("Description")),
+                  ListTile(
+                      leading: Icon(Icons.assignment_outlined),
+                      title: Text("Note")),
+                  ListTile(leading: Icon(Icons.euro), title: Text("Cost")),
+                  ListTile(
+                      leading: Icon(Icons.local_fire_department_outlined),
+                      title: Text("Calories")),
+                  ListTile(
+                      leading: Icon(Icons.ondemand_video),
+                      title: Text("Video")),
+                  ListTile(leading: Icon(Icons.link), title: Text("Link")),
+                ],
+              ));
+    }
+
     void handleAddActionBasedOnTabIndex() {
-      if (tabController.index == 1) {
+      if (tabController.index == 0) {
+        showAddInfoDialog();
+      } else if (tabController.index == 1) {
         notifier.newIngredientMode = true;
       } else if (tabController.index == 2) {
         notifier.newStepMode = true;
-      }
-    }
-
-    void handleServingsChanged() async {
-      final newValue = await showDialog(
-          context: context,
-          builder: (context) {
-            return _ServingMultiplierDialog(
-              initialValue: servingMultiplier ?? (servings ?? 1),
-            );
-          });
-
-      if (newValue != null) {
-        ref.read(recipeScreenNotifierProvider.notifier).servingsMultiplier =
-            newValue;
       }
     }
 
@@ -214,22 +222,6 @@ class _RecipeScreen extends HookConsumerWidget {
         return FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () => handleAddActionBasedOnTabIndex(),
-        );
-      }
-
-      if (displayServingsFAB) {
-        return FloatingActionButton(
-          child: Badge(
-              elevation: 2,
-              alignment: Alignment.topRight,
-              position: BadgePosition.topEnd(end: -10, top: -10),
-              badgeColor: Theme.of(context).splashColor,
-              badgeContent: Text(
-                (servingMultiplier ?? (servings ?? 1)).toString(),
-                style: Theme.of(context).textTheme.caption,
-              ),
-              child: Icon(Icons.people)),
-          onPressed: () => handleServingsChanged(),
         );
       }
 
@@ -259,15 +251,8 @@ class _RecipeScreen extends HookConsumerWidget {
                           onRecipeEditEnabled: (editEnabled) =>
                               _handleEditToggle(editEnabled),
                           onBackPressed: () => _handleBackButton(),
-                        ),
-                        SliverPersistentHeader(
-                          delegate: _SliverTabBarDelegate(
-                            TabBar(
-                              tabs: tabs,
-                              controller: tabController,
-                            ),
-                          ),
-                          pinned: true,
+                          tabs: tabs,
+                          tabController: tabController,
                         ),
                       ];
                     },
@@ -302,97 +287,5 @@ class _RecipeScreen extends HookConsumerWidget {
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.focusedChild?.unfocus();
     }
-  }
-}
-
-class _ServingMultiplierDialog extends HookConsumerWidget {
-  final int initialValue;
-
-  _ServingMultiplierDialog({required this.initialValue});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final servingsMultiplier = useState(initialValue);
-    return BaseDialog(
-      title: 'Servings',
-      subtitle: 'For how many people you want to cook?',
-      onDoneTap: () => Navigator.of(context).pop(servingsMultiplier.value),
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-                splashRadius: 13,
-                onPressed: servingsMultiplier.value > 1
-                    ? () =>
-                        servingsMultiplier.value = servingsMultiplier.value - 1
-                    : null,
-                icon: Icon(Icons.remove)),
-            Text(servingsMultiplier.value.toString()),
-            IconButton(
-                splashRadius: 13,
-                onPressed: () =>
-                    servingsMultiplier.value = servingsMultiplier.value + 1,
-                icon: Icon(Icons.add))
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverTabBarDelegate(this._tabBar);
-
-  final TabBar _tabBar;
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Material(
-      elevation: 3,
-      child: Container(
-        color: Colors.white,
-        child: _tabBar,
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return false;
-  }
-}
-
-class _SliverHeroDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-  final Object tag;
-
-  _SliverHeroDelegate({
-    required this.child,
-    required this.tag,
-  });
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Hero(tag: tag, child: child);
-  }
-
-  @override
-  double get maxExtent => 250;
-
-  @override
-  double get minExtent => 0;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
   }
 }

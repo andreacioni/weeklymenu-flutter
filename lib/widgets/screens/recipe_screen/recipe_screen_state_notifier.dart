@@ -27,8 +27,7 @@ class RecipeScreenState {
       this.currentTab = 0,
       this.servingsMultiplier});
 
-  get displayFAB =>
-      editEnabled && !newIngredientMode && !newStepMode && currentTab != 0;
+  get displayFAB => editEnabled && !newIngredientMode && !newStepMode;
 
   get displayServingsFAB => !editEnabled && currentTab == 1;
 

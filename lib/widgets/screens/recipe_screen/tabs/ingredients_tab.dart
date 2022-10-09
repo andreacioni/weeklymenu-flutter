@@ -31,6 +31,11 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     final recipeIngredients = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.ingredients));
 
+    final servings = ref.watch(recipeScreenNotifierProvider
+            .select((n) => n.recipeOriginator.instance.servs)) ??
+        1;
+    final servingsMultiplier =
+        ref.read(recipeScreenNotifierProvider).servingsMultiplier ?? servings;
     final servingsMultiplierFactor = ref.watch(
         recipeScreenNotifierProvider.select((n) => n.servingsMultiplierFactor));
 
@@ -74,6 +79,29 @@ class RecipeIngredientsTab extends HookConsumerWidget {
       }).toList();
     }
 
+    Widget buildServingMultiplayer() {
+      return Card(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+                splashRadius: 13,
+                onPressed: servingsMultiplier > 1
+                    ? () => notifier.servingsMultiplier = servingsMultiplier - 1
+                    : null,
+                icon: Icon(Icons.remove)),
+            Text(servingsMultiplier.toString()),
+            IconButton(
+                splashRadius: 13,
+                onPressed: () =>
+                    notifier.servingsMultiplier = servingsMultiplier + 1,
+                icon: Icon(Icons.add))
+          ],
+        ),
+      );
+    }
+
     return Column(
       children: [
         if (!newIngredientMode && recipeIngredients.isEmpty)
@@ -83,6 +111,8 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             sizeRate: 0.8,
             margin: EdgeInsets.only(top: 100),
           ),
+        if (!editEnabled && recipeIngredients.isNotEmpty)
+          buildServingMultiplayer(),
         if (newIngredientMode) buildNewIngredientTile(),
         if (recipeIngredients.isNotEmpty) ...buildDismissibleRecipeTiles(),
       ],

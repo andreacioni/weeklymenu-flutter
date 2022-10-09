@@ -2,22 +2,30 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/widgets/shared/appbar_button.dart';
+import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
 import '../../../models/recipe.dart';
 import '../../../providers/screen_notifier.dart';
 import 'screen.dart';
 
 class RecipeAppBar extends HookConsumerWidget {
+  static const TAB_BAR_SIZE = 62.0;
+
   final bool editModeEnabled;
   final Object heroTag;
   final Function(bool) onRecipeEditEnabled;
   final void Function() onBackPressed;
+  final List<Widget> tabs;
+  final TabController tabController;
 
   RecipeAppBar({
     this.heroTag = const Object(),
     this.editModeEnabled = false,
     required this.onRecipeEditEnabled,
     required this.onBackPressed,
+    required this.tabs,
+    required this.tabController,
   });
 
   @override
@@ -38,21 +46,17 @@ class RecipeAppBar extends HookConsumerWidget {
 
       String? newUrl = await showDialog<String>(
           context: context,
-          builder: (_) => AlertDialog(
-                title: Text('Image URL'),
-                content: TextField(
-                  decoration: InputDecoration(hintText: 'URL'),
-                  controller: textController,
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text('CANCEL')),
-                  FlatButton(
-                      onPressed: () =>
-                          Navigator.of(context).pop(textController.text),
-                      child: Text('OK'))
+          builder: (_) => BaseDialog(
+                title: 'Image URL',
+                subtitle: 'Type the URL of the recipe image',
+                children: [
+                  TextField(
+                    decoration: InputDecoration(hintText: 'URL'),
+                    controller: textController,
+                  )
                 ],
+                doneButtonText: 'OK',
+                onDoneTap: () => Navigator.of(context).pop(textController.text),
               ));
 
       if (newUrl != null) {
@@ -60,118 +64,88 @@ class RecipeAppBar extends HookConsumerWidget {
       }
     }
 
-    void _openEditRecipeNameModal(BuildContext context) async {
-      final textController = TextEditingController(text: recipeName);
-      String? newRecipeName = await showDialog<String>(
-        context: context,
-        builder: (_) => AlertDialog(
-          content: TextField(
-            controller: textController,
-            decoration: InputDecoration(hintText: 'Recipe name'),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('CANCEL'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            FlatButton(
-              child: Text('CHANGE'),
-              onPressed: () {
-                var text = textController.text.trim();
-                if (text.isNotEmpty) {
-                  Navigator.of(context).pop(text);
-                }
-              },
-            )
-          ],
-        ),
-      );
-
-      if (newRecipeName != null) {
-        notifier.updateRecipeName(newRecipeName);
-      }
-    }
-
     return SliverAppBar(
       pinned: true,
       floating: false,
-      forceElevated: false,
-      scrolledUnderElevation: 0,
-      expandedHeight: imageUrl != null ? 250.0 : null,
+      snap: false,
+      leadingWidth: 50,
+      automaticallyImplyLeading: false,
+      expandedHeight: 300,
+      centerTitle: true,
       flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.none,
+        stretchModes: [],
+        collapseMode: CollapseMode.pin,
         centerTitle: false,
-        title: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Flexible(
-              fit: FlexFit.loose,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.black.withOpacity(0.4),
-                ),
-                padding: EdgeInsets.all(3),
-                child: AutoSizeText(
-                  recipeName,
-                  maxLines: 1,
-                  minFontSize: 1,
-                  softWrap: false,
-                  style: TextStyle(color: Colors.white),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            Flexible(
-              fit: FlexFit.loose,
-              child: SizedBox(
-                width: 10,
-              ),
-            ),
-            if (editModeEnabled)
-              Flexible(
-                fit: FlexFit.loose,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Icon(
-                    Icons.edit,
-                  ),
-                  onTap: () => _openEditRecipeNameModal(context),
-                ),
-              )
-          ],
-        ),
-        background: imageUrl != null
-            ? Hero(
-                tag: heroTag,
-                child: Image(
+        background: Hero(
+          tag: heroTag,
+          child: imageUrl != null
+              ? Image(
                   image: CachedNetworkImageProvider(
                     imageUrl,
                   ),
                   errorBuilder: (_, __, ___) => Container(),
                   fit: BoxFit.fill,
+                )
+              : Image.asset(
+                  'assets/images/recipe_banner.jpg',
+                  cacheHeight: 600,
+                  cacheWidth: 800,
+                  fit: BoxFit.cover,
                 ),
-              )
-            : null,
+        ),
       ),
-      leading:
-          IconButton(icon: Icon(Icons.arrow_back), onPressed: onBackPressed),
+      leading: AppBarButton(
+          icon: Icon(
+            Icons.arrow_back,
+            size: 18,
+          ),
+          onPressed: onBackPressed),
       actions: <Widget>[
         if (!editModeEnabled)
-          IconButton(
-            icon: Icon(Icons.edit),
+          AppBarButton(
+            icon: Icon(
+              Icons.edit,
+              size: 18,
+            ),
             onPressed: () => onRecipeEditEnabled(!editModeEnabled),
           ),
         if (editModeEnabled)
-          IconButton(
+          AppBarButton(
             icon: Icon(Icons.camera_alt),
             onPressed: () => _showUpdateImageDialog(context),
           ),
         if (editModeEnabled)
-          IconButton(
+          AppBarButton(
               icon: Icon(Icons.save),
               onPressed: () => onRecipeEditEnabled(!editModeEnabled)),
       ],
+      bottom: PreferredSize(
+        preferredSize: Size(double.maxFinite, TAB_BAR_SIZE),
+        child: Container(
+          padding: EdgeInsets.only(top: 10),
+          height: TAB_BAR_SIZE,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                height: 4,
+                width: 50,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.black.withOpacity(0.5)),
+              ),
+              TabBar(
+                controller: tabController,
+                tabs: tabs,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
