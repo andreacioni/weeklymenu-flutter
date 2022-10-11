@@ -129,8 +129,11 @@ class _StepCard extends HookConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, _) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final controller = useTextEditingController(text: step?.description);
+    final editEnabled =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
+
     final focusNode = useFocusNode();
 
     useEffect((() {
@@ -153,6 +156,8 @@ class _StepCard extends HookConsumerWidget {
         maxLines: 10,
         focusNode: focusNode,
         textInputAction: TextInputAction.done,
+        readOnly: !editEnabled,
+        decoration: InputDecoration(border: InputBorder.none),
         onSubmitted: (text) {
           if (step != null) {
             onSubmit?.call(step!.copyWith());

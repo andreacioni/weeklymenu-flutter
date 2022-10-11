@@ -139,7 +139,7 @@ class _RecipeTitle extends HookConsumerWidget {
           child: AutoSizeText(
             recipeName,
             maxLines: 2,
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
         if (editEnabled) ...[

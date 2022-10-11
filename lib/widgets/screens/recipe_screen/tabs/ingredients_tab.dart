@@ -81,8 +81,10 @@ class RecipeIngredientsTab extends HookConsumerWidget {
 
     Widget buildServingMultiplayer() {
       return Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Row(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
@@ -90,13 +92,27 @@ class RecipeIngredientsTab extends HookConsumerWidget {
                 onPressed: servingsMultiplier > 1
                     ? () => notifier.servingsMultiplier = servingsMultiplier - 1
                     : null,
-                icon: Icon(Icons.remove)),
-            Text(servingsMultiplier.toString()),
+                icon: Icon(
+                  Icons.remove_circle_outline,
+                  color: Colors.amber.shade400,
+                )),
+            Text(
+              servingsMultiplier.toString(),
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+            SizedBox(width: 5),
+            Text(
+              'servings',
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
             IconButton(
                 splashRadius: 13,
                 onPressed: () =>
                     notifier.servingsMultiplier = servingsMultiplier + 1,
-                icon: Icon(Icons.add))
+                icon: Icon(
+                  Icons.add_circle_outline,
+                  color: Colors.amber.shade400,
+                ))
           ],
         ),
       );

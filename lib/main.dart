@@ -56,6 +56,8 @@ class App extends StatelessWidget {
             // text styling for headlines, titles, bodies of text, and more.
             textTheme: TextTheme(
                 titleMedium: GoogleFonts.aleo(
+                    fontSize: 20, color: Colors.black.withOpacity(0.8)),
+                headlineSmall: GoogleFonts.aleo(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
                     color: Colors.black.withOpacity(0.8)),

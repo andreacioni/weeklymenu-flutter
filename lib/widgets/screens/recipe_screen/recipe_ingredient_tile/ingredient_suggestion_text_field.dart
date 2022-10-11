@@ -35,7 +35,7 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
       initialValue: TextEditingValue(text: ingredient?.name ?? ''),
       optionsMaxHeight: 100,
       optionsBuilder: (textEditingValue) async {
-        if (textEditingValue.text.length < suggestAfter)
+        if (textEditingValue.text.length < suggestAfter || !enabled)
           return const <Ingredient>[];
         final ingredients =
             await ref.ingredients.findAll(remote: false) ?? <Ingredient>[];
@@ -53,7 +53,10 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
           focusNode: focusNode,
           textCapitalization: TextCapitalization.sentences,
           controller: textEditingController,
-          enabled: enabled,
+          readOnly: !enabled,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+          ),
           onSubmitted: onSubmitted != null
               ? (text) async {
                   final ingredients =

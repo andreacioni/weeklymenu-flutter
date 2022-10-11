@@ -87,35 +87,39 @@ class _RecipeIngredientListTile extends StatelessWidget {
     }
 
     return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: ListTile(
         title: IngredientSuggestionTextField(
           ingredient: ingredient,
           enabled: editEnabled,
         ),
-        leading: InkWell(
+        trailing: InkWell(
           onTap: editEnabled ? () => _openUpdateDetailsDialog(context) : null,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Text(
                 quantityString(),
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(fontWeight: FontWeight.bold),
               ),
-              Text(
-                recipeIngredient?.unitOfMeasure ?? '-',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+              if (recipeIngredient?.unitOfMeasure != null)
+                Text(
+                  recipeIngredient!.unitOfMeasure ?? '-',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
-              ),
             ],
           ),
         ),
-        trailing: editEnabled ? Icon(Icons.drag_handle_rounded) : null,
+        leading: editEnabled ? Icon(Icons.drag_handle_rounded) : null,
       ),
     );
   }
