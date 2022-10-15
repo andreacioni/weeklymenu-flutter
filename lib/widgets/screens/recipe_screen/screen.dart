@@ -56,8 +56,19 @@ class _RecipeScreen extends HookConsumerWidget {
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
     final displayAddFAB =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.displayFAB));
+    final displayServingsFAB = ref.watch(
+        recipeScreenNotifierProvider.select((n) => n.displayServingsFAB));
+
+    final servings = ref.watch(recipeScreenNotifierProvider
+            .select((n) => n.recipeOriginator.instance.servs)) ??
+        1;
+    final servingsMultiplier = ref.watch(
+            recipeScreenNotifierProvider.select((n) => n.servingsMultiplier)) ??
+        servings;
 
     final autoSizeGroup = useMemoized(() => AutoSizeGroup());
+
+    final theme = Theme.of(context);
 
     final tabs = [
       Tab(
@@ -180,21 +191,64 @@ class _RecipeScreen extends HookConsumerWidget {
       Navigator.of(context).pop();
     }
 
+    Future<String?> showTextDialog(String? initialText, String title) async {
+      final controller = TextEditingController(text: initialText);
+
+      return await showDialog<String?>(
+          context: context,
+          builder: (context) {
+            return BaseDialog(
+                title: 'Description',
+                children: [
+                  TextField(
+                    controller: controller,
+                  ),
+                ],
+                onDoneTap: () =>
+                    Navigator.pop(context, controller.text.trim()));
+          });
+    }
+
     Future<void> showAddInfoDialog() async {
+      final recipe =
+          ref.read(recipeScreenNotifierProvider).recipeOriginator.instance;
       await showDialog(
           context: context,
           builder: (context) => BaseDialog(
-                title: "New section",
-                subtitle: "Add more information to your recipe",
+                title: "More",
+                subtitle: "Add or modify additional information",
+                displayActions: false,
                 children: [
                   ListTile(
                       leading: Icon(Icons.restaurant), title: Text("Section")),
                   ListTile(
-                      leading: Icon(Icons.description_outlined),
-                      title: Text("Description")),
+                    leading: Icon(Icons.description_outlined),
+                    title: Text("Description"),
+                    trailing: recipe.description != null
+                        ? Icon(Icons.check_circle_outline)
+                        : null,
+                    onTap: () async {
+                      final newDesc =
+                          await showTextDialog(recipe.note, 'Description');
+                      if (newDesc != null) {
+                        notifier.updateDescription(newDesc);
+                      }
+                    },
+                  ),
                   ListTile(
-                      leading: Icon(Icons.assignment_outlined),
-                      title: Text("Note")),
+                    leading: Icon(Icons.assignment_outlined),
+                    title: Text("Note"),
+                    trailing: recipe.note != null
+                        ? Icon(Icons.check_circle_outline)
+                        : null,
+                    onTap: () async {
+                      final newNote =
+                          await showTextDialog(recipe.note, 'Notes');
+                      if (newNote != null) {
+                        notifier.updateNote(newNote);
+                      }
+                    },
+                  ),
                   ListTile(leading: Icon(Icons.euro), title: Text("Cost")),
                   ListTile(
                       leading: Icon(Icons.local_fire_department_outlined),
@@ -203,6 +257,7 @@ class _RecipeScreen extends HookConsumerWidget {
                       leading: Icon(Icons.ondemand_video),
                       title: Text("Video")),
                   ListTile(leading: Icon(Icons.link), title: Text("Link")),
+                  ListTile(leading: Icon(Icons.tag), title: Text("Tags")),
                 ],
               ));
     }
@@ -218,7 +273,42 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     Widget? buildFab() {
-      if (displayAddFAB) {
+      if (displayServingsFAB) {
+        return Card(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                  splashRadius: 13,
+                  onPressed: servingsMultiplier > 1
+                      ? () =>
+                          notifier.servingsMultiplier = servingsMultiplier - 1
+                      : null,
+                  icon: Icon(
+                    Icons.remove_circle_outline,
+                    color: Colors.amber.shade400,
+                  )),
+              Text(
+                servingsMultiplier.toString(),
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+              SizedBox(width: 5),
+              Icon(
+                Icons.people_outline,
+              ),
+              IconButton(
+                  splashRadius: 13,
+                  onPressed: () =>
+                      notifier.servingsMultiplier = servingsMultiplier + 1,
+                  icon: Icon(
+                    Icons.add_circle_outline,
+                    color: Colors.amber.shade400,
+                  ))
+            ],
+          ),
+        );
+      } else if (displayAddFAB) {
         return FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () => handleAddActionBasedOnTabIndex(),
@@ -228,16 +318,22 @@ class _RecipeScreen extends HookConsumerWidget {
       return null;
     }
 
-    return ProviderScope(
-      overrides: [],
-      child: DefaultTabController(
-        length: tabs.length,
-        child: WillPopScope(
-          onWillPop: () async {
-            _handleBackButton();
-            return true;
-          },
-          child: Scaffold(
+    return Theme(
+      data: theme.copyWith(
+          cardTheme: theme.cardTheme.copyWith(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)))),
+      child: ProviderScope(
+        overrides: [],
+        child: DefaultTabController(
+          length: tabs.length,
+          child: WillPopScope(
+            onWillPop: () async {
+              _handleBackButton();
+              return true;
+            },
+            child: Scaffold(
               body: GestureDetector(
                 onTap: () => _unfocus(context),
                 child: Form(
@@ -276,7 +372,12 @@ class _RecipeScreen extends HookConsumerWidget {
                   ),
                 ),
               ),
-              floatingActionButton: buildFab()),
+              floatingActionButton: buildFab(),
+              floatingActionButtonLocation: displayServingsFAB
+                  ? FloatingActionButtonLocation.centerFloat
+                  : null,
+            ),
+          ),
         ),
       ),
     );

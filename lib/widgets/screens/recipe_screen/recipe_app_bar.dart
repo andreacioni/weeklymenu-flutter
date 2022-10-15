@@ -88,8 +88,8 @@ class RecipeAppBar extends HookConsumerWidget {
                 )
               : Image.asset(
                   'assets/images/recipe_banner.jpg',
-                  cacheHeight: 600,
-                  cacheWidth: 800,
+                  cacheHeight: 900,
+                  cacheWidth: 1300,
                   fit: BoxFit.cover,
                 ),
         ),

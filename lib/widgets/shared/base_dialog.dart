@@ -5,12 +5,14 @@ class BaseDialog<T> extends StatelessWidget {
   final String? subtitle;
   final void Function()? onDoneTap;
   final String doneButtonText;
+  final bool displayActions;
   final List<Widget> children;
 
   BaseDialog(
       {required this.children,
       required this.title,
       this.subtitle,
+      this.displayActions = true,
       this.doneButtonText = 'OK',
       this.onDoneTap});
 
@@ -43,18 +45,19 @@ class BaseDialog<T> extends StatelessWidget {
           ]),
       children: [
         ...children,
-        Divider(),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('CANCEL')),
-            SizedBox(width: 10),
-            ElevatedButton(onPressed: onDoneTap, child: Text(doneButtonText))
-          ],
-        ),
+        if (displayActions) Divider(),
+        if (displayActions)
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('CANCEL')),
+              SizedBox(width: 10),
+              ElevatedButton(onPressed: onDoneTap, child: Text(doneButtonText))
+            ],
+          ),
         const SizedBox(height: 10)
       ],
     );

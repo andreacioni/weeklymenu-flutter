@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -35,15 +36,65 @@ class _RecipeInformationTiles extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
 
+    final recipeDescription = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.description));
+    final recipeNote = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.note));
+
+    Widget buildRecipeNote() {
+      if (recipeNote != null) {
+        return Card(
+          child: ExpandablePanel(
+              theme: ExpandableThemeData(
+                  inkWellBorderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20))),
+              header: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(children: [
+                  Icon(Icons.assignment_outlined),
+                  SizedBox(width: 20),
+                  Text(
+                    'Notes',
+                    style: theme.textTheme.titleSmall,
+                  )
+                ]),
+              ),
+              collapsed: Container(),
+              expanded: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(recipeNote),
+              )),
+        );
+      }
+
+      return Container();
+    }
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SizedBox(height: 20),
+        SizedBox(height: 10),
+        Row(children: [Chip(label: Text('Dinner'))]),
+        SizedBox(height: 5),
         _RecipeTitle(),
+        if (recipeDescription != null) ...[
+          SizedBox(height: 10),
+          AutoSizeText(
+            recipeDescription,
+            textAlign: TextAlign.start,
+            maxLines: 2,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontStyle: FontStyle.italic,
+                color: Colors.black.withOpacity(0.7)),
+          ),
+        ],
         SizedBox(height: 20),
         Container(
           margin: EdgeInsets.symmetric(horizontal: 20),
@@ -95,6 +146,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
               borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
         SizedBox(height: 20),
+        buildRecipeNote()
       ],
     );
   }

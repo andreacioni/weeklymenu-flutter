@@ -22,6 +22,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final editEnabled =
@@ -31,18 +32,13 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     final recipeIngredients = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.ingredients));
 
-    final servings = ref.watch(recipeScreenNotifierProvider
-            .select((n) => n.recipeOriginator.instance.servs)) ??
-        1;
-    final servingsMultiplier =
-        ref.read(recipeScreenNotifierProvider).servingsMultiplier ?? servings;
     final servingsMultiplierFactor = ref.watch(
         recipeScreenNotifierProvider.select((n) => n.servingsMultiplierFactor));
 
     Widget buildNewIngredientTile() {
-      return Card(
-        child: ListTile(
-          title: IngredientSuggestionTextField(
+      return ListTile(
+        title: Card(
+          child: IngredientSuggestionTextField(
             autofocus: true,
             onSubmitted: (value) {
               notifier.newIngredientMode = false;
@@ -79,45 +75,6 @@ class RecipeIngredientsTab extends HookConsumerWidget {
       }).toList();
     }
 
-    Widget buildServingMultiplayer() {
-      return Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-                splashRadius: 13,
-                onPressed: servingsMultiplier > 1
-                    ? () => notifier.servingsMultiplier = servingsMultiplier - 1
-                    : null,
-                icon: Icon(
-                  Icons.remove_circle_outline,
-                  color: Colors.amber.shade400,
-                )),
-            Text(
-              servingsMultiplier.toString(),
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            SizedBox(width: 5),
-            Text(
-              'servings',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            IconButton(
-                splashRadius: 13,
-                onPressed: () =>
-                    notifier.servingsMultiplier = servingsMultiplier + 1,
-                icon: Icon(
-                  Icons.add_circle_outline,
-                  color: Colors.amber.shade400,
-                ))
-          ],
-        ),
-      );
-    }
-
     return Column(
       children: [
         if (!newIngredientMode && recipeIngredients.isEmpty)
@@ -127,8 +84,6 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             sizeRate: 0.8,
             margin: EdgeInsets.only(top: 100),
           ),
-        if (!editEnabled && recipeIngredients.isNotEmpty)
-          buildServingMultiplayer(),
         if (newIngredientMode) buildNewIngredientTile(),
         if (recipeIngredients.isNotEmpty) ...buildDismissibleRecipeTiles(),
       ],

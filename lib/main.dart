@@ -27,6 +27,8 @@ class App extends StatelessWidget {
             // Define the default brightness and colors.
             brightness: Brightness.light,
             primaryColor: appColor,
+            primaryColorLight: appColor,
+            primaryColorDark: Colors.black,
             splashColor: Colors.amberAccent,
             highlightColor: Colors.amberAccent.withOpacity(0.3),
             scaffoldBackgroundColor: Colors.white,
@@ -55,18 +57,20 @@ class App extends StatelessWidget {
             // Define the default TextTheme. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
             textTheme: TextTheme(
-                titleMedium: GoogleFonts.aleo(
-                    fontSize: 20, color: Colors.black.withOpacity(0.8)),
-                headlineSmall: GoogleFonts.aleo(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.8)),
-                labelMedium: GoogleFonts.aleo(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.8))
-                //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
-                ),
+              titleMedium: GoogleFonts.aleo(
+                  fontSize: 20, color: Colors.black.withOpacity(0.8)),
+              headlineSmall: GoogleFonts.aleo(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black.withOpacity(0.8)),
+              labelMedium: GoogleFonts.aleo(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+              bodyMedium: GoogleFonts.aleo(
+                  fontSize: 15, color: Colors.black.withOpacity(0.8)),
+              //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
+            ),
             checkboxTheme: CheckboxThemeData(
               fillColor: MaterialStateProperty.resolveWith((states) =>
                   states.contains(MaterialState.selected)
