@@ -29,7 +29,10 @@ class RecipeScreenState {
 
   get displayFAB => editEnabled && !newIngredientMode && !newStepMode;
 
-  get displayServingsFAB => !editEnabled && currentTab == 1;
+  get displayServingsFAB =>
+      !editEnabled &&
+      currentTab == 1 &&
+      recipeOriginator.instance.ingredients.isNotEmpty;
 
   double get servingsMultiplierFactor {
     if (servingsMultiplier != null) {
@@ -175,6 +178,18 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
     state.recipeOriginator.update(
         state.recipeOriginator.instance.copyWith(preparationSteps: newList));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateStepByIndex(
+      int index, RecipePreparationStep recipePreparationStep) {
+    final newList = [...state.recipeOriginator.instance.preparationSteps];
+    newList.replaceRange(index, index + 1, [recipePreparationStep]);
+
+    //update with the same instance just to set "edited" flag
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(preparationSteps: newList));
+    //we do not want the widget to rebuild here
+    //state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
   void updateDescription(String description) {

@@ -12,7 +12,7 @@ import 'enums/meal.dart';
 part 'recipe.g.dart';
 
 class RecipeOriginator extends Originator<Recipe> {
-  RecipeOriginator(Recipe original) : super(original);
+  RecipeOriginator(Recipe original) : super(original.copyWith());
 }
 
 @JsonSerializable(explicitToJson: true, anyMap: true)

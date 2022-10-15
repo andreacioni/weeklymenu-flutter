@@ -33,7 +33,14 @@ class RecipeStepsTab extends HookConsumerWidget {
         index: index,
         autofocus: autofocus,
         onSubmit: (recipePreparationStep) {
-          notifier.addStep(recipePreparationStep);
+          if (step == null) {
+            notifier.addStep(recipePreparationStep);
+          }
+        },
+        onChanged: (recipePreparationStep) {
+          if (step != null && index != null) {
+            notifier.updateStepByIndex(index, recipePreparationStep);
+          }
         },
         onFocusChanged: (hasFocus) {
           if (!hasFocus) {
@@ -44,12 +51,12 @@ class RecipeStepsTab extends HookConsumerWidget {
     }
 
     Widget buildAddStepCard(int currentStep) {
-      return buildStepCard(autofocus: true, index: currentStep + 1);
+      return buildStepCard(autofocus: true, index: currentStep);
     }
 
     List<Widget> buildStepsList(List<RecipePreparationStep> steps) {
       return steps.mapIndexed((step, idx) {
-        return buildStepCard(step: step, index: idx + 1);
+        return buildStepCard(step: step, index: idx);
       }).toList();
     }
 
@@ -123,6 +130,7 @@ class _StepCard extends HookConsumerWidget {
   final bool autofocus;
   final void Function(bool)? onFocusChanged;
   final void Function(RecipePreparationStep)? onSubmit;
+  final void Function(RecipePreparationStep)? onChanged;
 
   const _StepCard(
     this.step, {
@@ -130,6 +138,7 @@ class _StepCard extends HookConsumerWidget {
     this.index,
     this.onFocusChanged,
     this.onSubmit,
+    this.onChanged,
     this.autofocus = false,
   }) : super(key: key);
 
@@ -157,7 +166,7 @@ class _StepCard extends HookConsumerWidget {
             shape: CircleBorder(),
             elevation: theme.cardTheme.elevation!,
             child: CircleAvatar(
-              child: Text(index.toString(),
+              child: Text(((index ?? 0) + 1).toString(),
                   style: GoogleFonts.ubuntu(
                       fontWeight: FontWeight.w700,
                       fontSize: 18,
@@ -179,9 +188,17 @@ class _StepCard extends HookConsumerWidget {
               decoration: InputDecoration(border: InputBorder.none),
               onSubmitted: (text) {
                 if (step != null) {
-                  onSubmit?.call(step!.copyWith());
+                  onSubmit?.call(step!.copyWith(description: text));
+                } else {
+                  onSubmit?.call(RecipePreparationStep(description: text));
                 }
-                onSubmit?.call(RecipePreparationStep(description: text));
+              },
+              onChanged: (text) {
+                if (step != null) {
+                  onChanged?.call(step!.copyWith(description: text));
+                } else {
+                  onChanged?.call(RecipePreparationStep(description: text));
+                }
               },
             ),
           ),

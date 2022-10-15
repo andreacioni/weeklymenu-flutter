@@ -151,48 +151,83 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         return [
           SizedBox(height: 10),
           Row(
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (recipeUrl != null)
-                Expanded(
+                Flexible(
                   child: Card(
                     child: InkWell(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20)),
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
                           children: [
-                            Icon(Icons.link),
-                            const SizedBox(width: 10),
-                            Text('Link')
+                            Row(children: [
+                              Icon(Icons.link),
+                              SizedBox(width: 20),
+                              Text(
+                                'Link',
+                                style: theme.textTheme.titleSmall,
+                              )
+                            ]),
+                            Icon(Icons.launch)
                           ],
                         ),
                       ),
-                      onTap: () {},
                     ),
                   ),
                 ),
               if (videoUrl != null)
-                Expanded(
+                Flexible(
                   child: Card(
                     child: InkWell(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20)),
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
                           children: [
-                            Icon(Icons.ondemand_video),
-                            const SizedBox(width: 10),
-                            Text('Video')
+                            Row(children: [
+                              Icon(Icons.link),
+                              SizedBox(width: 20),
+                              Text(
+                                'Video',
+                                style: theme.textTheme.titleSmall,
+                              )
+                            ]),
+                            Icon(Icons.launch)
                           ],
                         ),
                       ),
-                      onTap: () {},
                     ),
                   ),
-                )
+                ),
             ],
           ),
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildRecipeDescription() {
+      if (recipeDescription != null) {
+        return [
+          SizedBox(height: 10),
+          AutoSizeText(
+            recipeDescription,
+            textAlign: TextAlign.start,
+            maxLines: 2,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontStyle: FontStyle.italic,
+                color: Colors.black.withOpacity(0.7)),
+          ),
+          SizedBox(height: 20),
         ];
       }
 
@@ -205,18 +240,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         ...buildSection(),
         SizedBox(height: 5),
         _RecipeTitle(),
-        if (recipeDescription != null) ...[
-          SizedBox(height: 10),
-          AutoSizeText(
-            recipeDescription,
-            textAlign: TextAlign.start,
-            maxLines: 2,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontStyle: FontStyle.italic,
-                color: Colors.black.withOpacity(0.7)),
-          ),
-        ],
-        SizedBox(height: 20),
+        ...buildRecipeDescription(),
         Container(
           margin: EdgeInsets.symmetric(horizontal: 20),
           height: 2,
