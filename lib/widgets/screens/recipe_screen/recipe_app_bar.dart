@@ -30,6 +30,8 @@ class RecipeAppBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final recipeName = ref.watch(recipeScreenNotifierProvider
@@ -94,38 +96,45 @@ class RecipeAppBar extends HookConsumerWidget {
                 ),
         ),
       ),
-      leading: AppBarButton(
-          icon: Icon(
-            Icons.arrow_back,
-            size: 18,
-          ),
-          onPressed: onBackPressed),
-      actions: <Widget>[
-        if (!editModeEnabled)
-          AppBarButton(
-            icon: Icon(
-              Icons.edit,
-              size: 18,
-            ),
-            onPressed: () => onRecipeEditEnabled(!editModeEnabled),
-          ),
-        if (editModeEnabled)
-          AppBarButton(
-            icon: Icon(Icons.camera_alt),
-            onPressed: () => _showUpdateImageDialog(context),
-          ),
-        if (editModeEnabled)
-          AppBarButton(
-              icon: Icon(Icons.save),
-              onPressed: () => onRecipeEditEnabled(!editModeEnabled)),
-      ],
+      title: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            AppBarButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 18,
+                ),
+                onPressed: onBackPressed),
+            Row(
+              children: [
+                if (!editModeEnabled)
+                  AppBarButton(
+                    icon: Icon(
+                      Icons.edit,
+                      size: 18,
+                    ),
+                    onPressed: () => onRecipeEditEnabled(!editModeEnabled),
+                  ),
+                if (editModeEnabled)
+                  AppBarButton(
+                    icon: Icon(Icons.camera_alt),
+                    onPressed: () => _showUpdateImageDialog(context),
+                  ),
+                if (editModeEnabled)
+                  AppBarButton(
+                      icon: Icon(Icons.save),
+                      onPressed: () => onRecipeEditEnabled(!editModeEnabled)),
+              ],
+            )
+          ]),
       bottom: PreferredSize(
         preferredSize: Size(double.maxFinite, TAB_BAR_SIZE),
         child: Container(
           padding: EdgeInsets.only(top: 10),
           height: TAB_BAR_SIZE,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.bottomAppBarColor,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20), topRight: Radius.circular(20)),
           ),

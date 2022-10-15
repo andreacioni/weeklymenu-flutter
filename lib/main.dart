@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,11 +24,26 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Weekly Menu',
         home: SplashScreen(),
+        themeMode: ThemeMode.light,
+        darkTheme: FlexThemeData.dark(
+          scheme: FlexScheme.mango,
+          surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+          blendLevel: 15,
+          appBarStyle: FlexAppBarStyle.background,
+          appBarOpacity: 0.90,
+          subThemesData: const FlexSubThemesData(
+            blendOnLevel: 30,
+          ),
+          keyColors: const FlexKeyColors(),
+          visualDensity: FlexColorScheme.comfortablePlatformDensity,
+          // To use the playground font, add GoogleFonts package and uncomment
+          // fontFamily: GoogleFonts.notoSans().fontFamily,
+        ),
         theme: ThemeData(
             // Define the default brightness and colors.
             brightness: Brightness.light,
             primaryColor: appColor,
-            primaryColorLight: appColor,
+            primaryColorLight: appColor.withOpacity(0.7),
             primaryColorDark: Colors.black,
             splashColor: Colors.amberAccent,
             highlightColor: Colors.amberAccent.withOpacity(0.3),
@@ -52,7 +68,9 @@ class App extends StatelessWidget {
 
             //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
             colorScheme: ColorScheme.light(
-                primary: Colors.amber, secondary: Colors.amberAccent),
+              primary: Colors.amber,
+              secondary: Colors.amberAccent,
+            ),
 
             // Define the default TextTheme. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.

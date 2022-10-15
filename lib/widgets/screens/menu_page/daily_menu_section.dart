@@ -517,7 +517,6 @@ class _MenuRecipeCard extends HookConsumerWidget {
               Icon(
                 Icons.drag_indicator,
                 color: editingMode ? Colors.black38 : Colors.transparent,
-                size: theme.iconTheme.size! - 1,
               ),
             ],
           ),

@@ -198,7 +198,6 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         icon: Icon(
           Icons.menu,
           size: 30.0,
-          color: Colors.black,
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
@@ -243,10 +242,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.black,
-            ),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               setState(() => _editingModeEnabled = false);
               _selectedRecipes.clear();

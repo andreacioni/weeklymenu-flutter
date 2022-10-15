@@ -29,11 +29,7 @@ class MenuAppBar extends HookConsumerWidget implements PreferredSizeWidget {
                 : Icon(Icons.mode_edit_outline_outlined))
       ],
       leading: IconButton(
-        icon: Icon(
-          Icons.menu,
-          size: 30.0,
-          color: Colors.black,
-        ),
+        icon: Icon(Icons.menu, size: 30.0),
         onPressed: () {
           /*
           * We need the root Scaffold so we need the above context. If we don't

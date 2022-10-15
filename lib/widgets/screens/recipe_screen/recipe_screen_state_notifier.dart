@@ -188,4 +188,38 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
         .update(state.recipeOriginator.instance.copyWith(note: note));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
+
+  void updateSection(String section) {
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(section: section));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateRecipeUrl(String newLink) {
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(recipeUrl: newLink));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateVideoUrl(String newVideoUrl) {
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(videoUrl: newVideoUrl));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void deleteTagByIndex(int index) {
+    final newList = state.recipeOriginator.instance.tags..removeAt(index);
+
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(tags: [...newList]));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void addTag(String newTag) {
+    final newList = [...state.recipeOriginator.instance.tags, newTag];
+
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(tags: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
 }

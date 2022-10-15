@@ -46,42 +46,163 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         .select((n) => n.recipeOriginator.instance.description));
     final recipeNote = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.note));
+    final section = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.section));
+    final tags = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.tags));
+    final recipeUrl = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.recipeUrl));
+    final videoUrl = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.videoUrl));
 
-    Widget buildRecipeNote() {
+    List<Widget> buildRecipeNote() {
       if (recipeNote != null) {
-        return Card(
-          child: ExpandablePanel(
-              theme: ExpandableThemeData(
-                  inkWellBorderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20))),
-              header: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(children: [
-                  Icon(Icons.assignment_outlined),
-                  SizedBox(width: 20),
-                  Text(
-                    'Notes',
-                    style: theme.textTheme.titleSmall,
-                  )
-                ]),
-              ),
-              collapsed: Container(),
-              expanded: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(recipeNote),
-              )),
-        );
+        return [
+          SizedBox(height: 20),
+          Card(
+            child: ExpandablePanel(
+                theme: ExpandableThemeData(
+                    inkWellBorderRadius: BorderRadius.circular(20)),
+                header: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(children: [
+                    Icon(Icons.assignment_outlined),
+                    SizedBox(width: 20),
+                    Text(
+                      'Notes',
+                      style: theme.textTheme.titleSmall,
+                    )
+                  ]),
+                ),
+                collapsed: Container(),
+                expanded: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(recipeNote),
+                )),
+          )
+        ];
       }
 
-      return Container();
+      return const [];
+    }
+
+    List<Widget> buildTagsSection() {
+      if (tags.isNotEmpty) {
+        return [
+          const SizedBox(height: 20),
+          Text(
+            'Tags',
+            style: theme.textTheme.titleMedium,
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            children: List.generate(
+              tags.length,
+              (i) => Container(
+                margin: const EdgeInsets.only(right: 10),
+                child: Chip(
+                  key: ValueKey(i),
+                  backgroundColor: theme.primaryColorLight,
+                  avatar: Icon(
+                    Icons.tag,
+                    color: Colors.black45,
+                  ),
+                  label: Text(tags[i]),
+                  deleteIcon: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black12,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      size: 15,
+                    ),
+                  ),
+                  onDeleted:
+                      editEnabled ? () => notifier.deleteTagByIndex(i) : null,
+                ),
+              ),
+            ),
+          )
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildSection() {
+      if (section != null) {
+        return [
+          SizedBox(height: 10),
+          Row(children: [
+            Chip(
+              label: Text(section),
+              backgroundColor: theme.primaryColor,
+            )
+          ]),
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildRecipeLinkSection() {
+      if (recipeUrl != null || videoUrl != null) {
+        return [
+          SizedBox(height: 10),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              if (recipeUrl != null)
+                Expanded(
+                  child: Card(
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Row(
+                          children: [
+                            Icon(Icons.link),
+                            const SizedBox(width: 10),
+                            Text('Link')
+                          ],
+                        ),
+                      ),
+                      onTap: () {},
+                    ),
+                  ),
+                ),
+              if (videoUrl != null)
+                Expanded(
+                  child: Card(
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Row(
+                          children: [
+                            Icon(Icons.ondemand_video),
+                            const SizedBox(width: 10),
+                            Text('Video')
+                          ],
+                        ),
+                      ),
+                      onTap: () {},
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ];
+      }
+
+      return const [];
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SizedBox(height: 10),
-        Row(children: [Chip(label: Text('Dinner'))]),
+        ...buildSection(),
         SizedBox(height: 5),
         _RecipeTitle(),
         if (recipeDescription != null) ...[
@@ -145,8 +266,9 @@ class _RecipeInformationTiles extends HookConsumerWidget {
               color: Colors.black.withOpacity(0.1),
               borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
-        SizedBox(height: 20),
-        buildRecipeNote()
+        ...buildRecipeLinkSection(),
+        ...buildRecipeNote(),
+        ...buildTagsSection(),
       ],
     );
   }

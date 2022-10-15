@@ -220,7 +220,19 @@ class _RecipeScreen extends HookConsumerWidget {
                 displayActions: false,
                 children: [
                   ListTile(
-                      leading: Icon(Icons.restaurant), title: Text("Section")),
+                    leading: Icon(Icons.restaurant),
+                    title: Text("Section"),
+                    trailing: recipe.section != null
+                        ? Icon(Icons.check_circle_outline)
+                        : null,
+                    onTap: () async {
+                      final newSection =
+                          await showTextDialog(recipe.section, 'Section');
+                      if (newSection != null) {
+                        notifier.updateSection(newSection);
+                      }
+                    },
+                  ),
                   ListTile(
                     leading: Icon(Icons.description_outlined),
                     title: Text("Description"),
@@ -249,15 +261,47 @@ class _RecipeScreen extends HookConsumerWidget {
                       }
                     },
                   ),
-                  ListTile(leading: Icon(Icons.euro), title: Text("Cost")),
                   ListTile(
                       leading: Icon(Icons.local_fire_department_outlined),
                       title: Text("Calories")),
                   ListTile(
                       leading: Icon(Icons.ondemand_video),
-                      title: Text("Video")),
-                  ListTile(leading: Icon(Icons.link), title: Text("Link")),
-                  ListTile(leading: Icon(Icons.tag), title: Text("Tags")),
+                      title: Text("Video"),
+                      trailing: recipe.videoUrl != null
+                          ? Icon(Icons.check_circle_outline)
+                          : null,
+                      onTap: () async {
+                        final newVideoUrl = await showTextDialog(null, 'Video');
+                        if (newVideoUrl != null) {
+                          notifier.updateVideoUrl(newVideoUrl);
+                        }
+                      }),
+                  ListTile(
+                      leading: Icon(Icons.link),
+                      title: Text("Link"),
+                      trailing: recipe.recipeUrl != null
+                          ? Icon(Icons.check_circle_outline)
+                          : null,
+                      onTap: () async {
+                        final newLink = await showTextDialog(null, 'Link');
+                        if (newLink != null) {
+                          notifier.updateRecipeUrl(newLink);
+                        }
+                      }),
+                  ListTile(leading: Icon(Icons.euro), title: Text("Cost")),
+                  ListTile(
+                    leading: Icon(Icons.tag),
+                    title: Text("Tags"),
+                    trailing: recipe.tags.isNotEmpty
+                        ? Icon(Icons.check_circle_outline)
+                        : null,
+                    onTap: () async {
+                      final newTag = await showTextDialog(null, 'Tag');
+                      if (newTag != null) {
+                        notifier.addTag(newTag);
+                      }
+                    },
+                  ),
                 ],
               ));
     }
