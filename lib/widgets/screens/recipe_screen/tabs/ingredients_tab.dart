@@ -35,26 +35,21 @@ class RecipeIngredientsTab extends HookConsumerWidget {
         recipeScreenNotifierProvider.select((n) => n.servingsMultiplierFactor));
 
     Widget buildNewIngredientTile() {
-      return ListTile(
-        title: Card(
-          child: IngredientSuggestionTextField(
-            autofocus: true,
-            onSubmitted: (value) {
-              notifier.newIngredientMode = false;
-
-              if (value is Ingredient) {
-                notifier.addRecipeIngredientFromIngredient(value);
-              } else if (value is String) {
-                notifier.addRecipeIngredientFromString(value);
-              }
-            },
-            onFocusChanged: (focus) {
-              if (!focus) {
-                notifier.newIngredientMode = false;
-              }
-            },
-          ),
-        ),
+      return DismissibleRecipeIngredientTile(
+        key: ValueKey('new'),
+        servingsMultiplierFactor: servingsMultiplierFactor,
+        editEnabled: editEnabled,
+        onRecipeIngredientCreate: (value) {
+          notifier.newIngredientMode = false;
+          if (value is Ingredient) {
+            notifier.addRecipeIngredientFromIngredient(value);
+          } else if (value is String) {
+            notifier.addRecipeIngredientFromString(value);
+          } else if (value is RecipeIngredient) {}
+        },
+        onDismissed: () {
+          notifier.newIngredientMode = false;
+        },
       );
     }
 
@@ -65,10 +60,20 @@ class RecipeIngredientsTab extends HookConsumerWidget {
           servingsMultiplierFactor: servingsMultiplierFactor,
           recipeIngredient: recipeIng,
           editEnabled: editEnabled,
-          updateRecipeIngredient: (newRecipeIngredient) {
-            notifier.updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
+          onRecipeIngredientUpdate: (value) {
+            notifier.newIngredientMode = false;
+
+            if (value is RecipeIngredient) {
+              notifier.updateRecipeIngredientAtIndex(idx, value);
+            } else if (value is Ingredient) {
+              notifier.updateRecipeIngredientFromIngredientAtIndex(idx, value);
+            } else if (value is String) {
+              notifier.updateRecipeIngredientFromStringAtIndex(idx, value);
+            }
           },
           onDismissed: () {
+            notifier.newIngredientMode = false;
+
             notifier.deleteRecipeIngredientByIndex(idx);
           },
         );

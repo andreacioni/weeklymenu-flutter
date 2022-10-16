@@ -23,7 +23,7 @@ class RecipeIngredientListTile extends HookConsumerWidget {
   final bool editEnabled;
   final bool autofocus;
   final double? servingsMultiplierFactor;
-  final Function(RecipeIngredient)? onChanged;
+  final Function(dynamic)? onChanged;
 
   RecipeIngredientListTile({
     this.recipeIngredient,
@@ -54,7 +54,12 @@ class RecipeIngredientListTile extends HookConsumerWidget {
         },
       );
     } else {
-      return _RecipeIngredientListTile();
+      return _RecipeIngredientListTile(
+        editEnabled: editEnabled,
+        servingsMultiplierFactor: servingsMultiplierFactor,
+        autofocus: true,
+        onChanged: onChanged,
+      );
     }
   }
 }
@@ -64,7 +69,8 @@ class _RecipeIngredientListTile extends StatelessWidget {
   final Ingredient? ingredient;
   final double? servingsMultiplierFactor;
   final bool editEnabled;
-  final Function(RecipeIngredient)? onChanged;
+  final bool autofocus;
+  final Function(dynamic)? onChanged;
 
   const _RecipeIngredientListTile(
       {Key? key,
@@ -72,6 +78,7 @@ class _RecipeIngredientListTile extends StatelessWidget {
       this.servingsMultiplierFactor,
       this.ingredient,
       this.editEnabled = false,
+      this.autofocus = false,
       this.onChanged})
       : super(key: key);
 
@@ -96,6 +103,8 @@ class _RecipeIngredientListTile extends StatelessWidget {
           child: IngredientSuggestionTextField(
             ingredient: ingredient,
             enabled: editEnabled,
+            autofocus: autofocus,
+            onSubmitted: onChanged,
           ),
         ),
       ),

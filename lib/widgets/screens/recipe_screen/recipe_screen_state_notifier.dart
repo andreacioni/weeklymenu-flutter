@@ -113,6 +113,31 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
+  void updateRecipeIngredientFromIngredientAtIndex(int idx, Ingredient value) {
+    final newRecipeIngredient = state.recipeOriginator.instance.ingredients[idx]
+        .copyWith(ingredientId: value.id);
+
+    updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
+  }
+
+  void updateRecipeIngredientFromStringAtIndex(int idx, String ingredientName) {
+    final newIngredient = Ingredient(name: ingredientName);
+    read(ingredientsRepositoryProvider).save(newIngredient);
+
+    updateRecipeIngredientFromIngredientAtIndex(idx, newIngredient);
+  }
+
+  void updateRecipeIngredientAtIndex(
+      int idx, RecipeIngredient newRecipeIngredient) {
+    final newList = [...state.recipeOriginator.instance.ingredients];
+
+    newList.replaceRange(idx, idx + 1, [newRecipeIngredient]);
+
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(ingredients: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
   void deleteRecipeIngredientByIndex(int index) {
     final newList = state.recipeOriginator.instance.ingredients
       ..removeAt(index);
@@ -155,17 +180,6 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   void updateCost(int cost) {
     state.recipeOriginator
         .update(state.recipeOriginator.instance.copyWith(cost: cost));
-    state = state.copyWith(recipeOriginator: state.recipeOriginator);
-  }
-
-  void updateRecipeIngredientAtIndex(
-      int idx, RecipeIngredient newRecipeIngredient) {
-    final newList = [...state.recipeOriginator.instance.ingredients];
-
-    newList.replaceRange(idx, idx + 1, [newRecipeIngredient]);
-
-    state.recipeOriginator
-        .update(state.recipeOriginator.instance.copyWith(ingredients: newList));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
