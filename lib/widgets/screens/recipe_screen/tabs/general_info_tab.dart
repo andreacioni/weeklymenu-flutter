@@ -227,7 +227,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
                 fontStyle: FontStyle.italic,
                 color: Colors.black.withOpacity(0.7)),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
         ];
       }
 
@@ -241,6 +241,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         SizedBox(height: 5),
         _RecipeTitle(),
         ...buildRecipeDescription(),
+        SizedBox(height: 10),
         Container(
           margin: EdgeInsets.symmetric(horizontal: 20),
           height: 2,

@@ -90,6 +90,15 @@ class _RecipeIngredientListTile extends StatelessWidget {
     }
 
     return ListTile(
+      title: Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: IngredientSuggestionTextField(
+            ingredient: ingredient,
+            enabled: editEnabled,
+          ),
+        ),
+      ),
       leading: Material(
           shape: CircleBorder(),
           elevation: theme.cardTheme.elevation!,
@@ -135,15 +144,6 @@ class _RecipeIngredientListTile extends StatelessWidget {
               ),
             ),
           )),
-      title: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: IngredientSuggestionTextField(
-            ingredient: ingredient,
-            enabled: editEnabled,
-          ),
-        ),
-      ),
     );
   }
 

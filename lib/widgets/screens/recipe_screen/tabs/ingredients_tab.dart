@@ -22,7 +22,6 @@ class RecipeIngredientsTab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final editEnabled =
@@ -62,6 +61,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     List<Widget> buildDismissibleRecipeTiles() {
       return recipeIngredients.mapIndexed((recipeIng, idx) {
         return DismissibleRecipeIngredientTile(
+          key: ValueKey(recipeIng),
           servingsMultiplierFactor: servingsMultiplierFactor,
           recipeIngredient: recipeIng,
           editEnabled: editEnabled,
@@ -82,7 +82,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             icon: Icons.add_circle_outline_sharp,
             text: 'No ingredients yet',
             sizeRate: 0.8,
-            margin: EdgeInsets.only(top: 100),
+            margin: const EdgeInsets.only(top: 100),
           ),
         if (newIngredientMode) buildNewIngredientTile(),
         if (recipeIngredients.isNotEmpty) ...buildDismissibleRecipeTiles(),

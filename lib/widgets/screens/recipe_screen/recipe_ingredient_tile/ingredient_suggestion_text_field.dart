@@ -14,6 +14,8 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
   final bool enabled;
   final bool autofocus;
 
+  final ScrollController? scrollController;
+
   final int suggestAfter;
 
   final void Function(dynamic)? onSubmitted;
@@ -25,6 +27,7 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
     this.enabled = true,
     this.autofocus = false,
     this.suggestAfter = 1,
+    this.scrollController,
     this.onSubmitted,
     this.onFocusChanged,
   }) : super(key: key);
@@ -35,8 +38,11 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
       initialValue: TextEditingValue(text: ingredient?.name ?? ''),
       optionsMaxHeight: 100,
       optionsBuilder: (textEditingValue) async {
-        if (textEditingValue.text.length < suggestAfter || !enabled)
+        if (textEditingValue.text.length < suggestAfter ||
+            !enabled ||
+            textEditingValue.text == ingredient?.name)
           return const <Ingredient>[];
+
         final ingredients =
             await ref.ingredients.findAll(remote: false) ?? <Ingredient>[];
 
@@ -46,30 +52,39 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
       displayStringForOption: (option) => option.name,
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
-        focusNode
-            .addListener(() => onFocusChanged?.call(focusNode.hasPrimaryFocus));
-        return AutoSizeTextField(
-          autofocus: autofocus,
-          focusNode: focusNode,
-          textCapitalization: TextCapitalization.sentences,
-          controller: textEditingController,
-          readOnly: !enabled,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-          ),
-          onSubmitted: onSubmitted != null
-              ? (text) async {
-                  final ingredients =
-                      await ref.ingredients.findAll(remote: false) ??
-                          <Ingredient>[];
-                  final ing = ingredients
-                      .firstWhereOrNull((i) => i.name.trim() == text);
+        //if (!focusNode.hasListeners) {
+        //  focusNode.addListener(
+        //      () => onFocusChanged?.call(focusNode.hasPrimaryFocus));
+        //}
 
-                  onSubmitted!(ing ?? text.trim());
-                }
-              : null,
-        );
+        return AutoSizeTextField(
+            scrollController: scrollController,
+            autofocus: autofocus,
+            focusNode: enabled ? focusNode : null,
+            textCapitalization: TextCapitalization.sentences,
+            controller: textEditingController,
+            readOnly: !enabled,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                suffixIcon: focusNode.hasPrimaryFocus &&
+                        textEditingController.text.isNotEmpty
+                    ? GestureDetector(
+                        child: Icon(Icons.done),
+                        onTap: () => _submit(ref, textEditingController.text),
+                      )
+                    : null),
+            onSubmitted: (text) => _submit(ref, text));
       },
     );
+  }
+
+  void _submit(WidgetRef ref, String text) async {
+    if (onSubmitted != null) {
+      final ingredients =
+          await ref.ingredients.findAll(remote: false) ?? <Ingredient>[];
+      final ing = ingredients.firstWhereOrNull((i) => i.name.trim() == text);
+
+      onSubmitted!(ing ?? text.trim());
+    }
   }
 }
