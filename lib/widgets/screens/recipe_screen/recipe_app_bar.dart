@@ -18,6 +18,7 @@ class RecipeAppBar extends HookConsumerWidget {
   final void Function() onBackPressed;
   final List<Widget> tabs;
   final TabController tabController;
+  final bool innerBoxIsScrolled;
 
   RecipeAppBar({
     this.heroTag = const Object(),
@@ -26,6 +27,7 @@ class RecipeAppBar extends HookConsumerWidget {
     required this.onBackPressed,
     required this.tabs,
     required this.tabController,
+    required this.innerBoxIsScrolled,
   });
 
   @override
@@ -74,6 +76,7 @@ class RecipeAppBar extends HookConsumerWidget {
       automaticallyImplyLeading: false,
       expandedHeight: 300,
       centerTitle: true,
+      forceElevated: innerBoxIsScrolled,
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: [],
         collapseMode: CollapseMode.pin,

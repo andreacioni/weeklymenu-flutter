@@ -385,34 +385,42 @@ class _RecipeScreen extends HookConsumerWidget {
                   child: NestedScrollView(
                     headerSliverBuilder: (context, innerBoxIsScrolled) {
                       return [
-                        RecipeAppBar(
-                          heroTag: heroTag,
-                          editModeEnabled: editEnabled,
-                          onRecipeEditEnabled: (editEnabled) =>
-                              _handleEditToggle(editEnabled),
-                          onBackPressed: () => _handleBackButton(),
-                          tabs: tabs,
-                          tabController: tabController,
-                        ),
+                        SliverOverlapAbsorber(
+                          handle:
+                              NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                  context),
+                          sliver: RecipeAppBar(
+                            heroTag: heroTag,
+                            editModeEnabled: editEnabled,
+                            onRecipeEditEnabled: (editEnabled) =>
+                                _handleEditToggle(editEnabled),
+                            onBackPressed: () => _handleBackButton(),
+                            tabs: tabs,
+                            tabController: tabController,
+                            innerBoxIsScrolled: innerBoxIsScrolled,
+                          ),
+                        )
                       ];
                     },
                     body: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TabBarView(
-                        controller: tabController,
-                        children: [
-                          SingleChildScrollView(
-                            child: RecipeGeneralInfoTab(),
+                        padding: const EdgeInsets.only(
+                            top: 115, left: 8, right: 8, bottom: 8),
+                        child: SafeArea(
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              SingleChildScrollView(
+                                child: RecipeGeneralInfoTab(),
+                              ),
+                              SingleChildScrollView(
+                                child: RecipeIngredientsTab(),
+                              ),
+                              SingleChildScrollView(
+                                child: RecipeStepsTab(),
+                              ),
+                            ],
                           ),
-                          SingleChildScrollView(
-                            child: RecipeIngredientsTab(),
-                          ),
-                          SingleChildScrollView(
-                            child: RecipeStepsTab(),
-                          ),
-                        ],
-                      ),
-                    ),
+                        )),
                   ),
                 ),
               ),
