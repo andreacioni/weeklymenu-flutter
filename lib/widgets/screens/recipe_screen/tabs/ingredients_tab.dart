@@ -47,6 +47,11 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             notifier.addRecipeIngredientFromString(value);
           } else if (value is RecipeIngredient) {}
         },
+        onFocusChanged: (hasFocus) {
+          if (!hasFocus) {
+            notifier.newIngredientMode = false;
+          }
+        },
         onDismissed: () {
           notifier.newIngredientMode = false;
         },
@@ -69,6 +74,11 @@ class RecipeIngredientsTab extends HookConsumerWidget {
               notifier.updateRecipeIngredientFromIngredientAtIndex(idx, value);
             } else if (value is String) {
               notifier.updateRecipeIngredientFromStringAtIndex(idx, value);
+            }
+          },
+          onFocusChanged: (hasFocus) {
+            if (!hasFocus) {
+              notifier.newIngredientMode = false;
             }
           },
           onDismissed: () {

@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../../models/ingredient.dart';
 import '../../../../main.data.dart';
@@ -34,6 +35,8 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final displaySubmitIcon = useState(false);
+
     return Autocomplete<Ingredient>(
       initialValue: TextEditingValue(text: ingredient?.name ?? ''),
       optionsMaxHeight: 100,
@@ -52,10 +55,15 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
       displayStringForOption: (option) => option.name,
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
-        //if (!focusNode.hasListeners) {
-        //  focusNode.addListener(
-        //      () => onFocusChanged?.call(focusNode.hasPrimaryFocus));
-        //}
+        focusNode.addListener(() {
+          displaySubmitIcon.value = focusNode.hasPrimaryFocus;
+          if (!focusNode.hasPrimaryFocus) {
+            textEditingController.text = ingredient?.name ?? '';
+            textEditingController.selection = TextSelection.fromPosition(
+                TextPosition(offset: textEditingController.text.length));
+          }
+          onFocusChanged?.call(focusNode.hasPrimaryFocus);
+        });
 
         return AutoSizeTextField(
             scrollController: scrollController,
@@ -66,7 +74,7 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
             readOnly: !enabled,
             decoration: InputDecoration(
                 border: InputBorder.none,
-                suffixIcon: focusNode.hasPrimaryFocus &&
+                suffixIcon: displaySubmitIcon.value &&
                         textEditingController.text.isNotEmpty
                     ? GestureDetector(
                         child: Icon(Icons.done),

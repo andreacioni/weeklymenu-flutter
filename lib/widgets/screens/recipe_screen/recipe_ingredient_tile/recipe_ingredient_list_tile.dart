@@ -24,6 +24,7 @@ class RecipeIngredientListTile extends HookConsumerWidget {
   final bool autofocus;
   final double? servingsMultiplierFactor;
   final Function(dynamic)? onChanged;
+  final Function(bool)? onFocusChanged;
 
   RecipeIngredientListTile({
     this.recipeIngredient,
@@ -31,6 +32,7 @@ class RecipeIngredientListTile extends HookConsumerWidget {
     this.editEnabled = false,
     this.autofocus = false,
     this.onChanged,
+    this.onFocusChanged,
   });
 
   @override
@@ -45,11 +47,13 @@ class RecipeIngredientListTile extends HookConsumerWidget {
           final ingredient = model;
 
           return _RecipeIngredientListTile(
+            key: ValueKey(ingredient.name),
             ingredient: ingredient,
             recipeIngredient: recipeIngredient,
             editEnabled: editEnabled,
             servingsMultiplierFactor: servingsMultiplierFactor,
             onChanged: onChanged,
+            onFocusChanged: onFocusChanged,
           );
         },
       );
@@ -71,16 +75,18 @@ class _RecipeIngredientListTile extends StatelessWidget {
   final bool editEnabled;
   final bool autofocus;
   final Function(dynamic)? onChanged;
+  final Function(bool)? onFocusChanged;
 
-  const _RecipeIngredientListTile(
-      {Key? key,
-      this.recipeIngredient,
-      this.servingsMultiplierFactor,
-      this.ingredient,
-      this.editEnabled = false,
-      this.autofocus = false,
-      this.onChanged})
-      : super(key: key);
+  const _RecipeIngredientListTile({
+    Key? key,
+    this.recipeIngredient,
+    this.servingsMultiplierFactor,
+    this.ingredient,
+    this.editEnabled = false,
+    this.autofocus = false,
+    this.onChanged,
+    this.onFocusChanged,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +111,7 @@ class _RecipeIngredientListTile extends StatelessWidget {
             enabled: editEnabled,
             autofocus: autofocus,
             onSubmitted: onChanged,
+            onFocusChanged: onFocusChanged,
           ),
         ),
       ),

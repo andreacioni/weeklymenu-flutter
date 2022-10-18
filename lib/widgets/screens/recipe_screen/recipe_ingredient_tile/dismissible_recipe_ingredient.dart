@@ -12,6 +12,7 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
   final void Function()? onDismissed;
   final void Function(dynamic)? onRecipeIngredientCreate;
   final void Function(dynamic)? onRecipeIngredientUpdate;
+  final void Function(bool)? onFocusChanged;
 
   DismissibleRecipeIngredientTile(
       {this.recipeIngredient,
@@ -20,6 +21,7 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
       this.onRecipeIngredientCreate,
       this.onRecipeIngredientUpdate,
       this.servingsMultiplierFactor,
+      this.onFocusChanged,
       Key? key})
       : super(key: key);
 
@@ -33,12 +35,14 @@ class DismissibleRecipeIngredientTile extends StatelessWidget {
               recipeIngredient: recipeIngredient,
               editEnabled: true,
               onChanged: onRecipeIngredientUpdate,
+              onFocusChanged: onFocusChanged,
             ),
             onDismissed: (_) => onDismissed?.call())
         : RecipeIngredientListTile(
             recipeIngredient: recipeIngredient,
             editEnabled: editEnabled,
             servingsMultiplierFactor: servingsMultiplierFactor,
+            onFocusChanged: onFocusChanged,
             onChanged: (newRecipeIngredient) {
               if (recipeIngredient != null) {
                 onRecipeIngredientUpdate?.call(newRecipeIngredient);
