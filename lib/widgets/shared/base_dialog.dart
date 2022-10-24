@@ -8,13 +8,14 @@ class BaseDialog<T> extends StatelessWidget {
   final bool displayActions;
   final List<Widget> children;
 
-  BaseDialog(
-      {required this.children,
-      required this.title,
-      this.subtitle,
-      this.displayActions = true,
-      this.doneButtonText = 'OK',
-      this.onDoneTap});
+  BaseDialog({
+    required this.title,
+    required this.children,
+    this.subtitle,
+    this.displayActions = true,
+    this.doneButtonText = 'OK',
+    this.onDoneTap,
+  });
 
   @override
   Widget build(BuildContext context) {

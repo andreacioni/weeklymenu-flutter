@@ -1,38 +1,54 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
 import '../../../../models/enums/difficulty.dart';
+import '../../../../globals/extensions.dart';
 import '../../../../models/recipe.dart';
 import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
 import '../../../shared/number_text_field.dart';
 
-class RecipeGeneralInfoTab extends StatelessWidget {
+class RecipeGeneralInfoTab extends StatefulWidget {
   const RecipeGeneralInfoTab({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<RecipeGeneralInfoTab> createState() => _RecipeGeneralInfoTabState();
+}
+
+class _RecipeGeneralInfoTabState extends State<RecipeGeneralInfoTab>
+    with AutomaticKeepAliveClientMixin<RecipeGeneralInfoTab> {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: 10, right: 10),
-          child: _RecipeInformationTiles(),
-        ),
-      ],
+    super.build(context);
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: _RecipeInformationTiles(),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _RecipeInformationTiles extends HookConsumerWidget {
-  _RecipeInformationTiles();
+  final ExpandableController expandablePanelController =
+      ExpandableController(initialExpanded: true);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,30 +71,36 @@ class _RecipeInformationTiles extends HookConsumerWidget {
     final videoUrl = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.videoUrl));
 
+    useEffect(() {
+      return () => expandablePanelController.dispose();
+    }, const []);
+
     List<Widget> buildRecipeNote() {
-      if (recipeNote != null) {
+      if (!recipeNote.isBlank) {
         return [
           SizedBox(height: 20),
           Card(
             child: ExpandablePanel(
-                theme: ExpandableThemeData(
-                    inkWellBorderRadius: BorderRadius.circular(20)),
-                header: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(children: [
-                    Icon(Icons.assignment_outlined),
-                    SizedBox(width: 20),
-                    Text(
-                      'Notes',
-                      style: theme.textTheme.titleSmall,
-                    )
-                  ]),
-                ),
-                collapsed: Container(),
-                expanded: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Text(recipeNote),
-                )),
+              controller: expandablePanelController,
+              theme: ExpandableThemeData(
+                  inkWellBorderRadius: BorderRadius.circular(20)),
+              header: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(children: [
+                  Icon(Icons.assignment_outlined),
+                  SizedBox(width: 20),
+                  Text(
+                    'Notes',
+                    style: theme.textTheme.titleSmall,
+                  )
+                ]),
+              ),
+              collapsed: Container(),
+              expanded: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(recipeNote!),
+              ),
+            ),
           )
         ];
       }
@@ -147,7 +169,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
     }
 
     List<Widget> buildRecipeLinkSection() {
-      if (recipeUrl != null || videoUrl != null) {
+      if (!recipeUrl.isBlank || !videoUrl.isBlank) {
         return [
           SizedBox(height: 10),
           Row(
@@ -158,7 +180,11 @@ class _RecipeInformationTiles extends HookConsumerWidget {
                   child: Card(
                     child: InkWell(
                       borderRadius: BorderRadius.circular(20),
-                      onTap: () {},
+                      onTap: () async {
+                        if (!await launchUrl(Uri.parse(recipeUrl))) {
+                          throw 'Could not launch $recipeUrl';
+                        }
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: Row(
@@ -216,11 +242,11 @@ class _RecipeInformationTiles extends HookConsumerWidget {
     }
 
     List<Widget> buildRecipeDescription() {
-      if (recipeDescription != null) {
+      if (recipeDescription.isNotBlank) {
         return [
           SizedBox(height: 10),
           AutoSizeText(
-            recipeDescription,
+            recipeDescription!,
             textAlign: TextAlign.start,
             maxLines: 2,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -251,37 +277,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
               borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
         SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Column(
-              children: [
-                Icon(Icons.schedule, size: 25, color: Colors.amber.shade400),
-                SizedBox(height: 9),
-                Text('50 min', style: Theme.of(context).textTheme.labelMedium)
-              ],
-            ),
-            Column(
-              children: [
-                Icon(Icons.people_outline,
-                    size: 25, color: Colors.amber.shade400),
-                SizedBox(height: 9),
-                Text('2 servs.', style: Theme.of(context).textTheme.labelMedium)
-              ],
-            ),
-            Column(
-              children: [
-                Icon(
-                  Icons.favorite_border_outlined,
-                  size: 25,
-                  color: Colors.amber.shade400,
-                ),
-                SizedBox(height: 9),
-                Text('70 %', style: Theme.of(context).textTheme.labelMedium)
-              ],
-            )
-          ],
-        ),
+        _RecipeHighlights(editEnabled),
         SizedBox(height: 20),
         Container(
           margin: EdgeInsets.symmetric(horizontal: 20),
@@ -296,6 +292,127 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         ...buildTagsSection(),
       ],
     );
+  }
+}
+
+class _RecipeHighlights extends HookConsumerWidget {
+  final bool editEnabled;
+
+  _RecipeHighlights(this.editEnabled);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+
+    final servings = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.servs));
+    final cookingTime = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.estimatedCookingTime));
+    final preparationTime = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.estimatedPreparationTime));
+
+    void showTimeWidget() async {
+      final newTime = await showDialog<Duration>(
+          context: context,
+          builder: (context) {
+            return _TimeUpdateDialog(
+                initialValue: Duration(
+                    minutes: (preparationTime ?? 0) + (cookingTime ?? 0)));
+          });
+
+      if (newTime != null) {
+        notifier.updateEstimatedPreparationTime(newTime.inMinutes);
+      }
+    }
+
+    void showServingsDialog() async {
+      final newServings = await showDialog<int>(
+          context: context,
+          builder: (context) {
+            return _UpdateServingsDialog(initialValue: servings ?? 1);
+          });
+
+      if (newServings != null) {
+        notifier.updateServings(newServings);
+      }
+    }
+
+    Widget buildTimeWidget() {
+      return Expanded(
+        flex: 2,
+        child: GestureDetector(
+          onTap: editEnabled ? () => showTimeWidget() : null,
+          child: Column(
+            children: [
+              Icon(Icons.schedule, size: 25, color: Colors.amber.shade400),
+              SizedBox(height: 9),
+              Text(displayDuration(preparationTime ?? 0, cookingTime ?? 0),
+                  style: Theme.of(context).textTheme.labelMedium)
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildServingsWidget() {
+      return Expanded(
+        flex: 2,
+        child: GestureDetector(
+          onTap: editEnabled ? () => showServingsDialog() : null,
+          child: Column(
+            children: [
+              Icon(Icons.people_outline,
+                  size: 25, color: Colors.amber.shade400),
+              SizedBox(height: 9),
+              Text((servings ?? 1).toString() + ' servs.',
+                  style: Theme.of(context).textTheme.labelMedium)
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildAffinityWidget() {
+      return Expanded(
+        flex: 2,
+        child: GestureDetector(
+          child: Column(
+            children: [
+              Icon(
+                Icons.favorite_border_outlined,
+                size: 25,
+                color: Colors.amber.shade400,
+              ),
+              SizedBox(height: 9),
+              Text('70 %', style: Theme.of(context).textTheme.labelMedium)
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        buildTimeWidget(),
+        buildServingsWidget(),
+        buildAffinityWidget(),
+      ],
+    );
+  }
+
+  String displayDuration(num preparationTime, num cookingTime) {
+    final total = preparationTime + cookingTime;
+
+    if (total <= 0) {
+      return "—";
+    }
+
+    final hours = (preparationTime + cookingTime) / 60;
+    final minutes = (preparationTime + cookingTime) % 60;
+    return hours >= 1
+        ? "${hours.toInt()} h ${minutes.toInt()} min"
+        : "${minutes.toInt()} min";
   }
 }
 
@@ -478,6 +595,100 @@ class _EditableInformationTile extends StatelessWidget {
               group: autoSizeGroup,
             )
           : null,
+    );
+  }
+}
+
+class _TimeUpdateDialog extends StatefulWidget {
+  final Duration initialValue;
+
+  _TimeUpdateDialog({this.initialValue = Duration.zero});
+
+  @override
+  State<_TimeUpdateDialog> createState() => _TimeUpdateDialogState();
+}
+
+class _TimeUpdateDialogState extends State<_TimeUpdateDialog> {
+  late Duration _duration;
+
+  @override
+  void initState() {
+    _duration = widget.initialValue;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseDialog(
+      title: 'Preparation',
+      subtitle: 'Select the time you need to prepare the recipe',
+      onDoneTap: () => Navigator.pop(context, _duration),
+      children: [
+        DurationPicker(
+          duration: _duration,
+          onChange: (val) {
+            setState(() => _duration = val);
+          },
+          snapToMins: 5.0,
+        )
+      ],
+    );
+  }
+}
+
+class _UpdateServingsDialog extends StatefulWidget {
+  final int initialValue;
+
+  _UpdateServingsDialog({this.initialValue = 1});
+
+  @override
+  State<_UpdateServingsDialog> createState() => _UpdateServingsDialogState();
+}
+
+class _UpdateServingsDialogState extends State<_UpdateServingsDialog> {
+  late int _servings;
+
+  @override
+  void initState() {
+    _servings = widget.initialValue;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseDialog(
+      title: 'Servings',
+      subtitle: 'How many people will serve this recipe?',
+      onDoneTap: () => Navigator.pop(context, _servings),
+      children: [
+        SizedBox(
+          width: double.maxFinite,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_servings > 1) {
+                        _servings = --_servings;
+                      }
+                    });
+                  },
+                  icon: Icon(Icons.remove)),
+              Text("$_servings x"),
+              Icon(Icons.people_outline),
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _servings = ++_servings;
+                    });
+                  },
+                  icon: Icon(Icons.add)),
+            ],
+          ),
+        )
+      ],
     );
   }
 }
