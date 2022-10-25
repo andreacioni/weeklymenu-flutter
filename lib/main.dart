@@ -29,12 +29,10 @@ class App extends StatelessWidget {
           scheme: FlexScheme.mango,
           surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
           blendLevel: 15,
-          appBarStyle: FlexAppBarStyle.background,
           appBarOpacity: 0.90,
           subThemesData: const FlexSubThemesData(
             blendOnLevel: 30,
           ),
-          keyColors: const FlexKeyColors(),
           visualDensity: FlexColorScheme.comfortablePlatformDensity,
           // To use the playground font, add GoogleFonts package and uncomment
           // fontFamily: GoogleFonts.notoSans().fontFamily,

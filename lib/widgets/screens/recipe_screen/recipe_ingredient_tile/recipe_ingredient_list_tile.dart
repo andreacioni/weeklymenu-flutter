@@ -8,9 +8,10 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:weekly_menu_app/widgets/screens/recipe_screen/recipe_ingredient_tile/ingredient_suggestion_text_field.dart';
-import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
+import '../../../../globals/extensions.dart';
+import 'ingredient_suggestion_text_field.dart';
+import '../../../shared/base_dialog.dart';
 import '../../../../main.data.dart';
 import '../../../shared/flutter_data_state_builder.dart';
 import '../../../shared/quantity_and_uom_input_fields.dart';
@@ -63,6 +64,7 @@ class RecipeIngredientListTile extends HookConsumerWidget {
         servingsMultiplierFactor: servingsMultiplierFactor,
         autofocus: true,
         onChanged: onChanged,
+        onFocusChanged: onFocusChanged,
       );
     }
   }
@@ -138,14 +140,15 @@ class _RecipeIngredientListTile extends StatelessWidget {
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Divider(
-                        height: 1,
-                        color: Colors.black26,
+                    if (!(recipeIngredient?.unitOfMeasure?.isBlank ?? true))
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Divider(
+                          height: 1,
+                          color: Colors.black26,
+                        ),
                       ),
-                    ),
-                    if (recipeIngredient?.unitOfMeasure != null)
+                    if (!(recipeIngredient?.unitOfMeasure?.isBlank ?? true))
                       Flexible(
                         child: AutoSizeText(
                           recipeIngredient!.unitOfMeasure ?? '-',

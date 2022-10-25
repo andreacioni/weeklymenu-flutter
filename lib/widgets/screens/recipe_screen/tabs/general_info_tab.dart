@@ -267,26 +267,9 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         SizedBox(height: 5),
         _RecipeTitle(),
         ...buildRecipeDescription(),
-        SizedBox(height: 10),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 20),
-          height: 2,
-          width: double.maxFinite,
-          decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.1),
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-        ),
         SizedBox(height: 20),
         _RecipeHighlights(editEnabled),
         SizedBox(height: 20),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 20),
-          height: 2,
-          width: double.maxFinite,
-          decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.1),
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-        ),
         ...buildRecipeLinkSection(),
         ...buildRecipeNote(),
         ...buildTagsSection(),
@@ -296,11 +279,14 @@ class _RecipeInformationTiles extends HookConsumerWidget {
 }
 
 class _RecipeHighlights extends HookConsumerWidget {
+  static final double BOX_SIZE = 100;
+
   final bool editEnabled;
 
   _RecipeHighlights(this.editEnabled);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final servings = ref.watch(recipeScreenNotifierProvider
@@ -337,13 +323,21 @@ class _RecipeHighlights extends HookConsumerWidget {
     }
 
     Widget buildTimeWidget() {
-      return Expanded(
-        flex: 2,
-        child: GestureDetector(
-          onTap: editEnabled ? () => showTimeWidget() : null,
+      return InkWell(
+        onTap: editEnabled ? () => showTimeWidget() : null,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: BOX_SIZE,
+          width: BOX_SIZE,
+          decoration: BoxDecoration(
+              color: theme.primaryColorLight,
+              borderRadius: BorderRadius.circular(20)),
           child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.schedule, size: 25, color: Colors.amber.shade400),
+              Icon(Icons.schedule, size: 25),
               SizedBox(height: 9),
               Text(displayDuration(preparationTime ?? 0, cookingTime ?? 0),
                   style: Theme.of(context).textTheme.labelMedium)
@@ -354,14 +348,21 @@ class _RecipeHighlights extends HookConsumerWidget {
     }
 
     Widget buildServingsWidget() {
-      return Expanded(
-        flex: 2,
-        child: GestureDetector(
-          onTap: editEnabled ? () => showServingsDialog() : null,
+      return InkWell(
+        onTap: editEnabled ? () => showServingsDialog() : null,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: BOX_SIZE,
+          width: BOX_SIZE,
+          decoration: BoxDecoration(
+              color: theme.primaryColorLight,
+              borderRadius: BorderRadius.circular(20)),
           child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.people_outline,
-                  size: 25, color: Colors.amber.shade400),
+              Icon(Icons.people_outline, size: 25),
               SizedBox(height: 9),
               Text((servings ?? 1).toString() + ' servs.',
                   style: Theme.of(context).textTheme.labelMedium)
@@ -372,16 +373,19 @@ class _RecipeHighlights extends HookConsumerWidget {
     }
 
     Widget buildAffinityWidget() {
-      return Expanded(
-        flex: 2,
-        child: GestureDetector(
+      return InkWell(
+        child: Container(
+          height: BOX_SIZE,
+          width: BOX_SIZE,
+          decoration: BoxDecoration(
+              color: theme.primaryColorLight,
+              borderRadius: BorderRadius.circular(20)),
           child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                Icons.favorite_border_outlined,
-                size: 25,
-                color: Colors.amber.shade400,
-              ),
+              Icon(Icons.favorite_border_outlined, size: 25),
               SizedBox(height: 9),
               Text('70 %', style: Theme.of(context).textTheme.labelMedium)
             ],
