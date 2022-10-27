@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+import '../../../../globals/extensions.dart';
 import '../../../../models/ingredient.dart';
 import '../../../../main.data.dart';
 
@@ -35,7 +36,8 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final displaySubmitIcon = useState(false);
+    final hasFocus = useState(false);
+    final hasText = useState(false);
 
     return Autocomplete<Ingredient>(
       initialValue: TextEditingValue(text: ingredient?.name ?? ''),
@@ -56,12 +58,14 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
         focusNode.addListener(() {
-          displaySubmitIcon.value = focusNode.hasPrimaryFocus;
+          hasFocus.value = focusNode.hasPrimaryFocus;
+
           if (!focusNode.hasPrimaryFocus) {
             textEditingController.text = ingredient?.name ?? '';
             textEditingController.selection = TextSelection.fromPosition(
                 TextPosition(offset: textEditingController.text.length));
           }
+
           onFocusChanged?.call(focusNode.hasPrimaryFocus);
         });
 
@@ -71,11 +75,13 @@ class IngredientSuggestionTextField extends HookConsumerWidget {
             focusNode: enabled ? focusNode : null,
             textCapitalization: TextCapitalization.sentences,
             controller: textEditingController,
+            onChanged: (text) {
+              hasText.value = text.isNotBlank;
+            },
             readOnly: !enabled,
             decoration: InputDecoration(
                 border: InputBorder.none,
-                suffixIcon: displaySubmitIcon.value &&
-                        textEditingController.text.isNotEmpty
+                suffixIcon: hasFocus.value && hasText.value
                     ? GestureDetector(
                         child: Icon(Icons.done),
                         onTap: () => _submit(ref, textEditingController.text),

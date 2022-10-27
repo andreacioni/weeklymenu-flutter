@@ -55,6 +55,8 @@ class Recipe extends BaseModel<Recipe> {
 
   final String? section;
 
+  final List<String> relatedRecipes;
+
   @JsonKey(ignore: true)
   final String? owner;
 
@@ -73,6 +75,7 @@ class Recipe extends BaseModel<Recipe> {
       this.imgUrl,
       this.videoUrl,
       this.tags = const <String>[],
+      this.relatedRecipes = const <String>[],
       this.section = 'Dinner',
       this.preparation,
       this.preparationSteps = const <RecipePreparationStep>[],
