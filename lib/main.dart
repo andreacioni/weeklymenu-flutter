@@ -40,6 +40,7 @@ class App extends StatelessWidget {
         theme: ThemeData(
             // Define the default brightness and colors.
             brightness: Brightness.light,
+            backgroundColor: Colors.white,
             primaryColor: appColor,
             primaryColorLight: appColor.withOpacity(0.7),
             primaryColorDark: Colors.black,

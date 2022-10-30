@@ -27,12 +27,18 @@ class RecipeScreenState {
       this.currentTab = 0,
       this.servingsMultiplier});
 
-  get displayFAB => editEnabled && !newIngredientMode && !newStepMode;
+  get displayAddFAB =>
+      editEnabled &&
+      (currentTab == 1 || currentTab == 2) &&
+      !newIngredientMode &&
+      !newStepMode;
 
   get displayServingsFAB =>
       !editEnabled &&
       currentTab == 1 &&
       recipeOriginator.instance.ingredients.isNotEmpty;
+
+  get displayMoreFAB => editEnabled && currentTab == 0;
 
   double get servingsMultiplierFactor {
     if (servingsMultiplier != null) {

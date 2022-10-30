@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/widgets/screens/recipe_screen/update_general_info_bottom_sheet.dart';
 import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 import 'package:weekly_menu_app/widgets/shared/number_text_field.dart';
 
@@ -55,9 +56,11 @@ class _RecipeScreen extends HookConsumerWidget {
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
     final displayAddFAB =
-        ref.watch(recipeScreenNotifierProvider.select((n) => n.displayFAB));
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.displayAddFAB));
     final displayServingsFAB = ref.watch(
         recipeScreenNotifierProvider.select((n) => n.displayServingsFAB));
+    final displayMoreFAB =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.displayMoreFAB));
 
     final servings = ref.watch(recipeScreenNotifierProvider
             .select((n) => n.recipeOriginator.instance.servs)) ??
@@ -201,16 +204,15 @@ class _RecipeScreen extends HookConsumerWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           useRootNavigator: true,
-          builder: (context) => _UpdateGeneralInfoRecipeBottomSheet(
+          enableDrag: true,
+          builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
                 recipe: recipe,
                 notifier: notifier,
               ));
     }
 
     void handleAddActionBasedOnTabIndex() {
-      if (tabController.index == 0) {
-        showAddInfoDialog();
-      } else if (tabController.index == 1) {
+      if (tabController.index == 1) {
         notifier.newIngredientMode = true;
       } else if (tabController.index == 2) {
         notifier.newStepMode = true;
@@ -257,6 +259,12 @@ class _RecipeScreen extends HookConsumerWidget {
         return FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () => handleAddActionBasedOnTabIndex(),
+        );
+      } else if (displayMoreFAB) {
+        return FloatingActionButton(
+          mini: true,
+          child: Icon(Icons.more_horiz_sharp),
+          onPressed: () => showAddInfoDialog(),
         );
       }
 
@@ -341,176 +349,5 @@ class _RecipeScreen extends HookConsumerWidget {
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.focusedChild?.unfocus();
     }
-  }
-}
-
-class _UpdateGeneralInfoRecipeBottomSheet extends StatelessWidget {
-  final Recipe recipe;
-  final RecipeScreenStateNotifier notifier;
-
-  const _UpdateGeneralInfoRecipeBottomSheet(
-      {Key? key, required this.recipe, required this.notifier})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            ListTile(
-              leading: GestureDetector(
-                child: Icon(Icons.close),
-                onTap: () => Navigator.of(context).pop(),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.restaurant),
-              title: Text("Section"),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black26,
-                size: 16,
-              ),
-              onTap: () async {
-                final newSection =
-                    await showTextDialog(context, recipe.section, 'Section');
-                if (newSection != null) {
-                  notifier.updateSection(newSection);
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.description_outlined),
-              title: Text("Description"),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black26,
-                size: 16,
-              ),
-              onTap: () async {
-                final newDesc =
-                    await showTextDialog(context, recipe.note, 'Description');
-                if (newDesc != null) {
-                  notifier.updateDescription(newDesc);
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.assignment_outlined),
-              title: Text("Note"),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black26,
-                size: 16,
-              ),
-              onTap: () async {
-                final newNote =
-                    await showTextDialog(context, recipe.note, 'Notes');
-                if (newNote != null) {
-                  notifier.updateNote(newNote);
-                }
-              },
-            ),
-            ListTile(
-                leading: Icon(Icons.shortcut_rounded),
-                title: Text("Related recipes"),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black26,
-                  size: 16,
-                ),
-                onTap: () async {
-                  final relatedRecipe =
-                      await showTextDialog(context, null, 'Related recipe');
-                  if (relatedRecipe != null) {
-                    notifier.addRelatedRecipes(relatedRecipe);
-                  }
-                }),
-            ListTile(
-              leading: Icon(Icons.local_fire_department_outlined),
-              title: Text("Calories"),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black26,
-                size: 16,
-              ),
-            ),
-            ListTile(
-                leading: Icon(Icons.ondemand_video),
-                title: Text("Video"),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black26,
-                  size: 16,
-                ),
-                onTap: () async {
-                  final newVideoUrl =
-                      await showTextDialog(context, null, 'Video');
-                  if (newVideoUrl != null) {
-                    notifier.updateVideoUrl(newVideoUrl);
-                  }
-                }),
-            ListTile(
-                leading: Icon(Icons.link),
-                title: Text("Link"),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black26,
-                  size: 16,
-                ),
-                onTap: () async {
-                  final newLink = await showTextDialog(context, null, 'Link');
-                  if (newLink != null) {
-                    notifier.updateRecipeUrl(newLink);
-                  }
-                }),
-            ListTile(
-              leading: Icon(Icons.euro),
-              title: Text("Cost"),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black26,
-                size: 16,
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.tag),
-              title: Text("Tags"),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black26,
-                size: 16,
-              ),
-              onTap: () async {
-                final newTag = await showTextDialog(context, null, 'Tag');
-                if (newTag != null) {
-                  notifier.addTag(newTag);
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<String?> showTextDialog(
-      BuildContext context, String? initialText, String title) async {
-    final controller = TextEditingController(text: initialText);
-
-    return await showDialog<String?>(
-        context: context,
-        builder: (context) {
-          return BaseDialog(
-              title: title,
-              children: [
-                TextField(
-                  controller: controller,
-                ),
-              ],
-              onDoneTap: () => Navigator.pop(context, controller.text.trim()));
-        });
   }
 }
