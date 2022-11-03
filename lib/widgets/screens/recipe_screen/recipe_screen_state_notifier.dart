@@ -27,10 +27,26 @@ class RecipeScreenState {
       this.currentTab = 0,
       this.servingsMultiplier});
 
-  get displayFAB =>
-      editEnabled && !newIngredientMode && !newStepMode && currentTab != 0;
+  get displayAddFAB =>
+      editEnabled &&
+      (currentTab == 1 || currentTab == 2) &&
+      !newIngredientMode &&
+      !newStepMode;
 
-  get displayServingsFAB => !editEnabled && currentTab == 1;
+  get displayServingsFAB =>
+      !editEnabled &&
+      currentTab == 1 &&
+      recipeOriginator.instance.ingredients.isNotEmpty;
+
+  get displayMoreFAB => editEnabled && currentTab == 0;
+
+  double get servingsMultiplierFactor {
+    if (servingsMultiplier != null) {
+      return servingsMultiplier! / (recipeOriginator.instance.servs ?? 1);
+    }
+
+    return 1;
+  }
 }
 
 class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
@@ -103,6 +119,31 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
+  void updateRecipeIngredientFromIngredientAtIndex(int idx, Ingredient value) {
+    final newRecipeIngredient = state.recipeOriginator.instance.ingredients[idx]
+        .copyWith(ingredientId: value.id);
+
+    updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
+  }
+
+  void updateRecipeIngredientFromStringAtIndex(int idx, String ingredientName) {
+    final newIngredient = Ingredient(name: ingredientName);
+    read(ingredientsRepositoryProvider).save(newIngredient);
+
+    updateRecipeIngredientFromIngredientAtIndex(idx, newIngredient);
+  }
+
+  void updateRecipeIngredientAtIndex(
+      int idx, RecipeIngredient newRecipeIngredient) {
+    final newList = [...state.recipeOriginator.instance.ingredients];
+
+    newList.replaceRange(idx, idx + 1, [newRecipeIngredient]);
+
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(ingredients: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
   void deleteRecipeIngredientByIndex(int index) {
     final newList = state.recipeOriginator.instance.ingredients
       ..removeAt(index);
@@ -148,17 +189,6 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
-  void updateRecipeIngredientAtIndex(
-      int idx, RecipeIngredient newRecipeIngredient) {
-    final newList = [...state.recipeOriginator.instance.ingredients];
-
-    newList.replaceRange(idx, idx + 1, [newRecipeIngredient]);
-
-    state.recipeOriginator
-        .update(state.recipeOriginator.instance.copyWith(ingredients: newList));
-    state = state.copyWith(recipeOriginator: state.recipeOriginator);
-  }
-
   void addStep(RecipePreparationStep recipePreparationStep) {
     final newList = [
       ...state.recipeOriginator.instance.preparationSteps,
@@ -167,6 +197,75 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
     state.recipeOriginator.update(
         state.recipeOriginator.instance.copyWith(preparationSteps: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateStepByIndex(
+      int index, RecipePreparationStep recipePreparationStep) {
+    final newList = [...state.recipeOriginator.instance.preparationSteps];
+    newList.replaceRange(index, index + 1, [recipePreparationStep]);
+
+    //update with the same instance just to set "edited" flag
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(preparationSteps: newList));
+    //we do not want the widget to rebuild here
+    //state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateDescription(String description) {
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(description: description));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateNote(String note) {
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(note: note));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateSection(String section) {
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(section: section));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateRecipeUrl(String newLink) {
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(recipeUrl: newLink));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateVideoUrl(String newVideoUrl) {
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(videoUrl: newVideoUrl));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void deleteTagByIndex(int index) {
+    final newList = state.recipeOriginator.instance.tags..removeAt(index);
+
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(tags: [...newList]));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void addTag(String newTag) {
+    final newList = [...state.recipeOriginator.instance.tags, newTag];
+
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(tags: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void addRelatedRecipes(String relatedRecipeId) {
+    final newList = [
+      ...state.recipeOriginator.instance.relatedRecipes,
+      relatedRecipeId
+    ];
+
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(relatedRecipes: newList));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 }

@@ -31,43 +31,59 @@ class RecipeIngredientsTab extends HookConsumerWidget {
     final recipeIngredients = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.ingredients));
 
-    final servingsMultiplier = ref.watch(
-        recipeScreenNotifierProvider.select((n) => n.servingsMultiplier));
+    final servingsMultiplierFactor = ref.watch(
+        recipeScreenNotifierProvider.select((n) => n.servingsMultiplierFactor));
 
     Widget buildNewIngredientTile() {
-      return Card(
-        child: ListTile(
-          title: IngredientSuggestionTextField(
-            autofocus: true,
-            onSubmitted: (value) {
-              notifier.newIngredientMode = false;
-
-              if (value is Ingredient) {
-                notifier.addRecipeIngredientFromIngredient(value);
-              } else if (value is String) {
-                notifier.addRecipeIngredientFromString(value);
-              }
-            },
-            onFocusChanged: (focus) {
-              if (!focus) {
-                notifier.newIngredientMode = false;
-              }
-            },
-          ),
-        ),
+      return DismissibleRecipeIngredientTile(
+        key: ValueKey('new'),
+        servingsMultiplierFactor: servingsMultiplierFactor,
+        editEnabled: editEnabled,
+        onRecipeIngredientCreate: (value) {
+          notifier.newIngredientMode = false;
+          if (value is Ingredient) {
+            notifier.addRecipeIngredientFromIngredient(value);
+          } else if (value is String) {
+            notifier.addRecipeIngredientFromString(value);
+          } else if (value is RecipeIngredient) {}
+        },
+        onFocusChanged: (hasFocus) {
+          if (!hasFocus) {
+            notifier.newIngredientMode = false;
+          }
+        },
+        onDismissed: () {
+          notifier.newIngredientMode = false;
+        },
       );
     }
 
     List<Widget> buildDismissibleRecipeTiles() {
       return recipeIngredients.mapIndexed((recipeIng, idx) {
         return DismissibleRecipeIngredientTile(
-          servingsMultiplier: servingsMultiplier,
+          key: ValueKey(recipeIng),
+          servingsMultiplierFactor: servingsMultiplierFactor,
           recipeIngredient: recipeIng,
           editEnabled: editEnabled,
-          updateRecipeIngredient: (newRecipeIngredient) {
-            notifier.updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
+          onRecipeIngredientUpdate: (value) {
+            notifier.newIngredientMode = false;
+
+            if (value is RecipeIngredient) {
+              notifier.updateRecipeIngredientAtIndex(idx, value);
+            } else if (value is Ingredient) {
+              notifier.updateRecipeIngredientFromIngredientAtIndex(idx, value);
+            } else if (value is String) {
+              notifier.updateRecipeIngredientFromStringAtIndex(idx, value);
+            }
+          },
+          onFocusChanged: (hasFocus) {
+            if (!hasFocus) {
+              notifier.newIngredientMode = false;
+            }
           },
           onDismissed: () {
+            notifier.newIngredientMode = false;
+
             notifier.deleteRecipeIngredientByIndex(idx);
           },
         );
@@ -81,7 +97,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             icon: Icons.add_circle_outline_sharp,
             text: 'No ingredients yet',
             sizeRate: 0.8,
-            margin: EdgeInsets.only(top: 100),
+            margin: const EdgeInsets.only(top: 100),
           ),
         if (newIngredientMode) buildNewIngredientTile(),
         if (recipeIngredients.isNotEmpty) ...buildDismissibleRecipeTiles(),

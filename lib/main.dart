@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +13,7 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final appColor = Color.fromRGBO(255, 223, 117, 1);
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(clear: false),
@@ -22,20 +24,36 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Weekly Menu',
         home: SplashScreen(),
+        themeMode: ThemeMode.light,
+        darkTheme: FlexThemeData.dark(
+          scheme: FlexScheme.mango,
+          surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+          blendLevel: 15,
+          appBarOpacity: 0.90,
+          subThemesData: const FlexSubThemesData(
+            blendOnLevel: 30,
+          ),
+          visualDensity: FlexColorScheme.comfortablePlatformDensity,
+          // To use the playground font, add GoogleFonts package and uncomment
+          // fontFamily: GoogleFonts.notoSans().fontFamily,
+        ),
         theme: ThemeData(
             // Define the default brightness and colors.
             brightness: Brightness.light,
-            primaryColor: Colors.amber.shade300,
+            backgroundColor: Colors.white,
+            primaryColor: appColor,
+            primaryColorLight: appColor.withOpacity(0.7),
+            primaryColorDark: Colors.black,
             splashColor: Colors.amberAccent,
             highlightColor: Colors.amberAccent.withOpacity(0.3),
             scaffoldBackgroundColor: Colors.white,
 
             // Define the default font family.
             fontFamily: 'Rubik',
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-                backgroundColor: Colors.amber.shade300),
+            floatingActionButtonTheme:
+                FloatingActionButtonThemeData(backgroundColor: appColor),
             appBarTheme: AppBarTheme(
-                color: Colors.amber.shade300,
+                color: appColor,
                 titleTextStyle:
                     GoogleFonts.rubik(fontSize: 20, color: Colors.black),
                 iconTheme: IconThemeData(color: Colors.black)),
@@ -44,24 +62,32 @@ class App extends StatelessWidget {
             bottomAppBarTheme: BottomAppBarTheme(
               color: Colors.white,
             ),
-            listTileTheme: ListTileThemeData(
-                selectedTileColor: Colors.amber.withOpacity(0.2)),
+            listTileTheme:
+                ListTileThemeData(selectedTileColor: appColor.withOpacity(0.2)),
 
             //Used by native date picker (see: https://github.com/flutter/flutter/issues/58254)
             colorScheme: ColorScheme.light(
-                primary: Colors.amber, secondary: Colors.amberAccent),
+              primary: Colors.amber,
+              secondary: Colors.amberAccent,
+            ),
 
             // Define the default TextTheme. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
             textTheme: TextTheme(
-                headline5:
-                    TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-                headline6:
-                    TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-                bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
-                labelMedium: TextStyle(fontSize: 18)
-                //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
-                ),
+              titleMedium: GoogleFonts.aleo(
+                  fontSize: 16, color: Colors.black.withOpacity(0.8)),
+              displaySmall: GoogleFonts.aleo(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black.withOpacity(0.8)),
+              labelMedium: GoogleFonts.aleo(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+              bodyMedium: GoogleFonts.aleo(
+                  fontSize: 15, color: Colors.black.withOpacity(0.8)),
+              //subtitle1: TextStyle(fontSize: 15, fontFamily: 'Hind', color: Colors.amber)
+            ),
             checkboxTheme: CheckboxThemeData(
               fillColor: MaterialStateProperty.resolveWith((states) =>
                   states.contains(MaterialState.selected)
@@ -89,6 +115,7 @@ class App extends StatelessWidget {
               opacity: 1,
               size: 23,
             ),
+            visualDensity: VisualDensity.comfortable,
             indicatorColor: Colors.amber),
       ),
     );

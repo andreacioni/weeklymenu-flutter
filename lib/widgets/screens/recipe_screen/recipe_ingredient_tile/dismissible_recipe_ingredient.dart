@@ -6,36 +6,50 @@ import '../../../../models/recipe.dart';
 import '../../../../models/ingredient.dart';
 
 class DismissibleRecipeIngredientTile extends StatelessWidget {
-  final RecipeIngredient recipeIngredient;
-  final int? servingsMultiplier;
+  final RecipeIngredient? recipeIngredient;
+  final double? servingsMultiplierFactor;
   final bool editEnabled;
   final void Function()? onDismissed;
-  final void Function(RecipeIngredient)? updateRecipeIngredient;
+  final void Function(dynamic)? onRecipeIngredientCreate;
+  final void Function(dynamic)? onRecipeIngredientUpdate;
+  final void Function(bool)? onFocusChanged;
 
-  DismissibleRecipeIngredientTile({
-    required this.recipeIngredient,
-    this.editEnabled = false,
-    this.onDismissed,
-    this.updateRecipeIngredient,
-    this.servingsMultiplier,
-  });
+  DismissibleRecipeIngredientTile(
+      {this.recipeIngredient,
+      this.editEnabled = false,
+      this.onDismissed,
+      this.onRecipeIngredientCreate,
+      this.onRecipeIngredientUpdate,
+      this.servingsMultiplierFactor,
+      this.onFocusChanged,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return editEnabled
+    return editEnabled && recipeIngredient != null
         ? Dismissible(
-            key: Key(recipeIngredient.ingredientId),
+            key: Key(recipeIngredient!.ingredientId),
             direction: DismissDirection.endToStart,
             child: RecipeIngredientListTile(
               recipeIngredient: recipeIngredient,
-              editEnabled: editEnabled,
-              onChanged: updateRecipeIngredient,
+              editEnabled: true,
+              onChanged: onRecipeIngredientUpdate,
+              onFocusChanged: onFocusChanged,
             ),
             onDismissed: (_) => onDismissed?.call())
         : RecipeIngredientListTile(
             recipeIngredient: recipeIngredient,
             editEnabled: editEnabled,
-            servingsMultiplier: servingsMultiplier,
+            servingsMultiplierFactor: servingsMultiplierFactor,
+            onFocusChanged: onFocusChanged,
+            onChanged: (newRecipeIngredient) {
+              if (recipeIngredient != null) {
+                onRecipeIngredientUpdate?.call(newRecipeIngredient);
+              } else {
+                onRecipeIngredientCreate?.call(newRecipeIngredient);
+              }
+            },
           );
   }
 }

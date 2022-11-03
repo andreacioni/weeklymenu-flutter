@@ -41,11 +41,17 @@ abstract class _$RecipeCWProxy {
 
   Recipe recipeUrl(String? recipeUrl);
 
+  Recipe relatedRecipes(List<String> relatedRecipes);
+
+  Recipe section(String? section);
+
   Recipe servs(int? servs);
 
   Recipe tags(List<String> tags);
 
   Recipe updateTimestamp(int? updateTimestamp);
+
+  Recipe videoUrl(String? videoUrl);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Recipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -71,9 +77,12 @@ abstract class _$RecipeCWProxy {
     List<RecipePreparationStep>? preparationSteps,
     int? rating,
     String? recipeUrl,
+    List<String>? relatedRecipes,
+    String? section,
     int? servs,
     List<String>? tags,
     int? updateTimestamp,
+    String? videoUrl,
   });
 }
 
@@ -141,6 +150,13 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   Recipe recipeUrl(String? recipeUrl) => this(recipeUrl: recipeUrl);
 
   @override
+  Recipe relatedRecipes(List<String> relatedRecipes) =>
+      this(relatedRecipes: relatedRecipes);
+
+  @override
+  Recipe section(String? section) => this(section: section);
+
+  @override
   Recipe servs(int? servs) => this(servs: servs);
 
   @override
@@ -149,6 +165,9 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   @override
   Recipe updateTimestamp(int? updateTimestamp) =>
       this(updateTimestamp: updateTimestamp);
+
+  @override
+  Recipe videoUrl(String? videoUrl) => this(videoUrl: videoUrl);
 
   @override
 
@@ -176,9 +195,12 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? preparationSteps = const $CopyWithPlaceholder(),
     Object? rating = const $CopyWithPlaceholder(),
     Object? recipeUrl = const $CopyWithPlaceholder(),
+    Object? relatedRecipes = const $CopyWithPlaceholder(),
+    Object? section = const $CopyWithPlaceholder(),
     Object? servs = const $CopyWithPlaceholder(),
     Object? tags = const $CopyWithPlaceholder(),
     Object? updateTimestamp = const $CopyWithPlaceholder(),
+    Object? videoUrl = const $CopyWithPlaceholder(),
   }) {
     return Recipe(
       availabilityMonths: availabilityMonths == const $CopyWithPlaceholder() ||
@@ -253,6 +275,15 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.recipeUrl
           // ignore: cast_nullable_to_non_nullable
           : recipeUrl as String?,
+      relatedRecipes: relatedRecipes == const $CopyWithPlaceholder() ||
+              relatedRecipes == null
+          ? _value.relatedRecipes
+          // ignore: cast_nullable_to_non_nullable
+          : relatedRecipes as List<String>,
+      section: section == const $CopyWithPlaceholder()
+          ? _value.section
+          // ignore: cast_nullable_to_non_nullable
+          : section as String?,
       servs: servs == const $CopyWithPlaceholder()
           ? _value.servs
           // ignore: cast_nullable_to_non_nullable
@@ -265,6 +296,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.updateTimestamp
           // ignore: cast_nullable_to_non_nullable
           : updateTimestamp as int?,
+      videoUrl: videoUrl == const $CopyWithPlaceholder()
+          ? _value.videoUrl
+          // ignore: cast_nullable_to_non_nullable
+          : videoUrl as String?,
     );
   }
 }
@@ -481,9 +516,15 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
       estimatedPreparationTime: json['estimatedPreparationTime'] as int?,
       estimatedCookingTime: json['estimatedCookingTime'] as int?,
       imgUrl: json['imgUrl'] as String?,
+      videoUrl: json['videoUrl'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const <String>[],
+      relatedRecipes: (json['relatedRecipes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
+      section: json['section'] as String? ?? 'Dinner',
       preparation: json['preparation'] as String?,
       preparationSteps: (json['preparationSteps'] as List<dynamic>?)
               ?.map((e) => RecipePreparationStep.fromJson(
@@ -525,7 +566,10 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('note', instance.note);
   writeNotNull('imgUrl', instance.imgUrl);
   writeNotNull('recipeUrl', instance.recipeUrl);
+  writeNotNull('videoUrl', instance.videoUrl);
   val['tags'] = instance.tags;
+  writeNotNull('section', instance.section);
+  val['relatedRecipes'] = instance.relatedRecipes;
   return val;
 }
 

@@ -517,7 +517,6 @@ class _MenuRecipeCard extends HookConsumerWidget {
               Icon(
                 Icons.drag_indicator,
                 color: editingMode ? Colors.black38 : Colors.transparent,
-                size: theme.iconTheme.size! - 1,
               ),
             ],
           ),
@@ -692,6 +691,7 @@ class _RecipeSuggestionTextField extends HookConsumerWidget {
             readOnly: readOnly,
             minLines: 1,
             maxLines: 2,
+            maxFontSize: Theme.of(context).textTheme.bodyMedium!.fontSize!,
             style: style,
             scrollPhysics: const NeverScrollableScrollPhysics(),
             scrollController: scrollController,

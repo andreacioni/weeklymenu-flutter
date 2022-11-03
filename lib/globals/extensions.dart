@@ -6,3 +6,8 @@ extension Unique<E, Id> on List<E> {
     return list;
   }
 }
+
+extension IsBlankString on String? {
+  bool get isBlank => this?.trim().isEmpty ?? true;
+  bool get isNotBlank => !isBlank;
+}

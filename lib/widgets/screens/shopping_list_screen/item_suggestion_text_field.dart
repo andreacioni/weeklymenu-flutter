@@ -144,7 +144,7 @@ class ItemSuggestionTextField extends HookConsumerWidget {
           minLines: 1,
           maxLines: 2,
           textCapitalization: TextCapitalization.sentences,
-          style: textStyle,
+          //style: textStyle,
           scrollPhysics: const NeverScrollableScrollPhysics(),
           scrollController: scrollController,
           onSubmitted: (txt) => onSubmitted?.call(txt),

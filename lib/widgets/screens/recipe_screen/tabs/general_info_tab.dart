@@ -1,156 +1,475 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:duration_picker/duration_picker.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
 import '../../../../models/enums/difficulty.dart';
+import '../../../../globals/extensions.dart';
 import '../../../../models/recipe.dart';
 import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
 import '../../../shared/number_text_field.dart';
 
-class RecipeGeneralInfoTab extends StatelessWidget {
+class RecipeGeneralInfoTab extends StatefulWidget {
   const RecipeGeneralInfoTab({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<RecipeGeneralInfoTab> createState() => _RecipeGeneralInfoTabState();
+}
+
+class _RecipeGeneralInfoTabState extends State<RecipeGeneralInfoTab>
+    with AutomaticKeepAliveClientMixin<RecipeGeneralInfoTab> {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Card(
-          child: Padding(
+    super.build(context);
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
             padding: EdgeInsets.only(left: 10, right: 10),
             child: _RecipeInformationTiles(),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class _RecipeInformationTiles extends HookConsumerWidget {
-  _RecipeInformationTiles();
+  final ExpandableController expandablePanelController =
+      ExpandableController(initialExpanded: true);
 
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+
+    final editEnabled =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
+
+    final recipeDescription = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.description));
+    final recipeNote = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.note));
+    final section = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.section));
+    final tags = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.tags));
+    final recipeUrl = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.recipeUrl));
+    final videoUrl = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.videoUrl));
+
+    useEffect(() {
+      return () => expandablePanelController.dispose();
+    }, const []);
+
+    List<Widget> buildRecipeNote() {
+      if (!recipeNote.isBlank) {
+        return [
+          SizedBox(height: 20),
+          Card(
+            child: ExpandablePanel(
+              controller: expandablePanelController,
+              theme: ExpandableThemeData(
+                  inkWellBorderRadius: BorderRadius.circular(20)),
+              header: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(children: [
+                  Icon(Icons.assignment_outlined),
+                  SizedBox(width: 20),
+                  Text(
+                    'Notes',
+                    style: theme.textTheme.titleSmall,
+                  )
+                ]),
+              ),
+              collapsed: Container(),
+              expanded: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(recipeNote!),
+              ),
+            ),
+          )
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildTagsSection() {
+      if (tags.isNotEmpty) {
+        return [
+          const SizedBox(height: 20),
+          Text(
+            'Tags',
+            style: theme.textTheme.titleMedium,
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            children: List.generate(
+              tags.length,
+              (i) => Container(
+                margin: const EdgeInsets.only(right: 10),
+                child: Chip(
+                  key: ValueKey(i),
+                  backgroundColor: theme.primaryColorLight,
+                  avatar: Icon(
+                    Icons.tag,
+                    color: Colors.black45,
+                  ),
+                  label: Text(tags[i]),
+                  deleteIcon: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black12,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      size: 15,
+                    ),
+                  ),
+                  onDeleted:
+                      editEnabled ? () => notifier.deleteTagByIndex(i) : null,
+                ),
+              ),
+            ),
+          )
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildSection() {
+      if (section != null) {
+        return [
+          SizedBox(height: 10),
+          Row(children: [
+            Chip(
+              label: Text(section),
+              backgroundColor: theme.primaryColor,
+            )
+          ]),
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildRecipeLinkSection() {
+      if (!recipeUrl.isBlank || !videoUrl.isBlank) {
+        return [
+          SizedBox(height: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (recipeUrl != null)
+                Flexible(
+                  child: Card(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () async {
+                        if (!await launchUrl(Uri.parse(recipeUrl))) {
+                          throw 'Could not launch $recipeUrl';
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Row(children: [
+                              Icon(Icons.link),
+                              SizedBox(width: 20),
+                              Text(
+                                'Link',
+                                style: theme.textTheme.titleSmall,
+                              )
+                            ]),
+                            Icon(Icons.launch)
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (videoUrl != null)
+                Flexible(
+                  child: Card(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Row(children: [
+                              Icon(Icons.link),
+                              SizedBox(width: 20),
+                              Text(
+                                'Video',
+                                style: theme.textTheme.titleSmall,
+                              )
+                            ]),
+                            Icon(Icons.launch)
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ];
+      }
+
+      return const [];
+    }
+
+    List<Widget> buildRecipeDescription() {
+      if (recipeDescription.isNotBlank) {
+        return [
+          SizedBox(height: 10),
+          AutoSizeText(
+            recipeDescription!,
+            textAlign: TextAlign.start,
+            maxLines: 2,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontStyle: FontStyle.italic,
+                color: Colors.black.withOpacity(0.7)),
+          ),
+          SizedBox(height: 10),
+        ];
+      }
+
+      return const [];
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        ...buildSection(),
+        SizedBox(height: 5),
+        _RecipeTitle(),
+        ...buildRecipeDescription(),
+        SizedBox(height: 20),
+        _RecipeHighlights(editEnabled),
+        SizedBox(height: 20),
+        ...buildRecipeLinkSection(),
+        ...buildRecipeNote(),
+        ...buildTagsSection(),
+      ],
+    );
+  }
+}
+
+class _RecipeHighlights extends HookConsumerWidget {
+  static final double BOX_SIZE = 100;
+
+  final bool editEnabled;
+
+  _RecipeHighlights(this.editEnabled);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final notifier = ref.read(recipeScreenNotifierProvider.notifier);
+
+    final servings = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.servs));
+    final cookingTime = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.estimatedCookingTime));
+    final preparationTime = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.estimatedPreparationTime));
+
+    void showTimeWidget() async {
+      final newTime = await showDialog<Duration>(
+          context: context,
+          builder: (context) {
+            return _TimeUpdateDialog(
+                initialValue: Duration(
+                    minutes: (preparationTime ?? 0) + (cookingTime ?? 0)));
+          });
+
+      if (newTime != null) {
+        notifier.updateEstimatedPreparationTime(newTime.inMinutes);
+      }
+    }
+
+    void showServingsDialog() async {
+      final newServings = await showDialog<int>(
+          context: context,
+          builder: (context) {
+            return _UpdateServingsDialog(initialValue: servings ?? 1);
+          });
+
+      if (newServings != null) {
+        notifier.updateServings(newServings);
+      }
+    }
+
+    Widget buildTimeWidget() {
+      return InkWell(
+        onTap: editEnabled ? () => showTimeWidget() : null,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: BOX_SIZE,
+          width: BOX_SIZE,
+          decoration: BoxDecoration(
+              color: theme.primaryColorLight,
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.schedule, size: 25),
+              SizedBox(height: 9),
+              Text(displayDuration(preparationTime ?? 0, cookingTime ?? 0),
+                  style: Theme.of(context).textTheme.labelMedium)
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildServingsWidget() {
+      return InkWell(
+        onTap: editEnabled ? () => showServingsDialog() : null,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: BOX_SIZE,
+          width: BOX_SIZE,
+          decoration: BoxDecoration(
+              color: theme.primaryColorLight,
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.people_outline, size: 25),
+              SizedBox(height: 9),
+              Text((servings ?? 1).toString() + ' servs.',
+                  style: Theme.of(context).textTheme.labelMedium)
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildAffinityWidget() {
+      return InkWell(
+        child: Container(
+          height: BOX_SIZE,
+          width: BOX_SIZE,
+          decoration: BoxDecoration(
+              color: theme.primaryColorLight,
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.favorite_border_outlined, size: 25),
+              SizedBox(height: 9),
+              Text('70 %', style: Theme.of(context).textTheme.labelMedium)
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        buildTimeWidget(),
+        buildServingsWidget(),
+        buildAffinityWidget(),
+      ],
+    );
+  }
+
+  String displayDuration(num preparationTime, num cookingTime) {
+    final total = preparationTime + cookingTime;
+
+    if (total <= 0) {
+      return "—";
+    }
+
+    final hours = (preparationTime + cookingTime) / 60;
+    final minutes = (preparationTime + cookingTime) % 60;
+    return hours >= 1
+        ? "${hours.toInt()} h ${minutes.toInt()} min"
+        : "${minutes.toInt()} min";
+  }
+}
+
+class _RecipeTitle extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(recipeScreenNotifierProvider.notifier);
 
     final editEnabled =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
+    final recipeName = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.name));
 
-    final servs = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.servs));
-    final estimatedPreparationTime = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.estimatedPreparationTime));
-    final estimatedCookingTime = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.estimatedCookingTime));
-    final rating = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.rating));
-    final cost = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.cost));
-    final difficulty = ref.watch(recipeScreenNotifierProvider
-        .select((n) => n.recipeOriginator.instance.difficulty));
+    void openEditRecipeNameModal() async {
+      final textController = TextEditingController(text: recipeName);
+      String? newRecipeName = await showDialog<String>(
+        context: context,
+        builder: (_) => BaseDialog<String?>(
+          title: 'Name',
+          children: [
+            TextField(controller: textController),
+          ],
+          onDoneTap: () {
+            var text = textController.text.trim();
+            if (text.isNotEmpty) {
+              Navigator.of(context).pop(text);
+            }
+          },
+        ),
+      );
 
-    final autoSizeGroup = useMemoized(() => AutoSizeGroup());
-
-    Widget _buildDifficultyDropdown(BuildContext context) {
-      return !editEnabled
-          ? Text(
-              difficulty ?? '-',
-              style: const TextStyle(fontSize: 18),
-            )
-          : DropdownButton<String>(
-              value: difficulty,
-              hint: const AutoSizeText('Choose'),
-              iconSize: 24,
-              elevation: 16,
-              style: const TextStyle(color: Colors.black, fontSize: 18),
-              onChanged: (String? newValue) =>
-                  notifier.updateDifficulty(newValue),
-              items: Difficulties.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            );
+      if (newRecipeName != null) {
+        notifier.updateRecipeName(newRecipeName);
+      }
     }
 
-    return Column(
-      children: <Widget>[
-        _EditableInformationTile(
-          servs?.toDouble(),
-          "Servings",
-          minValue: 1,
-          icon: Icon(
-            Icons.people,
-            color: Colors.black,
+    return Row(
+      children: [
+        Flexible(
+          child: AutoSizeText(
+            recipeName,
+            maxLines: 2,
+            style: Theme.of(context).textTheme.displaySmall,
           ),
-          editingEnabled: editEnabled,
-          suffix: "ppl",
-          autoSizeGroup: autoSizeGroup,
-          onChanged: (newValue) => notifier
-              .updateServings(newValue.truncate()), //_recipe.setEdited(),
         ),
-        _EditableInformationTile(
-          estimatedPreparationTime?.toDouble(),
-          "Preparation time",
-          icon: Icon(
-            Icons.timer,
-            color: Colors.blueAccent,
+        if (editEnabled) ...[
+          SizedBox(width: 10),
+          IconButton(
+            onPressed: openEditRecipeNameModal,
+            icon: Icon(Icons.edit),
+            splashRadius: 15,
           ),
-          editingEnabled: editEnabled,
-          suffix: "min",
-          autoSizeGroup: autoSizeGroup,
-          minValue: 1,
-          onChanged: (newValue) =>
-              notifier.updateEstimatedPreparationTime(newValue.truncate()),
-        ),
-        _EditableInformationTile(
-          estimatedCookingTime?.toDouble(),
-          "Cooking time",
-          icon: Icon(
-            Icons.timelapse,
-            color: Colors.blue,
-          ),
-          editingEnabled: editEnabled,
-          suffix: "min",
-          autoSizeGroup: autoSizeGroup,
-          minValue: 1,
-          onChanged: (newValue) =>
-              notifier.updateEstimatedCookingTime(newValue.truncate()),
-        ),
-        ListTile(
-          title: AutoSizeText(
-            "Difficulty",
-            group: autoSizeGroup,
-          ),
-          leading: Icon(Icons.work, color: Colors.brown.shade400),
-          trailing: _buildDifficultyDropdown(context),
-        ),
-        _RecipeInformationLevelSelect(
-          "Affinity",
-          Icon(Icons.favorite, color: Colors.red.shade300),
-          rating,
-          editEnabled: editEnabled,
-          inactiveColor: Colors.grey.withOpacity(0.3),
-          activeColor: Colors.red,
-          autoSizeGroup: autoSizeGroup,
-          onChange: (newLevel) => notifier.updateAffinity(newLevel),
-        ),
-        _RecipeInformationLevelSelect(
-          "Cost",
-          Icon(Icons.attach_money, color: Colors.green.shade300),
-          cost,
-          editEnabled: editEnabled,
-          inactiveColor: Colors.grey.withOpacity(0.5),
-          activeColor: Colors.green,
-          autoSizeGroup: autoSizeGroup,
-          onChange: (newLevel) => notifier.updateCost(newLevel),
-        ),
+        ]
       ],
     );
   }
@@ -280,6 +599,100 @@ class _EditableInformationTile extends StatelessWidget {
               group: autoSizeGroup,
             )
           : null,
+    );
+  }
+}
+
+class _TimeUpdateDialog extends StatefulWidget {
+  final Duration initialValue;
+
+  _TimeUpdateDialog({this.initialValue = Duration.zero});
+
+  @override
+  State<_TimeUpdateDialog> createState() => _TimeUpdateDialogState();
+}
+
+class _TimeUpdateDialogState extends State<_TimeUpdateDialog> {
+  late Duration _duration;
+
+  @override
+  void initState() {
+    _duration = widget.initialValue;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseDialog(
+      title: 'Preparation',
+      subtitle: 'Select the time you need to prepare the recipe',
+      onDoneTap: () => Navigator.pop(context, _duration),
+      children: [
+        DurationPicker(
+          duration: _duration,
+          onChange: (val) {
+            setState(() => _duration = val);
+          },
+          snapToMins: 5.0,
+        )
+      ],
+    );
+  }
+}
+
+class _UpdateServingsDialog extends StatefulWidget {
+  final int initialValue;
+
+  _UpdateServingsDialog({this.initialValue = 1});
+
+  @override
+  State<_UpdateServingsDialog> createState() => _UpdateServingsDialogState();
+}
+
+class _UpdateServingsDialogState extends State<_UpdateServingsDialog> {
+  late int _servings;
+
+  @override
+  void initState() {
+    _servings = widget.initialValue;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseDialog(
+      title: 'Servings',
+      subtitle: 'How many people will serve this recipe?',
+      onDoneTap: () => Navigator.pop(context, _servings),
+      children: [
+        SizedBox(
+          width: double.maxFinite,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_servings > 1) {
+                        _servings = --_servings;
+                      }
+                    });
+                  },
+                  icon: Icon(Icons.remove)),
+              Text("$_servings x"),
+              Icon(Icons.people_outline),
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _servings = ++_servings;
+                    });
+                  },
+                  icon: Icon(Icons.add)),
+            ],
+          ),
+        )
+      ],
     );
   }
 }

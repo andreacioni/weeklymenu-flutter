@@ -146,7 +146,6 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
               icon: Icon(
                 Icons.menu,
                 size: 30.0,
-                color: Colors.black,
               ),
               //S
               onPressed: () =>

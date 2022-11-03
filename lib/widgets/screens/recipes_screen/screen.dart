@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
+import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
 import '../../../globals/constants.dart';
 import '../../../main.data.dart';
@@ -195,7 +198,6 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         icon: Icon(
           Icons.menu,
           size: 30.0,
-          color: Colors.black,
         ),
         onPressed: () => Scaffold.of(context).openDrawer(),
       ),
@@ -240,10 +242,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.black,
-            ),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               setState(() => _editingModeEnabled = false);
               _selectedRecipes.clear();
@@ -301,37 +300,27 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     final textController = TextEditingController();
     final newRecipe = await showDialog<Recipe>(
       context: context,
-      builder: (_) => AlertDialog(
-        content: TextField(
-          autofocus: true,
-          controller: textController,
-          decoration: InputDecoration(hintText: 'Recipe name'),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text(
-              'CANCEL',
-              style: TextStyle(color: Theme.of(context).primaryColor),
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          FlatButton(
-            child: Text(
-              'CREATE',
-              style: TextStyle(color: Theme.of(context).primaryColor),
-            ),
-            onPressed: () async {
-              Navigator.of(context).pop();
-              if (textController.text.trim().isNotEmpty) {
-                await ref.read(recipesRepositoryProvider).save(
-                    Recipe(name: textController.text),
-                    params: {UPDATE_PARAM: false});
-              } else {
-                print("No name supplied");
-              }
-            },
+      builder: (_) => BaseDialog<Recipe>(
+        title: 'New recipe',
+        subtitle:
+            'Type a recipe name or an URL to add a new recipe to your list',
+        children: [
+          TextField(
+            autofocus: true,
+            controller: textController,
+            decoration: InputDecoration(hintText: 'Name / URL'),
           )
         ],
+        onDoneTap: () async {
+          Navigator.of(context).pop();
+          if (textController.text.trim().isNotEmpty) {
+            await ref.read(recipesRepositoryProvider).save(
+                Recipe(name: textController.text),
+                params: {UPDATE_PARAM: false});
+          } else {
+            log("No name supplied");
+          }
+        },
       ),
     );
 
