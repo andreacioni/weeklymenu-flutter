@@ -1,28 +1,20 @@
 import 'dart:developer';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:badges/badges.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/widgets/screens/recipe_screen/update_general_info_bottom_sheet.dart';
-import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
-import 'package:weekly_menu_app/widgets/shared/number_text_field.dart';
 
 import '../../../providers/screen_notifier.dart';
 import 'recipe_screen_state_notifier.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
 import '../../../globals/constants.dart';
-import '../../../globals/hooks.dart';
 import '../../../main.data.dart';
 import '../../../globals/errors_handlers.dart';
-import '../../shared/editable_text_field.dart';
-import 'recipe_ingredient_tile/dismissible_recipe_ingredient.dart';
 import '../../../models/recipe.dart';
 import 'recipe_app_bar.dart';
-import 'recipe_tags.dart';
 import 'tabs/steps_tab.dart';
 
 class RecipeScreen extends HookConsumerWidget {
@@ -197,18 +189,23 @@ class _RecipeScreen extends HookConsumerWidget {
     Future<void> showAddInfoDialog() async {
       final recipe =
           ref.read(recipeScreenNotifierProvider).recipeOriginator.instance;
-      await showModalBottomSheet(
+      final newRecipe = await showModalBottomSheet<Recipe?>(
           context: context,
           clipBehavior: Clip.hardEdge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          useRootNavigator: true,
-          enableDrag: true,
+          constraints: BoxConstraints(maxHeight: 500),
+          isScrollControlled: true,
+          //enableDrag: true,
           builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
                 recipe: recipe,
                 notifier: notifier,
               ));
+
+      if (newRecipe != null) {
+        notifier.updateRecipe(newRecipe);
+      }
     }
 
     void handleAddActionBasedOnTabIndex() {

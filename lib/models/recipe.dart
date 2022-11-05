@@ -55,7 +55,7 @@ class Recipe extends BaseModel<Recipe> {
 
   final String? section;
 
-  final List<String> relatedRecipes;
+  final List<RelatedRecipe> relatedRecipes;
 
   @JsonKey(ignore: true)
   final String? owner;
@@ -75,7 +75,7 @@ class Recipe extends BaseModel<Recipe> {
       this.imgUrl,
       this.videoUrl,
       this.tags = const <String>[],
-      this.relatedRecipes = const <String>[],
+      this.relatedRecipes = const <RelatedRecipe>[],
       this.section = 'Dinner',
       this.preparation,
       this.preparationSteps = const <RecipePreparationStep>[],
@@ -97,6 +97,19 @@ class Recipe extends BaseModel<Recipe> {
 
   @override
   String toString() => name;
+}
+
+@JsonSerializable()
+@CopyWith()
+class RelatedRecipe {
+  final String id;
+
+  const RelatedRecipe({required this.id});
+
+  factory RelatedRecipe.fromJson(Map<String, dynamic> json) =>
+      _$RelatedRecipeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RelatedRecipeToJson(this);
 }
 
 @JsonSerializable()

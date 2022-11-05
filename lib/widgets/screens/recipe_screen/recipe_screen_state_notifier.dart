@@ -261,11 +261,16 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   void addRelatedRecipes(String relatedRecipeId) {
     final newList = [
       ...state.recipeOriginator.instance.relatedRecipes,
-      relatedRecipeId
+      RelatedRecipe(id: relatedRecipeId)
     ];
 
     state.recipeOriginator.update(
         state.recipeOriginator.instance.copyWith(relatedRecipes: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void updateRecipe(Recipe newRecipe) {
+    state.recipeOriginator.update(newRecipe);
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 }
