@@ -260,7 +260,7 @@ class _RecipeScreen extends HookConsumerWidget {
       } else if (displayMoreFAB) {
         return FloatingActionButton(
           mini: true,
-          child: Icon(Icons.more_horiz_sharp),
+          child: Icon(Icons.keyboard_arrow_up_rounded),
           onPressed: () => showAddInfoDialog(),
         );
       }

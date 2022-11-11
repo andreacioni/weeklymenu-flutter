@@ -3,8 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -125,7 +123,7 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
           onChanged: (text) =>
               tempRecipe = tempRecipe.copyWith(note: text.trim()),
         ),
-        _fields.related_recipes: _MultiValueSelectWithSuggestion(
+        _fields.related_recipes: _MultiValueSelectWithSuggestion<Recipe>(
           key: ValueKey(_fields.related_recipes),
           textFieldSuffixIcon: Icon(Icons.search_outlined),
           suggestionsCallback: (text) async {
@@ -138,11 +136,13 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
                     tempRecipe.relatedRecipes
                         .firstWhereOrNull((rr) => r.id == rr.id) ==
                     null)
-                .map((r) => r.name)
                 .toList();
           },
-          onChanged: (text) =>
-              tempRecipe = tempRecipe.copyWith(note: text.trim()),
+          onSelectionChanged: (selected) {
+            final relatedRecipes =
+                selected.map((r) => RelatedRecipe(id: r.id)).toList();
+            tempRecipe = tempRecipe.copyWith(relatedRecipes: relatedRecipes);
+          },
         ),
         _fields.video: _UpdateTextualValue(
           key: ValueKey(_fields.video),
@@ -177,8 +177,7 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.symmetric(horizontal: 10),
           child: _displayInnerScreen(),
         ),
       ),
@@ -416,27 +415,29 @@ class _UpdateTextualValue extends HookConsumerWidget {
   }
 }
 
-class _MultiValueSelectWithSuggestion extends HookConsumerWidget {
+class _MultiValueSelectWithSuggestion<T> extends HookConsumerWidget {
   final bool autofocus;
   final Icon? textFieldSuffixIcon;
-  final List<String> currentlySelected;
-  final Future<List<String>> Function(String)? suggestionsCallback;
+  final List<T> currentlySelected;
+  final Future<List<T>> Function(String)? suggestionsCallback;
+  final void Function(List<T>)? onSelectionChanged;
+  late final String Function(T) labelTextSelector;
 
-  final void Function(String)? onChanged;
-
-  const _MultiValueSelectWithSuggestion({
+  _MultiValueSelectWithSuggestion({
     Key? key,
     this.autofocus = true,
     this.textFieldSuffixIcon,
-    this.onChanged,
     this.currentlySelected = const [],
     this.suggestionsCallback,
-  }) : super(key: key);
+    this.onSelectionChanged,
+    String Function(T)? labelTextSelector,
+  })  : this.labelTextSelector = labelTextSelector ?? ((T t) => t.toString()),
+        super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useTextEditingController();
-    final suggestions = useState<List<String>>([]);
+    final suggestions = useState<List<T>>([]);
     final currentlySelectedState = useState(currentlySelected);
     return Column(
       children: [
@@ -449,11 +450,10 @@ class _MultiValueSelectWithSuggestion extends HookConsumerWidget {
             suggestionsCallback?.call(text).then((values) {
               suggestions.value = values;
             });
-
-            onChanged?.call(text);
           },
         ),
-        ..._buildCurrentlySelectedTiles(currentlySelectedState.value),
+        ..._buildCurrentlySelectedTiles(
+            currentlySelectedState.value, currentlySelectedState),
         SizedBox(height: 10),
         ...suggestions.value
             .where((s) => !currentlySelectedState.value.contains(s))
@@ -464,14 +464,25 @@ class _MultiValueSelectWithSuggestion extends HookConsumerWidget {
     );
   }
 
-  List<Widget> _buildCurrentlySelectedTiles(List<String> selected) {
-    final ret = selected
-        .map((cs) => ListTile(
-              key: ValueKey(cs),
-              title: Text(cs),
-              trailing: Icon(Icons.done),
-            ))
-        .toList();
+  List<Widget> _buildCurrentlySelectedTiles(
+      List<T> selected, ValueNotifier<List<T>> selectedNotifier) {
+    final ret = selected.map((cs) {
+      final label = labelTextSelector(cs);
+
+      return ListTile(
+        key: UniqueKey(),
+        title: Text(label),
+        trailing: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            selectedNotifier.value = [...selectedNotifier.value]
+              ..removeWhere((s) => s == cs);
+
+            onSelectionChanged?.call(selectedNotifier.value);
+          },
+        ),
+      );
+    }).toList();
 
     if (ret.isNotEmpty) {
       return [...ret, Divider()];
@@ -482,16 +493,18 @@ class _MultiValueSelectWithSuggestion extends HookConsumerWidget {
 
   Widget _buildSuggestionTile(
       BuildContext context,
-      String suggestion,
+      T suggestion,
       TextEditingController controller,
-      ValueNotifier<List<String>> selectedNotifier,
-      ValueNotifier<List<String>> suggestionNotifier) {
+      ValueNotifier<List<T>> selectedNotifier,
+      ValueNotifier<List<T>> suggestionNotifier) {
+    final label = labelTextSelector(suggestion);
     return ListTile(
-      key: ValueKey(suggestion),
-      title: Text(suggestion),
+      key: UniqueKey(),
+      title: Text(label),
       onTap: () {
         selectedNotifier.value = [...selectedNotifier.value, suggestion];
         suggestionNotifier.value = [];
+        onSelectionChanged?.call(selectedNotifier.value);
         controller.text = '';
         FocusScope.of(context).unfocus();
       },

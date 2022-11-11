@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -6,14 +7,18 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:weekly_menu_app/widgets/screens/recipes_screen/recipe_card.dart';
 import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
+import 'package:weekly_menu_app/main.data.dart';
 import '../../../../models/enums/difficulty.dart';
 import '../../../../globals/extensions.dart';
 import '../../../../models/recipe.dart';
 import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
+import '../../../shared/flutter_data_state_builder.dart';
 import '../../../shared/number_text_field.dart';
 
 class RecipeGeneralInfoTab extends StatefulWidget {
@@ -70,6 +75,8 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         .select((n) => n.recipeOriginator.instance.recipeUrl));
     final videoUrl = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.videoUrl));
+    final relatedRecipes = ref.watch(recipeScreenNotifierProvider
+        .select((n) => n.recipeOriginator.instance.relatedRecipes));
 
     useEffect(() {
       return () => expandablePanelController.dispose();
@@ -260,6 +267,28 @@ class _RecipeInformationTiles extends HookConsumerWidget {
       return const [];
     }
 
+    List<Widget> buildRelatedRecipesSection() {
+      if (relatedRecipes.isNotEmpty) {
+        return [
+          const SizedBox(height: 20),
+          Text(
+            'Other recipes',
+            style: theme.textTheme.titleMedium,
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: relatedRecipes
+                  .map((rr) => _RelatedRecipeCard(rr.id))
+                  .toList(),
+            ),
+          )
+        ];
+      }
+      return const [];
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -272,6 +301,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         SizedBox(height: 20),
         ...buildRecipeLinkSection(),
         ...buildRecipeNote(),
+        ...buildRelatedRecipesSection(),
         ...buildTagsSection(),
       ],
     );
@@ -694,5 +724,89 @@ class _UpdateServingsDialogState extends State<_UpdateServingsDialog> {
         )
       ],
     );
+  }
+}
+
+class _RelatedRecipeCard extends ConsumerWidget {
+  final String recipeId;
+
+  const _RelatedRecipeCard(this.recipeId, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final borderRadius = BorderRadius.circular(10);
+    const height = 60.0;
+    const width = 190.0;
+    const constraints = const BoxConstraints(
+        maxHeight: height, maxWidth: width, minHeight: height, minWidth: width);
+
+    final theme = Theme.of(context);
+
+    return Container(
+      constraints: constraints,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        clipBehavior: Clip.hardEdge,
+        child: FlutterDataStateBuilder<Recipe>(
+          state: ref.recipes.watchOne(recipeId),
+          builder: (context, recipe) {
+            return _buildRecipeCard(recipe, borderRadius, theme, Object());
+          },
+          loading: _buildLoadingShimmer(),
+        ),
+      ),
+    );
+  }
+
+  Shimmer _buildLoadingShimmer() {
+    return Shimmer.fromColors(
+        child: Expanded(child: Container(color: Colors.red)),
+        baseColor: Colors.white,
+        highlightColor: Color.fromARGB(255, 229, 229, 229));
+  }
+
+  Widget _buildRecipeCard(Recipe recipe, BorderRadius borderRadius,
+      ThemeData theme, Object heroTag) {
+    return InkWell(
+        borderRadius: borderRadius,
+        highlightColor: theme.primaryColor.withOpacity(0.4),
+        splashColor: theme.primaryColor.withOpacity(0.6),
+        onTap: () {},
+        child: Flexible(
+          key: ValueKey('image-title'),
+          flex: 5,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (recipe.imgUrl != null)
+                Container(
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                      borderRadius: borderRadius.copyWith(
+                          topRight: Radius.circular(5),
+                          bottomRight: Radius.circular(5))),
+                  child: Hero(
+                    tag: heroTag,
+                    child: Image(
+                        height: 50,
+                        width: 90,
+                        image: CachedNetworkImageProvider(recipe.imgUrl!,
+                            maxWidth: 236, maxHeight: 131),
+                        errorBuilder: (_, __, ___) => Container(),
+                        fit: BoxFit.fitWidth),
+                  ),
+                ),
+              Expanded(
+                child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: AutoSizeText(
+                      recipe.name,
+                      style: theme.textTheme.titleMedium!
+                          .copyWith(fontWeight: FontWeight.w700),
+                    )),
+              ),
+            ],
+          ),
+        ));
   }
 }
