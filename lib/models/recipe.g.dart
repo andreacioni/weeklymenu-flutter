@@ -572,7 +572,7 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
               ?.map((e) =>
                   RelatedRecipe.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
-          const <RelatedRecipe>[],
+          const [RelatedRecipe(id: '5fa9be5bd10646442fddf2b6')],
       section: json['section'] as String? ?? 'Dinner',
       preparation: json['preparation'] as String?,
       preparationSteps: (json['preparationSteps'] as List<dynamic>?)

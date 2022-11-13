@@ -20,6 +20,7 @@ import '../../../../providers/screen_notifier.dart';
 import '../../../shared/editable_text_field.dart';
 import '../../../shared/flutter_data_state_builder.dart';
 import '../../../shared/number_text_field.dart';
+import '../screen.dart';
 
 class RecipeGeneralInfoTab extends StatefulWidget {
   const RecipeGeneralInfoTab({
@@ -280,7 +281,10 @@ class _RecipeInformationTiles extends HookConsumerWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: relatedRecipes
-                  .map((rr) => _RelatedRecipeCard(rr.id))
+                  .map((rr) => _RelatedRecipeCard(
+                        rr.id,
+                        editEnabled: editEnabled,
+                      ))
                   .toList(),
             ),
           )
@@ -729,8 +733,10 @@ class _UpdateServingsDialogState extends State<_UpdateServingsDialog> {
 
 class _RelatedRecipeCard extends ConsumerWidget {
   final String recipeId;
+  final bool editEnabled;
 
-  const _RelatedRecipeCard(this.recipeId, {Key? key}) : super(key: key);
+  const _RelatedRecipeCard(this.recipeId, {Key? key, this.editEnabled = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -750,7 +756,8 @@ class _RelatedRecipeCard extends ConsumerWidget {
         child: FlutterDataStateBuilder<Recipe>(
           state: ref.recipes.watchOne(recipeId),
           builder: (context, recipe) {
-            return _buildRecipeCard(recipe, borderRadius, theme, Object());
+            return _buildRecipeCard(
+                context, editEnabled, recipe, borderRadius, theme, Object());
           },
           loading: _buildLoadingShimmer(),
         ),
@@ -761,52 +768,55 @@ class _RelatedRecipeCard extends ConsumerWidget {
   Shimmer _buildLoadingShimmer() {
     return Shimmer.fromColors(
         child: Expanded(child: Container(color: Colors.red)),
-        baseColor: Colors.white,
-        highlightColor: Color.fromARGB(255, 229, 229, 229));
+        baseColor: Color.fromARGB(255, 229, 229, 229),
+        highlightColor: Colors.white);
   }
 
-  Widget _buildRecipeCard(Recipe recipe, BorderRadius borderRadius,
-      ThemeData theme, Object heroTag) {
+  Widget _buildRecipeCard(BuildContext context, bool editEnabled, Recipe recipe,
+      BorderRadius borderRadius, ThemeData theme, Object heroTag) {
     return InkWell(
-        borderRadius: borderRadius,
-        highlightColor: theme.primaryColor.withOpacity(0.4),
-        splashColor: theme.primaryColor.withOpacity(0.6),
-        onTap: () {},
-        child: Flexible(
-          key: ValueKey('image-title'),
-          flex: 5,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              if (recipe.imgUrl != null)
-                Container(
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                      borderRadius: borderRadius.copyWith(
-                          topRight: Radius.circular(5),
-                          bottomRight: Radius.circular(5))),
-                  child: Hero(
-                    tag: heroTag,
-                    child: Image(
-                        height: 50,
-                        width: 90,
-                        image: CachedNetworkImageProvider(recipe.imgUrl!,
-                            maxWidth: 236, maxHeight: 131),
-                        errorBuilder: (_, __, ___) => Container(),
-                        fit: BoxFit.fitWidth),
-                  ),
-                ),
-              Expanded(
-                child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: AutoSizeText(
-                      recipe.name,
-                      style: theme.textTheme.titleMedium!
-                          .copyWith(fontWeight: FontWeight.w700),
-                    )),
+      borderRadius: borderRadius,
+      highlightColor: theme.primaryColor.withOpacity(0.4),
+      splashColor: theme.primaryColor.withOpacity(0.6),
+      onTap: !editEnabled
+          ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (_) => RecipeScreen(recipe, heroTag: heroTag)),
+              );
+            }
+          : null,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (recipe.imgUrl != null) ...[
+            Image(
+              fit: BoxFit.cover,
+              height: 120,
+              width: 190 * 2,
+              errorBuilder: (_, __, ___) => Container(),
+              image: CachedNetworkImageProvider(
+                recipe.imgUrl!,
               ),
-            ],
+            ),
+            Container(
+              color: Colors.white.withOpacity(0.5),
+            )
+          ],
+          SizedBox(
+            width: double.maxFinite,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: AutoSizeText(
+                recipe.name,
+                textAlign: TextAlign.start,
+                style: theme.textTheme.titleMedium!
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 }
