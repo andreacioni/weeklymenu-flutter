@@ -41,7 +41,7 @@ abstract class _$RecipeCWProxy {
 
   Recipe recipeUrl(String? recipeUrl);
 
-  Recipe relatedRecipes(List<String> relatedRecipes);
+  Recipe relatedRecipes(List<RelatedRecipe> relatedRecipes);
 
   Recipe section(String? section);
 
@@ -77,7 +77,7 @@ abstract class _$RecipeCWProxy {
     List<RecipePreparationStep>? preparationSteps,
     int? rating,
     String? recipeUrl,
-    List<String>? relatedRecipes,
+    List<RelatedRecipe>? relatedRecipes,
     String? section,
     int? servs,
     List<String>? tags,
@@ -150,7 +150,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   Recipe recipeUrl(String? recipeUrl) => this(recipeUrl: recipeUrl);
 
   @override
-  Recipe relatedRecipes(List<String> relatedRecipes) =>
+  Recipe relatedRecipes(List<RelatedRecipe> relatedRecipes) =>
       this(relatedRecipes: relatedRecipes);
 
   @override
@@ -279,7 +279,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
               relatedRecipes == null
           ? _value.relatedRecipes
           // ignore: cast_nullable_to_non_nullable
-          : relatedRecipes as List<String>,
+          : relatedRecipes as List<RelatedRecipe>,
       section: section == const $CopyWithPlaceholder()
           ? _value.section
           // ignore: cast_nullable_to_non_nullable
@@ -307,6 +307,54 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
 extension $RecipeCopyWith on Recipe {
   /// Returns a callable class that can be used as follows: `instanceOfRecipe.copyWith(...)` or like so:`instanceOfRecipe.copyWith.fieldName(...)`.
   _$RecipeCWProxy get copyWith => _$RecipeCWProxyImpl(this);
+}
+
+abstract class _$RelatedRecipeCWProxy {
+  RelatedRecipe id(String id);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RelatedRecipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RelatedRecipe(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RelatedRecipe call({
+    String? id,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfRelatedRecipe.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfRelatedRecipe.copyWith.fieldName(...)`
+class _$RelatedRecipeCWProxyImpl implements _$RelatedRecipeCWProxy {
+  final RelatedRecipe _value;
+
+  const _$RelatedRecipeCWProxyImpl(this._value);
+
+  @override
+  RelatedRecipe id(String id) => this(id: id);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RelatedRecipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RelatedRecipe(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RelatedRecipe call({
+    Object? id = const $CopyWithPlaceholder(),
+  }) {
+    return RelatedRecipe(
+      id: id == const $CopyWithPlaceholder() || id == null
+          ? _value.id
+          // ignore: cast_nullable_to_non_nullable
+          : id as String,
+    );
+  }
+}
+
+extension $RelatedRecipeCopyWith on RelatedRecipe {
+  /// Returns a callable class that can be used as follows: `instanceOfRelatedRecipe.copyWith(...)` or like so:`instanceOfRelatedRecipe.copyWith.fieldName(...)`.
+  _$RelatedRecipeCWProxy get copyWith => _$RelatedRecipeCWProxyImpl(this);
 }
 
 abstract class _$RecipePreparationStepCWProxy {
@@ -521,9 +569,10 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const <String>[],
       relatedRecipes: (json['relatedRecipes'] as List<dynamic>?)
-              ?.map((e) => e as String)
+              ?.map((e) =>
+                  RelatedRecipe.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
-          const <String>[],
+          const [RelatedRecipe(id: '5fa9be5bd10646442fddf2b6')],
       section: json['section'] as String? ?? 'Dinner',
       preparation: json['preparation'] as String?,
       preparationSteps: (json['preparationSteps'] as List<dynamic>?)
@@ -569,9 +618,19 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('videoUrl', instance.videoUrl);
   val['tags'] = instance.tags;
   writeNotNull('section', instance.section);
-  val['relatedRecipes'] = instance.relatedRecipes;
+  val['relatedRecipes'] =
+      instance.relatedRecipes.map((e) => e.toJson()).toList();
   return val;
 }
+
+RelatedRecipe _$RelatedRecipeFromJson(Map json) => RelatedRecipe(
+      id: json['id'] as String,
+    );
+
+Map<String, dynamic> _$RelatedRecipeToJson(RelatedRecipe instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+    };
 
 RecipePreparationStep _$RecipePreparationStepFromJson(Map json) =>
     RecipePreparationStep(
