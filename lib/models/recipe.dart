@@ -75,9 +75,7 @@ class Recipe extends BaseModel<Recipe> {
       this.imgUrl,
       this.videoUrl,
       this.tags = const <String>[],
-      this.relatedRecipes = const [
-        RelatedRecipe(id: '5fa9be5bd10646442fddf2b6')
-      ],
+      this.relatedRecipes = const <RelatedRecipe>[],
       this.section = 'Dinner',
       this.preparation,
       this.preparationSteps = const <RecipePreparationStep>[],
