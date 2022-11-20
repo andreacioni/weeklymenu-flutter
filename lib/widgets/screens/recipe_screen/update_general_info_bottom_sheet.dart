@@ -12,6 +12,23 @@ import '../../shared/base_dialog.dart';
 
 final _stateProvider = StateProvider<_fields?>((_) => null);
 
+final _recipesSuggestionsProvider = FutureProvider.autoDispose((ref) async =>
+    await ref.read(recipesRepositoryProvider).findAll(remote: false) ??
+    <Recipe>[]);
+final _tagSuggestionProvider = FutureProvider.autoDispose((ref) async {
+  final recipes = await ref.watch(_recipesSuggestionsProvider.future);
+  return recipes.map((r) => r.tags).flattened.toSet();
+});
+final _resolvedRelatedRecipesProvider = FutureProvider.autoDispose
+    .family<List<Recipe>, List<RelatedRecipe>>((ref, relatedRecipes) async {
+  final recipes = await ref.watch(_recipesSuggestionsProvider.future);
+  return relatedRecipes
+      .map((rr) => recipes.firstWhereOrNull((r) => r.id == rr.id))
+      .where((r) => r != null)
+      .toList()
+      .cast();
+});
+
 enum _fields {
   section,
   description,
@@ -93,11 +110,21 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
 
     var tempRecipe = recipe.copyWith();
 
-    var recipes = <Recipe>[];
-    ref
-        .read(recipesRepositoryProvider)
-        .findAll(remote: false)
-        .then((value) => recipes = value ?? <Recipe>[]);
+    final recipes = ref.watch(_recipesSuggestionsProvider).map(
+        data: (data) => data.value,
+        error: (_) => const <Recipe>[],
+        loading: (_) => const <Recipe>[]);
+    final tags = ref.watch(_tagSuggestionProvider).map(
+        data: (data) => data.value,
+        error: (_) => const <String>[],
+        loading: (_) => const <String>[]);
+
+    final resolvedRelatedRecipes = ref
+        .watch(_resolvedRelatedRecipesProvider(recipe.relatedRecipes))
+        .map(
+            data: (data) => data.value,
+            error: (_) => const <Recipe>[],
+            loading: (_) => const <Recipe>[]);
 
     Widget? _displayInnerScreen() {
       return {
@@ -124,8 +151,10 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
               tempRecipe = tempRecipe.copyWith(note: text.trim()),
         ),
         _fields.related_recipes: _MultiValueSelectWithSuggestion<Recipe>(
-          key: ValueKey(_fields.related_recipes),
+          key: ValueKey(_fields.related_recipes.toString() +
+              resolvedRelatedRecipes.hashCode.toString()),
           textFieldSuffixIcon: Icon(Icons.search_outlined),
+          currentlySelected: resolvedRelatedRecipes,
           suggestionsCallback: (text) async {
             if (text.trim().isEmpty) {
               return const [];
@@ -157,6 +186,25 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
           maxLength: 200,
           onChanged: (text) =>
               tempRecipe = tempRecipe.copyWith(recipeUrl: text.trim()),
+        ),
+        _fields.tags: _MultiValueTextWithSuggestion<String>(
+          key: ValueKey(_fields.link),
+          currentlySelected: recipe.tags,
+          textToTypeConverter: (text) => text,
+          submitButtonIcon: Icon(Icons.add),
+          suggestionsCallback: (text) async {
+            if (text.trim().isEmpty) {
+              return const <String>[];
+            }
+            return tags
+                .where((t) => t.toLowerCase().contains(text.toLowerCase()))
+                .where((t) =>
+                    tempRecipe.tags.firstWhereOrNull((tt) => t == tt) == null)
+                .toList();
+          },
+          onSelectionChanged: (selected) {
+            tempRecipe = tempRecipe.copyWith(tags: selected);
+          },
         ),
       }[innerScreen];
     }
@@ -507,6 +555,146 @@ class _MultiValueSelectWithSuggestion<T> extends HookConsumerWidget {
         onSelectionChanged?.call(selectedNotifier.value);
         controller.text = '';
         FocusScope.of(context).unfocus();
+      },
+    );
+  }
+}
+
+class _MultiValueTextWithSuggestion<T> extends HookConsumerWidget {
+  final bool autofocus;
+  final Icon? textFieldSuffixIcon;
+  final List<T> currentlySelected;
+  final Icon? submitButtonIcon;
+  final T Function(String) textToTypeConverter;
+  final Future<List<T>> Function(String)? suggestionsCallback;
+  final void Function(List<T>)? onSelectionChanged;
+  late final String Function(T) labelTextSelector;
+
+  _MultiValueTextWithSuggestion({
+    Key? key,
+    required this.textToTypeConverter,
+    this.autofocus = true,
+    this.textFieldSuffixIcon,
+    this.currentlySelected = const [],
+    this.suggestionsCallback,
+    this.onSelectionChanged,
+    this.submitButtonIcon,
+    String Function(T)? labelTextSelector,
+  })  : this.labelTextSelector = labelTextSelector ?? ((T t) => t.toString()),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = useTextEditingController();
+    final suggestions = useState<List<T>>([]);
+    final currentlySelectedState = useState(currentlySelected);
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controller,
+                autofocus: autofocus,
+                minLines: 1,
+                decoration: InputDecoration(suffixIcon: textFieldSuffixIcon),
+                onSubmitted: (text) => _submit(
+                  context,
+                  textToTypeConverter(text),
+                  controller,
+                  currentlySelectedState,
+                  suggestions,
+                ),
+                onChanged: (text) {
+                  suggestionsCallback?.call(text).then((values) {
+                    suggestions.value = values;
+                  });
+                },
+              ),
+            ),
+            if (submitButtonIcon != null)
+              IconButton(
+                onPressed: () => _submit(
+                    context,
+                    textToTypeConverter(controller.text),
+                    controller,
+                    currentlySelectedState,
+                    suggestions),
+                icon: submitButtonIcon!,
+              )
+          ],
+        ),
+        ..._buildCurrentlySelectedTiles(
+            currentlySelectedState.value, currentlySelectedState),
+        SizedBox(height: 10),
+        ...suggestions.value
+            .where((s) => !currentlySelectedState.value.contains(s))
+            .map((s) => _buildSuggestionTile(
+                context, s, controller, currentlySelectedState, suggestions))
+            .toList()
+      ],
+    );
+  }
+
+  void _submit(
+      BuildContext context,
+      T suggestion,
+      TextEditingController controller,
+      ValueNotifier<List<T>> selectedNotifier,
+      ValueNotifier<List<T>> suggestionNotifier) {
+    selectedNotifier.value = [...selectedNotifier.value, suggestion];
+    suggestionNotifier.value = [];
+    onSelectionChanged?.call(selectedNotifier.value);
+    controller.text = '';
+    FocusScope.of(context).unfocus();
+  }
+
+  List<Widget> _buildCurrentlySelectedTiles(
+      List<T> selected, ValueNotifier<List<T>> selectedNotifier) {
+    final ret = selected.map((cs) {
+      final label = labelTextSelector(cs);
+
+      return ListTile(
+        key: UniqueKey(),
+        title: Text(label),
+        trailing: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            selectedNotifier.value = [...selectedNotifier.value]
+              ..removeWhere((s) => s == cs);
+
+            onSelectionChanged?.call(selectedNotifier.value);
+          },
+        ),
+      );
+    }).toList();
+
+    if (ret.isNotEmpty) {
+      return [...ret, Divider()];
+    }
+
+    return ret;
+  }
+
+  Widget _buildSuggestionTile(
+      BuildContext context,
+      T suggestion,
+      TextEditingController controller,
+      ValueNotifier<List<T>> selectedNotifier,
+      ValueNotifier<List<T>> suggestionNotifier) {
+    final label = labelTextSelector(suggestion);
+    return ListTile(
+      key: UniqueKey(),
+      title: Text(label),
+      onTap: () {
+        _submit(
+          context,
+          suggestion,
+          controller,
+          selectedNotifier,
+          suggestionNotifier,
+        );
       },
     );
   }

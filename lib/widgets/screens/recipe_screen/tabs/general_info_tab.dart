@@ -9,9 +9,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:weekly_menu_app/widgets/screens/recipes_screen/recipe_card.dart';
-import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
+import '../../../shared/base_dialog.dart';
 import 'package:weekly_menu_app/main.data.dart';
 import '../../../../models/enums/difficulty.dart';
 import '../../../../globals/extensions.dart';
