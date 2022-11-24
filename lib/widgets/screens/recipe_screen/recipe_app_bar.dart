@@ -79,7 +79,7 @@ class RecipeAppBar extends HookConsumerWidget {
       forceElevated: innerBoxIsScrolled,
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: [],
-        collapseMode: CollapseMode.pin,
+        collapseMode: CollapseMode.parallax,
         centerTitle: false,
         background: Hero(
           tag: heroTag,
