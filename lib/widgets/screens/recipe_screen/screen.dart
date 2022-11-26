@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/widgets/screens/recipe_screen/update_general_info_bottom_sheet.dart';
 
+import '../../../globals/utils.dart';
 import '../../../providers/screen_notifier.dart';
 import 'recipe_screen_state_notifier.dart';
 import 'tabs/general_info_tab.dart';
@@ -136,7 +137,7 @@ class _RecipeScreen extends HookConsumerWidget {
     );
     useEffect(() {
       void listener() {
-        _unfocus(context);
+        unfocus(context);
         notifier.newIngredientMode = false;
         notifier.newStepMode = false;
         notifier.currentTab = tabController.index;
@@ -190,18 +191,20 @@ class _RecipeScreen extends HookConsumerWidget {
       final recipe =
           ref.read(recipeScreenNotifierProvider).recipeOriginator.instance;
       final newRecipe = await showModalBottomSheet<Recipe?>(
-          context: context,
-          clipBehavior: Clip.hardEdge,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          constraints: BoxConstraints(maxHeight: 500),
-          isScrollControlled: true,
-          //enableDrag: true,
-          builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
-                recipe: recipe,
-                notifier: notifier,
-              ));
+        context: context,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        //constraints: BoxConstraints.tight(MediaQuery.of(context)),
+        useRootNavigator: true,
+        isScrollControlled: true,
+        //enableDrag: true,
+        builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
+          recipe: recipe,
+          notifier: notifier,
+        ),
+      );
 
       if (newRecipe != null) {
         notifier.updateRecipe(newRecipe);
@@ -285,7 +288,7 @@ class _RecipeScreen extends HookConsumerWidget {
             },
             child: Scaffold(
               body: GestureDetector(
-                onTap: () => _unfocus(context),
+                onTap: () => unfocus(context),
                 child: Form(
                   key: _formKey,
                   child: NestedScrollView(
@@ -339,12 +342,5 @@ class _RecipeScreen extends HookConsumerWidget {
         ),
       ),
     );
-  }
-
-  void _unfocus(BuildContext context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
   }
 }

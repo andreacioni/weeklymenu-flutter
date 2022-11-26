@@ -59,3 +59,10 @@ String decodeBase64(String str) {
 
 Map<String, dynamic> jsonMapFromString(String jsonString) =>
     jsonDecode(jsonString);
+
+void unfocus(BuildContext context) {
+  FocusScopeNode currentFocus = FocusScope.of(context);
+  if (!currentFocus.hasPrimaryFocus) {
+    currentFocus.focusedChild?.unfocus();
+  }
+}

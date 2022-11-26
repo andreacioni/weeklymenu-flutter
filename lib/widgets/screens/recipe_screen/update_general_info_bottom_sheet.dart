@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/globals/utils.dart';
 
 import 'recipe_screen_state_notifier.dart';
 import '../../../models/recipe.dart';
@@ -78,12 +80,21 @@ class UpdateGeneralInfoRecipeBottomSheet extends HookConsumerWidget {
       )
     ];
 
-    return DefaultTabController(
-      length: tabs.length,
-      child: TabBarView(
-        physics: NeverScrollableScrollPhysics(),
-        controller: tabController,
-        children: tabs,
+    final mq = MediaQuery.of(context);
+    log("${mq.viewInsets.bottom}");
+
+    final maxSheetHeight = min<double>(
+        500 + MediaQuery.of(context).viewInsets.bottom, mq.size.height * 0.8);
+
+    return Container(
+      constraints: BoxConstraints(maxHeight: maxSheetHeight),
+      child: DefaultTabController(
+        length: tabs.length,
+        child: TabBarView(
+          physics: NeverScrollableScrollPhysics(),
+          controller: tabController,
+          children: tabs,
+        ),
       ),
     );
   }
@@ -214,7 +225,10 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
         backgroundColor: theme.backgroundColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => tabController.index = 0,
+          onPressed: () {
+            tabController.index = 0;
+            unfocus(context);
+          },
         ),
         actions: [
           IconButton(
