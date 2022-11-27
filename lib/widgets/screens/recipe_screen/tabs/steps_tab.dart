@@ -25,31 +25,39 @@ class RecipeStepsTab extends HookConsumerWidget {
     final newStepMode =
         ref.watch(recipeScreenNotifierProvider.select((n) => n.newStepMode));
 
-    Widget buildStepCard(
-        {RecipePreparationStep? step,
-        required int index,
-        bool autofocus = false}) {
+    final editEnabled =
+        ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
+
+    Widget buildStepCard({
+      RecipePreparationStep? step,
+      required int index,
+      bool autofocus = false,
+    }) {
       return _StepCard(
         step,
         key: ValueKey(step),
         index: index,
         autofocus: autofocus,
+        editEnabled: editEnabled,
         onSubmit: (recipePreparationStep) {
-          if (step == null) {
-            notifier.addStep(recipePreparationStep);
-          }
-
           notifier.newStepMode = false;
-          Future.delayed(
-              Duration(milliseconds: 100), () => notifier.newStepMode = true);
+
+          if (recipePreparationStep.description?.isNotEmpty ?? false) {
+            if (step == null) {
+              notifier.addStep(recipePreparationStep);
+            }
+
+            Future.delayed(
+                Duration(milliseconds: 100), () => notifier.newStepMode = true);
+          }
         },
         onChanged: (recipePreparationStep) {
-          if (step != null && index != null) {
+          if (step != null) {
             notifier.updateStepByIndex(index, recipePreparationStep);
           }
         },
         onDelete: () {
-          if (step != null && index != null) {
+          if (step != null) {
             notifier.deleteStepByIndex(index);
           } else {
             notifier.newStepMode = false;
@@ -73,19 +81,25 @@ class RecipeStepsTab extends HookConsumerWidget {
       }).toList();
     }
 
-    return Column(
-      children: [
-        if (!newStepMode && preparationSteps.isEmpty)
-          EmptyPagePlaceholder(
-            icon: Icons.add_circle_outline_sharp,
-            text: 'No steps defined',
-            sizeRate: 0.8,
-            margin: EdgeInsets.only(top: 100),
-          ),
-        if (preparationSteps.isNotEmpty) ...buildStepsList(preparationSteps),
-        if (newStepMode) buildAddStepCard(preparationSteps.length),
-      ],
-    );
+    if (!newStepMode && preparationSteps.isEmpty) {
+      return EmptyPagePlaceholder(
+        icon: Icons.add_circle_outline_sharp,
+        text: 'No steps defined',
+        sizeRate: 0.8,
+        margin: EdgeInsets.only(top: 100),
+      );
+    } else {
+      return ReorderableListView(
+        shrinkWrap: true,
+        onReorder: (oldIndex, newIndex) {
+          notifier.swapStepsByIndex(oldIndex, newIndex);
+        },
+        children: [
+          if (preparationSteps.isNotEmpty) ...buildStepsList(preparationSteps),
+          if (newStepMode) buildAddStepCard(preparationSteps.length),
+        ],
+      );
+    }
   }
 }
 
@@ -94,6 +108,7 @@ class _StepCard extends HookConsumerWidget {
   final int? index;
 
   final bool autofocus;
+  final bool editEnabled;
   final void Function(bool)? onFocusChanged;
   final void Function(RecipePreparationStep)? onSubmit;
   final void Function(RecipePreparationStep)? onChanged;
@@ -108,19 +123,20 @@ class _StepCard extends HookConsumerWidget {
     this.onChanged,
     this.onDelete,
     this.autofocus = false,
+    this.editEnabled = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final controller = useTextEditingController(text: step?.description);
-    final editEnabled =
-        ref.watch(recipeScreenNotifierProvider.select((n) => n.editEnabled));
 
     final focusNode = useFocusNode();
+    final hasFocus = useState(false);
 
     useEffect((() {
       void listener() {
+        hasFocus.value = focusNode.hasFocus;
         onFocusChanged?.call(focusNode.hasFocus);
       }
 
@@ -130,16 +146,7 @@ class _StepCard extends HookConsumerWidget {
     }), const []);
 
     return ListTile(
-        leading: Material(
-            shape: CircleBorder(),
-            elevation: theme.cardTheme.elevation!,
-            child: CircleAvatar(
-              child: Text(((index ?? 0) + 1).toString(),
-                  style: GoogleFonts.ubuntu(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      color: Colors.black87)),
-            )),
+        leading: _buildLeadingContent(theme),
         title: Card(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -157,7 +164,7 @@ class _StepCard extends HookConsumerWidget {
                   border: InputBorder.none,
                   suffixIcon: _buildSuffixIcon(
                     editEnabled: editEnabled,
-                    focusNode: focusNode,
+                    hasFocus: hasFocus.value,
                   )),
               onSubmitted: (text) => _onSubmit(text: text),
               onChanged: (text) {
@@ -185,13 +192,31 @@ class _StepCard extends HookConsumerWidget {
   }
 
   Widget? _buildSuffixIcon(
-      {required bool editEnabled, required FocusNode focusNode}) {
+      {required bool editEnabled, required bool hasFocus}) {
     if (editEnabled) {
-      if (focusNode.hasFocus) {
+      if (hasFocus) {
         return IconButton(icon: Icon(Icons.done), onPressed: () => _onSubmit());
       } else {
         return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
       }
+    }
+  }
+
+  Widget _buildLeadingContent(ThemeData theme) {
+    if (!editEnabled) {
+      return Material(
+        shape: CircleBorder(),
+        elevation: theme.cardTheme.elevation!,
+        child: CircleAvatar(
+          child: Text(((index ?? 0) + 1).toString(),
+              style: GoogleFonts.ubuntu(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  color: Colors.black87)),
+        ),
+      );
+    } else {
+      return Icon(Icons.menu);
     }
   }
 }
