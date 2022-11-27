@@ -26,7 +26,9 @@ class RecipeStepsTab extends HookConsumerWidget {
         ref.watch(recipeScreenNotifierProvider.select((n) => n.newStepMode));
 
     Widget buildStepCard(
-        {RecipePreparationStep? step, int? index, bool autofocus = false}) {
+        {RecipePreparationStep? step,
+        required int index,
+        bool autofocus = false}) {
       return _StepCard(
         step,
         key: ValueKey(step),
@@ -36,10 +38,21 @@ class RecipeStepsTab extends HookConsumerWidget {
           if (step == null) {
             notifier.addStep(recipePreparationStep);
           }
+
+          notifier.newStepMode = false;
+          Future.delayed(
+              Duration(milliseconds: 100), () => notifier.newStepMode = true);
         },
         onChanged: (recipePreparationStep) {
           if (step != null && index != null) {
             notifier.updateStepByIndex(index, recipePreparationStep);
+          }
+        },
+        onDelete: () {
+          if (step != null && index != null) {
+            notifier.deleteStepByIndex(index);
+          } else {
+            notifier.newStepMode = false;
           }
         },
         onFocusChanged: (hasFocus) {
@@ -71,53 +84,6 @@ class RecipeStepsTab extends HookConsumerWidget {
           ),
         if (preparationSteps.isNotEmpty) ...buildStepsList(preparationSteps),
         if (newStepMode) buildAddStepCard(preparationSteps.length),
-        /* SizedBox(
-          height: 5,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Text(
-            "Notes",
-            style: TextStyle(
-              fontFamily: 'Rubik',
-              fontSize: 18,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        EditableTextField(
-          recipe.note,
-          editEnabled: editEnabled,
-          hintText: "Add note...",
-          maxLines: 1000,
-          onSaved: (text) =>
-              originator.update(originator.instance.copyWith(note: text)),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Text(
-            "Tags",
-            style: TextStyle(
-              fontFamily: 'Rubik',
-              fontSize: 18,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        RecipeTags(
-          recipe: originator,
-          editEnabled: editEnabled,
-        ),
-        SizedBox(
-          height: 20,
-        ), */
       ],
     );
   }
@@ -131,6 +97,7 @@ class _StepCard extends HookConsumerWidget {
   final void Function(bool)? onFocusChanged;
   final void Function(RecipePreparationStep)? onSubmit;
   final void Function(RecipePreparationStep)? onChanged;
+  final void Function()? onDelete;
 
   const _StepCard(
     this.step, {
@@ -139,6 +106,7 @@ class _StepCard extends HookConsumerWidget {
     this.onFocusChanged,
     this.onSubmit,
     this.onChanged,
+    this.onDelete,
     this.autofocus = false,
   }) : super(key: key);
 
@@ -185,14 +153,13 @@ class _StepCard extends HookConsumerWidget {
               textInputAction: TextInputAction.done,
               readOnly: !editEnabled,
               style: theme.textTheme.bodyMedium,
-              decoration: InputDecoration(border: InputBorder.none),
-              onSubmitted: (text) {
-                if (step != null) {
-                  onSubmit?.call(step!.copyWith(description: text));
-                } else {
-                  onSubmit?.call(RecipePreparationStep(description: text));
-                }
-              },
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  suffixIcon: _buildSuffixIcon(
+                    editEnabled: editEnabled,
+                    focusNode: focusNode,
+                  )),
+              onSubmitted: (text) => _onSubmit(text: text),
               onChanged: (text) {
                 if (step != null) {
                   onChanged?.call(step!.copyWith(description: text));
@@ -203,5 +170,28 @@ class _StepCard extends HookConsumerWidget {
             ),
           ),
         ));
+  }
+
+  void _onSubmit({String? text, TextEditingController? controller}) {
+    if (text == null) {
+      text = controller?.text;
+    }
+
+    if (step != null) {
+      onSubmit?.call(step!.copyWith(description: text));
+    } else {
+      onSubmit?.call(RecipePreparationStep(description: text));
+    }
+  }
+
+  Widget? _buildSuffixIcon(
+      {required bool editEnabled, required FocusNode focusNode}) {
+    if (editEnabled) {
+      if (focusNode.hasFocus) {
+        return IconButton(icon: Icon(Icons.done), onPressed: () => _onSubmit());
+      } else {
+        return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
+      }
+    }
   }
 }

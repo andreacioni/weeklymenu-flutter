@@ -188,18 +188,18 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     Future<void> showAddInfoDialog() async {
+      final radius = const Radius.circular(20);
+
       final recipe =
           ref.read(recipeScreenNotifierProvider).recipeOriginator.instance;
       final newRecipe = await showModalBottomSheet<Recipe?>(
         context: context,
         clipBehavior: Clip.hardEdge,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.only(topLeft: radius, topRight: radius),
         ),
-        //constraints: BoxConstraints.tight(MediaQuery.of(context)),
         useRootNavigator: true,
         isScrollControlled: true,
-        //enableDrag: true,
         builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
           recipe: recipe,
           notifier: notifier,
@@ -212,60 +212,68 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     void handleAddActionBasedOnTabIndex() {
+      unfocus(context);
       if (tabController.index == 1) {
-        notifier.newIngredientMode = true;
+        //give some time for the keyboard to disappear
+        //and then trigger the "new ingredient mode" event
+        Future.delayed(Duration(milliseconds: 100),
+            () => notifier.newIngredientMode = true);
       } else if (tabController.index == 2) {
         notifier.newStepMode = true;
       }
     }
 
     Widget? buildFab() {
-      if (displayServingsFAB) {
-        return Card(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                  splashRadius: 13,
-                  onPressed: servingsMultiplier > 1
-                      ? () =>
-                          notifier.servingsMultiplier = servingsMultiplier - 1
-                      : null,
-                  icon: Icon(
-                    Icons.remove_circle_outline,
-                    color: Colors.amber.shade400,
-                  )),
-              Text(
-                servingsMultiplier.toString(),
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-              SizedBox(width: 5),
-              Icon(
-                Icons.people_outline,
-              ),
-              IconButton(
-                  splashRadius: 13,
-                  onPressed: () =>
-                      notifier.servingsMultiplier = servingsMultiplier + 1,
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: Colors.amber.shade400,
-                  ))
-            ],
-          ),
-        );
-      } else if (displayAddFAB) {
-        return FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () => handleAddActionBasedOnTabIndex(),
-        );
-      } else if (displayMoreFAB) {
-        return FloatingActionButton(
-          mini: true,
-          child: Icon(Icons.keyboard_arrow_up_rounded),
-          onPressed: () => showAddInfoDialog(),
-        );
+      final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
+
+      if (showFab) {
+        if (displayServingsFAB) {
+          return Card(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                    splashRadius: 13,
+                    onPressed: servingsMultiplier > 1
+                        ? () =>
+                            notifier.servingsMultiplier = servingsMultiplier - 1
+                        : null,
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      color: Colors.amber.shade400,
+                    )),
+                Text(
+                  servingsMultiplier.toString(),
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                SizedBox(width: 5),
+                Icon(
+                  Icons.people_outline,
+                ),
+                IconButton(
+                    splashRadius: 13,
+                    onPressed: () =>
+                        notifier.servingsMultiplier = servingsMultiplier + 1,
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: Colors.amber.shade400,
+                    ))
+              ],
+            ),
+          );
+        } else if (displayAddFAB) {
+          return FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () => handleAddActionBasedOnTabIndex(),
+          );
+        } else if (displayMoreFAB) {
+          return FloatingActionButton(
+            mini: true,
+            child: Icon(Icons.keyboard_arrow_up_rounded),
+            onPressed: () => showAddInfoDialog(),
+          );
+        }
       }
 
       return null;
