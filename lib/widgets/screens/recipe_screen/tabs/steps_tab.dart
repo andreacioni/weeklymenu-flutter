@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:collection/collection.dart';
 
 import '../../../../models/recipe.dart';
 import '../../../../providers/screen_notifier.dart';
@@ -76,7 +77,7 @@ class RecipeStepsTab extends HookConsumerWidget {
     }
 
     List<Widget> buildStepsList(List<RecipePreparationStep> steps) {
-      return steps.mapIndexed((step, idx) {
+      return steps.mapIndexed((idx, step) {
         return buildStepCard(step: step, index: idx);
       }).toList();
     }
@@ -185,9 +186,9 @@ class _StepCard extends HookConsumerWidget {
     }
 
     if (step != null) {
-      onSubmit?.call(step!.copyWith(description: text));
+      onSubmit?.call(step!.copyWith(description: text?.trim()));
     } else {
-      onSubmit?.call(RecipePreparationStep(description: text));
+      onSubmit?.call(RecipePreparationStep(description: text?.trim()));
     }
   }
 
