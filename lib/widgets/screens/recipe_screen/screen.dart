@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/widgets/screens/recipe_screen/update_general_info_bottom_sheet.dart';
 
+import '../../../globals/utils.dart';
 import '../../../providers/screen_notifier.dart';
 import 'recipe_screen_state_notifier.dart';
 import 'tabs/general_info_tab.dart';
@@ -136,7 +137,7 @@ class _RecipeScreen extends HookConsumerWidget {
     );
     useEffect(() {
       void listener() {
-        _unfocus(context);
+        unfocus(context);
         notifier.newIngredientMode = false;
         notifier.newStepMode = false;
         notifier.currentTab = tabController.index;
@@ -187,21 +188,23 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     Future<void> showAddInfoDialog() async {
+      final radius = const Radius.circular(20);
+
       final recipe =
           ref.read(recipeScreenNotifierProvider).recipeOriginator.instance;
       final newRecipe = await showModalBottomSheet<Recipe?>(
-          context: context,
-          clipBehavior: Clip.hardEdge,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          constraints: BoxConstraints(maxHeight: 500),
-          isScrollControlled: true,
-          //enableDrag: true,
-          builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
-                recipe: recipe,
-                notifier: notifier,
-              ));
+        context: context,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topLeft: radius, topRight: radius),
+        ),
+        useRootNavigator: true,
+        isScrollControlled: true,
+        builder: (context) => UpdateGeneralInfoRecipeBottomSheet(
+          recipe: recipe,
+          notifier: notifier,
+        ),
+      );
 
       if (newRecipe != null) {
         notifier.updateRecipe(newRecipe);
@@ -209,60 +212,68 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     void handleAddActionBasedOnTabIndex() {
+      unfocus(context);
       if (tabController.index == 1) {
-        notifier.newIngredientMode = true;
+        //give some time for the keyboard to disappear
+        //and then trigger the "new ingredient mode" event
+        Future.delayed(Duration(milliseconds: 100),
+            () => notifier.newIngredientMode = true);
       } else if (tabController.index == 2) {
         notifier.newStepMode = true;
       }
     }
 
     Widget? buildFab() {
-      if (displayServingsFAB) {
-        return Card(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                  splashRadius: 13,
-                  onPressed: servingsMultiplier > 1
-                      ? () =>
-                          notifier.servingsMultiplier = servingsMultiplier - 1
-                      : null,
-                  icon: Icon(
-                    Icons.remove_circle_outline,
-                    color: Colors.amber.shade400,
-                  )),
-              Text(
-                servingsMultiplier.toString(),
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-              SizedBox(width: 5),
-              Icon(
-                Icons.people_outline,
-              ),
-              IconButton(
-                  splashRadius: 13,
-                  onPressed: () =>
-                      notifier.servingsMultiplier = servingsMultiplier + 1,
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: Colors.amber.shade400,
-                  ))
-            ],
-          ),
-        );
-      } else if (displayAddFAB) {
-        return FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () => handleAddActionBasedOnTabIndex(),
-        );
-      } else if (displayMoreFAB) {
-        return FloatingActionButton(
-          mini: true,
-          child: Icon(Icons.keyboard_arrow_up_rounded),
-          onPressed: () => showAddInfoDialog(),
-        );
+      final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
+
+      if (showFab) {
+        if (displayServingsFAB) {
+          return Card(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                    splashRadius: 13,
+                    onPressed: servingsMultiplier > 1
+                        ? () =>
+                            notifier.servingsMultiplier = servingsMultiplier - 1
+                        : null,
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      color: Colors.amber.shade400,
+                    )),
+                Text(
+                  servingsMultiplier.toString(),
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                SizedBox(width: 5),
+                Icon(
+                  Icons.people_outline,
+                ),
+                IconButton(
+                    splashRadius: 13,
+                    onPressed: () =>
+                        notifier.servingsMultiplier = servingsMultiplier + 1,
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: Colors.amber.shade400,
+                    ))
+              ],
+            ),
+          );
+        } else if (displayAddFAB) {
+          return FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () => handleAddActionBasedOnTabIndex(),
+          );
+        } else if (displayMoreFAB) {
+          return FloatingActionButton(
+            mini: true,
+            child: Icon(Icons.keyboard_arrow_up_rounded),
+            onPressed: () => showAddInfoDialog(),
+          );
+        }
       }
 
       return null;
@@ -285,7 +296,7 @@ class _RecipeScreen extends HookConsumerWidget {
             },
             child: Scaffold(
               body: GestureDetector(
-                onTap: () => _unfocus(context),
+                onTap: () => unfocus(context),
                 child: Form(
                   key: _formKey,
                   child: NestedScrollView(
@@ -339,12 +350,5 @@ class _RecipeScreen extends HookConsumerWidget {
         ),
       ),
     );
-  }
-
-  void _unfocus(BuildContext context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
   }
 }

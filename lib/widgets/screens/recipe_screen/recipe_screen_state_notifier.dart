@@ -212,6 +212,33 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
     //state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
+  void deleteStepByIndex(int index) {
+    final newList = [...state.recipeOriginator.instance.preparationSteps];
+    newList.removeAt(index);
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(preparationSteps: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
+  void swapStepsByIndex(int firstIndex, int secondIndex) {
+    if (firstIndex > state.recipeOriginator.instance.preparationSteps.length ||
+        secondIndex > state.recipeOriginator.instance.preparationSteps.length) {
+      return;
+    }
+    final firstStep =
+        state.recipeOriginator.instance.preparationSteps[firstIndex];
+    final secondStep =
+        state.recipeOriginator.instance.preparationSteps[secondIndex];
+    final newList = [...state.recipeOriginator.instance.preparationSteps];
+
+    newList.replaceRange(firstIndex, firstIndex + 1, [secondStep]);
+    newList.replaceRange(secondIndex, secondIndex + 1, [firstStep]);
+
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(preparationSteps: newList));
+    state = state.copyWith(recipeOriginator: state.recipeOriginator);
+  }
+
   void updateDescription(String description) {
     state.recipeOriginator.update(
         state.recipeOriginator.instance.copyWith(description: description));

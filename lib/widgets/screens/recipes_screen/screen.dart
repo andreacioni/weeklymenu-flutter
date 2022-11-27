@@ -6,6 +6,7 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
 import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
+import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
 import '../../../globals/constants.dart';
 import '../../../main.data.dart';
@@ -80,18 +81,14 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
       recipes.removeWhere(filter);
 
       if (recipes.isEmpty && _searchModeEnabled) {
-        return _buildNoRecipesFound(
-          'Recipe "$_searchText" not found...',
-          CustomIcons.not_found_lens,
-        );
+        return EmptyPagePlaceholder(
+            icon: Icons.kitchen_outlined, text: 'No personal recipes');
       } else {
         return _buildRecipeList(recipes);
       }
     } else {
-      return _buildNoRecipesFound(
-        "No recipes defined\nLet's add your first!",
-        Icons.add_circle,
-      );
+      return EmptyPagePlaceholder(
+          icon: Icons.kitchen_outlined, text: 'No personal recipes');
     }
   }
 

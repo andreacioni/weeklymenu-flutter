@@ -13,7 +13,10 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final appColor = Color.fromRGBO(255, 223, 117, 1);
+    final scaffoldBackgroundColor = Color.fromARGB(255, 255, 253, 247);
+
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(clear: false),
@@ -40,16 +43,18 @@ class App extends StatelessWidget {
         theme: ThemeData(
             // Define the default brightness and colors.
             brightness: Brightness.light,
-            backgroundColor: Colors.white,
+            //backgroundColor: Colors.white,
             primaryColor: appColor,
             primaryColorLight: appColor.withOpacity(0.7),
             primaryColorDark: Colors.black,
             splashColor: Colors.amberAccent,
             highlightColor: Colors.amberAccent.withOpacity(0.3),
-            scaffoldBackgroundColor: Colors.white,
-
+            scaffoldBackgroundColor: scaffoldBackgroundColor,
+            bottomNavigationBarTheme: theme.bottomNavigationBarTheme
+                .copyWith(backgroundColor: scaffoldBackgroundColor),
             // Define the default font family.
             fontFamily: 'Rubik',
+            bottomAppBarColor: scaffoldBackgroundColor,
             floatingActionButtonTheme:
                 FloatingActionButtonThemeData(backgroundColor: appColor),
             appBarTheme: AppBarTheme(
