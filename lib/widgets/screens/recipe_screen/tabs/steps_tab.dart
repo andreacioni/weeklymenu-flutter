@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -93,6 +95,9 @@ class RecipeStepsTab extends HookConsumerWidget {
       return ReorderableListView(
         shrinkWrap: true,
         onReorder: (oldIndex, newIndex) {
+          if (oldIndex < newIndex) {
+            newIndex = max(newIndex - 1, 0);
+          }
           notifier.swapStepsByIndex(oldIndex, newIndex);
         },
         children: [
@@ -193,10 +198,14 @@ class _StepCard extends HookConsumerWidget {
   }
 
   Widget? _buildSuffixIcon(
-      {required bool editEnabled, required bool hasFocus}) {
+      {required bool editEnabled,
+      required bool hasFocus,
+      TextEditingController? controller}) {
     if (editEnabled) {
       if (hasFocus) {
-        return IconButton(icon: Icon(Icons.done), onPressed: () => _onSubmit());
+        return IconButton(
+            icon: Icon(Icons.done),
+            onPressed: () => _onSubmit(controller: controller));
       } else {
         return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
       }
