@@ -221,7 +221,7 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -266,7 +266,7 @@ class _UpdateGeneralInfoMainTab extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),

@@ -320,8 +320,7 @@ class _RecipeScreen extends HookConsumerWidget {
                       ];
                     },
                     body: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 115, left: 8, right: 8, bottom: 8),
+                        padding: const EdgeInsets.only(top: 115),
                         child: SafeArea(
                           child: TabBarView(
                             controller: tabController,

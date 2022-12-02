@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +44,9 @@ class RecipeAppBar extends HookConsumerWidget {
     final imageUrl = ref.watch(recipeScreenNotifierProvider
         .select((n) => n.recipeOriginator.instance.imgUrl));
 
+    final image =
+        imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null;
+
     void _showUpdateImageDialog(BuildContext context) async {
       final textController = TextEditingController();
       if (imageUrl != null) {
@@ -81,22 +86,42 @@ class RecipeAppBar extends HookConsumerWidget {
         stretchModes: [],
         collapseMode: CollapseMode.parallax,
         centerTitle: false,
-        background: Hero(
-          tag: heroTag,
-          child: imageUrl != null
-              ? Image(
-                  image: CachedNetworkImageProvider(
-                    imageUrl,
+        background: Container(
+          child: Hero(
+            tag: heroTag,
+            child: image != null
+                ? ClipRRect(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      fit: StackFit.expand,
+                      children: [
+                        Image(
+                          image: image,
+                          errorBuilder: (_, __, ___) => Container(),
+                          fit: BoxFit.cover,
+                        ),
+                        BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                          child: Container(color: Colors.black.withOpacity(0)),
+                        ),
+                        Image(
+                          image: image,
+                          errorBuilder: (_, __, ___) => Container(),
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(
+                    color: theme.scaffoldBackgroundColor,
+                    child: Image.asset(
+                      'assets/images/recipe_banner.jpg',
+                      cacheHeight: 900,
+                      cacheWidth: 1300,
+                      fit: BoxFit.fitHeight,
+                    ),
                   ),
-                  errorBuilder: (_, __, ___) => Container(),
-                  fit: BoxFit.fill,
-                )
-              : Image.asset(
-                  'assets/images/recipe_banner.jpg',
-                  cacheHeight: 900,
-                  cacheWidth: 1300,
-                  fit: BoxFit.cover,
-                ),
+          ),
         ),
       ),
       title: Row(
