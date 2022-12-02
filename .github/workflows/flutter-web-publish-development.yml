@@ -20,6 +20,9 @@ jobs:
       - run: flutter pub get
       #- run: flutter test
       - run: flutter build web --profile #--web-renderer html --release
+      - run: flutter build apk --release
+      - run: mkdir ./build/web/apk
+      - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/web/apk/weeklymenu-release.apk
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
