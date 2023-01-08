@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/widgets/shared/shimmer.dart';
 
 import '../../../../main.data.dart';
 import '../../../../globals/extensions.dart';
@@ -57,10 +58,10 @@ class RecipeIngredientsTab extends HookConsumerWidget {
       );
     }
 
-    List<Widget> buildDismissibleRecipeTiles() {
+    List<Widget> buildRecipeIngredientTiles() {
       return recipeIngredients.mapIndexed((idx, recipeIng) {
         return _RecipeIngredientListTileWrapper(
-          key: ValueKey(recipeIng),
+          key: ValueKey(idx),
           servingsMultiplierFactor: servingsMultiplierFactor,
           recipeIngredient: recipeIng,
           editEnabled: editEnabled,
@@ -80,6 +81,9 @@ class RecipeIngredientsTab extends HookConsumerWidget {
               notifier.updateRecipeIngredientFromStringAtIndex(idx, value);
             }
           },
+          onDelete: () {
+            notifier.deleteRecipeIngredientByIndex(idx);
+          },
         );
       }).toList();
     }
@@ -94,7 +98,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
             margin: const EdgeInsets.only(top: 100),
           ),
         if (newIngredientMode) buildNewIngredientTile(),
-        if (recipeIngredients.isNotEmpty) ...buildDismissibleRecipeTiles(),
+        if (recipeIngredients.isNotEmpty) ...buildRecipeIngredientTiles(),
       ],
     );
   }
@@ -107,6 +111,7 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
   final double? servingsMultiplierFactor;
   final Function(dynamic)? onChanged;
   final Function(bool)? onFocusChanged;
+  final Function()? onDelete;
 
   _RecipeIngredientListTileWrapper(
       {this.recipeIngredient,
@@ -115,6 +120,7 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
       this.autofocus = false,
       this.onChanged,
       this.onFocusChanged,
+      this.onDelete,
       Key? key})
       : super(key: key);
 
@@ -126,9 +132,10 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
       return FlutterDataStateBuilder<Ingredient>(
         state: ingredientsRepo.watchOne(recipeIngredient!.ingredientId),
         notFound: _RecipeIngredientListTile(),
+        loading: _RecipeIngredientListTile(loading: true),
         builder: (context, model) {
           final ingredient = model;
-
+          //return DefaultShimmer();
           return _RecipeIngredientListTile(
             key: ValueKey(ingredient.name),
             ingredient: ingredient,
@@ -137,6 +144,7 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
             servingsMultiplierFactor: servingsMultiplierFactor,
             onChanged: onChanged,
             onFocusChanged: onFocusChanged,
+            onDelete: onDelete,
           );
         },
       );
@@ -156,9 +164,11 @@ class _RecipeIngredientListTile extends StatelessWidget {
   final RecipeIngredient? recipeIngredient;
   final Ingredient? ingredient;
   final double? servingsMultiplierFactor;
+  final bool loading;
   final bool editEnabled;
   final bool autofocus;
   final Function(dynamic)? onChanged;
+  final Function()? onDelete;
   final Function(bool)? onFocusChanged;
 
   const _RecipeIngredientListTile({
@@ -166,9 +176,11 @@ class _RecipeIngredientListTile extends StatelessWidget {
     this.recipeIngredient,
     this.servingsMultiplierFactor,
     this.ingredient,
+    this.loading = false,
     this.editEnabled = false,
     this.autofocus = false,
     this.onChanged,
+    this.onDelete,
     this.onFocusChanged,
   }) : super(key: key);
 
@@ -188,16 +200,20 @@ class _RecipeIngredientListTile extends StatelessWidget {
 
     return ListTile(
       title: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: _IngredientSuggestionTextField(
-            ingredient: ingredient,
-            enabled: editEnabled,
-            autofocus: autofocus,
-            onSubmitted: onChanged,
-            onFocusChanged: onFocusChanged,
-          ),
-        ),
+        clipBehavior: Clip.hardEdge,
+        child: loading
+            ? DefaultShimmer()
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: _IngredientSuggestionTextField(
+                  ingredient: ingredient,
+                  enabled: editEnabled,
+                  autofocus: autofocus,
+                  onSubmitted: onChanged,
+                  onFocusChanged: onFocusChanged,
+                  onDelete: onDelete,
+                ),
+              ),
       ),
       leading: Material(
           shape: CircleBorder(),
@@ -337,6 +353,7 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
   final int suggestAfter;
 
   final void Function(dynamic)? onSubmitted;
+  final void Function()? onDelete;
   final void Function(bool)? onFocusChanged;
 
   const _IngredientSuggestionTextField({
@@ -347,6 +364,7 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
     this.suggestAfter = 1,
     this.scrollController,
     this.onSubmitted,
+    this.onDelete,
     this.onFocusChanged,
   }) : super(key: key);
 
@@ -397,15 +415,45 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
             readOnly: !enabled,
             decoration: InputDecoration(
                 border: InputBorder.none,
-                suffixIcon: hasFocus.value && hasText.value
-                    ? GestureDetector(
-                        child: Icon(Icons.done),
-                        onTap: () => _submit(ref, textEditingController.text),
-                      )
-                    : null),
+                suffixIcon: _buildSuffixIcon(
+                  ref,
+                  editEnabled: enabled,
+                  hasFocus: hasFocus.value,
+                  hasText: hasText.value,
+                  controller: textEditingController,
+                )),
             onSubmitted: (text) => _submit(ref, text));
       },
     );
+  }
+
+  Widget? _buildSuffixIcon(
+    WidgetRef ref, {
+    required bool editEnabled,
+    required bool hasFocus,
+    required bool hasText,
+    required TextEditingController controller,
+  }) {
+    if (editEnabled) {
+      if (hasFocus && hasText) {
+        return IconButton(
+          icon: Icon(Icons.done),
+          onPressed: () => _submit(ref, controller.text),
+        );
+      } else {
+        return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
+      }
+    }
+
+    /* if (editEnabled) {
+      if (hasFocus) {
+        return IconButton(
+            icon: Icon(Icons.done),
+            onPressed: () => _onSubmit(controller: controller));
+      } else {
+        return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
+      }
+    } */
   }
 
   void _submit(WidgetRef ref, String text) async {
