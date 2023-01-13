@@ -96,7 +96,8 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   }
 
   void addRecipeIngredientFromIngredient(Ingredient ingredient) {
-    final newRecipeIngredient = RecipeIngredient(ingredientId: ingredient.id);
+    final newRecipeIngredient = RecipeIngredient(
+        ingredientId: ingredient.id, ingredientName: ingredient.name);
     final recipeIngredients = [
       newRecipeIngredient,
       ...state.recipeOriginator.state.ingredients
@@ -110,8 +111,8 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   void addRecipeIngredientFromString(String ingredientName) {
     final newIngredient = Ingredient(name: ingredientName);
     read(ingredientsRepositoryProvider).save(newIngredient);
-    final newRecipeIngredient =
-        RecipeIngredient(ingredientId: newIngredient.id);
+    final newRecipeIngredient = RecipeIngredient(
+        ingredientId: newIngredient.id, ingredientName: newIngredient.name);
     final recipeIngredients = state.recipeOriginator.state.ingredients;
 
     state.recipeOriginator.update(state.recipeOriginator.instance

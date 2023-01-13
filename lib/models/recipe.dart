@@ -130,6 +130,7 @@ class RecipePreparationStep {
 class RecipeIngredient {
   @JsonKey(name: 'ingredient')
   final String ingredientId;
+  final String ingredientName;
 
   final double? quantity;
   final String? unitOfMeasure;
@@ -137,6 +138,7 @@ class RecipeIngredient {
 
   RecipeIngredient(
       {required this.ingredientId,
+      required this.ingredientName,
       this.unitOfMeasure,
       quantity = 0.0,
       freezed = false})
