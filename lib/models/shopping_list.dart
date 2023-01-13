@@ -80,6 +80,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
     internalType: 'shopping-list-items')
 class ShoppingListItem extends DataModel<ShoppingListItem> {
   final String item;
+  final String itemName;
 
   final bool checked;
 
@@ -97,6 +98,7 @@ class ShoppingListItem extends DataModel<ShoppingListItem> {
 
   ShoppingListItem(
       {required this.item,
+      required this.itemName,
       this.supermarketSectionName,
       this.checked = false,
       this.quantity,

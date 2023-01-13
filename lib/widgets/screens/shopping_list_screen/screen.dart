@@ -159,8 +159,8 @@ class _ShoppingListListView extends HookConsumerWidget {
         shoppingListItem =
             previousItem.copyWith(item: ingredient.id, checked: checked);
       } else {
-        shoppingListItem =
-            ShoppingListItem(item: ingredient.id, checked: checked);
+        shoppingListItem = ShoppingListItem(
+            item: ingredient.id, itemName: ingredient.name, checked: checked);
       }
 
       try {

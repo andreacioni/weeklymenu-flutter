@@ -105,6 +105,8 @@ abstract class _$ShoppingListItemCWProxy {
 
   ShoppingListItem item(String item);
 
+  ShoppingListItem itemName(String itemName);
+
   ShoppingListItem listPosition(int? listPosition);
 
   ShoppingListItem quantity(double? quantity);
@@ -122,6 +124,7 @@ abstract class _$ShoppingListItemCWProxy {
   ShoppingListItem call({
     bool? checked,
     String? item,
+    String? itemName,
     int? listPosition,
     double? quantity,
     String? supermarketSectionName,
@@ -140,6 +143,9 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
 
   @override
   ShoppingListItem item(String item) => this(item: item);
+
+  @override
+  ShoppingListItem itemName(String itemName) => this(itemName: itemName);
 
   @override
   ShoppingListItem listPosition(int? listPosition) =>
@@ -167,6 +173,7 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
   ShoppingListItem call({
     Object? checked = const $CopyWithPlaceholder(),
     Object? item = const $CopyWithPlaceholder(),
+    Object? itemName = const $CopyWithPlaceholder(),
     Object? listPosition = const $CopyWithPlaceholder(),
     Object? quantity = const $CopyWithPlaceholder(),
     Object? supermarketSectionName = const $CopyWithPlaceholder(),
@@ -181,6 +188,10 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
           ? _value.item
           // ignore: cast_nullable_to_non_nullable
           : item as String,
+      itemName: itemName == const $CopyWithPlaceholder() || itemName == null
+          ? _value.itemName
+          // ignore: cast_nullable_to_non_nullable
+          : itemName as String,
       listPosition: listPosition == const $CopyWithPlaceholder()
           ? _value.listPosition
           // ignore: cast_nullable_to_non_nullable
@@ -351,6 +362,7 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
 
 ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
       item: json['item'] as String,
+      itemName: json['itemName'] as String,
       supermarketSectionName: json['supermarketSectionName'] as String?,
       checked: json['checked'] as bool? ?? false,
       quantity: (json['quantity'] as num?)?.toDouble(),
@@ -361,6 +373,7 @@ ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
 Map<String, dynamic> _$ShoppingListItemToJson(ShoppingListItem instance) {
   final val = <String, dynamic>{
     'item': instance.item,
+    'itemName': instance.itemName,
     'checked': instance.checked,
   };
 

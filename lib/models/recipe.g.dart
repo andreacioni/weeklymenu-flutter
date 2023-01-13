@@ -413,6 +413,8 @@ abstract class _$RecipeIngredientCWProxy {
 
   RecipeIngredient ingredientId(String ingredientId);
 
+  RecipeIngredient ingredientName(String ingredientName);
+
   RecipeIngredient quantity(dynamic quantity);
 
   RecipeIngredient unitOfMeasure(String? unitOfMeasure);
@@ -426,6 +428,7 @@ abstract class _$RecipeIngredientCWProxy {
   RecipeIngredient call({
     dynamic? freezed,
     String? ingredientId,
+    String? ingredientName,
     dynamic? quantity,
     String? unitOfMeasure,
   });
@@ -445,6 +448,10 @@ class _$RecipeIngredientCWProxyImpl implements _$RecipeIngredientCWProxy {
       this(ingredientId: ingredientId);
 
   @override
+  RecipeIngredient ingredientName(String ingredientName) =>
+      this(ingredientName: ingredientName);
+
+  @override
   RecipeIngredient quantity(dynamic quantity) => this(quantity: quantity);
 
   @override
@@ -462,6 +469,7 @@ class _$RecipeIngredientCWProxyImpl implements _$RecipeIngredientCWProxy {
   RecipeIngredient call({
     Object? freezed = const $CopyWithPlaceholder(),
     Object? ingredientId = const $CopyWithPlaceholder(),
+    Object? ingredientName = const $CopyWithPlaceholder(),
     Object? quantity = const $CopyWithPlaceholder(),
     Object? unitOfMeasure = const $CopyWithPlaceholder(),
   }) {
@@ -475,6 +483,11 @@ class _$RecipeIngredientCWProxyImpl implements _$RecipeIngredientCWProxy {
               ? _value.ingredientId
               // ignore: cast_nullable_to_non_nullable
               : ingredientId as String,
+      ingredientName: ingredientName == const $CopyWithPlaceholder() ||
+              ingredientName == null
+          ? _value.ingredientName
+          // ignore: cast_nullable_to_non_nullable
+          : ingredientName as String,
       quantity: quantity == const $CopyWithPlaceholder() || quantity == null
           ? _value.quantity
           // ignore: cast_nullable_to_non_nullable
@@ -653,6 +666,7 @@ Map<String, dynamic> _$RecipePreparationStepToJson(
 
 RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
       ingredientId: json['ingredient'] as String,
+      ingredientName: json['ingredientName'] as String,
       unitOfMeasure: json['unitOfMeasure'] as String?,
       quantity: json['quantity'] ?? 0.0,
       freezed: json['freezed'] ?? false,
@@ -661,6 +675,7 @@ RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
 Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
   final val = <String, dynamic>{
     'ingredient': instance.ingredientId,
+    'ingredientName': instance.ingredientName,
   };
 
   void writeNotNull(String key, dynamic value) {
