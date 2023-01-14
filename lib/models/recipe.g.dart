@@ -666,7 +666,7 @@ Map<String, dynamic> _$RecipePreparationStepToJson(
 
 RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
       ingredientId: json['ingredient'] as String,
-      ingredientName: json['ingredientName'] as String,
+      ingredientName: json['name'] as String,
       unitOfMeasure: json['unitOfMeasure'] as String?,
       quantity: json['quantity'] ?? 0.0,
       freezed: json['freezed'] ?? false,
@@ -675,7 +675,7 @@ RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
 Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
   final val = <String, dynamic>{
     'ingredient': instance.ingredientId,
-    'ingredientName': instance.ingredientName,
+    'name': instance.ingredientName,
   };
 
   void writeNotNull(String key, dynamic value) {

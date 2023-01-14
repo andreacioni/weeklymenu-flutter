@@ -362,7 +362,7 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
 
 ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
       item: json['item'] as String,
-      itemName: json['itemName'] as String,
+      itemName: json['name'] as String,
       supermarketSectionName: json['supermarketSectionName'] as String?,
       checked: json['checked'] as bool? ?? false,
       quantity: (json['quantity'] as num?)?.toDouble(),
@@ -373,7 +373,7 @@ ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
 Map<String, dynamic> _$ShoppingListItemToJson(ShoppingListItem instance) {
   final val = <String, dynamic>{
     'item': instance.item,
-    'itemName': instance.itemName,
+    'name': instance.itemName,
     'checked': instance.checked,
   };
 
