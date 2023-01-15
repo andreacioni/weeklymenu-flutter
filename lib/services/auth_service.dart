@@ -28,13 +28,18 @@ class AuthService {
   }
 
   Future<AuthToken> login(String email, String password) async {
-    final authResp = await _dio.post('$API_BASE_PATH/auth/token',
-        data: {'email': email, 'password': password});
+    try {
+      final authResp = await _dio.post('$API_BASE_PATH/auth/token',
+          data: {'email': email, 'password': password});
 
-    final loginResponse = LoginResponse.fromJson(authResp.data);
-    final token = AuthToken.fromLoginResponse(loginResponse);
+      final loginResponse = LoginResponse.fromJson(authResp.data);
+      final token = AuthToken.fromLoginResponse(loginResponse);
 
-    return token;
+      return token;
+    } catch (e) {
+      log('user $email failed to login: $e');
+      throw e;
+    }
   }
 
   Future<void> logout() async {

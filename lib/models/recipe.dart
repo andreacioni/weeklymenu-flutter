@@ -130,6 +130,7 @@ class RecipePreparationStep {
 class RecipeIngredient {
   @JsonKey(name: 'ingredient')
   final String ingredientId;
+  @JsonKey(name: 'name')
   final String ingredientName;
 
   final double? quantity;

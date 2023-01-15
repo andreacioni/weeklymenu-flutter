@@ -126,27 +126,15 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ingredientsRepo = ref.ingredients;
-
     if (recipeIngredient != null) {
-      return FlutterDataStateBuilder<Ingredient>(
-        state: ingredientsRepo.watchOne(recipeIngredient!.ingredientId),
-        notFound: _RecipeIngredientListTile(),
-        loading: _RecipeIngredientListTile(loading: true),
-        builder: (context, model) {
-          final ingredient = model;
-          //return DefaultShimmer();
-          return _RecipeIngredientListTile(
-            key: ValueKey(ingredient.name),
-            ingredient: ingredient,
-            recipeIngredient: recipeIngredient,
-            editEnabled: editEnabled,
-            servingsMultiplierFactor: servingsMultiplierFactor,
-            onChanged: onChanged,
-            onFocusChanged: onFocusChanged,
-            onDelete: onDelete,
-          );
-        },
+      return _RecipeIngredientListTile(
+        key: ValueKey(recipeIngredient!.ingredientName),
+        recipeIngredient: recipeIngredient,
+        editEnabled: editEnabled,
+        servingsMultiplierFactor: servingsMultiplierFactor,
+        onChanged: onChanged,
+        onFocusChanged: onFocusChanged,
+        onDelete: onDelete,
       );
     } else {
       return _RecipeIngredientListTile(
@@ -162,7 +150,6 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
 
 class _RecipeIngredientListTile extends StatelessWidget {
   final RecipeIngredient? recipeIngredient;
-  final Ingredient? ingredient;
   final double? servingsMultiplierFactor;
   final bool loading;
   final bool editEnabled;
@@ -175,7 +162,6 @@ class _RecipeIngredientListTile extends StatelessWidget {
     Key? key,
     this.recipeIngredient,
     this.servingsMultiplierFactor,
-    this.ingredient,
     this.loading = false,
     this.editEnabled = false,
     this.autofocus = false,
@@ -206,7 +192,7 @@ class _RecipeIngredientListTile extends StatelessWidget {
             : Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: _IngredientSuggestionTextField(
-                  ingredient: ingredient,
+                  recipeIngredient: recipeIngredient,
                   enabled: editEnabled,
                   autofocus: autofocus,
                   onSubmitted: onChanged,
@@ -343,7 +329,7 @@ class _QuantityAndUomDialogState extends State<_QuantityAndUomDialog> {
 }
 
 class _IngredientSuggestionTextField extends HookConsumerWidget {
-  final Ingredient? ingredient;
+  final RecipeIngredient? recipeIngredient;
 
   final bool enabled;
   final bool autofocus;
@@ -358,7 +344,7 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
 
   const _IngredientSuggestionTextField({
     Key? key,
-    this.ingredient,
+    this.recipeIngredient,
     this.enabled = true,
     this.autofocus = false,
     this.suggestAfter = 1,
@@ -374,12 +360,13 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
     final hasText = useState(false);
 
     return Autocomplete<Ingredient>(
-      initialValue: TextEditingValue(text: ingredient?.name ?? ''),
+      initialValue:
+          TextEditingValue(text: recipeIngredient?.ingredientName ?? ''),
       optionsMaxHeight: 100,
       optionsBuilder: (textEditingValue) async {
         if (textEditingValue.text.length < suggestAfter ||
             !enabled ||
-            textEditingValue.text == ingredient?.name)
+            textEditingValue.text == recipeIngredient?.ingredientName)
           return const <Ingredient>[];
 
         final ingredients =
@@ -395,7 +382,7 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
           hasFocus.value = focusNode.hasPrimaryFocus;
 
           if (!focusNode.hasPrimaryFocus) {
-            textEditingController.text = ingredient?.name ?? '';
+            textEditingController.text = recipeIngredient?.ingredientName ?? '';
             textEditingController.selection = TextSelection.fromPosition(
                 TextPosition(offset: textEditingController.text.length));
           }

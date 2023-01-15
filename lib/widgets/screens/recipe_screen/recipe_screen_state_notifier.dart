@@ -122,7 +122,7 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
   void updateRecipeIngredientFromIngredientAtIndex(int idx, Ingredient value) {
     final newRecipeIngredient = state.recipeOriginator.instance.ingredients[idx]
-        .copyWith(ingredientId: value.id);
+        .copyWith(ingredientId: value.id, ingredientName: value.name);
 
     updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
   }

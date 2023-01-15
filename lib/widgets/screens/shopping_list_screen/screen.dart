@@ -148,16 +148,19 @@ class _ShoppingListListView extends HookConsumerWidget {
                   params: {SHOPPING_LIST_ID_PARAM: shoppingListId}) ??
           [];
 
+      //retrieve the shopping list item (if any)
       var shoppingListItem =
           shopListItems.firstWhereOrNull((i) => i.id == ingredient.id);
 
       if (shoppingListItem != null && shoppingListItem.checked != checked) {
+        //if the ingredient is already in the shopping list but in the wrong
+        //checked state, just update the 'checked' state.
         return _setItemChecked(shoppingListItem, checked);
       }
 
       if (previousItem != null) {
-        shoppingListItem =
-            previousItem.copyWith(item: ingredient.id, checked: checked);
+        shoppingListItem = previousItem.copyWith(
+            item: ingredient.id, checked: checked, itemName: ingredient.name);
       } else {
         shoppingListItem = ShoppingListItem(
             item: ingredient.id, itemName: ingredient.name, checked: checked);

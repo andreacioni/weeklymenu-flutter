@@ -80,6 +80,8 @@ class ShoppingList extends BaseModel<ShoppingList> {
     internalType: 'shopping-list-items')
 class ShoppingListItem extends DataModel<ShoppingListItem> {
   final String item;
+
+  @JsonKey(name: 'name')
   final String itemName;
 
   final bool checked;
