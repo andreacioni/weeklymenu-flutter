@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -5,6 +7,8 @@ import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/models/recipe.dart';
+import 'package:logging/logging.dart';
 
 import 'screen.dart';
 import '../../../main.data.dart';
@@ -28,7 +32,7 @@ final _availableIngredientsProvider =
 });
 
 class ItemSuggestionTextField extends HookConsumerWidget {
-  final Ingredient? value;
+  final ShoppingListItem? value;
   final String? hintText;
   final bool autofocus;
   final bool showShoppingItemSuggestions;
@@ -68,10 +72,11 @@ class ItemSuggestionTextField extends HookConsumerWidget {
       if (option is Ingredient) {
         return option.name;
       } else if (option is ShoppingListItem) {
-        return resolveShoppingListItemIngredient(option)?.name ?? 'Unknown';
+        return option.itemName;
       }
-
-      return 'Unknown';
+      log('failed to print the shopping list item name: $option',
+          level: Level.SEVERE.value);
+      return '';
     }
 
     Future<Iterable<Object>> suggestionsCallback(TextEditingValue value) async {

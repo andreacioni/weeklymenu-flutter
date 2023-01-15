@@ -126,11 +126,9 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ingredientsRepo = ref.ingredients;
-
     if (recipeIngredient != null) {
       return _RecipeIngredientListTile(
-        key: ValueKey(recipeIngredient.ingredientName),
+        key: ValueKey(recipeIngredient!.ingredientName),
         recipeIngredient: recipeIngredient,
         editEnabled: editEnabled,
         servingsMultiplierFactor: servingsMultiplierFactor,
