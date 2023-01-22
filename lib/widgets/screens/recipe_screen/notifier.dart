@@ -150,11 +150,11 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   }
 
   void deleteRecipeIngredientByIndex(int index) {
-    final newList = state.recipeOriginator.instance.ingredients
-      ..removeAt(index);
+    final newList = [...state.recipeOriginator.instance.ingredients];
+    newList.removeAt(index);
 
-    state.recipeOriginator.update(
-        state.recipeOriginator.instance.copyWith(ingredients: [...newList]));
+    state.recipeOriginator
+        .update(state.recipeOriginator.instance.copyWith(ingredients: newList));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
