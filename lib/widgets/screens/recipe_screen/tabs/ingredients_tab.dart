@@ -358,6 +358,11 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
     final hasFocus = useState(false);
     final hasText = useState(false);
 
+    final ingredientsState = ref.ingredients.watchAll();
+    final availableIngredients = ingredientsState.hasModel
+        ? ingredientsState.model ?? <Ingredient>[]
+        : <Ingredient>[];
+
     return Autocomplete<Ingredient>(
       initialValue:
           TextEditingValue(text: recipeIngredient?.ingredientName ?? ''),
@@ -368,10 +373,7 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
             textEditingValue.text == recipeIngredient?.ingredientName)
           return const <Ingredient>[];
 
-        final ingredients =
-            await ref.ingredients.findAll(remote: false) ?? <Ingredient>[];
-
-        return ingredients.where((i) =>
+        return availableIngredients.where((i) =>
             i.name.toLowerCase().contains(textEditingValue.text.toLowerCase()));
       },
       displayStringForOption: (option) => option.name,
