@@ -153,8 +153,8 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
     final newList = state.recipeOriginator.instance.ingredients
       ..removeAt(index);
 
-    state.recipeOriginator
-        .update(state.recipeOriginator.instance.copyWith(ingredients: newList));
+    state.recipeOriginator.update(
+        state.recipeOriginator.instance.copyWith(ingredients: [...newList]));
     state = state.copyWith(recipeOriginator: state.recipeOriginator);
   }
 
