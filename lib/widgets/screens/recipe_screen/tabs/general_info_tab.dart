@@ -15,10 +15,9 @@ import 'package:weekly_menu_app/main.data.dart';
 import '../../../../models/enums/difficulty.dart';
 import '../../../../globals/extensions.dart';
 import '../../../../models/recipe.dart';
-import '../../../../providers/screen_notifier.dart';
-import '../../../shared/editable_text_field.dart';
 import '../../../shared/flutter_data_state_builder.dart';
 import '../../../shared/number_text_field.dart';
+import '../notifier.dart';
 import '../screen.dart';
 
 class RecipeGeneralInfoTab extends StatefulWidget {

@@ -48,7 +48,6 @@ class ShoppingListItemTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ingredientsRepository = ref.ingredients;
     final supermarketSection = ref.read(supermarketSectionByNameProvider(
         shoppingListItem.supermarketSectionName));
 
@@ -75,8 +74,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
     return Dismissible(
         direction:
             dismissible ? DismissDirection.endToStart : DismissDirection.none,
-        key:
-            ValueKey('Dismissible_ShoppingListItemTile_${shoppingListItem.id}'),
+        key: ValueKey(
+            'Dismissible_ShoppingListItemTile_${shoppingListItem.itemName}'),
         onDismissed: onDismiss,
         child: buildListTile());
   }
@@ -124,7 +123,10 @@ class _ShoppingListItemTile extends StatelessWidget {
           if (displayLeading)
             Container(
               width: 60,
-              child: _QuantityAndUomLead(shoppingListItem),
+              child: _QuantityAndUomLead(
+                shoppingListItem,
+                onChanged: (item) => onSubmitted?.call(item),
+              ),
             ),
         ],
       ),
@@ -162,16 +164,15 @@ class _ShoppingListItemTile extends StatelessWidget {
 
 class _QuantityAndUomLead extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
+  final void Function(ShoppingListItem)? onChanged;
 
-  const _QuantityAndUomLead(this.shoppingListItem, {Key? key})
+  const _QuantityAndUomLead(this.shoppingListItem, {Key? key, this.onChanged})
       : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var quantity = shoppingListItem.quantity;
     var uom = shoppingListItem.unitOfMeasure;
-
-    final shoppingListId = ref.read(firstShoppingListIdProvider).value;
 
     void changeQuantityAndUom() async {
       final newItem = await showDialog<ShoppingListItem?>(
@@ -181,10 +182,7 @@ class _QuantityAndUomLead extends HookConsumerWidget {
           });
 
       if (newItem != null) {
-        newItem.save(params: {
-          UPDATE_PARAM: true,
-          SHOPPING_LIST_ID_PARAM: shoppingListId
-        });
+        onChanged?.call(newItem);
       }
     }
 

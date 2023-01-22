@@ -63,6 +63,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     return FlutterDataStateBuilder<List<Recipe>>(
       state: repository.watchAll(syncLocal: true),
       onRefresh: () => repository.findAll(syncLocal: true),
+      notFound: _buildNoRecipesFound(),
       builder: (context, model) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -92,7 +93,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     }
   }
 
-  Widget _buildNoRecipesFound(String text, IconData icon) {
+  Widget _buildNoRecipesFound() {
     final _textColor = Colors.grey.shade300;
     return Center(
       child: Column(
@@ -100,7 +101,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Icon(
-            icon,
+            Icons.restaurant,
             size: 130,
             color: _textColor,
           ),
@@ -108,7 +109,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
             height: 10,
           ),
           Text(
-            text,
+            "No recipes found",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 25,

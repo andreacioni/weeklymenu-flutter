@@ -46,19 +46,20 @@ class ShoppingList extends BaseModel<ShoppingList> {
   List<ShoppingListItem> get getUncheckedItems =>
       items.where((item) => !item.checked).toList();
 
-  ShoppingListItem getItemById(String itemId) =>
-      items.firstWhere((ing) => ing.item == itemId);
-
-  void addShoppingListItem(ShoppingListItem shoppingListItem) {
-    items.add(shoppingListItem);
+  ShoppingList addShoppingListItem(ShoppingListItem shoppingListItem) {
+    final newList = [shoppingListItem, ...items];
+    return this.copyWith(items: newList);
   }
 
-  void removeItemFromList(ShoppingListItem toBeRemoved) {
-    items.removeWhere((item) => item.item == toBeRemoved.item);
+  ShoppingList removeItemFromList(ShoppingListItem toBeRemoved) {
+    final newList = [...items];
+    newList.removeWhere(
+        (item) => item.itemName.trim() == toBeRemoved.itemName.trim());
+    return this.copyWith(items: newList);
   }
 
   ShoppingList setChecked(ShoppingListItem item, bool checked) {
-    final idx = items.indexWhere((i) => i == item);
+    final idx = items.indexWhere((i) => i.itemName == item.itemName);
     if (idx >= 0) {
       items[idx] = items[idx].copyWith(checked: checked);
     }
@@ -66,8 +67,14 @@ class ShoppingList extends BaseModel<ShoppingList> {
     return copyWith(items: items);
   }
 
-  bool containsItem(String itemId) {
-    return items.map((item) => item.item).contains(itemId);
+  ShoppingList updateItem(
+      ShoppingListItem previousItem, ShoppingListItem newItem) {
+    final idx = items.indexOf(previousItem);
+    if (idx >= 0) {
+      items.replaceRange(idx, idx + 1, [newItem]);
+    }
+
+    return copyWith(items: items);
   }
 
   @override
@@ -76,11 +83,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
 
 @JsonSerializable()
 @CopyWith()
-@DataRepository([BaseAdapter, ShoppingListItemAdapter],
-    internalType: 'shopping-list-items')
-class ShoppingListItem extends DataModel<ShoppingListItem> {
-  final String item;
-
+class ShoppingListItem {
   @JsonKey(name: 'name')
   final String itemName;
 
@@ -99,8 +102,7 @@ class ShoppingListItem extends DataModel<ShoppingListItem> {
   final int? listPosition;
 
   ShoppingListItem(
-      {required this.item,
-      required this.itemName,
+      {required this.itemName,
       this.supermarketSectionName,
       this.checked = false,
       this.quantity,
@@ -113,7 +115,13 @@ class ShoppingListItem extends DataModel<ShoppingListItem> {
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
 
   @override
-  String get id => item;
+  bool operator ==(Object other) =>
+      other is ShoppingListItem &&
+      other.runtimeType == runtimeType &&
+      other.itemName == itemName;
+
+  @override
+  int get hashCode => itemName.hashCode;
 }
 
 mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
@@ -130,34 +138,4 @@ mixin ShoppingListAdapter<T extends DataModel<ShoppingList>>
 
   String get dashCaseType =>
       type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
-}
-
-mixin ShoppingListItemAdapter<T extends DataModel<ShoppingListItem>>
-    on RemoteAdapter<ShoppingListItem> {
-  @override
-  String urlForFindAll(Map<String, dynamic> params) {
-    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
-    return '$url';
-  }
-
-  @override
-  String urlForFindOne(id, Map<String, dynamic> params) {
-    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
-    return '$url/$id';
-  }
-
-  @override
-  String urlForSave(id, Map<String, dynamic> params) {
-    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
-    return params[UPDATE_PARAM] == true ? "$url/$id" : url;
-  }
-
-  @override
-  String urlForDelete(id, Map<String, dynamic> params) {
-    final url = basePath(params[SHOPPING_LIST_ID_PARAM]);
-    return '$url/$id';
-  }
-
-  String basePath(String shoppingListId) =>
-      "shopping-lists/$shoppingListId/items";
 }

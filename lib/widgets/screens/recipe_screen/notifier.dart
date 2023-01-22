@@ -6,7 +6,11 @@ import 'package:weekly_menu_app/models/recipe.dart';
 import '../../../models/ingredient.dart';
 import '../../../main.data.dart';
 
-part 'recipe_screen_state_notifier.g.dart';
+part 'notifier.g.dart';
+
+final recipeScreenNotifierProvider = StateNotifierProvider.autoDispose<
+    RecipeScreenStateNotifier,
+    RecipeScreenState>((ref) => throw UnimplementedError());
 
 @immutable
 @CopyWith()
@@ -96,8 +100,8 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   }
 
   void addRecipeIngredientFromIngredient(Ingredient ingredient) {
-    final newRecipeIngredient = RecipeIngredient(
-        ingredientId: ingredient.id, ingredientName: ingredient.name);
+    final newRecipeIngredient =
+        RecipeIngredient(ingredientName: ingredient.name);
     final recipeIngredients = [
       newRecipeIngredient,
       ...state.recipeOriginator.state.ingredients
@@ -111,8 +115,8 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   void addRecipeIngredientFromString(String ingredientName) {
     final newIngredient = Ingredient(name: ingredientName);
     read(ingredientsRepositoryProvider).save(newIngredient);
-    final newRecipeIngredient = RecipeIngredient(
-        ingredientId: newIngredient.id, ingredientName: newIngredient.name);
+    final newRecipeIngredient =
+        RecipeIngredient(ingredientName: newIngredient.name);
     final recipeIngredients = state.recipeOriginator.state.ingredients;
 
     state.recipeOriginator.update(state.recipeOriginator.instance
@@ -122,7 +126,7 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
   void updateRecipeIngredientFromIngredientAtIndex(int idx, Ingredient value) {
     final newRecipeIngredient = state.recipeOriginator.instance.ingredients[idx]
-        .copyWith(ingredientId: value.id, ingredientName: value.name);
+        .copyWith(ingredientName: value.name);
 
     updateRecipeIngredientAtIndex(idx, newRecipeIngredient);
   }

@@ -8,7 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/globals/utils.dart';
 
-import 'recipe_screen_state_notifier.dart';
+import 'notifier.dart';
 import '../../../models/recipe.dart';
 import '../../shared/base_dialog.dart';
 

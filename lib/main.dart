@@ -5,6 +5,7 @@ import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'globals/constants.dart';
 import 'main.data.dart';
 import 'widgets/screens/splash_screen/screen.dart';
 
@@ -19,7 +20,7 @@ class App extends StatelessWidget {
 
     return ProviderScope(
       overrides: [
-        configureRepositoryLocalStorage(clear: false),
+        configureRepositoryLocalStorage(clear: clear),
         graphNotifierThrottleDurationProvider
             .overrideWithValue(Duration(milliseconds: 100))
       ],

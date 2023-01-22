@@ -103,8 +103,6 @@ extension $ShoppingListCopyWith on ShoppingList {
 abstract class _$ShoppingListItemCWProxy {
   ShoppingListItem checked(bool checked);
 
-  ShoppingListItem item(String item);
-
   ShoppingListItem itemName(String itemName);
 
   ShoppingListItem listPosition(int? listPosition);
@@ -123,7 +121,6 @@ abstract class _$ShoppingListItemCWProxy {
   /// ````
   ShoppingListItem call({
     bool? checked,
-    String? item,
     String? itemName,
     int? listPosition,
     double? quantity,
@@ -140,9 +137,6 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
 
   @override
   ShoppingListItem checked(bool checked) => this(checked: checked);
-
-  @override
-  ShoppingListItem item(String item) => this(item: item);
 
   @override
   ShoppingListItem itemName(String itemName) => this(itemName: itemName);
@@ -172,7 +166,6 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
   /// ````
   ShoppingListItem call({
     Object? checked = const $CopyWithPlaceholder(),
-    Object? item = const $CopyWithPlaceholder(),
     Object? itemName = const $CopyWithPlaceholder(),
     Object? listPosition = const $CopyWithPlaceholder(),
     Object? quantity = const $CopyWithPlaceholder(),
@@ -184,10 +177,6 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
           ? _value.checked
           // ignore: cast_nullable_to_non_nullable
           : checked as bool,
-      item: item == const $CopyWithPlaceholder() || item == null
-          ? _value.item
-          // ignore: cast_nullable_to_non_nullable
-          : item as String,
       itemName: itemName == const $CopyWithPlaceholder() || itemName == null
           ? _value.itemName
           // ignore: cast_nullable_to_non_nullable
@@ -272,60 +261,6 @@ extension ShoppingListDataRepositoryX on Repository<ShoppingList> {
 extension ShoppingListRelationshipGraphNodeX
     on RelationshipGraphNode<ShoppingList> {}
 
-// ignore_for_file: non_constant_identifier_names, duplicate_ignore
-
-mixin $ShoppingListItemLocalAdapter on LocalAdapter<ShoppingListItem> {
-  static final Map<String, RelationshipMeta>
-      _kShoppingListItemRelationshipMetas = {};
-
-  @override
-  Map<String, RelationshipMeta> get relationshipMetas =>
-      _kShoppingListItemRelationshipMetas;
-
-  @override
-  ShoppingListItem deserialize(map) {
-    map = transformDeserialize(map);
-    return ShoppingListItem.fromJson(map);
-  }
-
-  @override
-  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
-    final map = model.toJson();
-    return transformSerialize(map, withRelationships: withRelationships);
-  }
-}
-
-final _shoppingListItemsFinders = <String, dynamic>{};
-
-// ignore: must_be_immutable
-class $ShoppingListItemHiveLocalAdapter = HiveLocalAdapter<ShoppingListItem>
-    with $ShoppingListItemLocalAdapter;
-
-class $ShoppingListItemRemoteAdapter = RemoteAdapter<ShoppingListItem>
-    with
-        BaseAdapter<ShoppingListItem>,
-        ShoppingListItemAdapter<ShoppingListItem>;
-
-final internalShoppingListItemsRemoteAdapterProvider =
-    Provider<RemoteAdapter<ShoppingListItem>>((ref) =>
-        $ShoppingListItemRemoteAdapter(
-            $ShoppingListItemHiveLocalAdapter(ref.read, typeId: null),
-            InternalHolder(_shoppingListItemsFinders)));
-
-final shoppingListItemsRepositoryProvider =
-    Provider<Repository<ShoppingListItem>>(
-        (ref) => Repository<ShoppingListItem>(ref.read));
-
-extension ShoppingListItemDataRepositoryX on Repository<ShoppingListItem> {
-  BaseAdapter<ShoppingListItem> get baseAdapter =>
-      remoteAdapter as BaseAdapter<ShoppingListItem>;
-  ShoppingListItemAdapter<ShoppingListItem> get shoppingListItemAdapter =>
-      remoteAdapter as ShoppingListItemAdapter<ShoppingListItem>;
-}
-
-extension ShoppingListItemRelationshipGraphNodeX
-    on RelationshipGraphNode<ShoppingListItem> {}
-
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -361,7 +296,6 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
 }
 
 ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
-      item: json['item'] as String,
       itemName: json['name'] as String,
       supermarketSectionName: json['supermarketSectionName'] as String?,
       checked: json['checked'] as bool? ?? false,
@@ -372,7 +306,6 @@ ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
 
 Map<String, dynamic> _$ShoppingListItemToJson(ShoppingListItem instance) {
   final val = <String, dynamic>{
-    'item': instance.item,
     'name': instance.itemName,
     'checked': instance.checked,
   };

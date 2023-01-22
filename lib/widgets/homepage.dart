@@ -3,9 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loading_overlay/loading_overlay.dart';
-import 'package:weekly_menu_app/providers/screen_notifier.dart';
-import 'package:weekly_menu_app/widgets/homepage_screen_notifier.dart';
 
+import 'notifier.dart';
 import '../providers/authentication.dart';
 import '../providers/bootstrap.dart';
 import '../main.data.dart';

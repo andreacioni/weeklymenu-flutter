@@ -35,7 +35,6 @@ final repositoryProviders = <String, Provider<Repository<DataModel>>>{
   'ingredients': ingredientsRepositoryProvider,
 'menus': menusRepositoryProvider,
 'recipes': recipesRepositoryProvider,
-'shopping-list-items': shoppingListItemsRepositoryProvider,
 'shopping-lists': shoppingListsRepositoryProvider,
 'userPreferences': userPreferencesRepositoryProvider
 };
@@ -45,11 +44,10 @@ final repositoryInitializerProvider =
     DataHelpers.setInternalType<Ingredient>('ingredients');
     DataHelpers.setInternalType<Menu>('menus');
     DataHelpers.setInternalType<Recipe>('recipes');
-    DataHelpers.setInternalType<ShoppingListItem>('shopping-list-items');
     DataHelpers.setInternalType<ShoppingList>('shopping-lists');
     DataHelpers.setInternalType<UserPreference>('userPreferences');
-    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(internalIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalMenusRemoteAdapterProvider), 'recipes': ref.watch(internalRecipesRemoteAdapterProvider), 'shopping-list-items': ref.watch(internalShoppingListItemsRemoteAdapterProvider), 'shopping-lists': ref.watch(internalShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalUserPreferencesRemoteAdapterProvider)};
-    final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shopping-list-items': true, 'shopping-lists': true, 'userPreferences': true};
+    final adapters = <String, RemoteAdapter>{'ingredients': ref.watch(internalIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalMenusRemoteAdapterProvider), 'recipes': ref.watch(internalRecipesRemoteAdapterProvider), 'shopping-lists': ref.watch(internalShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalUserPreferencesRemoteAdapterProvider)};
+    final remotes = <String, bool>{'ingredients': true, 'menus': true, 'recipes': true, 'shopping-lists': true, 'userPreferences': true};
 
     await ref.watch(graphNotifierProvider).initialize();
 
@@ -70,7 +68,6 @@ extension RepositoryWidgetRefX on WidgetRef {
   Repository<Ingredient> get ingredients => watch(ingredientsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<Menu> get menus => watch(menusRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<Recipe> get recipes => watch(recipesRepositoryProvider)..remoteAdapter.internalWatch = watch;
-  Repository<ShoppingListItem> get shoppingListItems => watch(shoppingListItemsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<ShoppingList> get shoppingLists => watch(shoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<UserPreference> get userPreferences => watch(userPreferencesRepositoryProvider)..remoteAdapter.internalWatch = watch;
 }
@@ -80,7 +77,6 @@ extension RepositoryRefX on Ref {
   Repository<Ingredient> get ingredients => watch(ingredientsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<Menu> get menus => watch(menusRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<Recipe> get recipes => watch(recipesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
-  Repository<ShoppingListItem> get shoppingListItems => watch(shoppingListItemsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<ShoppingList> get shoppingLists => watch(shoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<UserPreference> get userPreferences => watch(userPreferencesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const debug = true;
+const clear = true;
 
 final pageViewLimitDays = 100 * 2;
 
