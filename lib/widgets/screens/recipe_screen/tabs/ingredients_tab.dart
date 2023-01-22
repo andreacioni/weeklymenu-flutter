@@ -14,9 +14,8 @@ import '../../../../models/ingredient.dart';
 import '../../../shared/base_dialog.dart';
 import '../../../shared/empty_page_placeholder.dart';
 import '../../../../models/recipe.dart';
-import '../../../../providers/screen_notifier.dart';
-import '../../../shared/flutter_data_state_builder.dart';
 import '../../../shared/quantity_and_uom_input_fields.dart';
+import '../notifier.dart';
 
 class RecipeIngredientsTab extends HookConsumerWidget {
   const RecipeIngredientsTab({

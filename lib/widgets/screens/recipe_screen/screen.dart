@@ -7,8 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/widgets/screens/recipe_screen/update_general_info_bottom_sheet.dart';
 
 import '../../../globals/utils.dart';
-import '../../../providers/screen_notifier.dart';
-import 'recipe_screen_state_notifier.dart';
+import 'notifier.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
 import '../../../globals/constants.dart';

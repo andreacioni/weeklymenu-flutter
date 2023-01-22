@@ -128,8 +128,6 @@ class RecipePreparationStep {
 @JsonSerializable()
 @CopyWith()
 class RecipeIngredient {
-  @JsonKey(name: 'ingredient')
-  final String ingredientId;
   @JsonKey(name: 'name')
   final String ingredientName;
 
@@ -138,8 +136,7 @@ class RecipeIngredient {
   final bool? freezed;
 
   RecipeIngredient(
-      {required this.ingredientId,
-      required this.ingredientName,
+      {required this.ingredientName,
       this.unitOfMeasure,
       quantity = 0.0,
       freezed = false})

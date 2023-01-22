@@ -8,20 +8,15 @@ import 'base_model.dart';
 part 'ingredient.g.dart';
 
 @JsonSerializable()
-@DataRepository([BaseAdapter], internalType: 'ingredients')
+@DataRepository([BaseAdapter, IngredientsAdapter], internalType: 'ingredients')
 @CopyWith()
-class Ingredient extends BaseModel<Ingredient> {
+class Ingredient extends DataModel<Ingredient> {
+  @override
+  String get id => name.hashCode.toString();
+
   final String name;
 
-  Ingredient(
-      {String? id,
-      required this.name,
-      int? insertTimestamp,
-      int? updateTimestamp})
-      : super(
-            id: id ?? ObjectId().hexString,
-            insertTimestamp: insertTimestamp,
-            updateTimestamp: updateTimestamp);
+  Ingredient({required this.name});
 
   factory Ingredient.fromJson(Map<String, dynamic> json) =>
       _$IngredientFromJson(json);
@@ -29,4 +24,48 @@ class Ingredient extends BaseModel<Ingredient> {
   Map<String, dynamic> toJson() => _$IngredientToJson(this);
 
   Ingredient clone() => Ingredient.fromJson(this.toJson());
+}
+
+mixin IngredientsAdapter<T extends DataModel<Ingredient>>
+    on RemoteAdapter<Ingredient> {
+  @override
+  String urlForFindAll(Map<String, dynamic> params) => 'ingredients-view';
+
+  @override
+  Future<Ingredient> save(Ingredient model,
+      {bool? remote,
+      Map<String, dynamic>? params,
+      Map<String, String>? headers,
+      OnSuccessOne<Ingredient>? onSuccess,
+      OnErrorOne<Ingredient>? onError,
+      DataRequestLabel? label}) {
+    // no need to save
+    return super.save(model,
+        remote: false,
+        params: params,
+        headers: headers,
+        onSuccess: onSuccess,
+        onError: onError,
+        label: label);
+  }
+
+  @override
+  Future<Ingredient?> findOne(Object id,
+      {bool? remote,
+      bool? background,
+      Map<String, dynamic>? params,
+      Map<String, String>? headers,
+      OnSuccessOne<Ingredient>? onSuccess,
+      OnErrorOne<Ingredient>? onError,
+      DataRequestLabel? label}) {
+    // find one is not implemented server-side
+    return super.findOne(id,
+        remote: false,
+        background: background,
+        params: params,
+        headers: headers,
+        onSuccess: onSuccess,
+        onError: onError,
+        label: label);
+  }
 }

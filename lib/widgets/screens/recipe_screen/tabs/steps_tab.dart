@@ -9,9 +9,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:collection/collection.dart';
 
 import '../../../../models/recipe.dart';
-import '../../../../providers/screen_notifier.dart';
-import '../../../shared/editable_text_field.dart';
-import '../../../../globals/utils.dart';
+import '../notifier.dart';
 
 class RecipeStepsTab extends HookConsumerWidget {
   const RecipeStepsTab({

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -72,7 +74,7 @@ class _IngredientSelectionTextFieldState
                     .firstMatch(selectedIngredient.name)!
                     .group(1)!);
             selectedIngredient.save();
-            print('ingredient: ${selectedIngredient.name} created');
+            log('ingredient: ${selectedIngredient.name} created');
           } else {
             this._typeAheadController.text = selectedIngredient.name;
           }

@@ -9,27 +9,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 import 'package:weekly_menu_app/models/recipe.dart';
 import 'package:logging/logging.dart';
+import 'package:weekly_menu_app/widgets/screens/shopping_list_screen/notifier.dart';
 
 import 'screen.dart';
 import '../../../main.data.dart';
 import '../../../globals/utils.dart';
 import '../../../models/ingredient.dart';
 import '../../../models/shopping_list.dart';
-
-final _availableIngredientsFutureProvider =
-    FutureProvider.autoDispose<List<Ingredient>>((ref) async {
-  final ingredients = await ref.ingredients.findAll(remote: false);
-
-  return ingredients ?? [];
-});
-
-final _availableIngredientsProvider =
-    Provider.autoDispose<List<Ingredient>>((ref) {
-  final ingredients = ref.watch(_availableIngredientsFutureProvider);
-
-  return ingredients.when(
-      data: (data) => data, error: (_, __) => [], loading: () => []);
-});
 
 class ItemSuggestionTextField extends HookConsumerWidget {
   final ShoppingListItem? value;
@@ -60,13 +46,12 @@ class ItemSuggestionTextField extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController(keepScrollOffset: false);
 
-    final shoppingListId = ref.read(firstShoppingListIdProvider).value;
-    final availableIngredients = ref.watch(_availableIngredientsProvider);
-
-    Ingredient? resolveShoppingListItemIngredient(ShoppingListItem item) {
-      return availableIngredients
-          .firstWhereOrNull((ingredient) => ingredient.id == item.item);
-    }
+    final shoppingList =
+        ref.read(shoppingListScreenNotifierProvider).shoppingList;
+    final ingredientsState = ref.ingredients.watchAll();
+    final availableIngredients = ingredientsState.hasModel
+        ? ingredientsState.model ?? <Ingredient>[]
+        : <Ingredient>[];
 
     String displayStringForOption(Object option) {
       if (option is Ingredient) {
@@ -80,28 +65,21 @@ class ItemSuggestionTextField extends HookConsumerWidget {
     }
 
     Future<Iterable<Object>> suggestionsCallback(TextEditingValue value) async {
-      final shopListItemsRepo = ref.read(shoppingListItemsRepositoryProvider);
-
       List<Object> suggestions = [];
 
       if (showShoppingItemSuggestions) {
-        final shoppingListItems = (await shopListItemsRepo.findAll(
-                remote: false,
-                params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
-            [];
+        final shoppingListItems = shoppingList?.getAllItems ?? [];
 
         final checkedItems = shoppingListItems.where((item) {
-          var ing = resolveShoppingListItemIngredient(item);
-          return ing != null
-              ? item.checked && stringContains(ing.name, value.text)
-              : false;
+          return item.checked && stringContains(item.itemName, value.text);
         });
 
         suggestions.addAll(checkedItems);
         suggestions.addAll(availableIngredients
             .where((ing) =>
                 stringContains(ing.name, value.text) &&
-                shoppingListItems.firstWhereOrNull((i) => i.item == ing.id) ==
+                shoppingListItems.firstWhereOrNull(
+                        (i) => i.itemName.trim() == ing.name.trim()) ==
                     null)
             .toList());
       } else {
@@ -120,9 +98,8 @@ class ItemSuggestionTextField extends HookConsumerWidget {
           subtitle: Text('Ingredient'),
         );
       } else if (item is ShoppingListItem) {
-        var ing = resolveShoppingListItemIngredient(item);
         return ListTile(
-          title: Text(ing?.name ?? 'Ingredient not found'),
+          title: Text(item.itemName),
           subtitle: Text('Shopping List'),
           trailing: Icon(Icons.check_box),
         );

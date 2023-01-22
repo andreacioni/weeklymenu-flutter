@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'homepage_screen_notifier.dart';
+part of 'notifier.dart';
 
 // **************************************************************************
 // CopyWithGenerator

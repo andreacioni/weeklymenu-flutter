@@ -4,11 +4,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/widgets/shared/appbar_button.dart';
-import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 
+import 'notifier.dart';
+import '../../shared/appbar_button.dart';
+import '../../shared/base_dialog.dart';
 import '../../../models/recipe.dart';
-import '../../../providers/screen_notifier.dart';
 import 'screen.dart';
 
 class RecipeAppBar extends HookConsumerWidget {

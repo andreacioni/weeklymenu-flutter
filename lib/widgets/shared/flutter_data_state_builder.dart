@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
+import 'package:logging/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -33,8 +36,11 @@ class FlutterDataStateBuilder<T extends Object> extends HookConsumerWidget {
       }
 
       // for other errors shows popup ?
-      print("FlutterDataStateBuilder caught an error: " +
-          (ex?.toString() ?? 'null'));
+      log(
+          "FlutterDataStateBuilder caught an error: " +
+              (ex?.toString() ?? 'null'),
+          level: Level.SEVERE.value,
+          error: ex);
     }
 
     if (state.isLoading && !state.hasModel) {

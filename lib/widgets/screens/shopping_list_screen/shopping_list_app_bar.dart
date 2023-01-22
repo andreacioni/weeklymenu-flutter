@@ -2,26 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import 'package:flutter_data/flutter_data.dart';
-import '../../../providers/shopping_list.dart';
+import 'package:weekly_menu_app/widgets/screens/shopping_list_screen/notifier.dart';
 import '../../../globals/constants.dart';
 import '../../../models/user_preferences.dart' hide userPreferenceProvider;
 import '../../../providers/user_preferences.dart';
 import '../../../globals/extensions.dart';
-import '../../../main.data.dart';
-import 'screen.dart';
-import '../../../models/shopping_list.dart' hide shoppingListProvider;
 
 class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const ShoppingListAppBar();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedItems = ref.watch(selectedShoppingListItemsProvider);
+    final notifier = ref.read(shoppingListScreenNotifierProvider.notifier);
+    final selectedItems = ref.watch(shoppingListScreenNotifierProvider
+        .select((state) => state.selectedItems));
     final supermarketSections = ref.read(supermarketSectionProvider);
+    final shoppingList =
+        ref.read(shoppingListScreenNotifierProvider).shoppingList;
 
     Future<void> updateUserPreferences(SupermarketSection section) async {
       supermarketSections?.removeWhere((s) => s.name == section.name);
@@ -46,34 +45,6 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           params: {UPDATE_PARAM: true});
     }
 
-    Future<void> setSupermarketSectionOnSelectedItems(
-        SupermarketSection? section) async {
-      final shoppingListId =
-          (await ref.read(firstShoppingListIdProvider.future));
-
-      if (shoppingListId == null) throw 'No shopping list id resolved';
-
-      final allItems = (await ref.shoppingListItems.findAll(
-              remote: false,
-              params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
-          [];
-
-      for (final selectedItem in selectedItems) {
-        final previousItem =
-            allItems.firstWhereOrNull((item) => item.item == selectedItem.item);
-        if (previousItem == null ||
-            previousItem.supermarketSectionName == section?.name) return;
-
-        final newItem =
-            previousItem.copyWith(supermarketSectionName: section?.name);
-
-        await ref.shoppingListItems.save(newItem, params: {
-          UPDATE_PARAM: true,
-          SHOPPING_LIST_ID_PARAM: shoppingListId
-        });
-      }
-    }
-
     Future<SupermarketSection?> chooseSupermarketSectionToSelection(
         List<String> availableSupermarketSections) async {
       final section = await showDialog<SupermarketSection?>(
@@ -83,35 +54,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       return section;
     }
 
-    void removeShoppingItemFromList() async {
-      final shoppingListId = ref.read(firstShoppingListIdProvider);
-
-      selectedItems.forEach((i) {
-        i.delete(params: {
-          UPDATE_PARAM: true,
-          SHOPPING_LIST_ID_PARAM: shoppingListId
-        });
-      });
-
-      ref
-          .read(selectedShoppingListItemsProvider.notifier)
-          .update((state) => []);
-    }
-
-    void removeSupermarketSectionOnSelectedItems() async {
-      setSupermarketSectionOnSelectedItems(null);
-      ref
-          .read(selectedShoppingListItemsProvider.notifier)
-          .update((state) => []);
-    }
-
     void openSupermarketSectionSelectionDialog() async {
-      final shoppingListId = ref.read(firstShoppingListIdProvider);
-
-      final allItems = (await ref.shoppingListItems.findAll(
-              remote: false,
-              params: {SHOPPING_LIST_ID_PARAM: shoppingListId})) ??
-          [];
+      final allItems = shoppingList?.getAllItems ?? [];
       final availableSupermarketSections =
           (allItems.map((e) => e.supermarketSectionName).toList()
                 ..removeWhere((e) => e == null || e.trim().isEmpty))
@@ -122,13 +66,9 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           availableSupermarketSections);
 
       if (section != null) {
-        setSupermarketSectionOnSelectedItems(section);
+        notifier.setSupermarketSectionOnSelectedItems(section);
         updateUserPreferences(section);
       }
-
-      ref
-          .read(selectedShoppingListItemsProvider.notifier)
-          .update((state) => []);
     }
 
     return AppBar(
@@ -159,9 +99,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 color: Colors.black,
               ),
               splashRadius: Material.defaultSplashRadius / 2,
-              onPressed: () => ref
-                  .read(selectedShoppingListItemsProvider.notifier)
-                  .update((state) => []),
+              onPressed: () => notifier.clearSelection(),
             ),
       actions: <Widget>[
         if (selectedItems.isEmpty)
@@ -173,7 +111,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
         else ...[
           IconButton(
             icon: Icon(Icons.bookmark_remove_outlined),
-            onPressed: removeSupermarketSectionOnSelectedItems,
+            onPressed: () =>
+                notifier.setSupermarketSectionOnSelectedItems(null),
             splashRadius: Material.defaultSplashRadius / 2,
           ),
           IconButton(
@@ -183,7 +122,9 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
           ),
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: removeShoppingItemFromList,
+            onPressed: () {
+              notifier.removeSelectedShoppingItemFromList();
+            },
             splashRadius: Material.defaultSplashRadius / 2,
           )
         ]

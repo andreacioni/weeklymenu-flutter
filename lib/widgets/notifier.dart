@@ -2,7 +2,11 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-part 'homepage_screen_notifier.g.dart';
+part 'notifier.g.dart';
+
+final homepageScreenNotifierProvider = StateNotifierProvider.autoDispose<
+    HomepageScreenStateNotifier,
+    HomepageScreenState>((ref) => throw UnimplementedError());
 
 @immutable
 @CopyWith()
