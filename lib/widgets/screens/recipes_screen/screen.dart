@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
+import 'package:weekly_menu_app/services/recipe_scraper_service.dart';
 import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
 import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
@@ -50,7 +51,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
           ? _buildAppBar(context)
           : _buildEditingAppBar(ref),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showRecipeNameDialog(ref),
+        onPressed: () => _showRecipeNameDialog(),
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -294,7 +295,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     setState(() => _editingModeEnabled = false);
   }
 
-  void _showRecipeNameDialog(WidgetRef ref) async {
+  void _showRecipeNameDialog() async {
     final textController = TextEditingController();
     final newRecipe = await showDialog<Recipe>(
       context: context,
@@ -310,9 +311,13 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
           )
         ],
         onDoneTap: () async {
+          Recipe? recipe;
           Navigator.of(context).pop();
-          if (textController.text.trim().isNotEmpty) {
-            await ref.read(recipesRepositoryProvider).save(
+          final url = textController.text.trim();
+          if (url.toLowerCase().startsWith("https")) {
+            recipe = await _scrapeRecipe(url);
+          } else if (url.isNotEmpty) {
+            recipe = await ref.read(recipesRepositoryProvider).save(
                 Recipe(name: textController.text),
                 params: {UPDATE_PARAM: false});
           } else {
@@ -325,6 +330,12 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     if (newRecipe != null) {
       _openNewRecipeScreen(newRecipe);
     }
+  }
+
+  Future<Recipe> _scrapeRecipe(String url) async {
+    final scraper = ref.read(recipeScraperProvider);
+    final recipe = await scraper.scrapeUrl(url);
+    return recipe;
   }
 
   void _openNewRecipeScreen(Recipe newRecipe) {
