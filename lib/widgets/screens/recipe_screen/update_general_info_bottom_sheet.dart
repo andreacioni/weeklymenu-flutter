@@ -82,8 +82,8 @@ class UpdateGeneralInfoRecipeBottomSheet extends HookConsumerWidget {
 
     final mq = MediaQuery.of(context);
 
-    final maxSheetHeight = min<double>(
-        500 + MediaQuery.of(context).viewInsets.bottom, mq.size.height * 0.8);
+    final maxSheetHeight =
+        min<double>(500 + mq.viewInsets.bottom, mq.size.height * 0.8);
 
     return Container(
       constraints: BoxConstraints(maxHeight: maxSheetHeight),

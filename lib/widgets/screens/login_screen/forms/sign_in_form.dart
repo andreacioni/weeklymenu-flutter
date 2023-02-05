@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../globals/errors_handlers.dart';
-import '../../../homepage.dart';
+import '../../homepage/homepage.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../models/auth_token.dart';
 import '../../../../providers/authentication.dart';

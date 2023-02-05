@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/widgets/screens/recipe_screen/update_general_info_bottom_sheet.dart';
 
 import '../../../globals/utils.dart';
+import '../../shared/base_modal_bottom_sheet.dart';
 import 'notifier.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
@@ -19,17 +20,23 @@ import 'tabs/steps_tab.dart';
 
 class RecipeScreen extends HookConsumerWidget {
   final Object heroTag;
+  final bool unsaved;
 
   final RecipeOriginator originator;
 
-  RecipeScreen(Recipe originalRecipeInstance, {this.heroTag = const Object()})
-      : originator = RecipeOriginator(originalRecipeInstance);
+  RecipeScreen(Recipe originalRecipeInstance,
+      {this.heroTag = const Object(), this.unsaved = false})
+      : originator = RecipeOriginator(originalRecipeInstance, unsaved);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(overrides: [
       recipeScreenNotifierProvider.overrideWithValue(RecipeScreenStateNotifier(
-          ref.read, RecipeScreenState(recipeOriginator: originator)))
+          ref.read,
+          RecipeScreenState(
+            recipeOriginator: originator,
+            editEnabled: unsaved,
+          )))
     ], child: _RecipeScreen(heroTag: heroTag));
   }
 }
@@ -187,15 +194,16 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     Future<void> showAddInfoDialog() async {
-      final radius = const Radius.circular(20);
-
       final recipe =
           ref.read(recipeScreenNotifierProvider).recipeOriginator.instance;
       final newRecipe = await showModalBottomSheet<Recipe?>(
         context: context,
         clipBehavior: Clip.hardEdge,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(topLeft: radius, topRight: radius),
+          borderRadius: BorderRadius.only(
+            topLeft: BOTTOM_SHEET_RADIUS,
+            topRight: BOTTOM_SHEET_RADIUS,
+          ),
         ),
         useRootNavigator: true,
         isScrollControlled: true,
