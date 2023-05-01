@@ -12,7 +12,10 @@ import 'enums/meal.dart';
 part 'recipe.g.dart';
 
 class RecipeOriginator extends Originator<Recipe> {
-  RecipeOriginator(Recipe original) : super(original.copyWith());
+  RecipeOriginator(Recipe original, [bool unsaved = false])
+      : super(original.copyWith()) {
+    if (unsaved) setEdited();
+  }
 }
 
 @JsonSerializable(explicitToJson: true, anyMap: true)
@@ -57,6 +60,8 @@ class Recipe extends BaseModel<Recipe> {
 
   final List<RelatedRecipe> relatedRecipes;
 
+  final bool? scraped;
+
   @JsonKey(ignore: true)
   final String? owner;
 
@@ -81,6 +86,7 @@ class Recipe extends BaseModel<Recipe> {
       this.preparationSteps = const <RecipePreparationStep>[],
       this.recipeUrl,
       this.note,
+      this.scraped,
       this.owner,
       int? insertTimestamp,
       int? updateTimestamp})

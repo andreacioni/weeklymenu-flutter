@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "170623020021",
+    "firebase_url": "https://weekly-menu-firebase-1.firebaseio.com",
+    "project_id": "weekly-menu-firebase-1",
+    "storage_bucket": "weekly-menu-firebase-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170623020021:android:815776d810f79a6a524ebc",
+        "android_client_info": {
+          "package_name": "com.example.weekly_menu_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "170623020021-dek5fd4690qhuqkdorbg04uja88an6rf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuamhd7BXtkveDfymuy71tInuJd_lyVxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "170623020021-dek5fd4690qhuqkdorbg04uja88an6rf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

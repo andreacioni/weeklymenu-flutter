@@ -5,15 +5,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 
 import 'notifier.dart';
-import '../providers/authentication.dart';
-import '../providers/bootstrap.dart';
-import '../main.data.dart';
-import 'screens/ingredients_screen/screen.dart';
-import 'screens/login_screen/screen.dart';
-import 'screens/menu_page/screen.dart';
-import 'screens/recipes_screen/screen.dart';
-import 'screens/shopping_list_screen/screen.dart';
-import 'screens/tags_screen/screen.dart';
+import '../../../providers/authentication.dart';
+import '../../../providers/bootstrap.dart';
+import '../../../main.data.dart';
+import '../ingredients_screen/screen.dart';
+import '../login_screen/screen.dart';
+import '../menu_page/screen.dart';
+import '../recipes_screen/screen.dart';
+import '../shopping_list_screen/screen.dart';
+import '../tags_screen/screen.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -38,8 +38,8 @@ class _HomePageState extends ConsumerState<_HomePage> {
   final PageStorageBucket bucket = PageStorageBucket();
   final List<Widget> _screens = [
     MenuScreen(key: const PageStorageKey('menuPage')),
-    RecipesScreen(key: const PageStorageKey('recipesPage')),
-    ShoppingListScreen(key: const PageStorageKey('shoppingListPage')),
+    const RecipesScreen(key: const PageStorageKey('recipesPage')),
+    const ShoppingListScreen(key: const PageStorageKey('shoppingListPage')),
   ];
   int _activeScreenIndex = 0;
 

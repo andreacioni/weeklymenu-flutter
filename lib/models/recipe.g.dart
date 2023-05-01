@@ -43,6 +43,8 @@ abstract class _$RecipeCWProxy {
 
   Recipe relatedRecipes(List<RelatedRecipe> relatedRecipes);
 
+  Recipe scraped(bool? scraped);
+
   Recipe section(String? section);
 
   Recipe servs(int? servs);
@@ -78,6 +80,7 @@ abstract class _$RecipeCWProxy {
     int? rating,
     String? recipeUrl,
     List<RelatedRecipe>? relatedRecipes,
+    bool? scraped,
     String? section,
     int? servs,
     List<String>? tags,
@@ -154,6 +157,9 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
       this(relatedRecipes: relatedRecipes);
 
   @override
+  Recipe scraped(bool? scraped) => this(scraped: scraped);
+
+  @override
   Recipe section(String? section) => this(section: section);
 
   @override
@@ -196,6 +202,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? rating = const $CopyWithPlaceholder(),
     Object? recipeUrl = const $CopyWithPlaceholder(),
     Object? relatedRecipes = const $CopyWithPlaceholder(),
+    Object? scraped = const $CopyWithPlaceholder(),
     Object? section = const $CopyWithPlaceholder(),
     Object? servs = const $CopyWithPlaceholder(),
     Object? tags = const $CopyWithPlaceholder(),
@@ -280,6 +287,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.relatedRecipes
           // ignore: cast_nullable_to_non_nullable
           : relatedRecipes as List<RelatedRecipe>,
+      scraped: scraped == const $CopyWithPlaceholder()
+          ? _value.scraped
+          // ignore: cast_nullable_to_non_nullable
+          : scraped as bool?,
       section: section == const $CopyWithPlaceholder()
           ? _value.section
           // ignore: cast_nullable_to_non_nullable
@@ -582,6 +593,7 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
           const <RecipePreparationStep>[],
       recipeUrl: json['recipeUrl'] as String?,
       note: json['note'] as String?,
+      scraped: json['scraped'] as bool?,
       insertTimestamp: json['insert_timestamp'] as int?,
       updateTimestamp: json['update_timestamp'] as int?,
     );
@@ -620,6 +632,7 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('section', instance.section);
   val['relatedRecipes'] =
       instance.relatedRecipes.map((e) => e.toJson()).toList();
+  writeNotNull('scraped', instance.scraped);
   return val;
 }
 

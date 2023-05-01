@@ -2,8 +2,11 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weekly_menu_app/services/local_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:weekly_menu_app/services/remote_config.dart';
+import '../firebase_options.dart';
 
+import '../services/local_preferences.dart';
 import '../globals/constants.dart';
 import '../main.data.dart';
 
@@ -30,6 +33,14 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
   for (final repositoryProvider in repositoryProviders.values) {
     ref.read(repositoryProvider).logLevel = debug ? 2 : 0;
   }
+
+  log("initializing firebase core");
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  log("initializing remote config");
+  await ref.read(remoteConfigProvider).initialize();
 
   if (debug) {
     CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;

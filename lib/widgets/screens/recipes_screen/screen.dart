@@ -1,15 +1,21 @@
 import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:objectid/objectid.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+import 'package:weekly_menu_app/services/recipe_scraper_service.dart';
 import 'package:weekly_menu_app/widgets/shared/base_dialog.dart';
+import 'package:weekly_menu_app/widgets/shared/base_modal_bottom_sheet.dart';
 import 'package:weekly_menu_app/widgets/shared/empty_page_placeholder.dart';
 
 import '../../../globals/constants.dart';
 import '../../../main.data.dart';
+import '../../shared/checkbox_button.dart';
 import '../../shared/flutter_data_state_builder.dart';
 import '../../../globals/errors_handlers.dart';
 import '../recipe_screen/screen.dart';
@@ -45,12 +51,13 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
   @override
   Widget build(BuildContext context) {
     final repository = ref.recipes;
+
     return Scaffold(
       appBar: _editingModeEnabled == false
           ? _buildAppBar(context)
           : _buildEditingAppBar(ref),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showRecipeNameDialog(ref),
+        onPressed: () => _showRecipeNameDialog(),
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -148,15 +155,22 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
           : Colors.black54,
       onTap: () => _editingModeEnabled == true
           ? _addRecipeToEditingList(recipe)
-          : _openRecipeView(recipe, recipe.id),
+          : _openRecipeView(recipe, heroTag: recipe.id),
       onLongPress: () =>
           _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
     );
   }
 
-  void _openRecipeView(Recipe recipe, Object heroTag) {
+  void _openRecipeView(Recipe recipe,
+      {Object heroTag = const Object(), bool unsaved = false}) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RecipeScreen(recipe, heroTag: heroTag)),
+      MaterialPageRoute(
+        builder: (_) => RecipeScreen(
+          recipe,
+          heroTag: heroTag,
+          unsaved: unsaved,
+        ),
+      ),
     );
   }
 
@@ -294,32 +308,18 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     setState(() => _editingModeEnabled = false);
   }
 
-  void _showRecipeNameDialog(WidgetRef ref) async {
-    final textController = TextEditingController();
-    final newRecipe = await showDialog<Recipe>(
+  void _showRecipeNameDialog() async {
+    final newRecipe = await showModalBottomSheet<Recipe>(
       context: context,
-      builder: (_) => BaseDialog<Recipe>(
-        title: 'New recipe',
-        subtitle:
-            'Type a recipe name or an URL to add a new recipe to your list',
-        children: [
-          TextField(
-            autofocus: true,
-            controller: textController,
-            decoration: InputDecoration(hintText: 'Name / URL'),
-          )
-        ],
-        onDoneTap: () async {
-          Navigator.of(context).pop();
-          if (textController.text.trim().isNotEmpty) {
-            await ref.read(recipesRepositoryProvider).save(
-                Recipe(name: textController.text),
-                params: {UPDATE_PARAM: false});
-          } else {
-            log("No name supplied");
-          }
-        },
-      ),
+      isScrollControlled: true,
+      useRootNavigator: true,
+      clipBehavior: Clip.hardEdge,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+        topLeft: BOTTOM_SHEET_RADIUS,
+        topRight: BOTTOM_SHEET_RADIUS,
+      )),
+      builder: (_) => _AddRecipeBottomSheet(),
     );
 
     if (newRecipe != null) {
@@ -330,8 +330,142 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
   void _openNewRecipeScreen(Recipe newRecipe) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RecipeScreen(newRecipe),
+        builder: (_) => RecipeScreen(
+          newRecipe,
+          unsaved: newRecipe.scraped ?? false,
+        ),
       ),
     );
+  }
+}
+
+class _AddRecipeBottomSheet extends HookConsumerWidget {
+  _AddRecipeBottomSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textController = useTextEditingController();
+    final mq = MediaQuery.of(context);
+    final maxSheetHeight =
+        min<double>(300 + mq.viewInsets.bottom, mq.size.height * 0.7);
+    final textType = useState(true);
+    final urlType = useState(false);
+    final saving = useState(false);
+    final doneEnabled = useState(false);
+
+    useEffect((() {
+      void listener() {
+        if (textController.text.trim().toLowerCase().startsWith("http")) {
+          urlType.value = true;
+          textType.value = false;
+          doneEnabled.value = true;
+        } else {
+          urlType.value = false;
+          textType.value = true;
+        }
+
+        if (textController.text.trim().isNotEmpty) {
+          doneEnabled.value = true;
+        } else {
+          doneEnabled.value = false;
+        }
+      }
+
+      textController.addListener(listener);
+
+      return () => textController.removeListener(listener);
+    }), const []);
+
+    return Container(
+      height: maxSheetHeight,
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              TextField(
+                autofocus: false,
+                controller: textController,
+                decoration:
+                    InputDecoration(hintText: textType.value ? "Name" : "URL"),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ButtonCheckbox(
+                      checked: textType.value,
+                      label: Text("Name"),
+                      onChanged: (v) {
+                        textType.value = v!;
+                        urlType.value = !v;
+                      }),
+                  ButtonCheckbox(
+                    checked: urlType.value,
+                    label: Text("URL"),
+                    onChanged: (v) {
+                      urlType.value = v!;
+                      textType.value = !v;
+                    },
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+        primary: false,
+        bottomSheet: Container(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: ElevatedButton(
+              child: saving.value
+                  ? SizedBox(
+                      height: 10,
+                      width: 10,
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        strokeWidth: 2,
+                      ))
+                  : Text("Add"),
+              onPressed: !saving.value && textController.text.trim().isNotEmpty
+                  ? () => onDoneTap(ref, context, textController, saving)
+                  : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void onDoneTap(WidgetRef ref, BuildContext context,
+      TextEditingController controller, ValueNotifier savingNotifier) async {
+    Recipe? recipe;
+
+    try {
+      savingNotifier.value = true;
+      final url = controller.text.trim();
+      if (url.toLowerCase().startsWith("https")) {
+        recipe = await _scrapeRecipe(ref, url);
+        recipe = recipe.copyWith(scraped: true);
+      } else if (url.isNotEmpty) {
+        recipe = await ref
+            .read(recipesRepositoryProvider)
+            .save(Recipe(name: controller.text), params: {UPDATE_PARAM: false});
+      } else {
+        log("No name supplied");
+      }
+
+      Navigator.of(context).pop(recipe);
+    } catch (e) {
+      log("failed to save a new recipe: $recipe", error: e);
+      savingNotifier.value = false;
+    }
+  }
+
+  Future<Recipe> _scrapeRecipe(WidgetRef ref, String url) async {
+    final scraper = ref.read(recipeScraperProvider);
+    final recipe = await scraper.scrapeUrl(url);
+    return recipe;
   }
 }
