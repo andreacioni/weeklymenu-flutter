@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:weekly_menu_app/globals/constants.dart' as consts;
 
 class BaseLoginForm extends StatelessWidget {
-  static final BorderRadius flatButtonBorderRadius = BorderRadius.circular(30);
+  static final BorderRadius TextButtonBorderRadius = BorderRadius.circular(30);
 
   final String title;
   final String action;
@@ -44,16 +44,17 @@ class BaseLoginForm extends StatelessWidget {
                 SizedBox(
                   height: 30,
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text(
                     action,
                     style: TextStyle(
                         color: Colors.amber[50], fontWeight: FontWeight.bold),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: flatButtonBorderRadius,
-                  ),
-                  color: Colors.amber,
+                  style: ButtonStyle(
+                      iconColor: MaterialStatePropertyAll(Colors.amber),
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: TextButtonBorderRadius,
+                      ))),
                   onPressed: onSubmit,
                 ),
                 SizedBox(
@@ -118,18 +119,25 @@ TextFormField buildPasswordFormField(
   );
 }
 
-FlatButton buildCancelButton(BuildContext context,
+TextButton buildCancelButton(BuildContext context,
     {void Function()? onCancel}) {
-  return FlatButton(
+  return TextButton(
     child: Text(
       "Cancel",
       style: TextStyle(
           color: Colors.grey, fontWeight: FontWeight.bold, fontFeatures: []),
     ),
     onPressed: onCancel,
-    splashColor: Theme.of(context).accentColor.withOpacity(0.1),
-    shape: RoundedRectangleBorder(
-        borderRadius: BaseLoginForm.flatButtonBorderRadius),
+    style: ButtonStyle(
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+          borderRadius: BaseLoginForm.TextButtonBorderRadius)),
+      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+        if (states.contains(MaterialState.pressed))
+          return Theme.of(context).accentColor.withOpacity(0.1);
+        return null; // Defer to the widget's default.
+      }),
+    ),
   );
 }
 

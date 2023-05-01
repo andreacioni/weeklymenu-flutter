@@ -116,6 +116,7 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
 
 extension $RecipeScreenStateCopyWith on RecipeScreenState {
   /// Returns a callable class that can be used as follows: `instanceOfRecipeScreenState.copyWith(...)` or like so:`instanceOfRecipeScreenState.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$RecipeScreenStateCWProxy get copyWith =>
       _$RecipeScreenStateCWProxyImpl(this);
 }

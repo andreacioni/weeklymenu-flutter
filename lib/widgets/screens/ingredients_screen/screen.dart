@@ -64,11 +64,11 @@ class IngredientsScreen extends HookConsumerWidget {
         content: Text(
             'This will also remove all related recipe ingredients and shop. list item'),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text('NO'),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text('YES'),
           ),

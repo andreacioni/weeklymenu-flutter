@@ -108,6 +108,7 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
 
 extension $MenuCopyWith on Menu {
   /// Returns a callable class that can be used as follows: `instanceOfMenu.copyWith(...)` or like so:`instanceOfMenu.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$MenuCWProxy get copyWith => _$MenuCWProxyImpl(this);
 }
 
@@ -167,6 +168,7 @@ class _$DailyMenuCWProxyImpl implements _$DailyMenuCWProxy {
 
 extension $DailyMenuCopyWith on DailyMenu {
   /// Returns a callable class that can be used as follows: `instanceOfDailyMenu.copyWith(...)` or like so:`instanceOfDailyMenu.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$DailyMenuCWProxy get copyWith => _$DailyMenuCWProxyImpl(this);
 }
 
@@ -204,11 +206,11 @@ class $MenuHiveLocalAdapter = HiveLocalAdapter<Menu> with $MenuLocalAdapter;
 class $MenuRemoteAdapter = RemoteAdapter<Menu> with BaseAdapter<Menu>;
 
 final internalMenusRemoteAdapterProvider = Provider<RemoteAdapter<Menu>>(
-    (ref) => $MenuRemoteAdapter($MenuHiveLocalAdapter(ref.read, typeId: null),
-        InternalHolder(_menusFinders)));
+    (ref) => $MenuRemoteAdapter(
+        $MenuHiveLocalAdapter(ref), InternalHolder(_menusFinders)));
 
 final menusRepositoryProvider =
-    Provider<Repository<Menu>>((ref) => Repository<Menu>(ref.read));
+    Provider<Repository<Menu>>((ref) => Repository<Menu>(ref));
 
 extension MenuDataRepositoryX on Repository<Menu> {
   BaseAdapter<Menu> get baseAdapter => remoteAdapter as BaseAdapter<Menu>;
@@ -245,8 +247,8 @@ Map<String, dynamic> _$MenuToJson(Menu instance) {
 
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
-  writeNotNull('date', const DateConverter().toJson(instance.date));
-  val['meal'] = _$MealEnumMap[instance.meal];
+  val['date'] = const DateConverter().toJson(instance.date);
+  val['meal'] = _$MealEnumMap[instance.meal]!;
   val['recipes'] = instance.recipes;
   return val;
 }

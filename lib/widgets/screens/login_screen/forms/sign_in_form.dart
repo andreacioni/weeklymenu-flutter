@@ -76,7 +76,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
           onFieldSubmitted: () => doSignIn(authService),
         )
       ],
-      secondaryActionWidget: FlatButton(
+      secondaryActionWidget: TextButton(
         child: Text(
           "I've lost the password",
           style: TextStyle(
@@ -86,9 +86,18 @@ class _SignInFormState extends ConsumerState<SignInForm> {
           ),
         ),
         onPressed: widget.onLostPasswordPressed,
-        splashColor: Theme.of(context).accentColor.withOpacity(0.1),
-        shape: RoundedRectangleBorder(
-            borderRadius: BaseLoginForm.flatButtonBorderRadius),
+        style: ButtonStyle(
+          shape: MaterialStatePropertyAll(
+            RoundedRectangleBorder(
+                borderRadius: BaseLoginForm.TextButtonBorderRadius),
+          ),
+          overlayColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.pressed))
+              return Theme.of(context).accentColor.withOpacity(0.1);
+            return null; // Defer to the widget's default.
+          }),
+        ),
       ),
       formKey: _formKey,
       onSubmit: () => doSignIn(authService),

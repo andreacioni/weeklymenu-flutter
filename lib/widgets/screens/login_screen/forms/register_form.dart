@@ -81,7 +81,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   content: Text(
                       "You were successfully registered to Weekly Menu! Please login"),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text('OK'),
                       onPressed: () => Navigator.of(context).pop(),
                     )

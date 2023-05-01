@@ -31,12 +31,15 @@ class RecipeScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(overrides: [
-      recipeScreenNotifierProvider.overrideWithValue(RecipeScreenStateNotifier(
-          ref.read,
+      recipeScreenNotifierProvider.overrideWith(
+        (ref) => RecipeScreenStateNotifier(
+          ref,
           RecipeScreenState(
             recipeOriginator: originator,
             editEnabled: unsaved,
-          )))
+          ),
+        ),
+      )
     ], child: _RecipeScreen(heroTag: heroTag));
   }
 }

@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(overrides: [
-      homepageScreenNotifierProvider.overrideWithValue(
+      homepageScreenNotifierProvider.overrideWith((_) =>
           HomepageScreenStateNotifier(HomepageScreenState(isLoading: false)))
     ], child: _HomePage());
   }

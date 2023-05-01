@@ -91,6 +91,7 @@ class _$ShoppingListStateCWProxyImpl implements _$ShoppingListStateCWProxy {
 
 extension $ShoppingListStateCopyWith on ShoppingListState {
   /// Returns a callable class that can be used as follows: `instanceOfShoppingListState.copyWith(...)` or like so:`instanceOfShoppingListState.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$ShoppingListStateCWProxy get copyWith =>
       _$ShoppingListStateCWProxyImpl(this);
 }

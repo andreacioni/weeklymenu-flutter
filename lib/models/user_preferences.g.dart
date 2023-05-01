@@ -124,6 +124,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
 
 extension $UserPreferenceCopyWith on UserPreference {
   /// Returns a callable class that can be used as follows: `instanceOfUserPreference.copyWith(...)` or like so:`instanceOfUserPreference.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$UserPreferenceCWProxy get copyWith => _$UserPreferenceCWProxyImpl(this);
 }
 
@@ -165,12 +166,11 @@ class $UserPreferenceRemoteAdapter = RemoteAdapter<UserPreference>
 
 final internalUserPreferencesRemoteAdapterProvider =
     Provider<RemoteAdapter<UserPreference>>((ref) =>
-        $UserPreferenceRemoteAdapter(
-            $UserPreferenceHiveLocalAdapter(ref.read, typeId: null),
+        $UserPreferenceRemoteAdapter($UserPreferenceHiveLocalAdapter(ref),
             InternalHolder(_userPreferencesFinders)));
 
 final userPreferencesRepositoryProvider = Provider<Repository<UserPreference>>(
-    (ref) => Repository<UserPreference>(ref.read));
+    (ref) => Repository<UserPreference>(ref));
 
 extension UserPreferenceDataRepositoryX on Repository<UserPreference> {
   BaseAdapter<UserPreference> get baseAdapter =>

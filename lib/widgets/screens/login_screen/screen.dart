@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         height: 10,
                       ),
-                      FlatButton(
+                      TextButton(
                         onPressed: () =>
                             setState(() => mode = LoginScreenMode.Register),
                         child: Padding(
@@ -91,15 +91,30 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        textColor: Colors.amber,
-                        color: Colors.white,
-                        minWidth: 250,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BaseLoginForm.flatButtonBorderRadius,
-                          side: BorderSide(color: Colors.amber[100]!, width: 3),
+                        style: ButtonStyle(
+                          textStyle: MaterialStatePropertyAll(
+                              TextStyle(color: Colors.amber)),
+                          foregroundColor:
+                              MaterialStatePropertyAll(Colors.white),
+                          overlayColor:
+                              MaterialStateProperty.resolveWith<Color?>(
+                                  (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return Colors.amber[100];
+                            if (states.contains(MaterialState.hovered))
+                              return Colors
+                                  .amber[100]; // Defer to the widget's default.
+                          }),
+                          minimumSize: MaterialStatePropertyAll(Size(250, 0)),
+                          shape: MaterialStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius:
+                                  BaseLoginForm.TextButtonBorderRadius,
+                              side: BorderSide(
+                                  color: Colors.amber[100]!, width: 3),
+                            ),
+                          ),
                         ),
-                        splashColor: Colors.amber[100],
-                        highlightColor: Colors.amber[100],
                       )
                     ]
                   ],

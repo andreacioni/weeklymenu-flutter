@@ -27,8 +27,8 @@ class ShoppingListScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
       overrides: [
-        shoppingListScreenNotifierProvider.overrideWithValue(
-            ShoppingListStateNotifier(ref.read, ShoppingListState()))
+        shoppingListScreenNotifierProvider.overrideWith(
+            (ref) => ShoppingListStateNotifier(ref, ShoppingListState()))
       ],
       child: _ShoppingListScreen(key: key),
     );

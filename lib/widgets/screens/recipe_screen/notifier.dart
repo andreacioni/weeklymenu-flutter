@@ -54,9 +54,9 @@ class RecipeScreenState {
 }
 
 class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
-  final Reader read;
+  final Ref ref;
 
-  RecipeScreenStateNotifier(this.read, RecipeScreenState state) : super(state);
+  RecipeScreenStateNotifier(this.ref, RecipeScreenState state) : super(state);
 
   bool get isRecipeEdited => state.recipeOriginator.isEdited;
 
@@ -114,7 +114,7 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
   void addRecipeIngredientFromString(String ingredientName) {
     final newIngredient = Ingredient(name: ingredientName);
-    read(ingredientsRepositoryProvider).save(newIngredient);
+    ref.read(ingredientsRepositoryProvider).save(newIngredient);
     final newRecipeIngredient =
         RecipeIngredient(ingredientName: newIngredient.name);
     final recipeIngredients = state.recipeOriginator.state.ingredients;
@@ -133,7 +133,7 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
   void updateRecipeIngredientFromStringAtIndex(int idx, String ingredientName) {
     final newIngredient = Ingredient(name: ingredientName);
-    read(ingredientsRepositoryProvider).save(newIngredient);
+    ref.read(ingredientsRepositoryProvider).save(newIngredient);
 
     updateRecipeIngredientFromIngredientAtIndex(idx, newIngredient);
   }

@@ -309,14 +309,14 @@ class _MenuFloatingActionButton extends StatelessWidget {
             ],
           ),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(
                 'CANCEL',
                 style: TextStyle(color: Theme.of(ctx).primaryColor),
               ),
             ),
-            FlatButton(
+            TextButton(
               onPressed: () {},
               child: Text(
                 'CONTINUE',

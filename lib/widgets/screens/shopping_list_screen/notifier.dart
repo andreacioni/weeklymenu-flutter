@@ -43,9 +43,9 @@ class ShoppingListState {
 }
 
 class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
-  final Reader read;
+  final Ref ref;
 
-  ShoppingListStateNotifier(this.read, ShoppingListState state) : super(state);
+  ShoppingListStateNotifier(this.ref, ShoppingListState state) : super(state);
 
   void initShoppingList(ShoppingList shoppingList) {
     Future.delayed(Duration.zero,
@@ -167,10 +167,12 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
   void _saveShoppingList([ShoppingList? shoppingList]) {
     try {
       if (shoppingList != null) {
-        read(shoppingListsRepositoryProvider)
+        ref
+            .read(shoppingListsRepositoryProvider)
             .save(shoppingList, params: {UPDATE_PARAM: true});
       } else if (state.shoppingList != null) {
-        read(shoppingListsRepositoryProvider)
+        ref
+            .read(shoppingListsRepositoryProvider)
             .save(state.shoppingList!, params: {UPDATE_PARAM: true});
       }
     } catch (e) {

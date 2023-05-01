@@ -51,6 +51,7 @@ class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
 
 extension $IngredientCopyWith on Ingredient {
   /// Returns a callable class that can be used as follows: `instanceOfIngredient.copyWith(...)` or like so:`instanceOfIngredient.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$IngredientCWProxy get copyWith => _$IngredientCWProxyImpl(this);
 }
 
@@ -91,11 +92,10 @@ class $IngredientRemoteAdapter = RemoteAdapter<Ingredient>
 
 final internalIngredientsRemoteAdapterProvider =
     Provider<RemoteAdapter<Ingredient>>((ref) => $IngredientRemoteAdapter(
-        $IngredientHiveLocalAdapter(ref.read, typeId: null),
-        InternalHolder(_ingredientsFinders)));
+        $IngredientHiveLocalAdapter(ref), InternalHolder(_ingredientsFinders)));
 
 final ingredientsRepositoryProvider =
-    Provider<Repository<Ingredient>>((ref) => Repository<Ingredient>(ref.read));
+    Provider<Repository<Ingredient>>((ref) => Repository<Ingredient>(ref));
 
 extension IngredientDataRepositoryX on Repository<Ingredient> {
   BaseAdapter<Ingredient> get baseAdapter =>

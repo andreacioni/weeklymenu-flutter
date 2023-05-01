@@ -284,10 +284,10 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
             content: Text(
                 'Are you sure to delete ${_selectedRecipes.length} recipes? This operation is not reversible'),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
                   child: Text('CANCEL')),
-              FlatButton(
+              TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   child: Text('YES')),
             ],

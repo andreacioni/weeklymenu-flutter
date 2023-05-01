@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
@@ -18,9 +17,12 @@ class App extends StatelessWidget {
     final appColor = Color.fromRGBO(255, 223, 117, 1);
     final scaffoldBackgroundColor = Color.fromARGB(255, 255, 253, 247);
 
+    final localStorageStrategy =
+        clear ? LocalStorageClearStrategy.always : null;
+
     return ProviderScope(
       overrides: [
-        configureRepositoryLocalStorage(clear: clear),
+        configureRepositoryLocalStorage(clear: localStorageStrategy),
         graphNotifierThrottleDurationProvider
             .overrideWithValue(Duration(milliseconds: 100))
       ],

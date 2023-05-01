@@ -8,7 +8,7 @@ void showAlertErrorMessage(BuildContext context,
       builder: (context) => AlertDialog(
             content: Text(errorMessage),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text('OK'),
                 onPressed: () => Navigator.of(context).pop(),
               )
@@ -45,11 +45,11 @@ Future<bool?> showWannaSaveDialog(BuildContext context) {
       content: Text(
           "You are leaving this screen with unsaved changes. Would you like to save them?"),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text("NO"),
           onPressed: () => Navigator.of(context).pop(false),
         ),
-        FlatButton(
+        TextButton(
           child: Text("YES"),
           onPressed: () => Navigator.of(context).pop(true),
         )

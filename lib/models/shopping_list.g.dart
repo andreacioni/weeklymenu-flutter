@@ -97,6 +97,7 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
 
 extension $ShoppingListCopyWith on ShoppingList {
   /// Returns a callable class that can be used as follows: `instanceOfShoppingList.copyWith(...)` or like so:`instanceOfShoppingList.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$ShoppingListCWProxy get copyWith => _$ShoppingListCWProxyImpl(this);
 }
 
@@ -204,6 +205,7 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
 
 extension $ShoppingListItemCopyWith on ShoppingListItem {
   /// Returns a callable class that can be used as follows: `instanceOfShoppingListItem.copyWith(...)` or like so:`instanceOfShoppingListItem.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$ShoppingListItemCWProxy get copyWith => _$ShoppingListItemCWProxyImpl(this);
 }
 
@@ -245,11 +247,11 @@ class $ShoppingListRemoteAdapter = RemoteAdapter<ShoppingList>
 
 final internalShoppingListsRemoteAdapterProvider =
     Provider<RemoteAdapter<ShoppingList>>((ref) => $ShoppingListRemoteAdapter(
-        $ShoppingListHiveLocalAdapter(ref.read, typeId: null),
+        $ShoppingListHiveLocalAdapter(ref),
         InternalHolder(_shoppingListsFinders)));
 
-final shoppingListsRepositoryProvider = Provider<Repository<ShoppingList>>(
-    (ref) => Repository<ShoppingList>(ref.read));
+final shoppingListsRepositoryProvider =
+    Provider<Repository<ShoppingList>>((ref) => Repository<ShoppingList>(ref));
 
 extension ShoppingListDataRepositoryX on Repository<ShoppingList> {
   BaseAdapter<ShoppingList> get baseAdapter =>

@@ -51,6 +51,7 @@ class _$HomepageScreenStateCWProxyImpl implements _$HomepageScreenStateCWProxy {
 
 extension $HomepageScreenStateCopyWith on HomepageScreenState {
   /// Returns a callable class that can be used as follows: `instanceOfHomepageScreenState.copyWith(...)` or like so:`instanceOfHomepageScreenState.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$HomepageScreenStateCWProxy get copyWith =>
       _$HomepageScreenStateCWProxyImpl(this);
 }

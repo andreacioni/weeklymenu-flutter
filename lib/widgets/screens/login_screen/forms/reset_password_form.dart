@@ -61,7 +61,7 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
                   content: Text(
                       "An e-mail was sent to you! Please follow the instructions provided in the message in order to reset your password"),
                   actions: <Widget>[
-                    FlatButton(
+                    TextButton(
                       child: Text('OK'),
                       onPressed: () => Navigator.of(context).pop(),
                     )

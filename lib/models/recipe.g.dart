@@ -317,6 +317,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
 
 extension $RecipeCopyWith on Recipe {
   /// Returns a callable class that can be used as follows: `instanceOfRecipe.copyWith(...)` or like so:`instanceOfRecipe.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$RecipeCWProxy get copyWith => _$RecipeCWProxyImpl(this);
 }
 
@@ -365,6 +366,7 @@ class _$RelatedRecipeCWProxyImpl implements _$RelatedRecipeCWProxy {
 
 extension $RelatedRecipeCopyWith on RelatedRecipe {
   /// Returns a callable class that can be used as follows: `instanceOfRelatedRecipe.copyWith(...)` or like so:`instanceOfRelatedRecipe.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$RelatedRecipeCWProxy get copyWith => _$RelatedRecipeCWProxyImpl(this);
 }
 
@@ -415,6 +417,7 @@ class _$RecipePreparationStepCWProxyImpl
 
 extension $RecipePreparationStepCopyWith on RecipePreparationStep {
   /// Returns a callable class that can be used as follows: `instanceOfRecipePreparationStep.copyWith(...)` or like so:`instanceOfRecipePreparationStep.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$RecipePreparationStepCWProxy get copyWith =>
       _$RecipePreparationStepCWProxyImpl(this);
 }
@@ -500,6 +503,7 @@ class _$RecipeIngredientCWProxyImpl implements _$RecipeIngredientCWProxy {
 
 extension $RecipeIngredientCopyWith on RecipeIngredient {
   /// Returns a callable class that can be used as follows: `instanceOfRecipeIngredient.copyWith(...)` or like so:`instanceOfRecipeIngredient.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
   _$RecipeIngredientCWProxy get copyWith => _$RecipeIngredientCWProxyImpl(this);
 }
 
@@ -539,11 +543,10 @@ class $RecipeRemoteAdapter = RemoteAdapter<Recipe> with BaseAdapter<Recipe>;
 
 final internalRecipesRemoteAdapterProvider = Provider<RemoteAdapter<Recipe>>(
     (ref) => $RecipeRemoteAdapter(
-        $RecipeHiveLocalAdapter(ref.read, typeId: null),
-        InternalHolder(_recipesFinders)));
+        $RecipeHiveLocalAdapter(ref), InternalHolder(_recipesFinders)));
 
 final recipesRepositoryProvider =
-    Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref.read));
+    Provider<Repository<Recipe>>((ref) => Repository<Recipe>(ref));
 
 extension RecipeDataRepositoryX on Repository<Recipe> {
   BaseAdapter<Recipe> get baseAdapter => remoteAdapter as BaseAdapter<Recipe>;
