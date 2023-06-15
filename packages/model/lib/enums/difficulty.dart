@@ -1,0 +1,1 @@
+List<String> Difficulties = const ['Easy', 'Intermediate', 'Hard'];
