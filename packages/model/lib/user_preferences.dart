@@ -61,7 +61,7 @@ class UserPreference extends BaseModel<UserPreference> {
   final String? owner;
 
   UserPreference(
-      {required String id,
+      {required Object? id,
       this.owner,
       int? insertTimestamp,
       int? updateTimestamp,

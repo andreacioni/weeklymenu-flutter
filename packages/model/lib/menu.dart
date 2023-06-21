@@ -61,7 +61,7 @@ class Menu extends BaseModel<Menu> {
   Map<String, dynamic> toJson() => _$MenuToJson(this);
 
   @override
-  Menu clone() => Menu.fromJson(this.toJson());
+  Menu clone() => Menu.fromJson(toJson());
 }
 
 @CopyWith()

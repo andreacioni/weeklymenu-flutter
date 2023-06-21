@@ -63,7 +63,7 @@ class Recipe extends BaseModel<Recipe> {
   final String? owner;
 
   Recipe(
-      {required Object? id,
+      {Object? id,
       required this.name,
       this.description,
       this.ingredients = const <RecipeIngredient>[],
@@ -96,7 +96,8 @@ class Recipe extends BaseModel<Recipe> {
 
   Map<String, dynamic> toJson() => _$RecipeToJson(this);
 
-  Recipe clone() => Recipe.fromJson(this.toJson());
+  @override
+  Recipe clone() => Recipe.fromJson(toJson());
 
   @override
   String toString() => name;

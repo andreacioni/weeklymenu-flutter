@@ -8,11 +8,11 @@
     "name": "Flutter Chrome (Profile)",
     "type": "dart",
     "request": "launch",
-    "program": "lib/main.dart",
     "flutterMode": "profile"
   },
     {
       "name": "weekly_menu_app",
+      "program": "apps/weekly_menu_app/lib/main.dart",
       "request": "launch",
       "type": "dart"
     }

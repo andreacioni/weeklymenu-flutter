@@ -1,3 +1,4 @@
+import 'package:common/memento.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -5,7 +6,7 @@ part 'ingredient.g.dart';
 
 @JsonSerializable()
 @CopyWith()
-class Ingredient {
+class Ingredient implements Cloneable<Ingredient> {
   final String name;
 
   Ingredient({required this.name});
@@ -15,5 +16,6 @@ class Ingredient {
 
   Map<String, dynamic> toJson() => _$IngredientToJson(this);
 
-  Ingredient clone() => Ingredient.fromJson(this.toJson());
+  @override
+  Ingredient clone() => Ingredient.fromJson(toJson());
 }

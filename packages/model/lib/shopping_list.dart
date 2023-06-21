@@ -71,7 +71,7 @@ class ShoppingList extends BaseModel<ShoppingList> {
   }
 
   @override
-  ShoppingList clone() => ShoppingList.fromJson(this.toJson());
+  ShoppingList clone() => ShoppingList.fromJson(toJson());
 }
 
 @JsonSerializable()

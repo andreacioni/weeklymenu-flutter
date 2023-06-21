@@ -213,10 +213,11 @@ extension $ShoppingListItemCopyWith on ShoppingListItem {
 // JsonSerializableGenerator
 // **************************************************************************
 
-ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
+ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
       id: json['_id'],
       items: (json['items'] as List<dynamic>?)
-              ?.map((e) => ShoppingListItem.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => ShoppingListItem.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
               .toList() ??
           const [],
       name: json['name'] as String?,
@@ -225,12 +226,7 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
     );
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
-  final val = <String, dynamic>{
-    '_id': instance.id,
-    'insert_timestamp': instance.insertTimestamp,
-    'update_timestamp': instance.updateTimestamp,
-    'items': instance.items.map((e) => e.toJson()).toList(),
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -238,12 +234,15 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
     }
   }
 
+  writeNotNull('_id', instance.id);
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['items'] = instance.items.map((e) => e.toJson()).toList();
   writeNotNull('name', instance.name);
   return val;
 }
 
-ShoppingListItem _$ShoppingListItemFromJson(Map<String, dynamic> json) =>
-    ShoppingListItem(
+ShoppingListItem _$ShoppingListItemFromJson(Map json) => ShoppingListItem(
       itemName: json['name'] as String,
       supermarketSectionName: json['supermarketSectionName'] as String?,
       checked: json['checked'] as bool? ?? false,

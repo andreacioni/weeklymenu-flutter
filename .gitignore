@@ -20,14 +20,11 @@ doc/api/
 *.js.deps
 *.js.map
 
-# Local library
-
-flutter_data
-data_state
-
 # Android
 
 .gradle
 
 .idea/
 .pytest_cache/
+
+pubspec_overrides.yaml

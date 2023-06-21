@@ -554,35 +554,44 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
       updateTimestamp: json['update_timestamp'] as int?,
     );
 
-Map<String, dynamic> _$RecipeToJson(Recipe instance) => <String, dynamic>{
-      '_id': instance.id,
-      'insert_timestamp': instance.insertTimestamp,
-      'update_timestamp': instance.updateTimestamp,
-      'name': instance.name,
-      'description': instance.description,
-      'rating': instance.rating,
-      'cost': instance.cost,
-      'difficulty': instance.difficulty,
-      'availabilityMonths': instance.availabilityMonths,
-      'servs': instance.servs,
-      'estimatedCookingTime': instance.estimatedCookingTime,
-      'estimatedPreparationTime': instance.estimatedPreparationTime,
-      'ingredients': instance.ingredients.map((e) => e.toJson()).toList(),
-      'preparation': instance.preparation,
-      'preparationSteps':
-          instance.preparationSteps.map((e) => e.toJson()).toList(),
-      'note': instance.note,
-      'imgUrl': instance.imgUrl,
-      'recipeUrl': instance.recipeUrl,
-      'videoUrl': instance.videoUrl,
-      'tags': instance.tags,
-      'section': instance.section,
-      'relatedRecipes': instance.relatedRecipes.map((e) => e.toJson()).toList(),
-      'scraped': instance.scraped,
-    };
+Map<String, dynamic> _$RecipeToJson(Recipe instance) {
+  final val = <String, dynamic>{};
 
-RelatedRecipe _$RelatedRecipeFromJson(Map<String, dynamic> json) =>
-    RelatedRecipe(
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('_id', instance.id);
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['name'] = instance.name;
+  writeNotNull('description', instance.description);
+  writeNotNull('rating', instance.rating);
+  writeNotNull('cost', instance.cost);
+  writeNotNull('difficulty', instance.difficulty);
+  val['availabilityMonths'] = instance.availabilityMonths;
+  writeNotNull('servs', instance.servs);
+  writeNotNull('estimatedCookingTime', instance.estimatedCookingTime);
+  writeNotNull('estimatedPreparationTime', instance.estimatedPreparationTime);
+  val['ingredients'] = instance.ingredients.map((e) => e.toJson()).toList();
+  writeNotNull('preparation', instance.preparation);
+  val['preparationSteps'] =
+      instance.preparationSteps.map((e) => e.toJson()).toList();
+  writeNotNull('note', instance.note);
+  writeNotNull('imgUrl', instance.imgUrl);
+  writeNotNull('recipeUrl', instance.recipeUrl);
+  writeNotNull('videoUrl', instance.videoUrl);
+  val['tags'] = instance.tags;
+  writeNotNull('section', instance.section);
+  val['relatedRecipes'] =
+      instance.relatedRecipes.map((e) => e.toJson()).toList();
+  writeNotNull('scraped', instance.scraped);
+  return val;
+}
+
+RelatedRecipe _$RelatedRecipeFromJson(Map json) => RelatedRecipe(
       id: json['id'] as String,
     );
 
@@ -591,30 +600,45 @@ Map<String, dynamic> _$RelatedRecipeToJson(RelatedRecipe instance) =>
       'id': instance.id,
     };
 
-RecipePreparationStep _$RecipePreparationStepFromJson(
-        Map<String, dynamic> json) =>
+RecipePreparationStep _$RecipePreparationStepFromJson(Map json) =>
     RecipePreparationStep(
       description: json['description'] as String?,
     );
 
 Map<String, dynamic> _$RecipePreparationStepToJson(
-        RecipePreparationStep instance) =>
-    <String, dynamic>{
-      'description': instance.description,
-    };
+    RecipePreparationStep instance) {
+  final val = <String, dynamic>{};
 
-RecipeIngredient _$RecipeIngredientFromJson(Map<String, dynamic> json) =>
-    RecipeIngredient(
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('description', instance.description);
+  return val;
+}
+
+RecipeIngredient _$RecipeIngredientFromJson(Map json) => RecipeIngredient(
       ingredientName: json['name'] as String,
       unitOfMeasure: json['unitOfMeasure'] as String?,
       quantity: json['quantity'] ?? 0.0,
       freezed: json['freezed'] ?? false,
     );
 
-Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) =>
-    <String, dynamic>{
-      'name': instance.ingredientName,
-      'quantity': instance.quantity,
-      'unitOfMeasure': instance.unitOfMeasure,
-      'freezed': instance.freezed,
-    };
+Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
+  final val = <String, dynamic>{
+    'name': instance.ingredientName,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('quantity', instance.quantity);
+  writeNotNull('unitOfMeasure', instance.unitOfMeasure);
+  writeNotNull('freezed', instance.freezed);
+  return val;
+}

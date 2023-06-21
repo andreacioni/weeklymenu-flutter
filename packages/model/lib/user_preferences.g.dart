@@ -6,20 +6,28 @@ part of 'user_preferences.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-SupermarketSection _$SupermarketSectionFromJson(Map<String, dynamic> json) =>
-    SupermarketSection(
+SupermarketSection _$SupermarketSectionFromJson(Map json) => SupermarketSection(
       name: json['name'] as String,
       color: const ColorConverter().fromJson(json['color'] as int?),
     );
 
-Map<String, dynamic> _$SupermarketSectionToJson(SupermarketSection instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'color': const ColorConverter().toJson(instance.color),
-    };
+Map<String, dynamic> _$SupermarketSectionToJson(SupermarketSection instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('color', const ColorConverter().toJson(instance.color));
+  return val;
+}
 
 UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
-      id: json['_id'] as String,
+      id: json['_id'],
       insertTimestamp: json['insert_timestamp'] as int?,
       updateTimestamp: json['update_timestamp'] as int?,
       shoppingDays: (json['shopping_days'] as List<dynamic>?)
@@ -56,13 +64,21 @@ UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
           ],
     );
 
-Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'insert_timestamp': instance.insertTimestamp,
-      'update_timestamp': instance.updateTimestamp,
-      'shopping_days': instance.shoppingDays,
-      'supermarket_sections':
-          instance.supermarketSections?.map((e) => e.toJson()).toList(),
-      'units_of_measure': instance.unitsOfMeasure,
-    };
+Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('_id', instance.id);
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  writeNotNull('shopping_days', instance.shoppingDays);
+  writeNotNull('supermarket_sections',
+      instance.supermarketSections?.map((e) => e.toJson()).toList());
+  writeNotNull('units_of_measure', instance.unitsOfMeasure);
+  return val;
+}

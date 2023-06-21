@@ -176,7 +176,7 @@ extension $DailyMenuCopyWith on DailyMenu {
 // JsonSerializableGenerator
 // **************************************************************************
 
-Menu _$MenuFromJson(Map<String, dynamic> json) => Menu(
+Menu _$MenuFromJson(Map json) => Menu(
       id: json['_id'],
       date: const DateConverter().fromJson(json['date'] as String),
       meal: $enumDecode(_$MealEnumMap, json['meal']),
@@ -188,14 +188,23 @@ Menu _$MenuFromJson(Map<String, dynamic> json) => Menu(
       updateTimestamp: json['update_timestamp'] as int?,
     );
 
-Map<String, dynamic> _$MenuToJson(Menu instance) => <String, dynamic>{
-      '_id': instance.id,
-      'insert_timestamp': instance.insertTimestamp,
-      'update_timestamp': instance.updateTimestamp,
-      'date': const DateConverter().toJson(instance.date),
-      'meal': _$MealEnumMap[instance.meal]!,
-      'recipes': instance.recipes,
-    };
+Map<String, dynamic> _$MenuToJson(Menu instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('_id', instance.id);
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['date'] = const DateConverter().toJson(instance.date);
+  val['meal'] = _$MealEnumMap[instance.meal]!;
+  val['recipes'] = instance.recipes;
+  return val;
+}
 
 const _$MealEnumMap = {
   Meal.Breakfast: 'Breakfast',

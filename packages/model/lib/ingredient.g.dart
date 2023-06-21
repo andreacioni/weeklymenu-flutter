@@ -59,7 +59,7 @@ extension $IngredientCopyWith on Ingredient {
 // JsonSerializableGenerator
 // **************************************************************************
 
-Ingredient _$IngredientFromJson(Map<String, dynamic> json) => Ingredient(
+Ingredient _$IngredientFromJson(Map json) => Ingredient(
       name: json['name'] as String,
     );
 
