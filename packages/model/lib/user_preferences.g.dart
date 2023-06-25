@@ -68,7 +68,7 @@ extension $SupermarketSectionCopyWith on SupermarketSection {
 }
 
 abstract class _$UserPreferenceCWProxy {
-  UserPreference id(Object? id);
+  UserPreference idx(String? idx);
 
   UserPreference insertTimestamp(int? insertTimestamp);
 
@@ -90,7 +90,7 @@ abstract class _$UserPreferenceCWProxy {
   /// UserPreference(...).copyWith(id: 12, name: "My name")
   /// ````
   UserPreference call({
-    Object? id,
+    String? idx,
     int? insertTimestamp,
     String? owner,
     List<int>? shoppingDays,
@@ -107,7 +107,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
   const _$UserPreferenceCWProxyImpl(this._value);
 
   @override
-  UserPreference id(Object? id) => this(id: id);
+  UserPreference idx(String? idx) => this(idx: idx);
 
   @override
   UserPreference insertTimestamp(int? insertTimestamp) =>
@@ -142,7 +142,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
   /// UserPreference(...).copyWith(id: 12, name: "My name")
   /// ````
   UserPreference call({
-    Object? id = const $CopyWithPlaceholder(),
+    Object? idx = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
     Object? shoppingDays = const $CopyWithPlaceholder(),
@@ -151,10 +151,10 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return UserPreference(
-      id: id == const $CopyWithPlaceholder()
-          ? _value.id
+      idx: idx == const $CopyWithPlaceholder()
+          ? _value.idx
           // ignore: cast_nullable_to_non_nullable
-          : id as Object?,
+          : idx as String?,
       insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -214,7 +214,7 @@ Map<String, dynamic> _$SupermarketSectionToJson(SupermarketSection instance) {
 }
 
 UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
-      id: json['_id'],
+      idx: json['_id'] as String?,
       insertTimestamp: json['insert_timestamp'] as int?,
       updateTimestamp: json['update_timestamp'] as int?,
       shoppingDays: (json['shopping_days'] as List<dynamic>?)
@@ -252,7 +252,9 @@ UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
     );
 
 Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    '_id': instance.idx,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -260,7 +262,6 @@ Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
     }
   }
 
-  writeNotNull('_id', instance.id);
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   writeNotNull('shopping_days', instance.shoppingDays);

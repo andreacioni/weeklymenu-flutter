@@ -11,7 +11,7 @@ part 'recipe.g.dart';
 @DataRepository([BaseAdapter], internalType: 'recipes')
 class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
   FlutterDataRecipe(
-      {required super.id,
+      {required super.idx,
       required super.name,
       super.availabilityMonths,
       super.cost,
@@ -41,7 +41,7 @@ class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
   factory FlutterDataRecipe.fromJson(Map<String, dynamic> json) {
     final temp = Recipe.fromJson(json);
     return FlutterDataRecipe(
-        id: temp.id,
+        idx: temp.idx,
         name: temp.name,
         availabilityMonths: temp.availabilityMonths,
         scraped: temp.scraped,
@@ -66,6 +66,9 @@ class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
         updateTimestamp: temp.updateTimestamp,
         videoUrl: temp.videoUrl);
   }
+
+  @override
+  String get id => idx;
 
   //fake override, needed to allow flutter_data builder to generate correct output
   // ignore: unnecessary_overrides

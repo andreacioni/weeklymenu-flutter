@@ -10,7 +10,7 @@ part 'menu.g.dart';
 @DataRepository([BaseAdapter], internalType: 'menus')
 class FlutterDataMenu extends Menu with DataModelMixin<FlutterDataMenu> {
   FlutterDataMenu(
-      {required super.id,
+      {required super.idx,
       required super.date,
       required super.meal,
       super.insertTimestamp,
@@ -22,13 +22,16 @@ class FlutterDataMenu extends Menu with DataModelMixin<FlutterDataMenu> {
   factory FlutterDataMenu.fromJson(Map<String, dynamic> json) {
     final temp = Menu.fromJson(json);
     return FlutterDataMenu(
-        id: temp.id,
+        idx: temp.idx,
         date: temp.date,
         meal: temp.meal,
         insertTimestamp: temp.insertTimestamp,
         updateTimestamp: temp.updateTimestamp,
         recipes: temp.recipes);
   }
+
+  @override
+  String get id => idx;
 
   //fake override, needed to allow flutter_data builder to generate correct output
   // ignore: unnecessary_overrides

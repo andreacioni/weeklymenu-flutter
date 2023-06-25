@@ -12,6 +12,7 @@ dependencies:
   equatable: ^2.0.3
 
   json_annotation: ^4.8.0
+  objectid: ^2.0.0
   common: 
     path: "../common"
   copy_with_extension: ^4.0.0

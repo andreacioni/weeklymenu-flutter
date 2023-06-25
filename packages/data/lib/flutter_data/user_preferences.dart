@@ -14,7 +14,7 @@ part 'user_preferences.g.dart';
 class FlutterDataUserPreference extends UserPreference
     with DataModelMixin<FlutterDataUserPreference> {
   FlutterDataUserPreference(
-      {required super.id,
+      {required super.idx,
       super.insertTimestamp,
       super.owner,
       super.shoppingDays,
@@ -27,7 +27,7 @@ class FlutterDataUserPreference extends UserPreference
   factory FlutterDataUserPreference.fromJson(Map<String, dynamic> json) {
     final temp = UserPreference.fromJson(json);
     return FlutterDataUserPreference(
-        id: temp.id,
+        idx: temp.idx,
         insertTimestamp: temp.insertTimestamp,
         owner: temp.owner,
         shoppingDays: temp.shoppingDays,
@@ -35,6 +35,9 @@ class FlutterDataUserPreference extends UserPreference
         unitsOfMeasure: temp.unitsOfMeasure,
         updateTimestamp: temp.insertTimestamp);
   }
+
+  @override
+  String get id => idx;
 
   //fake override, needed to allow flutter_data builder to generate correct output
   // ignore: unnecessary_overrides

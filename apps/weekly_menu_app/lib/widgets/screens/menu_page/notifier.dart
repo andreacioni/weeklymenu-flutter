@@ -29,7 +29,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
           (menu) => menu.meal == newMenu.meal,
         ) !=
         null);
-    final menuList = state.menus..removeWhere((m) => m.id == newMenu.id);
+    final menuList = state.menus..removeWhere((m) => m.idx == newMenu.idx);
 
     final res = await _repository.save(newMenu, params: {UPDATE_PARAM: true});
     state = state.copyWith(menus: [...menuList, newMenu]);
@@ -41,7 +41,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     var menu = state.getMenuByMeal(meal);
 
     if (menu != null) {
-      menu = menu.addRecipe(recipe.id as String);
+      menu = menu.addRecipe(recipe.idx);
       final res = await updateMenu(menu);
       return res;
     }
@@ -62,7 +62,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
 
   Future<void> removeMenu(Menu menu) async {
     final newList = state.menus
-      ..removeWhere((element) => element.id == menu.id);
+      ..removeWhere((element) => element.idx == menu.idx);
     await _repository.delete(menu);
     state = state.copyWith(menus: newList);
   }

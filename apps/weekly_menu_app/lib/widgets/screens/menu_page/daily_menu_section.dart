@@ -72,7 +72,7 @@ class DailyMenuSection extends HookConsumerWidget {
 
     Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
       if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
-        final recipeId = recipe.id.toString();
+        final recipeId = recipe.idx;
         final menu = Menu(
           date: dailyMenuNotifier.dailyMenu.day,
           recipes: [recipeId],
@@ -98,7 +98,7 @@ class DailyMenuSection extends HookConsumerWidget {
         Meal meal, String recipeName) async {
       Recipe? recipe =
           (await ref.read(recipeRepositoryProvider).loadAll(remote: false))
-              ?.firstWhereOrNull((r) => r.name == recipeName);
+              .firstWhereOrNull((r) => r.name == recipeName);
 
       if (recipe == null) {
         await addNewRecipeToMeal(meal, recipeName);
@@ -388,7 +388,8 @@ class _MenuRecipeDragTarget extends HookConsumerWidget {
         onWillAccept: (mealRecipe) {
           final menu = dailyMenu.getMenuByMeal(meal);
           final ret =
-              (menu?.recipes.contains(mealRecipe?.recipe.id) ?? false) == false;
+              (menu?.recipes.contains(mealRecipe?.recipe.idx) ?? false) ==
+                  false;
           print('on will accept: $ret');
           onEnter?.call();
           return ret;
@@ -399,7 +400,7 @@ class _MenuRecipeDragTarget extends HookConsumerWidget {
         onAccept: (mealRecipe) {
           print('onAccept - $mealRecipe');
 
-          final recipeIds = [mealRecipe.recipe.id];
+          final recipeIds = [mealRecipe.recipe.idx];
 
           final destinationMenu = dailyMenu.getMenuByMeal(meal);
           if (destinationMenu == null) {
@@ -471,7 +472,7 @@ class _MenuRecipeCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
-    final heroTag = recipe.id;
+    final heroTag = recipe.idx;
 
     void openRecipeView(Recipe recipe) {
       Navigator.of(context).push(
@@ -542,7 +543,7 @@ class _MenuRecipeCard extends HookConsumerWidget {
           }
         }
         await dailyMenuNotifier.replaceRecipeInMeal(meal,
-            oldRecipeId: this.recipe.id, newRecipeId: recipe!.id);
+            oldRecipeId: this.recipe.idx, newRecipeId: recipe!.idx);
       }
     }
 
@@ -565,7 +566,7 @@ class _MenuRecipeCard extends HookConsumerWidget {
                         topRight: Radius.circular(5),
                         bottomRight: Radius.circular(5))),
                 child: Hero(
-                  tag: heroTag ?? Object(),
+                  tag: heroTag,
                   child: Image(
                       height: 50,
                       width: 90,

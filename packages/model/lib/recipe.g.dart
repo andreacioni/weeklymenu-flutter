@@ -19,7 +19,7 @@ abstract class _$RecipeCWProxy {
 
   Recipe estimatedPreparationTime(int? estimatedPreparationTime);
 
-  Recipe id(Object? id);
+  Recipe idx(String? idx);
 
   Recipe imgUrl(String? imgUrl);
 
@@ -68,7 +68,7 @@ abstract class _$RecipeCWProxy {
     String? difficulty,
     int? estimatedCookingTime,
     int? estimatedPreparationTime,
-    Object? id,
+    String? idx,
     String? imgUrl,
     List<RecipeIngredient>? ingredients,
     int? insertTimestamp,
@@ -117,7 +117,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
       this(estimatedPreparationTime: estimatedPreparationTime);
 
   @override
-  Recipe id(Object? id) => this(id: id);
+  Recipe idx(String? idx) => this(idx: idx);
 
   @override
   Recipe imgUrl(String? imgUrl) => this(imgUrl: imgUrl);
@@ -190,7 +190,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? difficulty = const $CopyWithPlaceholder(),
     Object? estimatedCookingTime = const $CopyWithPlaceholder(),
     Object? estimatedPreparationTime = const $CopyWithPlaceholder(),
-    Object? id = const $CopyWithPlaceholder(),
+    Object? idx = const $CopyWithPlaceholder(),
     Object? imgUrl = const $CopyWithPlaceholder(),
     Object? ingredients = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
@@ -236,10 +236,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
               ? _value.estimatedPreparationTime
               // ignore: cast_nullable_to_non_nullable
               : estimatedPreparationTime as int?,
-      id: id == const $CopyWithPlaceholder()
-          ? _value.id
+      idx: idx == const $CopyWithPlaceholder()
+          ? _value.idx
           // ignore: cast_nullable_to_non_nullable
-          : id as Object?,
+          : idx as String?,
       imgUrl: imgUrl == const $CopyWithPlaceholder()
           ? _value.imgUrl
           // ignore: cast_nullable_to_non_nullable
@@ -512,7 +512,7 @@ extension $RecipeIngredientCopyWith on RecipeIngredient {
 // **************************************************************************
 
 Recipe _$RecipeFromJson(Map json) => Recipe(
-      id: json['_id'],
+      idx: json['_id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
       ingredients: (json['ingredients'] as List<dynamic>?)
@@ -555,7 +555,9 @@ Recipe _$RecipeFromJson(Map json) => Recipe(
     );
 
 Map<String, dynamic> _$RecipeToJson(Recipe instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    '_id': instance.idx,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -563,7 +565,6 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
     }
   }
 
-  writeNotNull('_id', instance.id);
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['name'] = instance.name;

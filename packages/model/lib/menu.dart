@@ -5,6 +5,7 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
+import 'package:objectid/objectid.dart';
 
 import 'base_model.dart';
 import 'converter/json_converter.dart';
@@ -24,14 +25,14 @@ class Menu extends BaseModel<Menu> {
   List<String> recipes;
 
   Menu(
-      {Object? id,
+      {String? idx,
       required this.date,
       required this.meal,
       this.recipes = const [],
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            idx: idx ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 
@@ -118,7 +119,7 @@ class DailyMenu with EquatableMixin {
   @override
   List<Object?> get props => [
         day,
-        menus.map((e) => e.id).toSet(),
+        menus.map((e) => e.idx).toSet(),
         menus.map((e) => e.recipes).flattened.toSet()
       ];
 }

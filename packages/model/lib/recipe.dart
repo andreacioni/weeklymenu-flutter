@@ -4,6 +4,7 @@ import 'package:common/memento.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:model/base_model.dart';
+import 'package:objectid/objectid.dart';
 
 import 'enums/meal.dart';
 
@@ -63,7 +64,7 @@ class Recipe extends BaseModel<Recipe> {
   final String? owner;
 
   Recipe(
-      {Object? id,
+      {String? idx,
       required this.name,
       this.description,
       this.ingredients = const <RecipeIngredient>[],
@@ -88,7 +89,7 @@ class Recipe extends BaseModel<Recipe> {
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            idx: idx ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 

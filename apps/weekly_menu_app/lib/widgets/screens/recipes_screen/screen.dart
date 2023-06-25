@@ -131,7 +131,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemBuilder: (ctx, index) => Hero(
-        tag: recipes[index].id!,
+        tag: recipes[index].idx,
         child: buildRecipeCard(recipes, index, ctx),
       ),
       itemCount: recipes.length,
@@ -152,7 +152,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
           : Colors.black54,
       onTap: () => _editingModeEnabled == true
           ? _addRecipeToEditingList(recipe)
-          : _openRecipeView(recipe, heroTag: recipe.id!),
+          : _openRecipeView(recipe, heroTag: recipe.idx),
       onLongPress: () =>
           _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
     );
@@ -178,7 +178,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
       });
     } else {
       setState(() {
-        _selectedRecipes.removeWhere((r) => r.id == recipe.id);
+        _selectedRecipes.removeWhere((r) => r.idx == recipe.idx);
       });
 
       if (_selectedRecipes.isEmpty) {

@@ -2,6 +2,7 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:model/converter/json_converter.dart';
+import 'package:objectid/objectid.dart';
 
 import 'base_model.dart';
 
@@ -64,7 +65,7 @@ class UserPreference extends BaseModel<UserPreference> {
   final String? owner;
 
   UserPreference(
-      {required Object? id,
+      {String? idx,
       this.owner,
       int? insertTimestamp,
       int? updateTimestamp,
@@ -72,7 +73,7 @@ class UserPreference extends BaseModel<UserPreference> {
       this.supermarketSections,
       this.unitsOfMeasure})
       : super(
-            id: id,
+            idx: idx ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 

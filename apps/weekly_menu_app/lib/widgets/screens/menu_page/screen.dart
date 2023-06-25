@@ -28,14 +28,18 @@ final pointerOverWidgetIndexStateProvider =
     StateProvider.autoDispose<Date?>((_) => null);
 
 final dailyMenuProvider =
-    FutureProvider.autoDispose.family<DailyMenu, Date>(((ref, date) {
-  return ref
+    StreamProvider.autoDispose.family<DailyMenu, Date>(((ref, date) async* {
+  final r = await ref
       .read(menuRepositoryProvider)
       .stream(params: {'day': date.format(_httpParamDateParser)})
       .expand((l) => l)
       .where((m) => m.date == date)
-      .fold(DailyMenu(day: date, menus: <Menu>[]),
-          (previous, m) => DailyMenu(day: date, menus: [...previous.menus, m]));
+      .fold(
+          DailyMenu(day: date, menus: <Menu>[]),
+          (DailyMenu previous, m) =>
+              DailyMenu(day: date, menus: [...previous.menus, m]));
+
+  yield r;
 }));
 
 // drag not works when true
@@ -145,8 +149,11 @@ class MenuScreen extends HookConsumerWidget {
 
       Future.delayed(Duration.zero, () {
         if (todayKey.currentContext != null && todayOffset == -1) {
-          Scrollable.ensureVisible(todayKey.currentContext!)
-              .then((_) => todayOffset = scrollController.offset);
+          Scrollable.ensureVisible(todayKey.currentContext!).then((_) {
+            if (scrollController.hasClients) {
+              todayOffset = scrollController.offset;
+            }
+          });
         }
       });
 
@@ -246,7 +253,7 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
         logError("failed to load daily menu", e, st);
         return Container();
       },
-      loading: () => CircularProgressIndicator(),
+      loading: () => Container(),
     );
   }
 }

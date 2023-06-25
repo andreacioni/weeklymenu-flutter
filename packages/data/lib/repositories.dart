@@ -112,7 +112,7 @@ class RecipeRepository extends Repository<Recipe> {
   FutureOr<Recipe> save(Recipe t, {Map<String, dynamic>? params}) async {
     log("saving: ${t.toJson()}");
     final saved = await _repository.save(t, params: params);
-    log("saved: ${t.id}");
+    log("saved: ${t.idx}");
     return saved;
   }
 
@@ -173,7 +173,6 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
       }
 
       yield state.model!;
-      break;
     }
   }
 
@@ -327,7 +326,6 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
       }
 
       yield state.model!;
-      break;
     }
   }
 
@@ -481,7 +479,6 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
       }
 
       yield state.model!;
-      break;
     }
   }
 
@@ -636,7 +633,6 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
       }
 
       yield state.model!;
-      break;
     }
   }
 
@@ -790,7 +786,6 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
       }
 
       yield state.model!;
-      break;
     }
   }
 

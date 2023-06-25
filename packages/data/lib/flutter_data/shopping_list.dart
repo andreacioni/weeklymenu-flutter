@@ -18,7 +18,7 @@ const SHOPPING_LIST_ID_PARAM = 'shopping_list_id';
 class FlutterDataShoppingList extends ShoppingList
     with DataModelMixin<FlutterDataShoppingList> {
   FlutterDataShoppingList(
-      {required super.id,
+      {required super.idx,
       super.insertTimestamp,
       super.items,
       super.name,
@@ -29,12 +29,15 @@ class FlutterDataShoppingList extends ShoppingList
   factory FlutterDataShoppingList.fromJson(Map<String, dynamic> json) {
     final temp = ShoppingList.fromJson(json);
     return FlutterDataShoppingList(
-        id: temp.id,
+        idx: temp.idx,
         insertTimestamp: temp.insertTimestamp,
         items: temp.items,
         name: temp.name,
         updateTimestamp: temp.updateTimestamp);
   }
+
+  @override
+  String get id => idx;
 
   //fake override, needed to allow flutter_data builder to generate correct output
   // ignore: unnecessary_overrides

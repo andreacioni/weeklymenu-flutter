@@ -7,7 +7,7 @@ part of 'shopping_list.dart';
 // **************************************************************************
 
 abstract class _$ShoppingListCWProxy {
-  ShoppingList id(Object? id);
+  ShoppingList idx(String? idx);
 
   ShoppingList insertTimestamp(int? insertTimestamp);
 
@@ -24,7 +24,7 @@ abstract class _$ShoppingListCWProxy {
   /// ShoppingList(...).copyWith(id: 12, name: "My name")
   /// ````
   ShoppingList call({
-    Object? id,
+    String? idx,
     int? insertTimestamp,
     List<ShoppingListItem>? items,
     String? name,
@@ -39,7 +39,7 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   const _$ShoppingListCWProxyImpl(this._value);
 
   @override
-  ShoppingList id(Object? id) => this(id: id);
+  ShoppingList idx(String? idx) => this(idx: idx);
 
   @override
   ShoppingList insertTimestamp(int? insertTimestamp) =>
@@ -64,17 +64,17 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   /// ShoppingList(...).copyWith(id: 12, name: "My name")
   /// ````
   ShoppingList call({
-    Object? id = const $CopyWithPlaceholder(),
+    Object? idx = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? items = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return ShoppingList(
-      id: id == const $CopyWithPlaceholder()
-          ? _value.id
+      idx: idx == const $CopyWithPlaceholder()
+          ? _value.idx
           // ignore: cast_nullable_to_non_nullable
-          : id as Object?,
+          : idx as String?,
       insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -214,7 +214,7 @@ extension $ShoppingListItemCopyWith on ShoppingListItem {
 // **************************************************************************
 
 ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
-      id: json['_id'],
+      idx: json['_id'] as String?,
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => ShoppingListItem.fromJson(
                   Map<String, dynamic>.from(e as Map)))
@@ -226,7 +226,9 @@ ShoppingList _$ShoppingListFromJson(Map json) => ShoppingList(
     );
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    '_id': instance.idx,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -234,7 +236,6 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) {
     }
   }
 
-  writeNotNull('_id', instance.id);
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['items'] = instance.items.map((e) => e.toJson()).toList();

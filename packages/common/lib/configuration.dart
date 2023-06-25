@@ -5,7 +5,7 @@ final bootstrapConfigurationProvider = Provider(
   (_) => BootstrapConfiguration(
     debug: true,
     storageType: StorageType.flutterData,
-    clear: true,
+    clear: false,
   ),
 );
 

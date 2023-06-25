@@ -5,7 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 abstract class BaseModel<T> implements Cloneable<T> {
   @override
   @JsonKey(name: ID_FIELD)
-  final Object? id;
+  final String idx;
 
   @JsonKey(name: INSERT_TIMESTAMP_FIELD)
   final int? insertTimestamp;
@@ -14,7 +14,7 @@ abstract class BaseModel<T> implements Cloneable<T> {
   final int? updateTimestamp;
 
   BaseModel({
-    required this.id,
+    required this.idx,
     this.insertTimestamp,
     this.updateTimestamp,
   });

@@ -9,7 +9,7 @@ part of 'menu.dart';
 abstract class _$MenuCWProxy {
   Menu date(Date date);
 
-  Menu id(Object? id);
+  Menu idx(String? idx);
 
   Menu insertTimestamp(int? insertTimestamp);
 
@@ -27,7 +27,7 @@ abstract class _$MenuCWProxy {
   /// ````
   Menu call({
     Date? date,
-    Object? id,
+    String? idx,
     int? insertTimestamp,
     Meal? meal,
     List<String>? recipes,
@@ -45,7 +45,7 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
   Menu date(Date date) => this(date: date);
 
   @override
-  Menu id(Object? id) => this(id: id);
+  Menu idx(String? idx) => this(idx: idx);
 
   @override
   Menu insertTimestamp(int? insertTimestamp) =>
@@ -71,7 +71,7 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
   /// ````
   Menu call({
     Object? date = const $CopyWithPlaceholder(),
-    Object? id = const $CopyWithPlaceholder(),
+    Object? idx = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? meal = const $CopyWithPlaceholder(),
     Object? recipes = const $CopyWithPlaceholder(),
@@ -82,10 +82,10 @@ class _$MenuCWProxyImpl implements _$MenuCWProxy {
           ? _value.date
           // ignore: cast_nullable_to_non_nullable
           : date as Date,
-      id: id == const $CopyWithPlaceholder()
-          ? _value.id
+      idx: idx == const $CopyWithPlaceholder()
+          ? _value.idx
           // ignore: cast_nullable_to_non_nullable
-          : id as Object?,
+          : idx as String?,
       insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -177,7 +177,7 @@ extension $DailyMenuCopyWith on DailyMenu {
 // **************************************************************************
 
 Menu _$MenuFromJson(Map json) => Menu(
-      id: json['_id'],
+      idx: json['_id'] as String?,
       date: const DateConverter().fromJson(json['date'] as String),
       meal: $enumDecode(_$MealEnumMap, json['meal']),
       recipes: (json['recipes'] as List<dynamic>?)
@@ -189,7 +189,9 @@ Menu _$MenuFromJson(Map json) => Menu(
     );
 
 Map<String, dynamic> _$MenuToJson(Menu instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    '_id': instance.idx,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -197,7 +199,6 @@ Map<String, dynamic> _$MenuToJson(Menu instance) {
     }
   }
 
-  writeNotNull('_id', instance.id);
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['date'] = const DateConverter().toJson(instance.date);

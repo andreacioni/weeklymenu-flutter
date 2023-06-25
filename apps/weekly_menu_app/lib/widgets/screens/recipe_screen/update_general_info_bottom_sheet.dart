@@ -26,7 +26,7 @@ final _resolvedRelatedRecipesProvider = FutureProvider.autoDispose
     .family<List<Recipe>, List<RelatedRecipe>>((ref, relatedRecipes) async {
   final recipes = await ref.watch(_recipesSuggestionsProvider.future);
   return relatedRecipes
-      .map((rr) => recipes.firstWhereOrNull((r) => r.id == rr.id))
+      .map((rr) => recipes.firstWhereOrNull((r) => r.idx == rr.id))
       .where((r) => r != null)
       .toList()
       .cast();
@@ -174,14 +174,13 @@ class _UpdateSpecificFieldTab extends HookConsumerWidget {
                 .where((r) => r.name.toLowerCase().contains(text.toLowerCase()))
                 .where((r) =>
                     tempRecipe.relatedRecipes
-                        .firstWhereOrNull((rr) => r.id == rr.id) ==
+                        .firstWhereOrNull((rr) => r.idx == rr.id) ==
                     null)
                 .toList();
           },
           onSelectionChanged: (selected) {
-            final relatedRecipes = selected
-                .map((r) => RelatedRecipe(id: r.id!.toString()))
-                .toList();
+            final relatedRecipes =
+                selected.map((r) => RelatedRecipe(id: r.idx)).toList();
             tempRecipe = tempRecipe.copyWith(relatedRecipes: relatedRecipes);
           },
         ),

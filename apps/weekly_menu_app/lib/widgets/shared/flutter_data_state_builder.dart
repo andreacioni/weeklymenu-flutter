@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:common/log.dart';
 import 'package:data/repositories.dart';
 import 'package:data/data.dart';
 import 'package:logging/logging.dart';
@@ -109,11 +110,11 @@ class DataRepositoryStreamBuilder<T extends Data<T>>
             }
 
             // for other errors shows popup ?
-            log(
+            logError(
                 "RepositoryStreamBuilder caught an error: " +
                     (snapshot.error.toString()),
-                level: Level.SEVERE.value,
-                error: snapshot.error);
+                snapshot.error!,
+                snapshot.stackTrace!);
 
             return error;
           }

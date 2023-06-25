@@ -1,5 +1,6 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:objectid/objectid.dart';
 
 import 'base_model.dart';
 part 'shopping_list.g.dart';
@@ -14,13 +15,13 @@ class ShoppingList extends BaseModel<ShoppingList> {
   String? name;
 
   ShoppingList(
-      {required Object? id,
+      {String? idx,
       this.items = const [],
       this.name,
       int? insertTimestamp,
       int? updateTimestamp})
       : super(
-            id: id,
+            idx: idx ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);
 
