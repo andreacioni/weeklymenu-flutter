@@ -4,8 +4,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'base_model.dart';
 part 'shopping_list.g.dart';
 
-const SHOPPING_LIST_ID_PARAM = 'shopping_list_id';
-
 @JsonSerializable(explicitToJson: true)
 @CopyWith()
 class ShoppingList extends BaseModel<ShoppingList> {

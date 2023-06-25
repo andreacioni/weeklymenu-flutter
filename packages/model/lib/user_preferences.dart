@@ -1,3 +1,4 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:model/converter/json_converter.dart';
@@ -30,6 +31,7 @@ const STANDARD_UNIT_OF_MEASURE = const [
 ];
 
 @JsonSerializable()
+@CopyWith()
 class SupermarketSection {
   final String name;
 
@@ -49,6 +51,7 @@ class SupermarketSection {
 
 @JsonSerializable(
     explicitToJson: true, anyMap: true, fieldRename: FieldRename.snake)
+@CopyWith()
 class UserPreference extends BaseModel<UserPreference> {
   final List<int>? shoppingDays;
 

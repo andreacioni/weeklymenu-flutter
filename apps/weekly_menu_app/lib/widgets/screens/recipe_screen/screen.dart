@@ -20,13 +20,13 @@ import 'tabs/steps_tab.dart';
 import 'update_general_info_bottom_sheet.dart';
 
 class RecipeScreen extends HookConsumerWidget {
-  final Object heroTag;
+  final Object? heroTag;
   final bool unsaved;
 
   final RecipeOriginator originator;
 
   RecipeScreen(Recipe originalRecipeInstance,
-      {this.heroTag = const Object(), this.unsaved = false})
+      {this.heroTag, this.unsaved = false})
       : originator = RecipeOriginator(originalRecipeInstance, unsaved);
 
   @override
@@ -46,7 +46,7 @@ class RecipeScreen extends HookConsumerWidget {
 }
 
 class _RecipeScreen extends HookConsumerWidget {
-  final Object heroTag;
+  final Object? heroTag;
 
   _RecipeScreen({this.heroTag = const Object()});
 

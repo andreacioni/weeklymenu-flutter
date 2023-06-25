@@ -24,7 +24,7 @@ class Menu extends BaseModel<Menu> {
   List<String> recipes;
 
   Menu(
-      {required Object? id,
+      {Object? id,
       required this.date,
       required this.meal,
       this.recipes = const [],

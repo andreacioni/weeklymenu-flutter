@@ -12,7 +12,7 @@ class RecipeAppBar extends HookConsumerWidget {
   static const TAB_BAR_SIZE = 62.0;
 
   final bool editModeEnabled;
-  final Object heroTag;
+  final Object? heroTag;
   final Function(bool) onRecipeEditEnabled;
   final void Function() onBackPressed;
   final List<Widget> tabs;
@@ -20,7 +20,7 @@ class RecipeAppBar extends HookConsumerWidget {
   final bool innerBoxIsScrolled;
 
   RecipeAppBar({
-    this.heroTag = const Object(),
+    this.heroTag,
     this.editModeEnabled = false,
     required this.onRecipeEditEnabled,
     required this.onBackPressed,
@@ -82,7 +82,7 @@ class RecipeAppBar extends HookConsumerWidget {
         centerTitle: false,
         background: Container(
           child: Hero(
-            tag: heroTag,
+            tag: heroTag ?? Object(),
             child: image != null
                 ? ClipRRect(
                     child: Stack(

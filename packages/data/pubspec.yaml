@@ -9,9 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_data:
-    git:
-      url: https://github.com/flutterdata/flutter_data.git
+  flutter_data: 1.5.12
   path_provider: ^2.0.15 #needed by flutter_data
   http: ^0.13.6
   objectid: ^2.0.0

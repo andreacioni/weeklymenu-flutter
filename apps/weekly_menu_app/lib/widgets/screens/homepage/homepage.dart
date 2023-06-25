@@ -4,8 +4,10 @@ import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loading_overlay/loading_overlay.dart';
+import 'package:model/menu.dart';
 import 'package:weekly_menu_app/widgets/screens/recipes_screen/screen.dart';
 
+import '../shopping_list_screen/screen.dart';
 import 'notifier.dart';
 import '../../../providers/authentication.dart';
 import '../../../providers/bootstrap.dart';
@@ -45,9 +47,9 @@ class _HomePageState extends ConsumerState<_HomePage> {
         ref.watch(homepageScreenNotifierProvider.select((s) => s.isLoading));
 
     final List<Widget> _screens = [
-      //MenuScreen(key: const PageStorageKey('menuPage')),
+      const MenuScreen(key: const PageStorageKey('menuPage')),
       const RecipesScreen(key: const PageStorageKey('recipesPage')),
-      //const ShoppingListScreen(key: const PageStorageKey('shoppingListPage')),
+      const ShoppingListScreen(key: const PageStorageKey('shoppingListPage')),
     ];
 
     return LoadingOverlay(
@@ -93,6 +95,14 @@ class _HomePageState extends ConsumerState<_HomePage> {
     setState(() {
       _activeScreenIndex = index;
     });
+  }
+}
+
+class MenuScreen extends StatelessWidget {
+  const MenuScreen({required Key key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Text("MENU");
   }
 }
 

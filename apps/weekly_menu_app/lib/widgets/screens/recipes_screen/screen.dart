@@ -4,6 +4,7 @@ import 'dart:math' hide log;
 import 'package:common/constants.dart';
 import 'package:common/errors_handlers.dart';
 import 'package:common/utils.dart';
+import 'package:data/data.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart' hide Provider, Repository;
@@ -47,8 +48,8 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
   @override
   Widget build(BuildContext context) {
     final repository = ref.recipes;
-
     return Scaffold(
+      key: widget.key,
       appBar: _editingModeEnabled == false
           ? _buildAppBar(context)
           : _buildEditingAppBar(ref),
