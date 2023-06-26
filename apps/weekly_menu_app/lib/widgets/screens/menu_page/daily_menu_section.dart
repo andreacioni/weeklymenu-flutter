@@ -44,7 +44,7 @@ class DailyMenuSection extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log('build day: ${dailyMenuNotifier.dailyMenu.day}');
+    log('build day: ${dailyMenuNotifier.dailyMenu.day} : ${dailyMenuNotifier.dailyMenu}');
 
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 

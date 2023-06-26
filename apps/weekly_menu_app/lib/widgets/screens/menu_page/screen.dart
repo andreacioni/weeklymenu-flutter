@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:developer';
 
 import 'package:common/constants.dart';
 import 'package:common/date.dart';
@@ -27,20 +28,36 @@ final isEditingMenuStateProvider =
 final pointerOverWidgetIndexStateProvider =
     StateProvider.autoDispose<Date?>((_) => null);
 
-final dailyMenuProvider =
-    StreamProvider.autoDispose.family<DailyMenu, Date>(((ref, date) async* {
-  final r = await ref
+final dailyMenuStreamProvider =
+    StreamProvider.autoDispose.family<List<Menu>, Date>(((ref, date) async* {
+  await for (final menuList in await ref
       .read(menuRepositoryProvider)
-      .stream(params: {'day': date.format(_httpParamDateParser)})
-      .expand((l) => l)
-      .where((m) => m.date == date)
-      .fold(
-          DailyMenu(day: date, menus: <Menu>[]),
-          (DailyMenu previous, m) =>
-              DailyMenu(day: date, menus: [...previous.menus, m]));
+      .stream(params: {'day': date.format(_httpParamDateParser)})) {
+    final dailyMenuList = <Menu>[];
+    for (final m in menuList) {
+      if (m.date == date) {
+        dailyMenuList.add(m);
+      }
+    }
 
-  yield r;
+    if (ref.state.value != null) {
+      dailyMenuList.addAll([...(ref.state.value ?? <Menu>[])]);
+    }
+
+    if (dailyMenuList != ref.state.value) {
+      yield dailyMenuList;
+    } else {
+      continue;
+    }
+  }
 }));
+
+//keep this provider separated from the other one in order to optimize build times
+final dailyMenuProvider =
+    Provider.autoDispose.family<DailyMenu, Date>((ref, date) {
+  final dailyMenuList = ref.watch(dailyMenuStreamProvider(date)).valueOrNull;
+  return DailyMenu(day: date, menus: dailyMenuList ?? <Menu>[]);
+});
 
 // drag not works when true
 enum _MENU_MODE { COLUMN, LISTVIEW, POSITIONED_LISTVIEW }
@@ -61,7 +78,7 @@ class MenuScreen extends HookConsumerWidget {
     * performances. The AppBar and the FAB are taking to each other directly 
     * (via listeners) to avoid that.
     */
-    print('build menu screen');
+    log('build menu screen');
 
     final day = Date.now();
     final appBar = MenuAppBar(day);
@@ -150,9 +167,7 @@ class MenuScreen extends HookConsumerWidget {
       Future.delayed(Duration.zero, () {
         if (todayKey.currentContext != null && todayOffset == -1) {
           Scrollable.ensureVisible(todayKey.currentContext!).then((_) {
-            if (scrollController.hasClients) {
-              todayOffset = scrollController.offset;
-            }
+            todayOffset = scrollController.offset;
           });
         }
       });
@@ -243,10 +258,10 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dailyMenuAsyncValue = ref.watch(dailyMenuProvider(day));
+    final dailyMenu = ref.watch(dailyMenuProvider(day));
     final menuRepository = ref.read(menuRepositoryProvider);
 
-    return dailyMenuAsyncValue.when(
+    /*return dailyMenuAsyncValue.when(
       data: (dailyMenu) =>
           DailyMenuSection(DailyMenuNotifier(dailyMenu, menuRepository)),
       error: (e, st) {
@@ -254,7 +269,8 @@ class DailyMenuFutureWrapper extends HookConsumerWidget {
         return Container();
       },
       loading: () => Container(),
-    );
+    );*/
+    return DailyMenuSection(DailyMenuNotifier(dailyMenu, menuRepository));
   }
 }
 

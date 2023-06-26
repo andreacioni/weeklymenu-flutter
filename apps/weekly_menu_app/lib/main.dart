@@ -20,8 +20,8 @@ class App extends StatelessWidget {
     return ProviderScope(
       overrides: [
         configureRepositoryLocalStorage(),
-        /* graphNotifierThrottleDurationProvider
-            .overrideWithValue(Duration(milliseconds: 100)) */
+        graphNotifierThrottleDurationProvider
+            .overrideWithValue(Duration(milliseconds: 100))
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
