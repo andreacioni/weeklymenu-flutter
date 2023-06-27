@@ -55,6 +55,32 @@ abstract class Repository<T> {
   FutureOr<void> clear({bool local = true});
 }
 
+// Flutter Data - DataState to Stream utility
+extension FlutterDataStateStream<T> on DataStateNotifier<T> {
+  Stream<T> toStream(ProviderRef ref) async* {
+    final state = data;
+    if (state.hasException) {
+      throw state.exception!;
+    }
+
+    if (state.hasModel) {
+      yield state.model!;
+    }
+
+    await for (final state in stream) {
+      if (state.hasException) {
+        throw state.exception!;
+      }
+
+      if (state.isLoading && !state.hasModel) {
+        continue;
+      }
+
+      yield state.model!;
+    }
+  }
+}
+
 // RECIPE
 
 final recipeRepositoryProvider = Provider((ref) {
@@ -152,44 +178,21 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  Stream<List<Recipe>> stream({Map<String, dynamic>? params}) async* {
-    final notifier = ref.flutterDataRecipes.watchAllNotifier(params: params);
-    final state = notifier.data;
-    if (state.hasException) {
-      throw state.exception!;
-    }
-
-    if (state.hasModel) {
-      yield state.model!;
-    }
-
-    await for (final state in notifier.stream) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        continue;
-      }
-
-      yield state.model!;
-    }
+  Stream<List<Recipe>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataRecipes
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
   Stream<FlutterDataRecipe> streamOne(Object id) {
-    final notifier = ref.flutterDataRecipes.watchOneNotifier(id);
-    return notifier.stream.asyncMap((state) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        return Future.delayed(const Duration(minutes: 1));
-      }
-
-      return state.model!;
-    });
+    return ref.flutterDataRecipes
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
@@ -303,46 +306,21 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  Stream<List<FlutterDataIngredient>> stream(
-      {Map<String, dynamic>? params}) async* {
-    final notifier =
-        ref.flutterDataIngredients.watchAllNotifier(params: params);
-    final state = notifier.data;
-    if (state.hasException) {
-      throw state.exception!;
-    }
-
-    if (state.hasModel) {
-      yield state.model!;
-    }
-
-    await for (final state in notifier.stream) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        continue;
-      }
-
-      yield state.model!;
-    }
+  Stream<List<FlutterDataIngredient>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataIngredients
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
   Stream<FlutterDataIngredient> streamOne(Object id) {
-    final notifier = ref.flutterDataIngredients.watchOneNotifier(id);
-    return notifier.stream.asyncMap((state) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        return Future.delayed(const Duration(minutes: 1));
-      }
-
-      return state.model!;
-    });
+    return ref.flutterDataIngredients
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
@@ -457,45 +435,21 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  Stream<List<ShoppingList>> stream({Map<String, dynamic>? params}) async* {
-    final notifier =
-        ref.flutterDataShoppingLists.watchAllNotifier(params: params);
-    final state = notifier.data;
-    if (state.hasException) {
-      throw state.exception!;
-    }
-
-    if (state.hasModel) {
-      yield state.model!;
-    }
-
-    await for (final state in notifier.stream) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        continue;
-      }
-
-      yield state.model!;
-    }
+  Stream<List<ShoppingList>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataShoppingLists
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
   Stream<ShoppingList> streamOne(Object id) {
-    final notifier = ref.flutterDataShoppingLists.watchOneNotifier(id);
-    return notifier.stream.asyncMap((state) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        return Future.delayed(const Duration(minutes: 1));
-      }
-
-      return state.model!;
-    });
+    return ref.flutterDataShoppingLists
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
@@ -611,45 +565,21 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  Stream<List<UserPreference>> stream({Map<String, dynamic>? params}) async* {
-    final notifier =
-        ref.flutterDataUserPreferences.watchAllNotifier(params: params);
-    final state = notifier.data;
-    if (state.hasException) {
-      throw state.exception!;
-    }
-
-    if (state.hasModel) {
-      yield state.model!;
-    }
-
-    await for (final state in notifier.stream) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        continue;
-      }
-
-      yield state.model!;
-    }
+  Stream<List<UserPreference>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataUserPreferences
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
   Stream<UserPreference> streamOne(Object id) {
-    final notifier = ref.flutterDataUserPreferences.watchOneNotifier(id);
-    return notifier.stream.asyncMap((state) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        return Future.delayed(const Duration(minutes: 1));
-      }
-
-      return state.model!;
-    });
+    return ref.flutterDataUserPreferences
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
@@ -765,44 +695,21 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  Stream<List<Menu>> stream({Map<String, dynamic>? params}) async* {
-    final notifier = ref.flutterDataMenus.watchAllNotifier(params: params);
-    final state = notifier.data;
-    if (state.hasException) {
-      throw state.exception!;
-    }
-
-    if (state.hasModel) {
-      yield state.model!;
-    }
-
-    await for (final state in notifier.stream) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        continue;
-      }
-
-      yield state.model!;
-    }
+  Stream<List<Menu>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataMenus
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
   Stream<Menu> streamOne(Object id) {
-    final notifier = ref.flutterDataMenus.watchOneNotifier(id);
-    return notifier.stream.asyncMap((state) {
-      if (state.hasException) {
-        throw state.exception!;
-      }
-
-      if (state.isLoading && !state.hasModel) {
-        return Future.delayed(const Duration(minutes: 1));
-      }
-
-      return state.model!;
-    });
+    return ref.flutterDataMenus
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
   }
 
   @override
