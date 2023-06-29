@@ -5,10 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'widgets/screens/splash_screen/screen.dart';
 
 void main() => runApp(App());
+
+class NewWidget extends StatelessWidget {
+  const NewWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    action() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: Duration(milliseconds: 1000),
+        content: Container(height: 10)));
+    return Scaffold(
+      body: Center(child: Text("1")),
+      floatingActionButton: FloatingActionButton(
+        onPressed: action,
+      ),
+    );
+  }
+}
 
 class App extends StatelessWidget {
   @override

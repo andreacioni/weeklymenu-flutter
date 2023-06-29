@@ -52,7 +52,7 @@ class _ShoppingListScreen extends HookConsumerWidget {
             currentFocus.focusedChild?.unfocus();
           }
         },
-        child: _ShoppingListListView(),
+        child: const _ShoppingListListView(),
       ),
     );
   }
@@ -197,8 +197,20 @@ class _ShoppingListListView extends HookConsumerWidget {
                               : null,
                           onLongPress: () =>
                               notifier.toggleItemToSelectedItems(item),
-                          onCheckChange: (_) =>
-                              notifier.setItemChecked(item, false),
+                          onCheckChange: (_) {
+                            notifier.setItemChecked(item, false).then((value) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                behavior: SnackBarBehavior.fixed,
+                                content: Text('"${item.itemName}" checked'),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  onPressed: () =>
+                                      notifier.setItemChecked(item, true),
+                                ),
+                              ));
+                            });
+                          },
                           onDismiss: (_) => notifier.removeItemFromList(item),
                         ),
                       )
@@ -271,8 +283,20 @@ class _ShoppingListListView extends HookConsumerWidget {
                               : null,
                           onLongPress: () =>
                               notifier.toggleItemToSelectedItems(item),
-                          onCheckChange: (_) =>
-                              notifier.setItemChecked(item, true),
+                          onCheckChange: (_) {
+                            notifier.setItemChecked(item, true).then((value) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                behavior: SnackBarBehavior.fixed,
+                                content: Text('"${item.itemName}" unchecked'),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  onPressed: () =>
+                                      notifier.setItemChecked(item, false),
+                                ),
+                              ));
+                            });
+                          },
                           onDismiss: (_) => notifier.removeItemFromList(item),
                         ),
                       )

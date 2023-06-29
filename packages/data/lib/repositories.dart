@@ -29,8 +29,13 @@ final repositoryInitializerProvider = FutureProvider<void>((ref) async {
 });
 
 /** has to be updated every time you have a new repository */
-final repositoryProviders = Provider<List<Provider<Repository>>>(
-    (_) => [recipeRepositoryProvider, ingredientsRepositoryProvider]);
+final repositoryProviders = Provider<List<Provider<Repository>>>((_) => [
+      recipeRepositoryProvider,
+      ingredientsRepositoryProvider,
+      menuRepositoryProvider,
+      userPreferencesRepositoryProvider,
+      shoppingListRepositoryProvider
+    ]);
 
 extension RepositoryWidgetRefX on WidgetRef {
   Repository<Ingredient> get ingredients =>

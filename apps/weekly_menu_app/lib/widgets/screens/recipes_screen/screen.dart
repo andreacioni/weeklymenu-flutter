@@ -343,12 +343,14 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textController = useTextEditingController();
     final mq = MediaQuery.of(context);
+    final theme = Theme.of(context);
     final maxSheetHeight =
         min<double>(300 + mq.viewInsets.bottom, mq.size.height * 0.7);
     final textType = useState(true);
     final urlType = useState(false);
     final saving = useState(false);
     final doneEnabled = useState(false);
+    final errorMessage = useState("");
 
     useEffect((() {
       void listener() {
@@ -406,7 +408,13 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
                     },
                   ),
                 ],
-              )
+              ),
+              SizedBox(height: 20),
+              if (errorMessage.value.isNotEmpty)
+                Text(
+                  errorMessage.value,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
             ],
           ),
         ),
@@ -421,12 +429,13 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
                       height: 10,
                       width: 10,
                       child: CircularProgressIndicator(
-                        color: Theme.of(context).scaffoldBackgroundColor,
+                        color: theme.scaffoldBackgroundColor,
                         strokeWidth: 2,
                       ))
                   : Text("Add"),
               onPressed: !saving.value && textController.text.trim().isNotEmpty
-                  ? () => onDoneTap(ref, context, textController, saving)
+                  ? () => onDoneTap(
+                      ref, context, textController, saving, errorMessage)
                   : null,
             ),
           ),
@@ -435,9 +444,15 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
     );
   }
 
-  void onDoneTap(WidgetRef ref, BuildContext context,
-      TextEditingController controller, ValueNotifier savingNotifier) async {
+  void onDoneTap(
+      WidgetRef ref,
+      BuildContext context,
+      TextEditingController controller,
+      ValueNotifier<bool> savingNotifier,
+      ValueNotifier errorMsgNotifier) async {
     Recipe? recipe;
+
+    errorMsgNotifier.value = "";
 
     try {
       savingNotifier.value = true;
@@ -456,6 +471,8 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
       Navigator.of(context).pop(recipe);
     } catch (e) {
       log("failed to save a new recipe: $recipe", error: e);
+      errorMsgNotifier.value =
+          "Error retrieving recipe from URL. Please check if the URL is valid and reachable and then try again.";
       savingNotifier.value = false;
     }
   }

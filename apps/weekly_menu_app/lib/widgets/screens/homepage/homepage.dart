@@ -56,9 +56,11 @@ class _HomePageState extends ConsumerState<_HomePage> {
     return LoadingOverlay(
       isLoading: isLoading,
       child: Scaffold(
-        bottomNavigationBar: _buildBottomAppBar(context),
+        bottomNavigationBar: _buildBottomAppBar(),
         body: PageStorage(
-          child: _screens[_activeScreenIndex],
+          //ScaffoldMessenger is needed to allow SnackBar to be showed properly
+          //in the child Scaffolds
+          child: ScaffoldMessenger(child: _screens[_activeScreenIndex]),
           bucket: bucket,
         ),
         drawer: AppDrawer(),
@@ -66,7 +68,7 @@ class _HomePageState extends ConsumerState<_HomePage> {
     );
   }
 
-  BottomNavigationBar _buildBottomAppBar(BuildContext context) {
+  BottomNavigationBar _buildBottomAppBar() {
     return BottomNavigationBar(
       currentIndex: _activeScreenIndex,
       onTap: _selectTab,

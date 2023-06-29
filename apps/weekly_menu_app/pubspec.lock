@@ -495,12 +495,11 @@ packages:
   flutter_data:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: a6f62677c6359898907dc17062372227095a6485
-      url: "https://github.com/flutterdata/flutter_data.git"
-    source: git
-    version: "1.5.11"
+      name: flutter_data
+      sha256: "55bfab68298f48bf07e6565b6d1a5c6d1cdde7f5949dabddc9d54c2ae4a61c83"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.12"
   flutter_date_pickers:
     dependency: "direct main"
     description:
@@ -1314,5 +1313,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.19.6 <3.0.0"
+  dart: ">=2.19.0 <3.0.0"
   flutter: ">=3.7.0"
