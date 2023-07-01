@@ -15,6 +15,7 @@ final recipeScreenNotifierProvider = StateNotifierProvider.autoDispose<
 @CopyWith()
 class RecipeScreenState {
   final bool editEnabled;
+  final bool isNewRecipe;
   final bool newIngredientMode;
   final bool newStepMode;
   final int currentTab;
@@ -26,6 +27,7 @@ class RecipeScreenState {
       {required this.recipeOriginator,
       this.editEnabled = false,
       this.newIngredientMode = false,
+      this.isNewRecipe = false,
       this.newStepMode = false,
       this.currentTab = 0,
       this.servingsMultiplier});
@@ -58,6 +60,8 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
   RecipeScreenStateNotifier(this.ref, RecipeScreenState state) : super(state);
 
   bool get isRecipeEdited => state.recipeOriginator.isEdited;
+
+  bool get isNewRecipe => state.isNewRecipe;
 
   set servingsMultiplier(int servingsMultiplier) =>
       state = state.copyWith(servingsMultiplier: servingsMultiplier);

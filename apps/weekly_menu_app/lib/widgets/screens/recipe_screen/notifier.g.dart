@@ -11,6 +11,8 @@ abstract class _$RecipeScreenStateCWProxy {
 
   RecipeScreenState editEnabled(bool editEnabled);
 
+  RecipeScreenState isNewRecipe(bool isNewRecipe);
+
   RecipeScreenState newIngredientMode(bool newIngredientMode);
 
   RecipeScreenState newStepMode(bool newStepMode);
@@ -28,6 +30,7 @@ abstract class _$RecipeScreenStateCWProxy {
   RecipeScreenState call({
     int? currentTab,
     bool? editEnabled,
+    bool? isNewRecipe,
     bool? newIngredientMode,
     bool? newStepMode,
     RecipeOriginator? recipeOriginator,
@@ -47,6 +50,10 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
   @override
   RecipeScreenState editEnabled(bool editEnabled) =>
       this(editEnabled: editEnabled);
+
+  @override
+  RecipeScreenState isNewRecipe(bool isNewRecipe) =>
+      this(isNewRecipe: isNewRecipe);
 
   @override
   RecipeScreenState newIngredientMode(bool newIngredientMode) =>
@@ -75,6 +82,7 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
   RecipeScreenState call({
     Object? currentTab = const $CopyWithPlaceholder(),
     Object? editEnabled = const $CopyWithPlaceholder(),
+    Object? isNewRecipe = const $CopyWithPlaceholder(),
     Object? newIngredientMode = const $CopyWithPlaceholder(),
     Object? newStepMode = const $CopyWithPlaceholder(),
     Object? recipeOriginator = const $CopyWithPlaceholder(),
@@ -91,6 +99,11 @@ class _$RecipeScreenStateCWProxyImpl implements _$RecipeScreenStateCWProxy {
               ? _value.editEnabled
               // ignore: cast_nullable_to_non_nullable
               : editEnabled as bool,
+      isNewRecipe:
+          isNewRecipe == const $CopyWithPlaceholder() || isNewRecipe == null
+              ? _value.isNewRecipe
+              // ignore: cast_nullable_to_non_nullable
+              : isNewRecipe as bool,
       newIngredientMode: newIngredientMode == const $CopyWithPlaceholder() ||
               newIngredientMode == null
           ? _value.newIngredientMode

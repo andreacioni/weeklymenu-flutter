@@ -341,7 +341,7 @@ class _MenuContainer extends HookConsumerWidget {
               (i, id) => _MealRecipeCardContainer(
                 meal,
                 id,
-                key: ValueKey('$meal-$id'),
+                key: ValueKey('$meal-$id-$i'),
                 dailyMenuNotifier: dailyMenuNotifier,
                 displayLeadingMealIcon: id == recipeIds[0],
               ),
@@ -440,6 +440,7 @@ class _MenuRecipeWrapper extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return RepositoryStreamBuilder<Recipe>(
         stream: ref.watch(recipeRepositoryProvider).streamOne(recipeId),
+        error: Container(),
         builder: (context, recipe) {
           return _MenuRecipeCard(recipe,
               meal: meal,

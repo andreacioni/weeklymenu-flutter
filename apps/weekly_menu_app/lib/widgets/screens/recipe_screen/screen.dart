@@ -36,9 +36,9 @@ class RecipeScreen extends HookConsumerWidget {
         (ref) => RecipeScreenStateNotifier(
           ref,
           RecipeScreenState(
-            recipeOriginator: originator,
-            editEnabled: unsaved,
-          ),
+              recipeOriginator: originator,
+              editEnabled: unsaved,
+              isNewRecipe: unsaved),
         ),
       )
     ], child: _RecipeScreen(heroTag: heroTag));
@@ -170,19 +170,18 @@ class _RecipeScreen extends HookConsumerWidget {
         // here to trigger all the onSaved callback of the form fields
         _formKey.currentState!.save();
 
-        if (notifier.isRecipeEdited) {
-          print("Saving all recipe changes");
+        if (notifier.isRecipeEdited || notifier.isNewRecipe) {
+          log("Saving all recipe changes");
 
-          ref
-              .read(recipeRepositoryProvider)
-              .save(notifier.saveRecipe(), params: {UPDATE_PARAM: true});
+          ref.read(recipeRepositoryProvider).save(notifier.saveRecipe(),
+              params: {UPDATE_PARAM: !notifier.isNewRecipe});
         }
       }
 
       notifier.editEnabled = newValue;
     }
 
-    void _handleBackButton() async {
+    Future<void> _handleBackButton() async {
       if (notifier.edited) {
         final wannaSave = await showWannaSaveDialog(context);
 
@@ -324,7 +323,8 @@ class _RecipeScreen extends HookConsumerWidget {
                             editModeEnabled: editEnabled,
                             onRecipeEditEnabled: (editEnabled) =>
                                 _handleEditToggle(editEnabled),
-                            onBackPressed: () => _handleBackButton(),
+                            onBackPressed: () async =>
+                                await _handleBackButton(),
                             tabs: tabs,
                             tabController: tabController,
                             innerBoxIsScrolled: innerBoxIsScrolled,
