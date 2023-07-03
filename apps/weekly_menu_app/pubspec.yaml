@@ -24,7 +24,6 @@ dependencies:
 
   google_fonts: ^3.0.1
   ffi: ^1.0.0
-  dio: ^4.0.0
   flutter_tags:
     git:
       url: https://github.com/pierrea/flutter_tags
@@ -42,8 +41,6 @@ dependencies:
   #uuid: ^3.0.4
   flutter_date_pickers: ^0.2.9
   #logger: ^1.1.0
-  shared_preferences: ^2.0.13
-  encrypted_shared_preferences: ^3.0.1
   objectid: ^2.0.0
   #flutter_data: ^1.5.10
   copy_with_extension: ^4.0.0
@@ -67,12 +64,7 @@ dependencies:
   firebase_core: ^2.4.1
   firebase_remote_config: ^3.0.9
   firebase_analytics: ^10.1.0
-  dio_logging_interceptor: ^1.0.1
 
-  model: 
-    path: '../../packages/model'
-  common: 
-    path: '../../packages/common'
   data:
     path: '../../packages/data'
 

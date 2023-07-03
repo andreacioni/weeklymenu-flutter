@@ -15,8 +15,16 @@ dependencies:
   objectid: ^2.0.0
   hooks_riverpod: ^2.3.6
   
-  common:
-    path: '../common'
+  firebase_core: ^2.4.1
+  firebase_remote_config: ^3.0.9
+  firebase_analytics: ^10.1.0
+
+  dio: ^4.0.0
+  dio_logging_interceptor: ^1.0.1
+
+  shared_preferences: ^2.0.13
+  encrypted_shared_preferences: ^3.0.1
+
   model:
     path: '../model'
 

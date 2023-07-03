@@ -5,14 +5,16 @@ final remoteConfigProvider = Provider((_) => WeeklyMenuRemoteConfig._());
 
 class WeeklyMenuRemoteValues {
   static const INGREDIENT_PARSER_VERSION = "ingredient_parser_version";
+  static const API_TIMEOUT_MILLIS = "api_timeout_ms";
 }
 
 class WeeklyMenuRemoteConfig {
   static const Map<String, Object> _defaults = {
-    WeeklyMenuRemoteValues.INGREDIENT_PARSER_VERSION: 0
+    WeeklyMenuRemoteValues.INGREDIENT_PARSER_VERSION: 0,
+    WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS: 3000
   };
-  static const _fetchTimeout = const Duration(minutes: 1);
-  static const _minimumFetchInterval = const Duration(hours: 1);
+  static const _fetchTimeout = Duration(minutes: 1);
+  static const _minimumFetchInterval = Duration(hours: 1);
 
   final remoteConfig = FirebaseRemoteConfig.instance;
 

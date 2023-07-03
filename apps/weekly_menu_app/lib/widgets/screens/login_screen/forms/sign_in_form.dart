@@ -1,13 +1,11 @@
 import 'package:common/errors_handlers.dart';
+import 'package:data/auth/auth_service.dart';
+import 'package:data/configuration/local_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/auth_token.dart';
 
 import '../../homepage/homepage.dart';
-import '../../../../services/auth_service.dart';
-import '../../../../providers/authentication.dart';
-import '../../../../providers/bootstrap.dart';
-import '../../../../services/local_preferences.dart';
 import 'base_login_form.dart';
 
 class SignInForm extends StatefulHookConsumerWidget {

@@ -2,25 +2,13 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/configuration.dart';
+import 'package:data/configuration/local_preferences.dart';
+import 'package:data/configuration/remote_config.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:data/repositories.dart';
 
 import '../firebase_options.dart';
-import '../services/local_preferences.dart';
-import '../services/remote_config.dart';
-
-final _localPreferencesFutureProvider = FutureProvider<LocalPreferences>(
-    (_) async => await LocalPreferences.getInstance());
-
-final localPreferencesProvider = Provider<LocalPreferences>((ref) {
-  return ref.watch(_localPreferencesFutureProvider).when(
-      data: (localPreferences) => localPreferences,
-      error: (_, __) =>
-          throw StateError('dependency not initialized in bootsrap phase?'),
-      loading: () =>
-          throw StateError('dependency not initialized in bootsrap phase?'));
-});
 
 final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
   final cfg = ref.read(bootstrapConfigurationProvider);
@@ -29,7 +17,7 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
   await ref.read(repositoryInitializerProvider.future);
 
   log("loading local preferences");
-  await ref.read(_localPreferencesFutureProvider.future);
+  await ref.read(localPreferencesFutureProvider.future);
 
   log("initializing firebase core");
   await Firebase.initializeApp(

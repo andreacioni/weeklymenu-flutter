@@ -1,11 +1,11 @@
 import 'dart:developer';
 
+import 'package:data/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/auth_token.dart';
 import 'package:logging/logging.dart';
 
-import '../../../providers/authentication.dart';
 import '../../../providers/bootstrap.dart';
 import '../../screens/login_screen/screen.dart';
 import '../homepage/homepage.dart';

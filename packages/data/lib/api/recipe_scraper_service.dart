@@ -3,9 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:dio_logging_interceptor/dio_logging_interceptor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/recipe.dart';
-import 'package:weekly_menu_app/providers/authentication.dart';
-import 'package:weekly_menu_app/services/remote_config.dart';
-import 'package:weekly_menu_app/services/token_service.dart';
+import 'package:data/configuration/remote_config.dart';
+
+import '../auth/auth_service.dart';
+import '../auth/token_service.dart';
 
 final recipeScraperProvider = Provider((ref) {
   final tokenService = ref.read(tokenServiceProvider);

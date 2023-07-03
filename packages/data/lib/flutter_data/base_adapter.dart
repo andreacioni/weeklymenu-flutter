@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:common/constants.dart';
 import 'package:common/date.dart';
+import 'package:data/auth/auth_service.dart';
+import 'package:data/configuration/remote_config.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_data/flutter_data.dart';
 import 'package:http/http.dart' as http;
@@ -10,8 +12,6 @@ import 'package:model/auth_token.dart';
 import 'package:model/base_model.dart';
 
 mixin BaseAdapter<T extends DataModelMixin<T>> on RemoteAdapter<T> {
-  static const CONNECTION_TIMEOUT = const Duration(seconds: 3);
-
   @override
   String get baseUrl => API_BASE_PATH;
 
@@ -26,8 +26,14 @@ mixin BaseAdapter<T extends DataModelMixin<T>> on RemoteAdapter<T> {
       final _httpClient = HttpClient();
       final _ioClient = IOClient(_httpClient);
       // decrease the timeout
-      _httpClient.connectionTimeout = CONNECTION_TIMEOUT;
-      _httpClient.idleTimeout = CONNECTION_TIMEOUT;
+      _httpClient.connectionTimeout = Duration(
+          milliseconds: ref
+              .read(remoteConfigProvider)
+              .getInt(WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS));
+      _httpClient.idleTimeout = Duration(
+          milliseconds: ref
+              .read(remoteConfigProvider)
+              .getInt(WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS));
       return _ioClient;
     }
   }
@@ -45,8 +51,7 @@ mixin BaseAdapter<T extends DataModelMixin<T>> on RemoteAdapter<T> {
   @override
   FutureOr<Map<String, String>> get defaultHeaders async {
     //final token = await ref.read(tokenServiceProvider).token;
-    final token = AuthToken.fromJWT(
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2ODcyOTI1NzYsIm5iZiI6MTY4NzI5MjU3NiwianRpIjoiZmQ3YjA5MzgtNjcxOS00Y2UwLThkZmQtN2VmOTBmZGZkM2Q1IiwiZXhwIjoxNzAzMDcxMzc2LCJpZGVudGl0eSI6ImNpb25pQGZsdXRvLmNvbSIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.C3dVOfPpB2XEk_4k_72mIr0mEQdt30pfCy3VZmjSC2I");
+    final token = await ref.read(tokenServiceProvider).token;
     if (token == null || !token.isValid) {
       throw StateError("can't get a valid token");
     }

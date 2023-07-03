@@ -2,8 +2,23 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:common/constants.dart';
+import 'package:data/auth/token_service.dart';
 import 'package:dio/dio.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/auth_token.dart';
+
+import '../configuration/local_preferences.dart';
+
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService();
+});
+
+final tokenServiceProvider = Provider<TokenService>((ref) {
+  final localPreferences = ref.read(localPreferencesProvider);
+  final authService = ref.read(authServiceProvider);
+  return TokenService(
+      localPreferences: localPreferences, authService: authService);
+});
 
 class AuthService {
   static final Dio _dio = Dio(

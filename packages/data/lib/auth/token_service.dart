@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:model/auth_token.dart';
 
+import '../configuration/local_preferences.dart';
 import 'auth_service.dart';
-import 'local_preferences.dart';
 
 class TokenService {
   final LocalPreferences _localPreferences;

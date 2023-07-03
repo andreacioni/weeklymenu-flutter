@@ -39,4 +39,7 @@ class FlutterDataMenu extends Menu with DataModelMixin<FlutterDataMenu> {
   Map<String, dynamic> toJson() {
     return super.toJson();
   }
+
+  @override
+  Future<void> delete() async {}
 }

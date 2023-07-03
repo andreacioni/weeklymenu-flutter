@@ -4,6 +4,18 @@ import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+final localPreferencesFutureProvider = FutureProvider<LocalPreferences>(
+    (_) async => await LocalPreferences.getInstance());
+
+final localPreferencesProvider = Provider<LocalPreferences>((ref) {
+  return ref.watch(localPreferencesFutureProvider).when(
+      data: (localPreferences) => localPreferences,
+      error: (_, __) =>
+          throw StateError('dependency not initialized in bootsrap phase?'),
+      loading: () =>
+          throw StateError('dependency not initialized in bootsrap phase?'));
+});
+
 class LocalPreferenceKey {
   static final String token = "token";
   static final String email = "username";

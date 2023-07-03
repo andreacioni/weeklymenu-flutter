@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:ffi';
 
 import 'package:common/configuration.dart';
+import 'package:common/log.dart';
 import 'package:data/flutter_data/constants.dart';
 import 'package:data/flutter_data/ingredient.dart';
 import 'package:data/flutter_data/menu.dart';
@@ -203,6 +204,26 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   @override
   FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
+
+    try {
+      //all the menus containing the recipes have to be refreshed
+      ref.read(menuRepositoryProvider).reload();
+
+      return;
+    } catch (e, st) {
+      logError("failed to refresh menu repository ", e, st);
+    }
+
+    /* log("manually clearing menus");
+    for (final m
+        in await ref.read(menuRepositoryProvider).loadAll(remote: false)) {
+      try {
+        final newMenu = m.removeRecipeById(id as String);
+        ref.read(menuRepositoryProvider).save(newMenu);
+      } catch (e, st) {
+        logError("failed to refresh menu repository ", e, st);
+      }
+    }*/
   }
 
   @override

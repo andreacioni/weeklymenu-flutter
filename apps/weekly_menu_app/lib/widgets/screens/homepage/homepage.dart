@@ -1,17 +1,16 @@
 import 'dart:developer';
 
+import 'package:data/auth/auth_service.dart';
+import 'package:data/configuration/local_preferences.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loading_overlay/loading_overlay.dart';
-import 'package:model/menu.dart';
 import 'package:weekly_menu_app/widgets/screens/menu_page/screen.dart';
 import 'package:weekly_menu_app/widgets/screens/recipes_screen/screen.dart';
 
 import '../shopping_list_screen/screen.dart';
 import 'notifier.dart';
-import '../../../providers/authentication.dart';
-import '../../../providers/bootstrap.dart';
 import '../ingredients_screen/screen.dart';
 import '../login_screen/screen.dart';
 import '../tags_screen/screen.dart';

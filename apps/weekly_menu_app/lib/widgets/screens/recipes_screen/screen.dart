@@ -4,17 +4,14 @@ import 'dart:math' hide log;
 import 'package:common/constants.dart';
 import 'package:common/errors_handlers.dart';
 import 'package:common/utils.dart';
-import 'package:data/data.dart';
+import 'package:data/api/recipe_scraper_service.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart' hide Provider, Repository;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/recipe.dart';
-import 'package:objectid/objectid.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:weekly_menu_app/widgets/shared/flutter_data_state_builder.dart';
 
-import '../../../services/recipe_scraper_service.dart';
 import '../../shared/base_modal_bottom_sheet.dart';
 import '../../shared/checkbox_button.dart';
 import '../../shared/empty_page_placeholder.dart';
