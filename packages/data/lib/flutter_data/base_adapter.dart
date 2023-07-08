@@ -13,7 +13,9 @@ import 'package:model/base_model.dart';
 
 mixin BaseAdapter<T extends DataModelMixin<T>> on RemoteAdapter<T> {
   @override
-  String get baseUrl => API_BASE_PATH;
+  String get baseUrl => ref
+      .read(remoteConfigProvider)
+      .getString(WeeklyMenuRemoteValues.API_BASE_PATH);
 
   @override
   FutureOr<Map<String, dynamic>> get defaultParams => {'per_page': 1000};

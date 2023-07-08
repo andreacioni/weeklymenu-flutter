@@ -1,7 +1,7 @@
 name: weeklymenu_workspace
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=2.19.6 <3.0.0'
 dev_dependencies:
   melos: ^3.0.1
   copy_with_extension_gen: ^4.0.1

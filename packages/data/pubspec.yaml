@@ -15,9 +15,9 @@ dependencies:
   objectid: ^2.0.0
   hooks_riverpod: ^2.3.6
   
-  firebase_core: ^2.4.1
-  firebase_remote_config: ^3.0.9
-  firebase_analytics: ^10.1.0
+  firebase_core: 2.11.0
+  firebase_remote_config: ^3.0.15
+  firebase_analytics: ^10.1.6
 
   dio: ^4.0.0
   dio_logging_interceptor: ^1.0.1

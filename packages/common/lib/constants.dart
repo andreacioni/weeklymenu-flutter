@@ -16,5 +16,3 @@ const String alloweSpecialCharacters = "?\$#!'\"=%&/\/\(\)\[\]\{\}";
 const String passwordValidationRegex = "^[a-zA-Z0-9]{7,20}\$";
 
 const UPDATE_PARAM = 'update';
-
-const API_BASE_PATH = "https://weeklymenu.fly.dev/api/v1";

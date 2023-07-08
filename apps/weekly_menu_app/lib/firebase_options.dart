@@ -73,8 +73,7 @@ class DefaultFirebaseOptions {
     projectId: 'weekly-menu-firebase-1',
     databaseURL: 'https://weekly-menu-firebase-1.firebaseio.com',
     storageBucket: 'weekly-menu-firebase-1.appspot.com',
-    iosClientId:
-        '170623020021-k53drb44bcqggphss1nipdq73iofcbmr.apps.googleusercontent.com',
+    iosClientId: '170623020021-k53drb44bcqggphss1nipdq73iofcbmr.apps.googleusercontent.com',
     iosBundleId: 'com.example.weeklyMenuApp',
   );
 }

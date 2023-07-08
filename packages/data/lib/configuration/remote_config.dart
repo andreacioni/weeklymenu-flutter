@@ -6,12 +6,14 @@ final remoteConfigProvider = Provider((_) => WeeklyMenuRemoteConfig._());
 class WeeklyMenuRemoteValues {
   static const INGREDIENT_PARSER_VERSION = "ingredient_parser_version";
   static const API_TIMEOUT_MILLIS = "api_timeout_ms";
+  static const API_BASE_PATH = "api_base_path";
 }
 
 class WeeklyMenuRemoteConfig {
   static const Map<String, Object> _defaults = {
     WeeklyMenuRemoteValues.INGREDIENT_PARSER_VERSION: 0,
-    WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS: 3000
+    WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS: 3000,
+    WeeklyMenuRemoteValues.API_BASE_PATH: "https://weeklymenu.fly.dev/api/v1"
   };
   static const _fetchTimeout = Duration(minutes: 1);
   static const _minimumFetchInterval = Duration(hours: 1);
@@ -28,7 +30,15 @@ class WeeklyMenuRemoteConfig {
     await remoteConfig.setDefaults(_defaults);
   }
 
+  Future<void> reload() {
+    return remoteConfig.fetch();
+  }
+
   int getInt(String key) {
     return remoteConfig.getInt(key);
+  }
+
+  String getString(String key) {
+    return remoteConfig.getString(key);
   }
 }

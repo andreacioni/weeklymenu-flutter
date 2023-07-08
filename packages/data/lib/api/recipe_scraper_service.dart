@@ -13,25 +13,37 @@ final recipeScraperProvider = Provider((ref) {
   final ingParserVersion = ref
       .read(remoteConfigProvider)
       .getInt(WeeklyMenuRemoteValues.INGREDIENT_PARSER_VERSION);
+  final apiTimeout = ref
+      .read(remoteConfigProvider)
+      .getInt(WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS);
+
+  final apiBasePath = ref
+      .read(remoteConfigProvider)
+      .getString(WeeklyMenuRemoteValues.API_BASE_PATH);
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: apiBasePath,
+      contentType: 'application/json',
+      connectTimeout: apiTimeout,
+      receiveTimeout: apiTimeout,
+      sendTimeout: apiTimeout,
+    ),
+  );
   return RecipeScraper._(
-      tokenService: tokenService, ingredientParserVersion: ingParserVersion);
+    dio,
+    tokenService: tokenService,
+    ingredientParserVersion: ingParserVersion,
+  );
 });
 
 class RecipeScraper {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: API_BASE_PATH,
-      contentType: 'application/json',
-      connectTimeout: 2000,
-      receiveTimeout: 10000,
-      sendTimeout: 2000,
-    ),
-  );
+  final Dio _dio;
 
   final int ingredientParserVersion;
   final TokenService tokenService;
 
-  RecipeScraper._({
+  RecipeScraper._(
+    this._dio, {
     required this.tokenService,
     required this.ingredientParserVersion,
   }) {

@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:common/constants.dart';
 import 'package:data/auth/token_service.dart';
+import 'package:data/configuration/remote_config.dart';
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/auth_token.dart';
@@ -10,7 +11,23 @@ import 'package:model/auth_token.dart';
 import '../configuration/local_preferences.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService();
+  final apiTimeout = ref
+      .read(remoteConfigProvider)
+      .getInt(WeeklyMenuRemoteValues.API_TIMEOUT_MILLIS);
+
+  final apiBasePath = ref
+      .read(remoteConfigProvider)
+      .getString(WeeklyMenuRemoteValues.API_BASE_PATH);
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: apiBasePath,
+      contentType: 'application/json',
+      connectTimeout: apiTimeout,
+      receiveTimeout: apiTimeout,
+      sendTimeout: apiTimeout,
+    ),
+  );
+  return AuthService(dio);
 });
 
 final tokenServiceProvider = Provider<TokenService>((ref) {
@@ -21,18 +38,12 @@ final tokenServiceProvider = Provider<TokenService>((ref) {
 });
 
 class AuthService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: API_BASE_PATH,
-      contentType: 'application/json',
-      connectTimeout: 2000,
-      receiveTimeout: 2000,
-      sendTimeout: 2000,
-    ),
-  );
+  final Dio _dio;
+
+  AuthService(this._dio);
 
   Future<void> register(String name, String email, String password) async {
-    await _dio.post('$API_BASE_PATH/auth/register',
+    await _dio.post('/auth/register',
         data: {'name': name, 'email': email, 'password': password});
 
     return;
@@ -40,8 +51,8 @@ class AuthService {
 
   Future<AuthToken> login(String email, String password) async {
     try {
-      final authResp = await _dio.post('$API_BASE_PATH/auth/token',
-          data: {'email': email, 'password': password});
+      final authResp = await _dio
+          .post('/auth/token', data: {'email': email, 'password': password});
 
       final loginResponse = LoginResponse.fromJson(authResp.data);
       final token = AuthToken.fromLoginResponse(loginResponse);
@@ -54,11 +65,10 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await _dio.post('$API_BASE_PATH/auth/logout');
+    await _dio.post('/auth/logout');
   }
 
   Future<void> resetPassword(String email) async {
-    await _dio
-        .post('$API_BASE_PATH/auth/reset_password', data: {'email': email});
+    await _dio.post('/auth/reset_password', data: {'email': email});
   }
 }
