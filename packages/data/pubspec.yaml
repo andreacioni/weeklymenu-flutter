@@ -22,7 +22,8 @@ dependencies:
   dio: ^4.0.0
   dio_logging_interceptor: ^1.0.1
 
-  shared_preferences: ^2.0.13
+  shared_preferences: ^2.2.0
+  shared_preferences_foundation: 2.2.0 #pin version due to: https://github.com/flutter/flutter/issues/129983
   encrypted_shared_preferences: ^3.0.1
 
   model:
