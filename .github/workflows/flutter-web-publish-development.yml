@@ -20,8 +20,8 @@ jobs:
       - run: flutter pub get
       - run: dart pub global activate melos
       #- run: flutter test
-      - run: flutter build web --profile #--web-renderer html --release
-      - run: flutter build apk --release
+      - run: melos run build:web:release #--web-renderer html --release
+      - run: melos run build:android:release
       - run: mkdir ./build/web/apk
       - run: mv ./apps/weekly_menu_app/build/app/outputs/flutter-apk/app-release.apk ./apps/weekly_menu_app/build/web/apk/weeklymenu-release.apk
       - name: FTP Deploy
