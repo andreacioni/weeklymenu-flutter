@@ -31,4 +31,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }} # FTP username
           password: ${{ secrets.FTP_PASSWORD }} # FTP password
           server-dir: ${{ secrets.FTP_REMOTE_FOLDER }}
-          local-dir: ./build/web/
+          local-dir: ./apps/weekly_menu_app/build/web/
