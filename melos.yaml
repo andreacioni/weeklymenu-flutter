@@ -24,3 +24,9 @@ scripts:
   install:
     run: melos exec -c 1 --flutter -- "flutter pub get"
     description: Clean all projects
+  build:android:release:
+    run: cd apps/weekly_menu_app/ && flutter build apk --release
+    description: Build release Android version
+  build:web:release:
+    run: cd apps/weekly_menu_app/ && flutter build web --profile
+    description: Build release Web version

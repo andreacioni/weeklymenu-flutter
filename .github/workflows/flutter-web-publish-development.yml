@@ -17,13 +17,13 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.10.6'
-      - run: cd apps/weekly_menu_app/
       - run: flutter pub get
+      - run: dart pub global activate melos
       #- run: flutter test
       - run: flutter build web --profile #--web-renderer html --release
       - run: flutter build apk --release
       - run: mkdir ./build/web/apk
-      - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/web/apk/weeklymenu-release.apk
+      - run: mv ./apps/weekly_menu_app/build/app/outputs/flutter-apk/app-release.apk ./apps/weekly_menu_app/build/web/apk/weeklymenu-release.apk
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
