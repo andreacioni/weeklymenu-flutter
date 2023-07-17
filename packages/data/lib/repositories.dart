@@ -205,7 +205,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
 
-    try {
+    /* try {
       //all the menus containing the recipes have to be refreshed
       ref.read(menuRepositoryProvider).reload();
 
@@ -213,7 +213,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
     } catch (e, st) {
       logError("failed to refresh menu repository ", e, st);
     }
-
+ */
     /* log("manually clearing menus");
     for (final m
         in await ref.read(menuRepositoryProvider).loadAll(remote: false)) {

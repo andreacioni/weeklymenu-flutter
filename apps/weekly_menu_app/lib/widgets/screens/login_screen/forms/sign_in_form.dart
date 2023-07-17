@@ -92,7 +92,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
           overlayColor: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) {
             if (states.contains(MaterialState.pressed))
-              return Theme.of(context).accentColor.withOpacity(0.1);
+              return Theme.of(context).colorScheme.secondary.withOpacity(0.1);
             return null; // Defer to the widget's default.
           }),
         ),

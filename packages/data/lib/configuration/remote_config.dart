@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import 'package:common/log.dart';
 
 final remoteConfigProvider = Provider((_) => WeeklyMenuRemoteConfig._());
 
@@ -28,6 +32,15 @@ class WeeklyMenuRemoteConfig {
       minimumFetchInterval: _minimumFetchInterval,
     ));
     await remoteConfig.setDefaults(_defaults);
+
+    try {
+      final activate = await remoteConfig.fetchAndActivate();
+      if (activate) {
+        logWarn("remote config activate failed!");
+      }
+    } catch (e, st) {
+      logWarn("remote config activate failed!", e, st);
+    }
   }
 
   Future<void> reload() {
@@ -40,5 +53,9 @@ class WeeklyMenuRemoteConfig {
 
   String getString(String key) {
     return remoteConfig.getString(key);
+  }
+
+  void logCurrentConfiguration() {
+    log("remote config is: ${remoteConfig.getAll().map((key, value) => MapEntry(key, value.asString()))}");
   }
 }

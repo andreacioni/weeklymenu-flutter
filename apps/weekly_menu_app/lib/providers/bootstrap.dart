@@ -29,6 +29,7 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
   if (cfg.debug) {
     await ref.read(remoteConfigProvider).reload();
   }
+  ref.read(remoteConfigProvider).logCurrentConfiguration();
 
   if (cfg.debug) {
     CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
