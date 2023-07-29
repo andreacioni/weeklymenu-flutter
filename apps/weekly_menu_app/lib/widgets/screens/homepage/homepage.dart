@@ -9,6 +9,7 @@ import 'package:loading_overlay/loading_overlay.dart';
 import 'package:weekly_menu_app/widgets/screens/menu_page/screen.dart';
 import 'package:weekly_menu_app/widgets/screens/recipes_screen/screen.dart';
 
+import '../shopping_list_screen/import_from_menu_screen.dart';
 import '../shopping_list_screen/screen.dart';
 import 'notifier.dart';
 import '../ingredients_screen/screen.dart';
@@ -18,10 +19,7 @@ import '../tags_screen/screen.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(overrides: [
-      homepageScreenNotifierProvider.overrideWith((_) =>
-          HomepageScreenStateNotifier(HomepageScreenState(isLoading: false)))
-    ], child: _HomePage());
+    return ImportFromMenuScreen();
   }
 }
 

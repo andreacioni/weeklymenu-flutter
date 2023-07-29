@@ -105,7 +105,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actions: <Widget>[
         if (selectedItems.isEmpty)
           IconButton(
-            icon: Icon(Icons.filter_list),
+            icon: Icon(Icons.import_export),
             onPressed: () {},
             splashRadius: Material.defaultSplashRadius / 2,
           )
