@@ -6,7 +6,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/constants.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart' hide Provider, Repository;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -32,8 +31,6 @@ final _dragOriginDailyMenuNotifierProvider =
     StateProvider<DailyMenuNotifier?>((_) => null);
 
 class DailyMenuSection extends HookConsumerWidget {
-  static final _dialogDateParser = DateFormat('EEEE, dd');
-
   final DailyMenuNotifier dailyMenuNotifier;
   final void Function()? onTap;
 

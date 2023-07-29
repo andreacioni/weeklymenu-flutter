@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math' hide log;
 
 import 'package:common/utils.dart';
-import 'package:data/flutter_data/constants.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
@@ -32,17 +30,7 @@ final _resolvedRelatedRecipesProvider = FutureProvider.autoDispose
       .cast();
 });
 
-enum _fields {
-  section,
-  description,
-  note,
-  related_recipes,
-  calories,
-  video,
-  link,
-  cost,
-  tags
-}
+enum _fields { section, description, note, related_recipes, video, link, tags }
 
 class UpdateGeneralInfoRecipeBottomSheet extends HookConsumerWidget {
   final Recipe recipe;

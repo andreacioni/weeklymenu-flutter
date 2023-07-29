@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:weekly_menu_app/widgets/screens/login_screen/forms/base_login_form.dart';
 import 'package:weekly_menu_app/widgets/screens/login_screen/forms/register_form.dart';
@@ -13,7 +11,7 @@ enum LoginScreenMode {
 }
 
 class LoginScreen extends StatefulWidget {
-  static final backgroudContainer = Container(
+  static final backgroundContainer = Container(
     decoration: BoxDecoration(
       gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -40,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          LoginScreen.backgroudContainer,
+          LoginScreen.backgroundContainer,
           ListView(
             children: [
               Center(
@@ -102,8 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             if (states.contains(MaterialState.pressed))
                               return Colors.amber[100];
                             if (states.contains(MaterialState.hovered))
-                              return Colors
-                                  .amber[100]; // Defer to the widget's default.
+                              return Colors.amber[100];
+
+                            return null; // Defer to the widget's default.
                           }),
                           minimumSize: MaterialStatePropertyAll(Size(250, 0)),
                           shape: MaterialStatePropertyAll(

@@ -12,7 +12,6 @@ import 'package:model/ingredient.dart';
 import 'package:model/shopping_list.dart';
 import 'package:collection/collection.dart';
 
-import '../../shared/flutter_data_state_builder.dart';
 import 'notifier.dart';
 
 class ItemSuggestionTextField extends HookConsumerWidget {

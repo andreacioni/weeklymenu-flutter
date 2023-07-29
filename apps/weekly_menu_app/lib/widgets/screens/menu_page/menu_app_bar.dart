@@ -1,13 +1,10 @@
-import 'package:common/date.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'screen.dart';
 
 class MenuAppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  final Date _day;
-
-  MenuAppBar(this._day);
+  MenuAppBar();
 
   @override
   Size get preferredSize => Size.fromHeight(56);

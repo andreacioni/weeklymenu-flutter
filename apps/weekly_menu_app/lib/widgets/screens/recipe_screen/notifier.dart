@@ -233,8 +233,7 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
         secondIndex < state.recipeOriginator.instance.preparationSteps.length) {
       final firstStep =
           state.recipeOriginator.instance.preparationSteps[firstIndex];
-      final secondStep =
-          state.recipeOriginator.instance.preparationSteps[secondIndex];
+
       final newList = [...state.recipeOriginator.instance.preparationSteps];
 
       newList.removeAt(firstIndex);

@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -208,6 +207,8 @@ class _StepCard extends HookConsumerWidget {
         return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
       }
     }
+
+    return null;
   }
 
   Widget _buildLeadingContent(ThemeData theme) {

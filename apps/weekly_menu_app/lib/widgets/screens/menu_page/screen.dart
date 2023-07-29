@@ -1,14 +1,10 @@
-import 'dart:collection';
 import 'dart:developer';
 
 import 'package:common/constants.dart';
 import 'package:common/date.dart';
-import 'package:common/log.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_data/flutter_data.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -60,7 +56,7 @@ final dailyMenuProvider =
 });
 
 // drag not works when true
-enum _MENU_MODE { COLUMN, LISTVIEW, POSITIONED_LISTVIEW }
+enum _MENU_MODE { LISTVIEW, POSITIONED_LISTVIEW }
 
 const _SELECTED_MODE = _MENU_MODE.POSITIONED_LISTVIEW;
 
@@ -68,8 +64,6 @@ final _httpParamDateParser = DateFormat('y-MM-dd');
 
 class MenuScreen extends HookConsumerWidget {
   MenuScreen({Key? key}) : super(key: key);
-
-  double todayOffset = -1;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,8 +74,10 @@ class MenuScreen extends HookConsumerWidget {
     */
     log('build menu screen');
 
-    final day = Date.now();
-    final appBar = MenuAppBar(day);
+    final todayOffsetNotifier = useState(-1);
+    final todayOffset = todayOffsetNotifier.value;
+
+    final appBar = MenuAppBar();
 
     final scrollController = useScrollController();
     final screenHeight = MediaQuery.of(context).size.height;
@@ -161,13 +157,15 @@ class MenuScreen extends HookConsumerWidget {
     useEffect(() {
       // center the scrollable area on today just on the first build
       // save the offset in order to display the button only when needed
-      final fn = () => _scrollListener(scrollController, displayFAB);
+      final fn =
+          () => _scrollListener(scrollController, displayFAB, todayOffset);
       scrollController.addListener(fn);
 
       Future.delayed(Duration.zero, () {
-        if (todayKey.currentContext != null && todayOffset == -1) {
+        if (todayKey.currentContext != null &&
+            todayOffset == double.maxFinite) {
           Scrollable.ensureVisible(todayKey.currentContext!).then((_) {
-            todayOffset = scrollController.offset;
+            todayOffsetNotifier.value = scrollController.offset.toInt();
           });
         }
       });
@@ -234,8 +232,8 @@ class MenuScreen extends HookConsumerWidget {
     );
   }
 
-  void _scrollListener(
-      ScrollController scrollController, ValueNotifier<bool> displayFAB) {
+  void _scrollListener(ScrollController scrollController,
+      ValueNotifier<bool> displayFAB, int todayOffset) {
     const threshold = 50;
     final bool? newValue;
     if (scrollController.offset > todayOffset - threshold &&

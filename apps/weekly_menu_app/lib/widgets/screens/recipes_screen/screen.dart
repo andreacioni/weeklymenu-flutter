@@ -291,7 +291,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     if (confirmDelete ?? false) {
       for (var recipe in _selectedRecipes) {
         try {
-          await ref.read(recipeRepositoryProvider).delete(recipe);
+          await ref.read(recipeRepositoryProvider).delete(recipe.idx);
         } catch (e) {
           showAlertErrorMessage(context);
           return;

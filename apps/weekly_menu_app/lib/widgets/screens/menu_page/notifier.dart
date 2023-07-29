@@ -63,7 +63,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
   Future<void> removeMenu(Menu menu) async {
     final newList = state.menus
       ..removeWhere((element) => element.idx == menu.idx);
-    await _repository.delete(menu);
+    await _repository.delete(menu.idx);
     state = state.copyWith(menus: newList);
   }
 
@@ -71,7 +71,7 @@ class DailyMenuNotifier extends StateNotifier<DailyMenu> {
     for (Menu menu in dailyMenu.menus) {
       if (menu.recipes.isEmpty) {
         // No recipes in menu means that there isn't a menu for that meal, so when can remove it
-        await _repository.delete(menu, params: {UPDATE_PARAM: true});
+        await _repository.delete(menu.idx, params: {UPDATE_PARAM: true});
         removeMenu(menu);
       } else {
         await _repository.save(menu, params: {UPDATE_PARAM: true});

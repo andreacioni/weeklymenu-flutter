@@ -1,7 +1,6 @@
 import 'package:common/utils.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart' hide Provider, Repository;
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/recipe.dart';

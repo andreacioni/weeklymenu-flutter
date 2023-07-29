@@ -445,6 +445,7 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
         return IconButton(icon: Icon(Icons.close), onPressed: onDelete);
       }
     } */
+    return null;
   }
 
   void _submit(WidgetRef ref, String text) async {

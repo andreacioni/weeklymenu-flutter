@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../providers/user_preferences.dart';
-import 'number_text_field.dart';
 
 class QuantityAndUnitOfMeasureInputFormField extends HookConsumerWidget {
   final String? unitOfMeasure;

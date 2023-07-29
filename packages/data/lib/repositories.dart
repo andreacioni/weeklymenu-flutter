@@ -50,11 +50,11 @@ abstract class Repository<T> {
   FutureOr<void> init();
   FutureOr<void> reload();
   Stream<List<T>> stream({Map<String, dynamic>? params});
-  Stream<T> streamOne(Object id);
+  Stream<T> streamOne(String id);
   FutureOr<T> save(T t, {Map<String, dynamic>? params});
-  FutureOr<T?> load(Object id);
+  FutureOr<T?> load(String id);
   FutureOr<List<T>> loadAll({bool remote = true, Map<String, dynamic>? params});
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params});
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params});
   FutureOr<void> clear({bool local = true});
 }
 
@@ -117,12 +117,12 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  Stream<Recipe> streamOne(Object id) {
+  Stream<Recipe> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
   @override
-  FutureOr<Recipe?> load(Object id) {
+  FutureOr<Recipe?> load(String id) {
     return _repository.load(id);
   }
 
@@ -133,7 +133,7 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
@@ -170,7 +170,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<Recipe?> load(Object id) async {
+  FutureOr<Recipe?> load(String id) async {
     return await _repository.findOne(id);
   }
 
@@ -190,7 +190,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  Stream<FlutterDataRecipe> streamOne(Object id) {
+  Stream<FlutterDataRecipe> streamOne(String id) {
     return ref.flutterDataRecipes
         .watchOneNotifier(id)
         .toStream(ref)
@@ -199,7 +199,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
 
     /* try {
@@ -263,7 +263,7 @@ class IngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  FutureOr<Ingredient?> load(Object id) {
+  FutureOr<Ingredient?> load(String id) {
     return _repository.load(id);
   }
 
@@ -279,12 +279,12 @@ class IngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  Stream<Ingredient> streamOne(Object id) {
+  Stream<Ingredient> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
@@ -318,7 +318,7 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  FutureOr<Ingredient?> load(Object id) async {
+  FutureOr<Ingredient?> load(String id) async {
     return await _repository.findOne(id);
   }
 
@@ -338,7 +338,7 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  Stream<FlutterDataIngredient> streamOne(Object id) {
+  Stream<FlutterDataIngredient> streamOne(String id) {
     return ref.flutterDataIngredients
         .watchOneNotifier(id)
         .toStream(ref)
@@ -347,7 +347,7 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
@@ -392,7 +392,7 @@ class ShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  FutureOr<ShoppingList?> load(Object id) {
+  FutureOr<ShoppingList?> load(String id) {
     return _repository.load(id);
   }
 
@@ -408,12 +408,12 @@ class ShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  Stream<ShoppingList> streamOne(Object id) {
+  Stream<ShoppingList> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
@@ -447,7 +447,7 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  FutureOr<ShoppingList?> load(Object id) async {
+  FutureOr<ShoppingList?> load(String id) async {
     return await _repository.findOne(id);
   }
 
@@ -467,7 +467,7 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  Stream<ShoppingList> streamOne(Object id) {
+  Stream<ShoppingList> streamOne(String id) {
     return ref.flutterDataShoppingLists
         .watchOneNotifier(id)
         .toStream(ref)
@@ -476,7 +476,7 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
@@ -521,7 +521,7 @@ class UserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<UserPreference?> load(Object id) {
+  FutureOr<UserPreference?> load(String id) {
     return _repository.load(id);
   }
 
@@ -537,12 +537,12 @@ class UserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  Stream<UserPreference> streamOne(Object id) {
+  Stream<UserPreference> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
@@ -577,7 +577,7 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<UserPreference?> load(Object id) async {
+  FutureOr<UserPreference?> load(String id) async {
     return await _repository.findOne(id);
   }
 
@@ -597,7 +597,7 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  Stream<UserPreference> streamOne(Object id) {
+  Stream<UserPreference> streamOne(String id) {
     return ref.flutterDataUserPreferences
         .watchOneNotifier(id)
         .toStream(ref)
@@ -606,7 +606,7 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
@@ -652,7 +652,7 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  FutureOr<Menu?> load(Object id) {
+  FutureOr<Menu?> load(String id) {
     return _repository.load(id);
   }
 
@@ -668,12 +668,12 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  Stream<Menu> streamOne(Object id) {
+  Stream<Menu> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
@@ -707,7 +707,7 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  FutureOr<Menu?> load(Object id) async {
+  FutureOr<Menu?> load(String id) async {
     return await _repository.findOne(id);
   }
 
@@ -727,7 +727,7 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  Stream<Menu> streamOne(Object id) {
+  Stream<Menu> streamOne(String id) {
     return ref.flutterDataMenus
         .watchOneNotifier(id)
         .toStream(ref)
@@ -736,7 +736,7 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  FutureOr<void> delete(Object id, {Map<String, dynamic>? params}) async {
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
