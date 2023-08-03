@@ -9,6 +9,12 @@ part of 'import_from_menu_screen.dart';
 abstract class _$_ImportFromMenuScreenStateCWProxy {
   _ImportFromMenuScreenState dailyMenuList(List<DailyMenu> dailyMenuList);
 
+  _ImportFromMenuScreenState selectedIngredients(
+      Map<RecipeIngredient, bool> selectedIngredients);
+
+  _ImportFromMenuScreenState selectedRecipes(
+      Map<DailyMenu, List<Recipe>> selectedRecipes);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `_ImportFromMenuScreenState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -17,6 +23,8 @@ abstract class _$_ImportFromMenuScreenStateCWProxy {
   /// ````
   _ImportFromMenuScreenState call({
     List<DailyMenu>? dailyMenuList,
+    Map<RecipeIngredient, bool>? selectedIngredients,
+    Map<DailyMenu, List<Recipe>>? selectedRecipes,
   });
 }
 
@@ -32,6 +40,16 @@ class _$_ImportFromMenuScreenStateCWProxyImpl
       this(dailyMenuList: dailyMenuList);
 
   @override
+  _ImportFromMenuScreenState selectedIngredients(
+          Map<RecipeIngredient, bool> selectedIngredients) =>
+      this(selectedIngredients: selectedIngredients);
+
+  @override
+  _ImportFromMenuScreenState selectedRecipes(
+          Map<DailyMenu, List<Recipe>> selectedRecipes) =>
+      this(selectedRecipes: selectedRecipes);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `_ImportFromMenuScreenState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -41,6 +59,8 @@ class _$_ImportFromMenuScreenStateCWProxyImpl
   /// ````
   _ImportFromMenuScreenState call({
     Object? dailyMenuList = const $CopyWithPlaceholder(),
+    Object? selectedIngredients = const $CopyWithPlaceholder(),
+    Object? selectedRecipes = const $CopyWithPlaceholder(),
   }) {
     return _ImportFromMenuScreenState(
       dailyMenuList:
@@ -48,6 +68,17 @@ class _$_ImportFromMenuScreenStateCWProxyImpl
               ? _value.dailyMenuList
               // ignore: cast_nullable_to_non_nullable
               : dailyMenuList as List<DailyMenu>,
+      selectedIngredients:
+          selectedIngredients == const $CopyWithPlaceholder() ||
+                  selectedIngredients == null
+              ? _value.selectedIngredients
+              // ignore: cast_nullable_to_non_nullable
+              : selectedIngredients as Map<RecipeIngredient, bool>,
+      selectedRecipes: selectedRecipes == const $CopyWithPlaceholder() ||
+              selectedRecipes == null
+          ? _value.selectedRecipes
+          // ignore: cast_nullable_to_non_nullable
+          : selectedRecipes as Map<DailyMenu, List<Recipe>>,
     );
   }
 }

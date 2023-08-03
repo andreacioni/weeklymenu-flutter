@@ -5,12 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:model/menu.dart';
 import 'package:model/recipe.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:common/date.dart';
 import 'package:common/log.dart';
 import 'package:common/extensions.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:weekly_menu_app/widgets/screens/menu_page/screen.dart';
+
+import '../menu_page/screen.dart';
 
 part 'import_from_menu_screen.g.dart';
 
@@ -37,23 +37,65 @@ final _screenNotifierProvider = StateNotifierProvider.autoDispose<
 @CopyWith()
 class _ImportFromMenuScreenState {
   final List<DailyMenu> dailyMenuList;
+  final Map<DailyMenu, List<Recipe>> selectedRecipes;
+  final Map<RecipeIngredient, bool> selectedIngredients;
 
-  _ImportFromMenuScreenState({this.dailyMenuList = const <DailyMenu>[]});
+  _ImportFromMenuScreenState(
+      {this.dailyMenuList = const <DailyMenu>[],
+      this.selectedRecipes = const <DailyMenu, List<Recipe>>{},
+      this.selectedIngredients = const <RecipeIngredient, bool>{}});
 
   List<DailyMenu> get notEmptyDailyMenuList {
     return [...dailyMenuList]..removeWhere((d) => d.isEmpty);
+  }
+
+  List<Recipe> selectedRecipesForDailyMenu(DailyMenu dailyMenu) {
+    return selectedRecipes[dailyMenu] ?? <Recipe>[];
   }
 }
 
 class _ImportFromMenuScreenStateNotifier
     extends StateNotifier<_ImportFromMenuScreenState> {
   _ImportFromMenuScreenStateNotifier(super.state);
+
+  void selectRecipe(DailyMenu dailyMenu, Recipe recipe, bool selected) {
+    final currentSelection = state.selectedRecipesForDailyMenu(dailyMenu);
+    if (selected) {
+      currentSelection.add(recipe);
+    } else {
+      currentSelection.remove(recipe);
+    }
+    final newSelection = {...state.selectedRecipes};
+    newSelection[dailyMenu] = currentSelection;
+    state = state.copyWith(
+        selectedRecipes: newSelection,
+        selectedIngredients: _computeSelectedRecipes(newSelection));
+  }
+
+  Map<RecipeIngredient, bool> _computeSelectedRecipes(
+      Map<DailyMenu, List<Recipe>> selectedRecipes) {
+    final ingredients = <RecipeIngredient>[];
+    selectedRecipes.entries.forEach((r) {
+      ingredients.addAll(r.value.expand((e) => e.ingredients));
+    });
+    return Map.fromIterable(ingredients, key: (e) => e, value: (_) => true);
+  }
+
+  void selectIngredient(RecipeIngredient recipeIngredient, bool value) {
+    final newValue = {...state.selectedIngredients};
+    newValue[recipeIngredient] = value;
+    state = state.copyWith(selectedIngredients: newValue);
+  }
+
+  void resetSelectedIngredients() {
+    state = state.copyWith(
+        selectedIngredients: _computeSelectedRecipes(state.selectedRecipes));
+  }
 }
 
 class ImportFromMenuScreen extends HookConsumerWidget {
   static const LOAD_MENU_DAYS_LIMIT = 10;
   static const START_DAY_OFFSET = 3;
-  static final DAILY_MENU_DATE_PARSER = DateFormat('EEE,dd');
 
   const ImportFromMenuScreen({super.key});
 
@@ -61,16 +103,33 @@ class ImportFromMenuScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final state = ref.watch(_screenNotifierProvider);
+    final notifier = ref.read(_screenNotifierProvider.notifier);
     final dailyMenuList = state.notEmptyDailyMenuList;
     return Scaffold(
       appBar: AppBar(
         title: Text("Select recipes"),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Row(
+      floatingActionButton: state.selectedIngredients.isNotEmpty
+          ? FloatingActionButton.extended(
+              onPressed: () => onFabPressed(context, notifier),
+              label: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "+${state.selectedIngredients.length} ingredient/s",
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ],
+              ),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -88,22 +147,37 @@ class ImportFromMenuScreen extends HookConsumerWidget {
                 ),
               ],
             ),
-            Divider(),
-            Expanded(
-              child: ListView.builder(
+          ),
+          Divider(),
+          Expanded(
+            child: ListView.builder(
                 itemCount: dailyMenuList.length,
                 itemBuilder: (context, idx) =>
-                    _buildDailyItemWidget(context, ref, dailyMenuList[idx]),
-              ),
-            )
-          ],
-        ),
+                    _DailyMenuWrapper(dailyMenuList[idx])),
+          ),
+        ],
       ),
     );
   }
 
-  Widget? _buildDailyItemWidget(
-      BuildContext context, WidgetRef ref, DailyMenu dailyMenu) {
+  void onFabPressed(
+      BuildContext context, _ImportFromMenuScreenStateNotifier notifier) async {
+    await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => _SelectIngredientScreen()));
+
+    notifier.resetSelectedIngredients();
+  }
+}
+
+class _DailyMenuWrapper extends HookConsumerWidget {
+  static final DAILY_MENU_DATE_PARSER = DateFormat('EEE,dd');
+
+  final DailyMenu dailyMenu;
+
+  const _DailyMenuWrapper(this.dailyMenu, {super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final recipeRepo = ref.read(recipeRepositoryProvider);
     final recipeIds = dailyMenu.recipeIds;
@@ -123,39 +197,195 @@ class ImportFromMenuScreen extends HookConsumerWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          DAILY_MENU_DATE_PARSER.format(dailyMenu.day.toDateTime),
-          style: theme.textTheme.titleLarge,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            DAILY_MENU_DATE_PARSER.format(dailyMenu.day.toDateTime),
+            style: theme.textTheme.titleLarge,
+          ),
         ),
         SizedBox(height: 10),
         FutureBuilder(
           future: Future.wait(recipeListFutures),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Container(
-                  height: 10,
-                  width: 200,
-                  color: Colors.grey.shade300,
-                ),
-              );
-            }
+            final widgets = !snapshot.hasData
+                ? buildShimmer(recipeListFutures.length)
+                : snapshot.data!.mapNullable((r) => buildRecipeWidget(r, ref));
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...snapshot.data!.mapNullable((recipe) {
-                  if (recipe != null) return Text(recipe.name);
-                  return null;
-                })
-              ],
+            return Container(
+              constraints: BoxConstraints(maxHeight: 70),
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: widgets.length,
+                  itemBuilder: ((context, index) {
+                    return widgets[index];
+                  })),
             );
           },
         ),
       ],
+    );
+  }
+
+  List<Widget> buildShimmer(int num) {
+    return List.generate(
+        num,
+        (_) => Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey.shade300,
+                ),
+                height: 70,
+                width: 200,
+                margin: EdgeInsets.only(right: 10),
+              ),
+            ));
+  }
+
+  Widget? buildRecipeWidget(Recipe? recipe, WidgetRef ref) {
+    final selectedRecipes = ref
+        .read(_screenNotifierProvider)
+        .selectedRecipesForDailyMenu(dailyMenu);
+    final notifier = ref.read(_screenNotifierProvider.notifier);
+    if (recipe != null)
+      return _SelectableRecipeCard(
+        recipe,
+        selected: selectedRecipes.contains(recipe),
+        onSelected: (v) {
+          notifier.selectRecipe(dailyMenu, recipe, v);
+        },
+      );
+    return null;
+  }
+}
+
+class _SelectableRecipeCard extends StatelessWidget {
+  final Recipe recipe;
+  final bool selected;
+  final ValueChanged<bool>? onSelected;
+
+  const _SelectableRecipeCard(this.recipe,
+      {super.key, this.onSelected, this.selected = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final borderRadius = BorderRadius.circular(10);
+    return GestureDetector(
+      onTap: () => onSelected?.call(!selected),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: borderRadius,
+          side: BorderSide(
+              color: selected
+                  ? theme.primaryColor.withOpacity(0.8)
+                  : Colors.transparent),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: selected ? theme.primaryColor.withOpacity(0.5) : null,
+            borderRadius: borderRadius,
+          ),
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(recipe.name),
+                  SizedBox(height: 10),
+                  Text(
+                    recipe.ingredients.length.toString() + " ingredient/s",
+                    style: theme.textTheme.bodySmall,
+                  )
+                ],
+              ),
+              SizedBox(height: 20),
+              Checkbox.adaptive(
+                  value: selected, onChanged: (v) => onSelected?.call(v!)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectIngredientScreen extends HookConsumerWidget {
+  const _SelectIngredientScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final notifier = ref.read(_screenNotifierProvider.notifier);
+    final ingredientsSelection =
+        ref.watch(_screenNotifierProvider).selectedIngredients;
+    final ingredients = ingredientsSelection.entries.map((e) => e.key).toList();
+
+    final selectedItems = ingredientsSelection.entries.where(
+      (e) => e.value,
+    );
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: Text("Import ingredients"),
+      ),
+      floatingActionButton: selectedItems.isNotEmpty
+          ? FloatingActionButton(
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Icon(Icons.check),
+                  Text(
+                    selectedItems.length.toString(),
+                    style: theme.textTheme.labelSmall,
+                  )
+                ],
+              ),
+              onPressed: () {},
+            )
+          : null,
+      body: ListView.separated(
+        separatorBuilder: (context, index) => Divider(),
+        itemCount: ingredients.length,
+        itemBuilder: (context, index) {
+          return _IngredientCheckboxTile(
+            ingredients[index],
+            selected: ingredientsSelection[ingredients[index]] ?? false,
+            onSelected: (v) {
+              notifier.selectIngredient(ingredients[index], v);
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _IngredientCheckboxTile extends StatelessWidget {
+  final RecipeIngredient ingredient;
+  final bool selected;
+  final ValueChanged? onSelected;
+  const _IngredientCheckboxTile(this.ingredient,
+      {super.key, this.selected = false, this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Text(ingredient.quantity.toString()),
+      title: Text(ingredient.ingredientName),
+      trailing: Checkbox(
+        value: selected,
+        onChanged: (v) {
+          onSelected?.call(v);
+        },
+      ),
     );
   }
 }
