@@ -39,7 +39,12 @@ class ShoppingList extends BaseModel<ShoppingList> {
       items.where((item) => !item.checked).toList();
 
   ShoppingList addShoppingListItem(ShoppingListItem shoppingListItem) {
-    final newList = [shoppingListItem, ...items];
+    return addAllShoppingListItem([shoppingListItem]);
+  }
+
+  ShoppingList addAllShoppingListItem(
+      List<ShoppingListItem> shoppingListItemList) {
+    final newList = [...shoppingListItemList, ...items];
     return this.copyWith(items: newList);
   }
 

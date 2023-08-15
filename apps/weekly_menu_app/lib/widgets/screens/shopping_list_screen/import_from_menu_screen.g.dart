@@ -10,7 +10,7 @@ abstract class _$_ImportFromMenuScreenStateCWProxy {
   _ImportFromMenuScreenState dailyMenuList(List<DailyMenu> dailyMenuList);
 
   _ImportFromMenuScreenState selectedIngredients(
-      Map<RecipeIngredient, bool> selectedIngredients);
+      List<RecipeIngredient> selectedIngredients);
 
   _ImportFromMenuScreenState selectedRecipes(
       Map<DailyMenu, List<Recipe>> selectedRecipes);
@@ -23,7 +23,7 @@ abstract class _$_ImportFromMenuScreenStateCWProxy {
   /// ````
   _ImportFromMenuScreenState call({
     List<DailyMenu>? dailyMenuList,
-    Map<RecipeIngredient, bool>? selectedIngredients,
+    List<RecipeIngredient>? selectedIngredients,
     Map<DailyMenu, List<Recipe>>? selectedRecipes,
   });
 }
@@ -41,7 +41,7 @@ class _$_ImportFromMenuScreenStateCWProxyImpl
 
   @override
   _ImportFromMenuScreenState selectedIngredients(
-          Map<RecipeIngredient, bool> selectedIngredients) =>
+          List<RecipeIngredient> selectedIngredients) =>
       this(selectedIngredients: selectedIngredients);
 
   @override
@@ -73,7 +73,7 @@ class _$_ImportFromMenuScreenStateCWProxyImpl
                   selectedIngredients == null
               ? _value.selectedIngredients
               // ignore: cast_nullable_to_non_nullable
-              : selectedIngredients as Map<RecipeIngredient, bool>,
+              : selectedIngredients as List<RecipeIngredient>,
       selectedRecipes: selectedRecipes == const $CopyWithPlaceholder() ||
               selectedRecipes == null
           ? _value.selectedRecipes
