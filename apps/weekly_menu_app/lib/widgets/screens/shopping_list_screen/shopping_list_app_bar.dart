@@ -20,8 +20,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final selectedItems = ref.watch(shoppingListScreenNotifierProvider
         .select((state) => state.selectedItems));
     final supermarketSections = ref.read(supermarketSectionProvider);
-    final shoppingList =
-        ref.read(shoppingListScreenNotifierProvider).shoppingList;
+    final shoppingListItems =
+        ref.read(shoppingListScreenNotifierProvider).allItems;
 
     Future<void> updateUserPreferences(SupermarketSection section) async {
       supermarketSections?.removeWhere((s) => s.name == section.name);
@@ -56,7 +56,7 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
     }
 
     void openSupermarketSectionSelectionDialog() async {
-      final allItems = shoppingList?.getAllItems ?? [];
+      final allItems = shoppingListItems;
       final availableSupermarketSections =
           (allItems.map((e) => e.supermarketSectionName).toList()
                 ..removeWhere((e) => e == null || e.trim().isEmpty))

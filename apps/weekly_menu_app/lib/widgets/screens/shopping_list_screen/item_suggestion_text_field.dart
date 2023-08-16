@@ -43,8 +43,8 @@ class ItemSuggestionTextField extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController(keepScrollOffset: false);
 
-    final shoppingList =
-        ref.read(shoppingListScreenNotifierProvider).shoppingList;
+    final shoppingListItems =
+        ref.read(shoppingListScreenNotifierProvider).allItems;
     final ingredientsRepository = ref.watch(ingredientsRepositoryProvider);
 
     String displayStringForOption(Object option) {
@@ -64,8 +64,6 @@ class ItemSuggestionTextField extends HookConsumerWidget {
       final availableIngredients = await ingredientsRepository.loadAll();
 
       if (showShoppingItemSuggestions) {
-        final shoppingListItems = shoppingList?.getAllItems ?? [];
-
         final checkedItems = shoppingListItems.where((item) {
           return item.checked && stringContains(item.itemName, value.text);
         });

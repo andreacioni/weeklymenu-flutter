@@ -1,9 +1,13 @@
+import 'dart:developer';
+
+import 'package:data/flutter_data/shopping_list.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:collection/collection.dart';
 import 'package:model/ingredient.dart';
 import 'package:model/shopping_list.dart';
+import 'package:weekly_menu_app/providers/shopping_list.dart';
 import 'package:weekly_menu_app/widgets/shared/flutter_data_state_builder.dart';
 
 import 'notifier.dart';
@@ -80,7 +84,9 @@ class _ShoppingListListView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repository = ref.watch(shoppingListRepositoryProvider);
+    final repository = ref.watch(shoppingListItemRepositoryProvider);
+    final shoppingListId =
+        ref.watch(shoppingListProvider.select((s) => s?.idx));
 
     final notifier = ref.read(shoppingListScreenNotifierProvider.notifier);
     final expandChecked = ref.watch(shoppingListScreenNotifierProvider
@@ -107,28 +113,29 @@ class _ShoppingListListView extends HookConsumerWidget {
         if (newValue is ShoppingListItem) {
           if (newValue.itemName.trim() != previousItem.itemName.trim()) {
             //selected item mismatch, delete the previous item before going further
-            notifier.removeItemFromList(previousItem);
-            notifier.setItemChecked(newValue, checked);
+            await notifier.removeItemFromList(previousItem);
+            await notifier.setItemChecked(newValue, checked);
           } else {
             //item is the same so this is an update on checked field
             // or on uof
-            notifier.updateItem(previousItem, newValue);
+            await notifier.updateItem(previousItem, newValue);
           }
         } else if (newValue is String) {
-          notifier.updateItem(
+          await notifier.updateItem(
               previousItem, previousItem.copyWith(itemName: newValue));
         } else if (newValue is Ingredient) {
-          notifier.updateItem(
+          await notifier.updateItem(
               previousItem, previousItem.copyWith(itemName: newValue.name));
         }
       } else {
         //CREATE ITEM
         if (newValue is String) {
-          notifier.createShoppingListItemByIngredientName(newValue, checked);
+          await notifier.createShoppingListItemByIngredientName(
+              newValue, checked);
         } else if (newValue is ShoppingListItem) {
-          notifier.setItemChecked(newValue, checked);
+          await notifier.setItemChecked(newValue, checked);
         } else if (newValue is Ingredient) {
-          notifier.createShoppingListItemByIngredient(newValue, checked);
+          await notifier.createShoppingListItemByIngredient(newValue, checked);
         }
       }
     }
@@ -322,24 +329,26 @@ class _ShoppingListListView extends HookConsumerWidget {
       );
     }
 
-    return RepositoryStreamBuilder<List<ShoppingList>>(
-      stream: repository.stream(),
+    if (shoppingListId == null) {
+      log("shopping list id is null");
+      return _buildLoadingItem();
+    }
+
+    return RepositoryStreamBuilder<List<ShoppingListItem>>(
+      stream:
+          repository.stream(params: {SHOPPING_LIST_ID_PARAM: shoppingListId}),
       loading: _buildLoadingItem(),
-      notFound: _buildLoadingItem(),
-      onRefresh: () async => repository.reload(),
+      notFound: newItemMode
+          ? _buildAddFirstItemFieldWrapper()
+          : _buildNoElementsPage(),
+      onRefresh: () async =>
+          repository.reload(params: {SHOPPING_LIST_ID_PARAM: shoppingListId}),
       builder: (context, data) {
-        final shoppingList = data[0];
-
         //before this time shopping list is null
-        notifier.initShoppingList(shoppingList);
 
-        final allItems = shoppingList.items;
+        Future.delayed(Duration.zero, () => notifier.refreshItems(data));
 
-        if (allItems.isEmpty) {
-          return newItemMode
-              ? _buildAddFirstItemFieldWrapper()
-              : _buildNoElementsPage();
-        }
+        final allItems = data;
 
         final checkedItems = allItems.where((i) => i.checked).toList();
         final uncheckedItems = allItems.where((i) => !i.checked).toList();

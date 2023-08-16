@@ -32,7 +32,8 @@ final repositoryProviders = Provider<List<Provider<Repository>>>((_) => [
       ingredientsRepositoryProvider,
       menuRepositoryProvider,
       userPreferencesRepositoryProvider,
-      shoppingListRepositoryProvider
+      shoppingListRepositoryProvider,
+      shoppingListItemRepositoryProvider,
     ]);
 
 extension RepositoryWidgetRefX on WidgetRef {
@@ -41,6 +42,8 @@ extension RepositoryWidgetRefX on WidgetRef {
   Repository<Recipe> get recipes => watch(recipeRepositoryProvider);
   Repository<ShoppingList> get shoppingLists =>
       watch(shoppingListRepositoryProvider);
+  Repository<ShoppingList> get shoppingListItems =>
+      watch(shoppingListRepositoryProvider);
   Repository<Menu> get menus => watch(menuRepositoryProvider);
   Repository<UserPreference> get userPreferences =>
       watch(userPreferencesRepositoryProvider);
@@ -48,7 +51,7 @@ extension RepositoryWidgetRefX on WidgetRef {
 
 abstract class Repository<T> {
   FutureOr<void> init();
-  FutureOr<void> reload();
+  FutureOr<void> reload({Map<String, dynamic>? params});
   Stream<List<T>> stream({Map<String, dynamic>? params});
   Stream<T> streamOne(String id);
   FutureOr<T> save(T t, {Map<String, dynamic>? params});
@@ -107,7 +110,7 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<void> reload() {
+  FutureOr<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
@@ -165,7 +168,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   void init() {}
 
   @override
-  FutureOr<void> reload() async {
+  FutureOr<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
@@ -258,7 +261,7 @@ class IngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  FutureOr<void> reload() {
+  FutureOr<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
@@ -313,7 +316,7 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   void init() {}
 
   @override
-  FutureOr<void> reload() async {
+  FutureOr<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
@@ -387,7 +390,7 @@ class ShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  FutureOr<void> reload() {
+  FutureOr<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
@@ -442,7 +445,7 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   void init() {}
 
   @override
-  FutureOr<void> reload() async {
+  FutureOr<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
@@ -493,6 +496,138 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 }
 
+// SHOPPING LIST ITEMS
+
+final shoppingListItemRepositoryProvider = Provider((ref) {
+  final cfg = ref.read(bootstrapConfigurationProvider);
+  return ShoppingListItemRepository(cfg.storageType,
+      ref: ref, debug: cfg.debug);
+});
+
+class ShoppingListItemRepository extends Repository<ShoppingListItem> {
+  late final Repository<ShoppingListItem> _repository;
+
+  ShoppingListItemRepository(StorageType storageType,
+      {ProviderRef? ref, bool debug = false}) {
+    if (storageType == StorageType.flutterData) {
+      _repository = _FlutterDataShoppingListItemRepository(ref!, debug: debug);
+    }
+  }
+
+  @override
+  void init() {
+    _repository.init();
+  }
+
+  @override
+  FutureOr<void> reload({Map<String, dynamic>? params}) {
+    return _repository.reload(params: params);
+  }
+
+  @override
+  FutureOr<ShoppingListItem?> load(String id) {
+    return _repository.load(id);
+  }
+
+  @override
+  FutureOr<List<ShoppingListItem>> loadAll(
+      {bool remote = true, Map<String, dynamic>? params}) {
+    return _repository.loadAll(remote: remote, params: params);
+  }
+
+  @override
+  Stream<List<ShoppingListItem>> stream({Map<String, dynamic>? params}) {
+    return _repository.stream(params: params);
+  }
+
+  @override
+  Stream<ShoppingListItem> streamOne(String id) {
+    return _repository.streamOne(id);
+  }
+
+  @override
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+    return _repository.delete(id, params: params);
+  }
+
+  @override
+  FutureOr<ShoppingListItem> save(ShoppingListItem t,
+      {Map<String, dynamic>? params}) {
+    return _repository.save(t, params: params);
+  }
+
+  @override
+  FutureOr<void> clear({bool local = true}) {
+    return _repository.clear();
+  }
+}
+
+class _FlutterDataShoppingListItemRepository
+    extends Repository<ShoppingListItem> {
+  late final flutter_data.Repository<FlutterDataShoppingListItem> _repository;
+  final ProviderRef ref;
+  final bool debug;
+
+  _FlutterDataShoppingListItemRepository(this.ref, {this.debug = false}) {
+    _repository = ref.read(flutterDataShoppingListItemsRepositoryProvider);
+    _repository.logLevel = debug ? 2 : 0;
+  }
+
+  @override
+  void init() {}
+
+  @override
+  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+    await _repository.findAll(syncLocal: true, params: params);
+  }
+
+  @override
+  FutureOr<ShoppingListItem?> load(String id) async {
+    return await _repository.findOne(id);
+  }
+
+  @override
+  FutureOr<List<ShoppingListItem>> loadAll(
+      {bool remote = true, Map<String, dynamic>? params}) {
+    return _repository.findAll(remote: remote, params: params);
+  }
+
+  @override
+  Stream<List<ShoppingListItem>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataShoppingListItems
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
+  }
+
+  @override
+  Stream<ShoppingListItem> streamOne(String id) {
+    return ref.flutterDataShoppingListItems
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
+  }
+
+  @override
+  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+    await _repository.delete(id, params: params);
+  }
+
+  @override
+  FutureOr<ShoppingListItem> save(ShoppingListItem r,
+      {Map<String, dynamic>? params}) async {
+    final item = FlutterDataShoppingListItem.fromJson(r.toJson());
+    return await item.save(params: params);
+  }
+
+  @override
+  FutureOr<void> clear({bool local = true}) {
+    return _repository.clear();
+  }
+}
+
 //USER PREFERENCES
 
 final userPreferencesRepositoryProvider = Provider((ref) {
@@ -516,7 +651,7 @@ class UserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<void> reload() {
+  FutureOr<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
@@ -572,7 +707,7 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   void init() {}
 
   @override
-  FutureOr<void> reload() async {
+  FutureOr<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
@@ -647,7 +782,7 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  FutureOr<void> reload() {
+  FutureOr<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
@@ -702,7 +837,7 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   void init() {}
 
   @override
-  FutureOr<void> reload() async {
+  FutureOr<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 

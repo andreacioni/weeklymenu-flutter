@@ -7,13 +7,13 @@ part of 'notifier.dart';
 // **************************************************************************
 
 abstract class _$ShoppingListStateCWProxy {
+  ShoppingListState allItems(List<ShoppingListItem> allItems);
+
   ShoppingListState expandChecked(bool expandChecked);
 
   ShoppingListState newItemMode(bool newItemMode);
 
   ShoppingListState selectedItems(List<ShoppingListItem> selectedItems);
-
-  ShoppingListState shoppingList(ShoppingList? shoppingList);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ShoppingListState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -22,10 +22,10 @@ abstract class _$ShoppingListStateCWProxy {
   /// ShoppingListState(...).copyWith(id: 12, name: "My name")
   /// ````
   ShoppingListState call({
+    List<ShoppingListItem>? allItems,
     bool? expandChecked,
     bool? newItemMode,
     List<ShoppingListItem>? selectedItems,
-    ShoppingList? shoppingList,
   });
 }
 
@@ -34,6 +34,10 @@ class _$ShoppingListStateCWProxyImpl implements _$ShoppingListStateCWProxy {
   final ShoppingListState _value;
 
   const _$ShoppingListStateCWProxyImpl(this._value);
+
+  @override
+  ShoppingListState allItems(List<ShoppingListItem> allItems) =>
+      this(allItems: allItems);
 
   @override
   ShoppingListState expandChecked(bool expandChecked) =>
@@ -48,10 +52,6 @@ class _$ShoppingListStateCWProxyImpl implements _$ShoppingListStateCWProxy {
       this(selectedItems: selectedItems);
 
   @override
-  ShoppingListState shoppingList(ShoppingList? shoppingList) =>
-      this(shoppingList: shoppingList);
-
-  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ShoppingListState(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -60,12 +60,16 @@ class _$ShoppingListStateCWProxyImpl implements _$ShoppingListStateCWProxy {
   /// ShoppingListState(...).copyWith(id: 12, name: "My name")
   /// ````
   ShoppingListState call({
+    Object? allItems = const $CopyWithPlaceholder(),
     Object? expandChecked = const $CopyWithPlaceholder(),
     Object? newItemMode = const $CopyWithPlaceholder(),
     Object? selectedItems = const $CopyWithPlaceholder(),
-    Object? shoppingList = const $CopyWithPlaceholder(),
   }) {
     return ShoppingListState(
+      allItems: allItems == const $CopyWithPlaceholder() || allItems == null
+          ? _value.allItems
+          // ignore: cast_nullable_to_non_nullable
+          : allItems as List<ShoppingListItem>,
       expandChecked:
           expandChecked == const $CopyWithPlaceholder() || expandChecked == null
               ? _value.expandChecked
@@ -81,10 +85,6 @@ class _$ShoppingListStateCWProxyImpl implements _$ShoppingListStateCWProxy {
               ? _value.selectedItems
               // ignore: cast_nullable_to_non_nullable
               : selectedItems as List<ShoppingListItem>,
-      shoppingList: shoppingList == const $CopyWithPlaceholder()
-          ? _value.shoppingList
-          // ignore: cast_nullable_to_non_nullable
-          : shoppingList as ShoppingList?,
     );
   }
 }
