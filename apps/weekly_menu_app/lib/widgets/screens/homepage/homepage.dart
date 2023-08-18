@@ -59,7 +59,7 @@ class _HomePageState extends ConsumerState<_HomePage> {
         body: PageStorage(
           //ScaffoldMessenger is needed to allow SnackBar to be showed properly
           //in the child Scaffolds
-          child: ScaffoldMessenger(child: _screens[_activeScreenIndex]),
+          child: _screens[_activeScreenIndex],
           bucket: bucket,
         ),
         drawer: AppDrawer(),

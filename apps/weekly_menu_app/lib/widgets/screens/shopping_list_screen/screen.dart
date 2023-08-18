@@ -41,22 +41,24 @@ class _ShoppingListScreen extends HookConsumerWidget {
     final newItemMode = ref.watch(shoppingListScreenNotifierProvider
         .select((state) => state.newItemMode));
 
-    return Scaffold(
-      appBar: const ShoppingListAppBar(),
-      floatingActionButton: newItemMode == false
-          ? FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () => notifier.newItemMode = true,
-            )
-          : null,
-      body: GestureDetector(
-        onTap: () {
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.focusedChild?.unfocus();
-          }
-        },
-        child: const _ShoppingListListView(),
+    return ScaffoldMessenger(
+      child: Scaffold(
+        appBar: const ShoppingListAppBar(),
+        floatingActionButton: newItemMode == false
+            ? FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () => notifier.newItemMode = true,
+              )
+            : null,
+        body: GestureDetector(
+          onTap: () {
+            FocusScopeNode currentFocus = FocusScope.of(context);
+            if (!currentFocus.hasPrimaryFocus) {
+              currentFocus.focusedChild?.unfocus();
+            }
+          },
+          child: const _ShoppingListListView(),
+        ),
       ),
     );
   }
@@ -104,8 +106,8 @@ class _ShoppingListListView extends HookConsumerWidget {
       );
     }
 
-    Future<void> handleTextFieldSubmission(
-        Object? newValue, ShoppingListItem? previousItem, bool checked) async {
+    void handleTextFieldSubmission(
+        Object? newValue, ShoppingListItem? previousItem, bool checked) {
       if (newValue == null) return;
 
       if (previousItem != null) {
@@ -113,29 +115,28 @@ class _ShoppingListListView extends HookConsumerWidget {
         if (newValue is ShoppingListItem) {
           if (newValue.itemName.trim() != previousItem.itemName.trim()) {
             //selected item mismatch, delete the previous item before going further
-            await notifier.removeItemFromList(previousItem);
-            await notifier.setItemChecked(newValue, checked);
+            notifier.removeItemFromList(previousItem);
+            notifier.setItemChecked(newValue, checked);
           } else {
             //item is the same so this is an update on checked field
             // or on uof
-            await notifier.updateItem(previousItem, newValue);
+            notifier.updateItem(previousItem, newValue);
           }
         } else if (newValue is String) {
-          await notifier.updateItem(
+          notifier.updateItem(
               previousItem, previousItem.copyWith(itemName: newValue));
         } else if (newValue is Ingredient) {
-          await notifier.updateItem(
+          notifier.updateItem(
               previousItem, previousItem.copyWith(itemName: newValue.name));
         }
       } else {
         //CREATE ITEM
         if (newValue is String) {
-          await notifier.createShoppingListItemByIngredientName(
-              newValue, checked);
+          notifier.createShoppingListItemByIngredientName(newValue, checked);
         } else if (newValue is ShoppingListItem) {
-          await notifier.setItemChecked(newValue, checked);
+          notifier.setItemChecked(newValue, checked);
         } else if (newValue is Ingredient) {
-          await notifier.createShoppingListItemByIngredient(newValue, checked);
+          notifier.createShoppingListItemByIngredient(newValue, checked);
         }
       }
     }
@@ -205,18 +206,16 @@ class _ShoppingListListView extends HookConsumerWidget {
                           onLongPress: () =>
                               notifier.toggleItemToSelectedItems(item),
                           onCheckChange: (_) {
-                            notifier.setItemChecked(item, false).then((value) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                behavior: SnackBarBehavior.fixed,
-                                content: Text('"${item.itemName}" checked'),
-                                action: SnackBarAction(
-                                  label: 'Undo',
-                                  onPressed: () =>
-                                      notifier.setItemChecked(item, true),
-                                ),
-                              ));
-                            });
+                            notifier.setItemChecked(item, false);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              content: Text('"${item.itemName}" checked'),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () =>
+                                    notifier.setItemChecked(item, true),
+                              ),
+                            ));
                           },
                           onDismiss: (_) => notifier.removeItemFromList(item),
                         ),
@@ -291,18 +290,16 @@ class _ShoppingListListView extends HookConsumerWidget {
                           onLongPress: () =>
                               notifier.toggleItemToSelectedItems(item),
                           onCheckChange: (_) {
-                            notifier.setItemChecked(item, true).then((value) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                behavior: SnackBarBehavior.fixed,
-                                content: Text('"${item.itemName}" unchecked'),
-                                action: SnackBarAction(
-                                  label: 'Undo',
-                                  onPressed: () =>
-                                      notifier.setItemChecked(item, false),
-                                ),
-                              ));
-                            });
+                            notifier.setItemChecked(item, true);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              content: Text('"${item.itemName}" unchecked'),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () =>
+                                    notifier.setItemChecked(item, false),
+                              ),
+                            ));
                           },
                           onDismiss: (_) => notifier.removeItemFromList(item),
                         ),
@@ -345,7 +342,7 @@ class _ShoppingListListView extends HookConsumerWidget {
           repository.reload(params: {SHOPPING_LIST_ID_PARAM: shoppingListId}),
       builder: (context, data) {
         //before this time shopping list is null
-
+        log("build! ${data.length}");
         Future.delayed(Duration.zero, () => notifier.refreshItems(data));
 
         final allItems = data;

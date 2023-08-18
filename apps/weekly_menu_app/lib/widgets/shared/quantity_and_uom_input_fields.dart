@@ -41,7 +41,8 @@ class QuantityAndUnitOfMeasureInputFormField extends HookConsumerWidget {
         Flexible(
           flex: 2,
           child: NullableNumberFormField(
-            initialValue: quantity?.toDouble(),
+            initialValue: quantity,
+            fractionDigits: 1,
             minValue: 0,
             maxValue: 9999,
             onChanged: onQuantityChanged,

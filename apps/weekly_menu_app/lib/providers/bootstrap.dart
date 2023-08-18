@@ -7,7 +7,6 @@ import 'package:data/configuration/remote_config.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:data/repositories.dart';
-import 'package:common/log.dart';
 
 import '../firebase_options.dart';
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:common/constants.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:data/flutter_data/shopping_list.dart';
@@ -61,7 +59,7 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
         params: {SHOPPING_LIST_ID_PARAM: shoppingListId});
   }
 
-  Future<void> setItemChecked(ShoppingListItem shopItem, bool checked) async {
+  void setItemChecked(ShoppingListItem shopItem, bool checked) {
     final shoppingListId = ref.read(shoppingListProvider)!.idx;
     shopItem = shopItem.copyWith(checked: checked);
     ref.read(shoppingListItemRepositoryProvider).save(shopItem,
@@ -167,12 +165,11 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
     final shoppingListId = ref.read(shoppingListProvider)!.idx;
 
     if (previousItem.itemName != newItem.itemName) {
-      await ref.read(shoppingListItemRepositoryProvider).delete(
-          previousItem.itemName,
+      ref.read(shoppingListItemRepositoryProvider).delete(previousItem.itemName,
           params: {UPDATE_PARAM: true, SHOPPING_LIST_ID_PARAM: shoppingListId});
     }
 
-    await ref.read(shoppingListItemRepositoryProvider).save(newItem,
+    ref.read(shoppingListItemRepositoryProvider).save(newItem,
         params: {UPDATE_PARAM: true, SHOPPING_LIST_ID_PARAM: shoppingListId});
   }
 

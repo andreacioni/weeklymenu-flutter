@@ -16,7 +16,6 @@ import 'package:common/storage_type.dart';
 import 'package:flutter_data/flutter_data.dart' as flutter_data;
 import 'package:model/shopping_list.dart';
 import 'package:model/user_preferences.dart';
-import 'data.dart';
 import 'main.data.dart' as main;
 
 final repositoryInitializerProvider = FutureProvider<void>((ref) async {

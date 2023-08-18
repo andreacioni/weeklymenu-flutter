@@ -2,7 +2,6 @@ import 'package:data/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/auth_token.dart';
-import 'package:logging/logging.dart';
 import 'package:common/log.dart';
 
 import '../../../providers/bootstrap.dart';

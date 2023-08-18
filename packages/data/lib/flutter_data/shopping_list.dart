@@ -1,12 +1,7 @@
 import 'package:common/constants.dart';
-import 'package:copy_with_extension/copy_with_extension.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter_data/flutter_data.dart';
-import 'package:model/base_model.dart';
 import 'package:model/shopping_list.dart';
-import 'package:objectid/objectid.dart';
 
 import 'base_adapter.dart';
 part 'shopping_list.g.dart';
