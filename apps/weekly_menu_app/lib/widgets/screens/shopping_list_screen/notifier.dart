@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:common/constants.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:data/flutter_data/shopping_list.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -9,6 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:model/ingredient.dart';
 import 'package:model/shopping_list.dart';
 import 'package:model/user_preferences.dart';
+import 'package:weekly_menu_app/providers/shopping_list.dart';
 
 part 'notifier.g.dart';
 
@@ -22,10 +22,10 @@ class ShoppingListState {
   final bool newItemMode;
   final bool expandChecked;
   final List<ShoppingListItem> selectedItems;
-  final ShoppingList? shoppingList;
+  final List<ShoppingListItem> allItems;
 
   ShoppingListState({
-    this.shoppingList,
+    this.allItems = const <ShoppingListItem>[],
     this.newItemMode = false,
     this.expandChecked = true,
     this.selectedItems = const <ShoppingListItem>[],
@@ -33,22 +33,16 @@ class ShoppingListState {
 
   bool get selectionModeOn => selectedItems.isNotEmpty;
 
-  List<ShoppingListItem> get allItems => shoppingList?.getAllItems ?? [];
   List<ShoppingListItem> get checkedItems =>
-      shoppingList?.getCheckedItems ?? [];
+      allItems.where((e) => e.checked).toList();
   List<ShoppingListItem> get uncheckedItems =>
-      shoppingList?.getUncheckedItems ?? [];
+      allItems.where((e) => !e.checked).toList();
 }
 
 class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
   final Ref ref;
 
   ShoppingListStateNotifier(this.ref, ShoppingListState state) : super(state);
-
-  void initShoppingList(ShoppingList shoppingList) {
-    Future.delayed(Duration.zero,
-        () => state = state.copyWith(shoppingList: shoppingList));
-  }
 
   set expandChecked(bool expandChecked) {
     state = state.copyWith(expandChecked: expandChecked);
@@ -59,15 +53,17 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
   }
 
   Future<void> removeItemFromList(ShoppingListItem shoppingListItem) async {
-    var shoppingList = state.shoppingList!;
-    shoppingList = shoppingList.removeItemFromList(shoppingListItem);
-    _saveShoppingList(shoppingList);
+    final shoppingListId = ref.read(shoppingListProvider)!.idx;
+    ref.read(shoppingListItemRepositoryProvider).delete(
+        shoppingListItem.itemName,
+        params: {SHOPPING_LIST_ID_PARAM: shoppingListId});
   }
 
-  Future<void> setItemChecked(ShoppingListItem shopItem, bool checked) async {
-    var shoppingList = state.shoppingList!;
-    shoppingList = shoppingList.setChecked(shopItem, checked);
-    _saveShoppingList(shoppingList);
+  void setItemChecked(ShoppingListItem shopItem, bool checked) {
+    final shoppingListId = ref.read(shoppingListProvider)!.idx;
+    shopItem = shopItem.copyWith(checked: checked);
+    ref.read(shoppingListItemRepositoryProvider).save(shopItem,
+        params: {UPDATE_PARAM: true, SHOPPING_LIST_ID_PARAM: shoppingListId});
   }
 
   Future<void> createShoppingListItemByIngredientName(
@@ -76,14 +72,18 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
     if (ingredientName.isEmpty) {
       return;
     }
-    var shoppingList = state.shoppingList!;
+
+    final shoppingListId = ref.read(shoppingListProvider)!.idx;
+    final repository = ref.read(shoppingListItemRepositoryProvider);
+
     if (previousItem != null &&
         previousItem.itemName.trim() != ingredientName.trim()) {
       //selected item mismatch, delete the previous item before going further
-      shoppingList = shoppingList.removeItemFromList(previousItem);
+      repository.delete(previousItem.itemName,
+          params: {SHOPPING_LIST_ID_PARAM: shoppingListId});
     }
 
-    final shopListItems = shoppingList.getAllItems;
+    final shopListItems = state.allItems;
 
     //retrieve the shopping list item (if any)
     var shoppingListItem = shopListItems
@@ -96,17 +96,20 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
     }
 
     if (previousItem != null) {
+      //old item
       shoppingListItem =
           previousItem.copyWith(checked: checked, itemName: ingredientName);
-      shoppingList = shoppingList.updateItem(previousItem, shoppingListItem);
+      updateItem(previousItem, shoppingListItem);
     } else {
+      //new item
       shoppingListItem =
           ShoppingListItem(itemName: ingredientName, checked: checked);
 
-      shoppingList = shoppingList.addShoppingListItem(shoppingListItem);
+      repository.save(shoppingListItem, params: {
+        UPDATE_PARAM: false,
+        SHOPPING_LIST_ID_PARAM: shoppingListId
+      });
     }
-
-    _saveShoppingList(shoppingList);
   }
 
   Future<void> createShoppingListItemByIngredient(
@@ -132,49 +135,45 @@ class ShoppingListStateNotifier extends StateNotifier<ShoppingListState> {
 
   Future<void> setSupermarketSectionOnSelectedItems(
       SupermarketSection? section) async {
-    var shoppingList = state.shoppingList;
+    final shoppingListId = ref.read(shoppingListProvider)!.idx;
 
     for (final selectedItem in state.selectedItems) {
       if (selectedItem.supermarketSectionName != section?.name) {
         final newItem =
             selectedItem.copyWith(supermarketSectionName: section?.name);
-
-        shoppingList = shoppingList?.updateItem(selectedItem, newItem);
+        ref.read(shoppingListItemRepositoryProvider).save(newItem, params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
       }
     }
 
     clearSelection();
-
-    _saveShoppingList(shoppingList);
   }
 
   void removeSelectedShoppingItemFromList() async {
-    var shoppingList = state.shoppingList;
-    state.selectedItems.forEach((i) {
-      shoppingList = shoppingList?.removeItemFromList(i);
+    final shoppingListId = ref.read(shoppingListProvider)!.idx;
+    state.selectedItems.forEach((item) {
+      ref.read(shoppingListItemRepositoryProvider).save(item,
+          params: {UPDATE_PARAM: true, SHOPPING_LIST_ID_PARAM: shoppingListId});
     });
     clearSelection();
-    _saveShoppingList(shoppingList);
   }
 
-  void updateItem(ShoppingListItem previousItem, ShoppingListItem newItem) {
-    final shoppingList = state.shoppingList?.updateItem(previousItem, newItem);
-    _saveShoppingList(shoppingList);
-  }
+  Future<void> updateItem(
+      ShoppingListItem previousItem, ShoppingListItem newItem) async {
+    final shoppingListId = ref.read(shoppingListProvider)!.idx;
 
-  void _saveShoppingList([ShoppingList? shoppingList]) {
-    try {
-      if (shoppingList != null) {
-        ref
-            .read(shoppingListRepositoryProvider)
-            .save(shoppingList, params: {UPDATE_PARAM: true});
-      } else if (state.shoppingList != null) {
-        ref
-            .read(shoppingListRepositoryProvider)
-            .save(state.shoppingList!, params: {UPDATE_PARAM: true});
-      }
-    } catch (e) {
-      log("failed to save shopping list");
+    if (previousItem.itemName != newItem.itemName) {
+      ref.read(shoppingListItemRepositoryProvider).delete(previousItem.itemName,
+          params: {UPDATE_PARAM: true, SHOPPING_LIST_ID_PARAM: shoppingListId});
     }
+
+    ref.read(shoppingListItemRepositoryProvider).save(newItem,
+        params: {UPDATE_PARAM: true, SHOPPING_LIST_ID_PARAM: shoppingListId});
+  }
+
+  void refreshItems(List<ShoppingListItem> items) {
+    state = state.copyWith(allItems: items);
   }
 }

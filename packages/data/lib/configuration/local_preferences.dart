@@ -46,10 +46,13 @@ class LocalPreferences {
   }
 
   Future<bool> clear() async {
-    var b = false;
+    var b = true;
 
-    b |= await _sharedPreferences.clear();
-    b |= await _encryptedSharedPreferences.clear();
+    b &= await _sharedPreferences.clear();
+    b &= await _encryptedSharedPreferences.clear();
+
+    _sharedPreferences.reload();
+    _encryptedSharedPreferences.reload();
 
     return b;
   }

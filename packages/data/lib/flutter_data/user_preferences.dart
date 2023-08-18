@@ -1,9 +1,5 @@
-import 'package:copy_with_extension/copy_with_extension.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:model/user_preferences.dart';
-import 'package:objectid/objectid.dart';
 
 import 'base_adapter.dart';
 

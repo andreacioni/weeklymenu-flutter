@@ -218,7 +218,7 @@ packages:
     source: hosted
     version: "1.17.1"
   common:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       path: "../../packages/common"
       relative: true
@@ -781,7 +781,7 @@ packages:
     source: hosted
     version: "1.0.4"
   model:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       path: "../../packages/model"
       relative: true

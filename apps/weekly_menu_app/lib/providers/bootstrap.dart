@@ -17,7 +17,7 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
   await ref.read(repositoryInitializerProvider.future);
 
   log("loading local preferences");
-  await ref.read(localPreferencesFutureProvider.future);
+  final localPref = await ref.read(localPreferencesFutureProvider.future);
 
   log("initializing firebase core");
   await Firebase.initializeApp(
@@ -40,6 +40,11 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
     final repos = ref.read(repositoryProviders);
     for (final r in repos) {
       await ref.read(r).clear();
+    }
+
+    log("clearing local preferences");
+    if (!await localPref.clear()) {
+      log("failed to clear preferences");
     }
   }
 

@@ -62,3 +62,61 @@ extension FlutterDataShoppingListDataRepositoryX
 
 extension FlutterDataShoppingListRelationshipGraphNodeX
     on RelationshipGraphNode<FlutterDataShoppingList> {}
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $FlutterDataShoppingListItemLocalAdapter
+    on LocalAdapter<FlutterDataShoppingListItem> {
+  static final Map<String, RelationshipMeta>
+      _kFlutterDataShoppingListItemRelationshipMetas = {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kFlutterDataShoppingListItemRelationshipMetas;
+
+  @override
+  FlutterDataShoppingListItem deserialize(map) {
+    map = transformDeserialize(map);
+    return FlutterDataShoppingListItem.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _flutterDataShoppingListItemsFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $FlutterDataShoppingListItemHiveLocalAdapter = HiveLocalAdapter<
+    FlutterDataShoppingListItem> with $FlutterDataShoppingListItemLocalAdapter;
+
+class $FlutterDataShoppingListItemRemoteAdapter = RemoteAdapter<
+        FlutterDataShoppingListItem>
+    with
+        BaseAdapter<FlutterDataShoppingListItem>,
+        ShoppingListItemAdapter<FlutterDataShoppingListItem>;
+
+final internalFlutterDataShoppingListItemsRemoteAdapterProvider =
+    Provider<RemoteAdapter<FlutterDataShoppingListItem>>((ref) =>
+        $FlutterDataShoppingListItemRemoteAdapter(
+            $FlutterDataShoppingListItemHiveLocalAdapter(ref),
+            InternalHolder(_flutterDataShoppingListItemsFinders)));
+
+final flutterDataShoppingListItemsRepositoryProvider =
+    Provider<Repository<FlutterDataShoppingListItem>>(
+        (ref) => Repository<FlutterDataShoppingListItem>(ref));
+
+extension FlutterDataShoppingListItemDataRepositoryX
+    on Repository<FlutterDataShoppingListItem> {
+  BaseAdapter<FlutterDataShoppingListItem> get baseAdapter =>
+      remoteAdapter as BaseAdapter<FlutterDataShoppingListItem>;
+  ShoppingListItemAdapter<FlutterDataShoppingListItem>
+      get shoppingListItemAdapter =>
+          remoteAdapter as ShoppingListItemAdapter<FlutterDataShoppingListItem>;
+}
+
+extension FlutterDataShoppingListItemRelationshipGraphNodeX
+    on RelationshipGraphNode<FlutterDataShoppingListItem> {}

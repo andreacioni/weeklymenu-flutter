@@ -162,7 +162,7 @@ packages:
     source: hosted
     version: "1.17.1"
   common:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       path: "../common"
       relative: true

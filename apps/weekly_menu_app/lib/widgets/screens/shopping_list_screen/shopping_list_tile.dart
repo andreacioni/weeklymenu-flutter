@@ -193,7 +193,7 @@ class _QuantityAndUomLead extends HookConsumerWidget {
             if (quantity != null)
               Expanded(
                 child: AutoSizeText(
-                  (quantity.toInt().toString() + ' ' + (uom?.toString() ?? '')),
+                  (quantity.toStringAsFixed(1) + ' ' + (uom?.toString() ?? '')),
                   textAlign: TextAlign.center,
                   wrapWords: false,
                   minFontSize: 1,
