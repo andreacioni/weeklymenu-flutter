@@ -1,4 +1,5 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:data/flutter_data/shopping_list.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,8 +13,8 @@ import 'package:common/extensions.dart';
 import 'package:common/constants.dart';
 
 import 'package:shimmer/shimmer.dart';
+import 'package:weekly_menu_app/providers/shopping_list.dart';
 
-import '../../../providers/shopping_list.dart';
 import '../menu_page/screen.dart';
 
 part 'import_from_menu_screen.g.dart';
@@ -35,7 +36,8 @@ final _screenNotifierProvider = StateNotifierProvider.autoDispose<
 
   return _ImportFromMenuScreenStateNotifier(
     _ImportFromMenuScreenState(dailyMenuList: loadDailyMenus()),
-    ref.read,
+    ref.read(shoppingListItemRepositoryProvider),
+    ref.read(shoppingListProvider)!.idx,
   );
 });
 
@@ -70,8 +72,11 @@ class _ImportFromMenuScreenState {
 
 class _ImportFromMenuScreenStateNotifier
     extends StateNotifier<_ImportFromMenuScreenState> {
-  final T Function<T>(ProviderListenable<T> provider) reader;
-  _ImportFromMenuScreenStateNotifier(super.state, this.reader);
+  final ShoppingListItemRepository shoppingListItemRepository;
+  final String shoppingListId;
+
+  _ImportFromMenuScreenStateNotifier(
+      super.state, this.shoppingListItemRepository, this.shoppingListId);
 
   void selectRecipe(DailyMenu dailyMenu, Recipe recipe, bool selected) {
     final currentSelection = state.selectedRecipesForDailyMenu(dailyMenu);
@@ -107,24 +112,49 @@ class _ImportFromMenuScreenStateNotifier
     state = state.copyWith(selectedIngredients: newState);
   }
 
+  void selectAll() {
+    final newState = [...state.allRecipeIngredients];
+
+    state = state.copyWith(selectedIngredients: newState);
+  }
+
+  void deselectAll() {
+    final newState = <RecipeIngredient>[];
+
+    state = state.copyWith(selectedIngredients: newState);
+  }
+
   void resetSelectedIngredients() {
     state = state.copyWith(
         selectedIngredients: _computeSelectedRecipes(state.selectedRecipes));
   }
 
-  Future<ShoppingList> updateShoppingListWithSelectedIngredients() async {
+  void updateShoppingListWithSelectedIngredients() {
+    Object? lastError;
     final shopItems = state.selectedIngredients
-        .map((e) => ShoppingListItem(itemName: e.ingredientName))
+        .map((e) => ShoppingListItem(
+            itemName: e.ingredientName,
+            quantity: e.quantity,
+            unitOfMeasure: e.unitOfMeasure))
         .toList();
-    final newList =
-        reader(shoppingListProvider)?.addAllShoppingListItem(shopItems);
 
-    if (newList != null) {
-      return await reader(shoppingListRepositoryProvider)
-          .save(newList, params: {UPDATE_PARAM: true});
+    for (final s in shopItems) {
+      try {
+        // update params is always true because on PUT the server search
+        // if there is an ingredient already present
+        shoppingListItemRepository.save(s, params: {
+          UPDATE_PARAM: true,
+          SHOPPING_LIST_ID_PARAM: shoppingListId
+        });
+      } catch (e, st) {
+        logError("failed to save '${s.itemName}' in shopping list", e, st);
+        lastError = e;
+      }
     }
 
-    throw "shopping list is null";
+    if (lastError != null) {
+      throw lastError;
+    }
   }
 }
 
@@ -200,8 +230,10 @@ class _DailyMenuWrapper extends HookConsumerWidget {
         if (recipe != null) return recipe;
       } catch (e, st) {
         //we skip recipe that are not available
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to load some recipes")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Failed to load some recipes"),
+          behavior: SnackBarBehavior.floating,
+        ));
         logError("failed to retrieve recipe: ${id}", e, st);
       }
       return null;
@@ -272,8 +304,10 @@ class _DailyMenuWrapper extends HookConsumerWidget {
         selected: selectedRecipes.contains(recipe),
         onSelected: (v) {
           if (recipe.ingredients.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("No ingredients in this recipe")));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("No ingredients in this recipe"),
+              behavior: SnackBarBehavior.floating,
+            ));
           } else {
             notifier.selectRecipe(dailyMenu, recipe, v);
           }
@@ -326,8 +360,15 @@ class _SelectableRecipeCard extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20),
-              Checkbox.adaptive(
-                  value: selected, onChanged: (v) => onSelected?.call(v!)),
+              if (recipe.ingredients.isNotEmpty)
+                Checkbox.adaptive(
+                  value: selected,
+                  onChanged: (v) => onSelected?.call(v!),
+                )
+              else
+                SizedBox(
+                  width: 50,
+                )
             ],
           ),
         ),
@@ -370,32 +411,63 @@ class _SelectIngredientScreen extends HookConsumerWidget {
             )
           : null,
       body: Expanded(
-        child: ListView.separated(
-          separatorBuilder: (context, index) => Divider(),
-          itemCount: allItems.length,
-          itemBuilder: (context, index) {
-            return _IngredientCheckboxTile(
-              allItems[index],
-              selected: selectedItems.contains(allItems[index]),
-              onSelected: (v) {
-                notifier.selectIngredient(allItems[index], v);
-              },
-            );
-          },
+        child: Column(
+          children: [
+            ListTile(
+                trailing: Checkbox(
+                    value: getCheckboxOverall(selectedItems, allItems),
+                    tristate: true,
+                    onChanged: (v) {
+                      if (v == true) {
+                        notifier.selectAll();
+                      } else if (v == null || v == false) {
+                        notifier.deselectAll();
+                      }
+                    })),
+            Divider(height: 0),
+            Expanded(
+              child: ListView.separated(
+                separatorBuilder: (context, index) => Divider(),
+                itemCount: allItems.length,
+                itemBuilder: (context, index) {
+                  return _IngredientCheckboxTile(
+                    allItems[index],
+                    selected: selectedItems.contains(allItems[index]),
+                    onSelected: (v) {
+                      notifier.selectIngredient(allItems[index], v);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  bool? getCheckboxOverall(
+      List<RecipeIngredient> selectedItems, List<RecipeIngredient> allItems) {
+    if (selectedItems.length == 0) return false;
+    if (selectedItems.length == allItems.length)
+      return true;
+    else
+      return null;
+  }
+
   void handleFabPressed(
-      BuildContext context, _ImportFromMenuScreenStateNotifier notifier) async {
+      BuildContext context, _ImportFromMenuScreenStateNotifier notifier) {
     //TODO improve with named route
     Navigator.of(context).pop();
     Navigator.of(context).pop();
     try {
-      await notifier.updateShoppingListWithSelectedIngredients();
+      notifier.updateShoppingListWithSelectedIngredients();
     } catch (e, st) {
       logError("failed to save shopping list", e, st);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Failed to save one or more items"),
+        showCloseIcon: true,
+      ));
     }
   }
 }
@@ -450,6 +522,7 @@ class _ScaffoldWithSuggestionBox extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
