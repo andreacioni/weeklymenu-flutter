@@ -4,11 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/shopping_list.dart';
 import 'package:model/user_preferences.dart';
 
-import '../../../providers/user_preferences.dart';
 import 'quantity_and_uom_dialog.dart';
 import './item_suggestion_text_field.dart';
 
-class ShoppingListItemTile extends HookConsumerWidget {
+class ShoppingListItemTile extends StatelessWidget {
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final bool selected;
@@ -21,6 +20,8 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final void Function(bool? newValue)? onCheckChange;
 
   final void Function(DismissDirection) onDismiss;
+
+  final SupermarketSection? supermarketSection;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
@@ -35,13 +36,11 @@ class ShoppingListItemTile extends HookConsumerWidget {
     this.onLongPress,
     this.onTap,
     this.onCheckChange,
+    this.supermarketSection,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final supermarketSection = ref.read(supermarketSectionByNameProvider(
-        shoppingListItem.supermarketSectionName));
-
+  Widget build(BuildContext context) {
     Widget buildListTile() {
       return Column(
         children: <Widget>[

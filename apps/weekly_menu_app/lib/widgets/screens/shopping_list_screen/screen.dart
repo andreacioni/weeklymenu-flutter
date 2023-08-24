@@ -169,6 +169,41 @@ class _ShoppingListListView extends HookConsumerWidget {
       );
     }
 
+    Widget buildTile(int index, ShoppingListItem item) {
+      final supermarketSection = ref
+          .read(supermarketSectionByNameProvider(item.supermarketSectionName));
+
+      return ShoppingListItemTile(
+        item,
+        key: ValueKey("${index}_${item.itemName.trim()}"),
+        supermarketSection: supermarketSection,
+        editable: !selectionModeOn,
+        displayLeading: !selectionModeOn,
+        displayTrailing: !selectionModeOn,
+        dismissible: !selectionModeOn,
+        selected: selectedItems.contains(item),
+        onSubmitted: (value) {
+          handleTextFieldSubmission(value, item, true);
+        },
+        onTap: selectionModeOn
+            ? () => notifier.toggleItemToSelectedItems(item)
+            : null,
+        onLongPress: () => notifier.toggleItemToSelectedItems(item),
+        onCheckChange: (_) {
+          notifier.setItemChecked(item, false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text('"${item.itemName}" checked'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () => notifier.setItemChecked(item, true),
+            ),
+          ));
+        },
+        onDismiss: (_) => notifier.removeItemFromList(item),
+      );
+    }
+
     List<Widget> _buildCheckedList(List<ShoppingListItem> checkedItems) {
       final sliverSectionMap = _sortAndFoldShoppingListItem(checkedItems);
 
@@ -187,40 +222,7 @@ class _ShoppingListListView extends HookConsumerWidget {
               ),
               SliverList(
                 delegate: SliverChildListDelegate.fixed(
-                  e.value
-                      .mapIndexed(
-                        (idx, item) => ShoppingListItemTile(
-                          item,
-                          key: ValueKey("${idx}_${item.itemName.trim()}"),
-                          editable: !selectionModeOn,
-                          displayLeading: !selectionModeOn,
-                          displayTrailing: !selectionModeOn,
-                          dismissible: !selectionModeOn,
-                          selected: selectedItems.contains(item),
-                          onSubmitted: (value) {
-                            handleTextFieldSubmission(value, item, true);
-                          },
-                          onTap: selectionModeOn
-                              ? () => notifier.toggleItemToSelectedItems(item)
-                              : null,
-                          onLongPress: () =>
-                              notifier.toggleItemToSelectedItems(item),
-                          onCheckChange: (_) {
-                            notifier.setItemChecked(item, false);
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              behavior: SnackBarBehavior.floating,
-                              content: Text('"${item.itemName}" checked'),
-                              action: SnackBarAction(
-                                label: 'Undo',
-                                onPressed: () =>
-                                    notifier.setItemChecked(item, true),
-                              ),
-                            ));
-                          },
-                          onDismiss: (_) => notifier.removeItemFromList(item),
-                        ),
-                      )
-                      .toList(),
+                  e.value.mapIndexed(buildTile).toList(),
                 ),
               ),
             ];
