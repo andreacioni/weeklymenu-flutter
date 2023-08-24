@@ -14,6 +14,7 @@ import 'package:common/constants.dart';
 
 import 'package:shimmer/shimmer.dart';
 import 'package:weekly_menu_app/providers/shopping_list.dart';
+import 'package:weekly_menu_app/widgets/screens/shopping_list_screen/shopping_list_tile.dart';
 
 import '../menu_page/screen.dart';
 
@@ -46,12 +47,12 @@ final _screenNotifierProvider = StateNotifierProvider.autoDispose<
 class _ImportFromMenuScreenState {
   final List<DailyMenu> dailyMenuList;
   final Map<DailyMenu, List<Recipe>> selectedRecipes;
-  final List<RecipeIngredient> selectedIngredients;
+  final List<ShoppingListItem> selectedIngredients;
 
   _ImportFromMenuScreenState(
       {this.dailyMenuList = const <DailyMenu>[],
       this.selectedRecipes = const <DailyMenu, List<Recipe>>{},
-      this.selectedIngredients = const <RecipeIngredient>[]});
+      this.selectedIngredients = const <ShoppingListItem>[]});
 
   List<DailyMenu> get notEmptyDailyMenuList {
     return [...dailyMenuList]..removeWhere((d) => d.isEmpty);
@@ -61,11 +62,12 @@ class _ImportFromMenuScreenState {
     return selectedRecipes[dailyMenu] ?? <Recipe>[];
   }
 
-  List<RecipeIngredient> get allRecipeIngredients {
+  List<ShoppingListItem> get allRecipeIngredients {
     return selectedRecipes.entries
         .map((e) => e.value)
         .expand((e) => e)
         .expand((e) => e.ingredients)
+        .map(ShoppingListItem.fromRecipeIngredient)
         .toList();
   }
 }
@@ -92,16 +94,18 @@ class _ImportFromMenuScreenStateNotifier
         selectedIngredients: _computeSelectedRecipes(newSelection));
   }
 
-  List<RecipeIngredient> _computeSelectedRecipes(
+  List<ShoppingListItem> _computeSelectedRecipes(
       Map<DailyMenu, List<Recipe>> selectedRecipes) {
-    final ingredients = <RecipeIngredient>[];
+    final ingredients = <ShoppingListItem>[];
     selectedRecipes.entries.forEach((r) {
-      ingredients.addAll(r.value.expand((e) => e.ingredients));
+      ingredients.addAll(r.value
+          .expand((e) => e.ingredients)
+          .map(ShoppingListItem.fromRecipeIngredient));
     });
     return ingredients;
   }
 
-  void selectIngredient(RecipeIngredient recipeIngredient, bool value) {
+  void selectIngredient(ShoppingListItem recipeIngredient, bool value) {
     final newState = [...state.selectedIngredients];
     if (value) {
       newState.add(recipeIngredient);
@@ -119,9 +123,18 @@ class _ImportFromMenuScreenStateNotifier
   }
 
   void deselectAll() {
-    final newState = <RecipeIngredient>[];
+    final newState = <ShoppingListItem>[];
 
     state = state.copyWith(selectedIngredients: newState);
+  }
+
+  void updateIngredient(ShoppingListItem newItem) {
+    final newState = [...state.allRecipeIngredients]
+      ..removeWhere((i) => i.itemName == newItem.itemName);
+
+    newState.add(newItem);
+
+    state = state.copyWith();
   }
 
   void resetSelectedIngredients() {
@@ -131,14 +144,8 @@ class _ImportFromMenuScreenStateNotifier
 
   void updateShoppingListWithSelectedIngredients() {
     Object? lastError;
-    final shopItems = state.selectedIngredients
-        .map((e) => ShoppingListItem(
-            itemName: e.ingredientName,
-            quantity: e.quantity,
-            unitOfMeasure: e.unitOfMeasure))
-        .toList();
 
-    for (final s in shopItems) {
+    for (final s in state.selectedIngredients) {
       try {
         // update params is always true because on PUT the server search
         // if there is an ingredient already present
@@ -430,11 +437,18 @@ class _SelectIngredientScreen extends HookConsumerWidget {
                 separatorBuilder: (context, index) => Divider(),
                 itemCount: allItems.length,
                 itemBuilder: (context, index) {
-                  return _IngredientCheckboxTile(
+                  return ShoppingListItemTile(
+                    key: ValueKey("ShoppingListItemTile ${allItems[index]}"),
                     allItems[index],
-                    selected: selectedItems.contains(allItems[index]),
-                    onSelected: (v) {
-                      notifier.selectIngredient(allItems[index], v);
+                    checked: selectedItems.contains(allItems[index]),
+                    editable: false,
+                    onCheckChange: (v) {
+                      notifier.selectIngredient(allItems[index], v!);
+                    },
+                    onSubmitted: (item) {
+                      if (item is ShoppingListItem) {
+                        notifier.updateIngredient(item);
+                      }
                     },
                   );
                 },
@@ -447,7 +461,7 @@ class _SelectIngredientScreen extends HookConsumerWidget {
   }
 
   bool? getCheckboxOverall(
-      List<RecipeIngredient> selectedItems, List<RecipeIngredient> allItems) {
+      List<ShoppingListItem> selectedItems, List<ShoppingListItem> allItems) {
     if (selectedItems.length == 0) return false;
     if (selectedItems.length == allItems.length)
       return true;
@@ -469,28 +483,6 @@ class _SelectIngredientScreen extends HookConsumerWidget {
         showCloseIcon: true,
       ));
     }
-  }
-}
-
-class _IngredientCheckboxTile extends StatelessWidget {
-  final RecipeIngredient ingredient;
-  final bool selected;
-  final ValueChanged? onSelected;
-  const _IngredientCheckboxTile(this.ingredient,
-      {super.key, this.selected = false, this.onSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Text(ingredient.quantity.toString()),
-      title: Text(ingredient.ingredientName),
-      trailing: Checkbox(
-        value: selected,
-        onChanged: (v) {
-          onSelected?.call(v);
-        },
-      ),
-    );
   }
 }
 

@@ -177,6 +177,7 @@ class _ShoppingListListView extends HookConsumerWidget {
         item,
         key: ValueKey("${index}_${item.itemName.trim()}"),
         supermarketSection: supermarketSection,
+        checked: item.checked,
         editable: !selectionModeOn,
         displayLeading: !selectionModeOn,
         displayTrailing: !selectionModeOn,
