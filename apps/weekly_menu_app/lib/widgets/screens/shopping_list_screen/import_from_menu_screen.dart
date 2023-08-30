@@ -46,29 +46,31 @@ final _screenNotifierProvider = StateNotifierProvider.autoDispose<
 @CopyWith()
 class _ImportFromMenuScreenState {
   final List<DailyMenu> dailyMenuList;
-  final Map<DailyMenu, List<Recipe>> selectedRecipes;
-  final List<ShoppingListItem> selectedIngredients;
+  final Map<DailyMenu, Set<Recipe>> selectedRecipes;
+  final Map<ShoppingListItem, bool> shoppingListItemSelection;
 
-  _ImportFromMenuScreenState(
-      {this.dailyMenuList = const <DailyMenu>[],
-      this.selectedRecipes = const <DailyMenu, List<Recipe>>{},
-      this.selectedIngredients = const <ShoppingListItem>[]});
+  _ImportFromMenuScreenState({
+    this.dailyMenuList = const <DailyMenu>[],
+    this.selectedRecipes = const <DailyMenu, Set<Recipe>>{},
+    this.shoppingListItemSelection = const <ShoppingListItem, bool>{},
+  });
 
   List<DailyMenu> get notEmptyDailyMenuList {
     return [...dailyMenuList]..removeWhere((d) => d.isEmpty);
   }
 
-  List<Recipe> selectedRecipesForDailyMenu(DailyMenu dailyMenu) {
-    return selectedRecipes[dailyMenu] ?? <Recipe>[];
+  Set<Recipe> selectedRecipesForDailyMenu(DailyMenu dailyMenu) {
+    return selectedRecipes[dailyMenu] ?? <Recipe>{};
   }
 
-  List<ShoppingListItem> get allRecipeIngredients {
-    return selectedRecipes.entries
-        .map((e) => e.value)
-        .expand((e) => e)
-        .expand((e) => e.ingredients)
-        .map(ShoppingListItem.fromRecipeIngredient)
+  List<ShoppingListItem> get selectedItems {
+    return ({...shoppingListItemSelection}..removeWhere((_, item) => !item))
+        .keys
         .toList();
+  }
+
+  List<ShoppingListItem> get allItems {
+    return shoppingListItemSelection.keys.toList();
   }
 }
 
@@ -81,71 +83,77 @@ class _ImportFromMenuScreenStateNotifier
       super.state, this.shoppingListItemRepository, this.shoppingListId);
 
   void selectRecipe(DailyMenu dailyMenu, Recipe recipe, bool selected) {
-    final currentSelection = state.selectedRecipesForDailyMenu(dailyMenu);
+    final currentRecipeSelection = state.selectedRecipesForDailyMenu(dailyMenu);
     if (selected) {
-      currentSelection.add(recipe);
+      currentRecipeSelection.add(recipe);
     } else {
-      currentSelection.remove(recipe);
+      currentRecipeSelection.remove(recipe);
     }
     final newSelection = {...state.selectedRecipes};
-    newSelection[dailyMenu] = currentSelection;
+    newSelection[dailyMenu] = currentRecipeSelection;
+
+    final items = _computeItemsForSelectedRecipes(newSelection)
+        .map((i) => MapEntry(i, true));
     state = state.copyWith(
-        selectedRecipes: newSelection,
-        selectedIngredients: _computeSelectedRecipes(newSelection));
+      shoppingListItemSelection: Map.fromEntries(items),
+      selectedRecipes: newSelection,
+    );
   }
 
-  List<ShoppingListItem> _computeSelectedRecipes(
-      Map<DailyMenu, List<Recipe>> selectedRecipes) {
-    final ingredients = <ShoppingListItem>[];
-    selectedRecipes.entries.forEach((r) {
-      ingredients.addAll(r.value
-          .expand((e) => e.ingredients)
-          .map(ShoppingListItem.fromRecipeIngredient));
-    });
-    return ingredients;
+  List<ShoppingListItem> _computeItemsForSelectedRecipes(
+      Map<DailyMenu, Set<Recipe>> recipeSelection) {
+    return recipeSelection.values
+        .map(List<Recipe>.from)
+        .expand((recipes) => recipes)
+        .map((recipe) => recipe.ingredients)
+        .expand((ingredients) => ingredients)
+        .map(ShoppingListItem.fromRecipeIngredient)
+        .toList();
   }
 
   void selectIngredient(ShoppingListItem recipeIngredient, bool value) {
-    final newState = [...state.selectedIngredients];
-    if (value) {
-      newState.add(recipeIngredient);
-    } else {
-      newState.remove(recipeIngredient);
-    }
+    final newState = {...state.shoppingListItemSelection};
 
-    state = state.copyWith(selectedIngredients: newState);
+    newState[recipeIngredient] = value;
+
+    state = state.copyWith(shoppingListItemSelection: newState);
   }
 
   void selectAll() {
-    final newState = [...state.allRecipeIngredients];
+    final selection = state.allItems.map((i) => MapEntry(i, true));
 
-    state = state.copyWith(selectedIngredients: newState);
+    state =
+        state.copyWith(shoppingListItemSelection: Map.fromEntries(selection));
   }
 
   void deselectAll() {
-    final newState = <ShoppingListItem>[];
+    final selection = state.allItems.map((i) => MapEntry(i, false));
 
-    state = state.copyWith(selectedIngredients: newState);
+    state =
+        state.copyWith(shoppingListItemSelection: Map.fromEntries(selection));
   }
 
-  void updateIngredient(ShoppingListItem newItem) {
-    final newState = [...state.allRecipeIngredients]
-      ..removeWhere((i) => i.itemName == newItem.itemName);
-
-    newState.add(newItem);
-
-    state = state.copyWith();
+  void updateItem(ShoppingListItem newItem) {
+    final selection = state.shoppingListItemSelection[newItem];
+    if (selection != null) {
+      final newState = state.shoppingListItemSelection..remove(newItem);
+      newState[newItem] = selection;
+      state = state.copyWith(shoppingListItemSelection: newState);
+    } else {
+      logWarn("item not found");
+    }
   }
 
   void resetSelectedIngredients() {
-    state = state.copyWith(
-        selectedIngredients: _computeSelectedRecipes(state.selectedRecipes));
+    final items = _computeItemsForSelectedRecipes(state.selectedRecipes)
+        .map((i) => MapEntry(i, true));
+    state = state.copyWith(shoppingListItemSelection: Map.fromEntries(items));
   }
 
   void updateShoppingListWithSelectedIngredients() {
     Object? lastError;
 
-    for (final s in state.selectedIngredients) {
+    for (final s in state.selectedItems) {
       try {
         // update params is always true because on PUT the server search
         // if there is an ingredient already present
@@ -174,9 +182,14 @@ class ImportFromMenuScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final state = ref.watch(_screenNotifierProvider);
+    final selectedItems = ref
+        .watch(_screenNotifierProvider.select((state) => state.selectedItems));
+    final dailyMenuList = ref.watch(
+        _screenNotifierProvider.select((state) => state.notEmptyDailyMenuList));
+    ;
+
     final notifier = ref.read(_screenNotifierProvider.notifier);
-    final dailyMenuList = state.notEmptyDailyMenuList;
+
     return _ScaffoldWithSuggestionBox(
       suggestion:
           "Select the recipes in the daily menu to import the corresponding ingredients to the shopping list.",
@@ -184,7 +197,7 @@ class ImportFromMenuScreen extends HookConsumerWidget {
       appBar: AppBar(
         title: Text("Select recipes"),
       ),
-      floatingActionButton: state.selectedIngredients.isNotEmpty
+      floatingActionButton: selectedItems.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: () => onFabPressed(context, notifier),
               label: Row(
@@ -192,7 +205,7 @@ class ImportFromMenuScreen extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "+${state.selectedIngredients.length} ingredient/s",
+                    "+${selectedItems.length} ingredient/s",
                     style: theme.textTheme.titleMedium,
                   ),
                 ],
@@ -213,8 +226,6 @@ class ImportFromMenuScreen extends HookConsumerWidget {
       BuildContext context, _ImportFromMenuScreenStateNotifier notifier) async {
     await Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => _SelectIngredientScreen()));
-
-    notifier.resetSelectedIngredients();
   }
 }
 
@@ -305,7 +316,7 @@ class _DailyMenuWrapper extends HookConsumerWidget {
         .read(_screenNotifierProvider)
         .selectedRecipesForDailyMenu(dailyMenu);
     final notifier = ref.read(_screenNotifierProvider.notifier);
-    if (recipe != null)
+    if (recipe != null) {
       return _SelectableRecipeCard(
         recipe,
         selected: selectedRecipes.contains(recipe),
@@ -320,6 +331,8 @@ class _DailyMenuWrapper extends HookConsumerWidget {
           }
         },
       );
+    }
+
     return null;
   }
 }
@@ -391,9 +404,10 @@ class _SelectIngredientScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final notifier = ref.read(_screenNotifierProvider.notifier);
-    final selectedItems =
-        ref.watch(_screenNotifierProvider).selectedIngredients;
-    final allItems = ref.watch(_screenNotifierProvider).allRecipeIngredients;
+    final selectedItems = ref
+        .watch(_screenNotifierProvider.select((state) => state.selectedItems));
+    final allItems =
+        ref.watch(_screenNotifierProvider.select((state) => state.allItems));
 
     return _ScaffoldWithSuggestionBox(
       suggestion: "Check the ingredients you want to add to the shopping list",
@@ -447,7 +461,7 @@ class _SelectIngredientScreen extends HookConsumerWidget {
                     },
                     onSubmitted: (item) {
                       if (item is ShoppingListItem) {
-                        notifier.updateIngredient(item);
+                        notifier.updateItem(item);
                       }
                     },
                   );

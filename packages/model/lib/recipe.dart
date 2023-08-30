@@ -104,8 +104,11 @@ class Recipe extends BaseModel<Recipe> {
   String toString() => name;
 
   @override
+  int get hashCode => idx.hashCode;
+
+  @override
   bool operator ==(Object other) {
-    return (other is Recipe) && (other.idx == this.idx);
+    return (other is Recipe) && (other.idx == idx);
   }
 }
 
