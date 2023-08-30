@@ -406,8 +406,9 @@ class _SelectIngredientScreen extends HookConsumerWidget {
     final notifier = ref.read(_screenNotifierProvider.notifier);
     final selectedItems = ref
         .watch(_screenNotifierProvider.select((state) => state.selectedItems));
-    final allItems =
-        ref.watch(_screenNotifierProvider.select((state) => state.allItems));
+    final allItems = ref
+        .watch(_screenNotifierProvider.select((state) => state.allItems))
+      ..sort((a, b) => a.itemName.compareTo(b.itemName));
 
     return _ScaffoldWithSuggestionBox(
       suggestion: "Check the ingredients you want to add to the shopping list",
