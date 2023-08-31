@@ -43,8 +43,10 @@ class ItemSuggestionTextField extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController(keepScrollOffset: false);
 
-    final shoppingListItems =
-        ref.read(shoppingListScreenNotifierProvider).allItems;
+    //TODO remove dependency to ref in this widget
+    final shoppingListItems = !enabled
+        ? <ShoppingListItem>[]
+        : ref.read(shoppingListScreenNotifierProvider).allItems;
     final ingredientsRepository = ref.watch(ingredientsRepositoryProvider);
 
     String displayStringForOption(Object option) {

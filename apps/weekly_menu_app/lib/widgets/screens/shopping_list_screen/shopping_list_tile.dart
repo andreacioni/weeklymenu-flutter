@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/shopping_list.dart';
 import 'package:model/user_preferences.dart';
+import 'package:common/extensions.dart';
 
-import '../../../providers/user_preferences.dart';
 import 'quantity_and_uom_dialog.dart';
 import './item_suggestion_text_field.dart';
 
-class ShoppingListItemTile extends HookConsumerWidget {
+class ShoppingListItemTile extends StatelessWidget {
   final ShoppingListItem shoppingListItem;
   final bool editable;
   final bool selected;
+  final bool checked;
   final bool dismissible;
   final bool displayLeading;
   final bool displayTrailing;
@@ -20,30 +21,32 @@ class ShoppingListItemTile extends HookConsumerWidget {
   final void Function()? onTap;
   final void Function(bool? newValue)? onCheckChange;
 
-  final void Function(DismissDirection) onDismiss;
+  final void Function(DismissDirection)? onDismiss;
+
+  final SupermarketSection? supermarketSection;
 
   ShoppingListItemTile(
     this.shoppingListItem, {
     Key? key,
     this.editable = true,
+    this.checked = false,
     this.selected = false,
     this.dismissible = false,
     this.displayLeading = true,
     this.displayTrailing = true,
     this.onSubmitted,
-    required this.onDismiss,
+    this.onDismiss,
     this.onLongPress,
     this.onTap,
     this.onCheckChange,
+    this.supermarketSection,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final supermarketSection = ref.read(supermarketSectionByNameProvider(
-        shoppingListItem.supermarketSectionName));
-
-    Widget buildListTile() {
+  Widget build(BuildContext context) {
+    Widget buildListTile([Key? key]) {
       return Column(
+        key: key,
         children: <Widget>[
           _ShoppingListItemTile(
             shoppingListItem: shoppingListItem,
@@ -54,6 +57,7 @@ class ShoppingListItemTile extends HookConsumerWidget {
             onCheckChange: onCheckChange,
             editable: editable,
             selected: selected,
+            checked: checked,
             displayLeading: displayLeading,
             displayTrailing: displayTrailing,
           ),
@@ -62,13 +66,18 @@ class ShoppingListItemTile extends HookConsumerWidget {
       );
     }
 
-    return Dismissible(
+    if (onDismiss != null) {
+      return Dismissible(
         direction:
             dismissible ? DismissDirection.endToStart : DismissDirection.none,
         key: ValueKey(
             'Dismissible_ShoppingListItemTile_${shoppingListItem.itemName}'),
         onDismissed: onDismiss,
-        child: buildListTile());
+        child: buildListTile(),
+      );
+    }
+
+    return buildListTile(key);
   }
 }
 
@@ -82,6 +91,7 @@ class _ShoppingListItemTile extends StatelessWidget {
     this.onTap,
     this.onCheckChange,
     this.selected = false,
+    this.checked = false,
     this.editable = false,
     this.displayLeading = true,
     this.displayTrailing = true,
@@ -95,6 +105,7 @@ class _ShoppingListItemTile extends StatelessWidget {
   final void Function(bool? newValue)? onCheckChange;
   final bool editable;
   final bool selected;
+  final bool checked;
   final bool displayLeading;
   final bool displayTrailing;
 
@@ -114,7 +125,7 @@ class _ShoppingListItemTile extends StatelessWidget {
           if (displayLeading)
             Container(
               width: 60,
-              child: _QuantityAndUomLead(
+              child: QuantityAndUomLead(
                 shoppingListItem,
                 onChanged: (item) => onSubmitted?.call(item),
               ),
@@ -124,7 +135,7 @@ class _ShoppingListItemTile extends StatelessWidget {
       //minLeadingWidth: 50,
       trailing: displayTrailing
           ? Checkbox(
-              value: shoppingListItem.checked,
+              value: checked,
               onChanged: onCheckChange,
             )
           : null,
@@ -153,11 +164,11 @@ class _ShoppingListItemTile extends StatelessWidget {
   }
 }
 
-class _QuantityAndUomLead extends HookConsumerWidget {
+class QuantityAndUomLead extends HookConsumerWidget {
   final ShoppingListItem shoppingListItem;
   final void Function(ShoppingListItem)? onChanged;
 
-  const _QuantityAndUomLead(this.shoppingListItem, {Key? key, this.onChanged})
+  const QuantityAndUomLead(this.shoppingListItem, {Key? key, this.onChanged})
       : super(key: key);
 
   @override
@@ -193,7 +204,9 @@ class _QuantityAndUomLead extends HookConsumerWidget {
             if (quantity != null)
               Expanded(
                 child: AutoSizeText(
-                  (quantity.toStringAsFixed(1) + ' ' + (uom?.toString() ?? '')),
+                  (quantity.toStringAsFixedOrInt(1) +
+                      ' ' +
+                      (uom?.toString() ?? '')),
                   textAlign: TextAlign.center,
                   wrapWords: false,
                   minFontSize: 1,

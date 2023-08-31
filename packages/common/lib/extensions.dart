@@ -11,3 +11,31 @@ extension IsBlankString on String? {
   bool get isBlank => this?.trim().isEmpty ?? true;
   bool get isNotBlank => !isBlank;
 }
+
+extension SkipElementMap<E> on List<E> {
+  /// allow to return `null` value in `toElement` function. These values are
+  /// skipped and not mapped
+  List<R> mapNullable<R extends Object>(R? Function(E element) callback) {
+    final mappedList = <R>[];
+    for (final element in this) {
+      final mappedValue = callback(element);
+      if (mappedValue != null) {
+        mappedList.add(mappedValue);
+      }
+    }
+    return mappedList;
+  }
+}
+
+extension NoDecimalWhenEqualsToInteger on double {
+  String toStringAsFixedOrInt(int digits) {
+    final ret = toStringAsFixed(digits);
+    final intRet = toStringAsFixed(0);
+
+    if (ret == "$intRet.${'0' * digits}") {
+      return intRet;
+    }
+
+    return ret;
+  }
+}

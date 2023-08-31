@@ -10,6 +10,7 @@ import 'package:model/user_preferences.dart';
 
 import 'package:weekly_menu_app/widgets/screens/shopping_list_screen/notifier.dart';
 import '../../../providers/user_preferences.dart';
+import 'import_from_menu_screen.dart';
 
 class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const ShoppingListAppBar();
@@ -105,8 +106,8 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actions: <Widget>[
         if (selectedItems.isEmpty)
           IconButton(
-            icon: Icon(Icons.filter_list),
-            onPressed: () {},
+            icon: Icon(Icons.import_export),
+            onPressed: () => showImportScreen(context),
             splashRadius: Material.defaultSplashRadius / 2,
           )
         else ...[
@@ -135,6 +136,11 @@ class ShoppingListAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => new Size.fromHeight(56);
+
+  void showImportScreen(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => ImportFromMenuScreen()));
+  }
 }
 
 class _ColorChooseSelectionDialog extends HookConsumerWidget {

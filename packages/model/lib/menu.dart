@@ -77,6 +77,20 @@ class DailyMenu with EquatableMixin {
     return recipeIdsByMeal[meal] ?? [];
   }
 
+  /// May contain **duplicates**
+  List<String> get recipeIds {
+    final ret = <String>[];
+
+    for (final m in Meal.values) {
+      final list = getRecipeIdsByMeal(m);
+      if (list.isNotEmpty) {
+        ret.addAll(list);
+      }
+    }
+
+    return ret;
+  }
+
   List<Menu> getMenusByMeal(Meal meal) {
     return menus.where((m) => m.meal == meal).toList();
   }
@@ -115,6 +129,9 @@ class DailyMenu with EquatableMixin {
   bool get isToday => day.isToday;
 
   bool get isPast => day.isPast;
+
+  bool get isEmpty => menus.isEmpty;
+  bool get isNotEmpty => menus.isNotEmpty;
 
   @override
   List<Object?> get props => [

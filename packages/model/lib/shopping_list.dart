@@ -1,5 +1,6 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:model/recipe.dart';
 import 'package:objectid/objectid.dart';
 
 import 'base_model.dart';
@@ -39,7 +40,12 @@ class ShoppingList extends BaseModel<ShoppingList> {
       items.where((item) => !item.checked).toList();
 
   ShoppingList addShoppingListItem(ShoppingListItem shoppingListItem) {
-    final newList = [shoppingListItem, ...items];
+    return addAllShoppingListItem([shoppingListItem]);
+  }
+
+  ShoppingList addAllShoppingListItem(
+      List<ShoppingListItem> shoppingListItemList) {
+    final newList = [...shoppingListItemList, ...items];
     return this.copyWith(items: newList);
   }
 
@@ -105,6 +111,15 @@ class ShoppingListItem {
       _$ShoppingListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ShoppingListItemToJson(this);
+
+  factory ShoppingListItem.fromRecipeIngredient(
+      RecipeIngredient recipeIngredient) {
+    return ShoppingListItem(
+      itemName: recipeIngredient.ingredientName,
+      quantity: recipeIngredient.quantity,
+      unitOfMeasure: recipeIngredient.unitOfMeasure,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>

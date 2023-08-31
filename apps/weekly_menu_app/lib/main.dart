@@ -4,10 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:stack_trace/stack_trace.dart' as stack_trace;
 
 import 'widgets/screens/splash_screen/screen.dart';
 
-void main() => runApp(App());
+void main() {
+  runApp(App());
+  FlutterError.demangleStackTrace = (StackTrace stack) {
+    if (stack is stack_trace.Trace) return stack.vmTrace;
+    if (stack is stack_trace.Chain) return stack.toTrace().vmTrace;
+    return stack;
+  };
+}
 
 class NewWidget extends StatelessWidget {
   const NewWidget({
