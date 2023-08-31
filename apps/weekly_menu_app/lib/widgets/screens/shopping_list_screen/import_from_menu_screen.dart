@@ -7,6 +7,7 @@ import 'package:model/menu.dart';
 import 'package:model/recipe.dart';
 import 'package:model/shopping_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:collection/collection.dart';
 import 'package:common/date.dart';
 import 'package:common/log.dart';
 import 'package:common/extensions.dart';
@@ -93,9 +94,33 @@ class _ImportFromMenuScreenStateNotifier
     newSelection[dailyMenu] = currentRecipeSelection;
 
     final items = _computeItemsForSelectedRecipes(newSelection)
-        .map((i) => MapEntry(i, true));
+        .fold(<ShoppingListItem, bool>{}, (previousValue, element) {
+      //If a recipe is duplicated in more menus we need to merge
+      //multiple shopping list items into one. Quantity can be merged only if
+      //unit of measure is the same for each item.
+      if (previousValue.containsKey(element)) {
+        final checked = previousValue[element] ?? false;
+        final oldElement = previousValue.keys
+            .firstWhereOrNull((e) => e.itemName == element.itemName);
+        previousValue.remove(element);
+
+        final ShoppingListItem newElement;
+        if (element.unitOfMeasure != oldElement?.unitOfMeasure) {
+          newElement = element.copyWith(quantity: null, unitOfMeasure: null);
+        } else {
+          newElement = element.copyWith(
+              quantity: (element.quantity ?? 0) + (oldElement?.quantity ?? 0));
+        }
+
+        previousValue[newElement] = checked;
+      }
+
+      previousValue[element] = true;
+
+      return previousValue;
+    });
     state = state.copyWith(
-      shoppingListItemSelection: Map.fromEntries(items),
+      shoppingListItemSelection: items,
       selectedRecipes: newSelection,
     );
   }

@@ -26,3 +26,16 @@ extension SkipElementMap<E> on List<E> {
     return mappedList;
   }
 }
+
+extension NoDecimalWhenEqualsToInteger on double {
+  String toStringAsFixedOrInt(int digits) {
+    final ret = toStringAsFixed(digits);
+    final intRet = toStringAsFixed(0);
+
+    if (ret == "$intRet.${'0' * digits}") {
+      return intRet;
+    }
+
+    return ret;
+  }
+}

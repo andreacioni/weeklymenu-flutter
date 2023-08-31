@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/shopping_list.dart';
 import 'package:model/user_preferences.dart';
+import 'package:common/extensions.dart';
 
 import 'quantity_and_uom_dialog.dart';
 import './item_suggestion_text_field.dart';
@@ -203,7 +204,9 @@ class QuantityAndUomLead extends HookConsumerWidget {
             if (quantity != null)
               Expanded(
                 child: AutoSizeText(
-                  (quantity.toStringAsFixed(1) + ' ' + (uom?.toString() ?? '')),
+                  (quantity.toStringAsFixedOrInt(1) +
+                      ' ' +
+                      (uom?.toString() ?? '')),
                   textAlign: TextAlign.center,
                   wrapWords: false,
                   minFontSize: 1,
