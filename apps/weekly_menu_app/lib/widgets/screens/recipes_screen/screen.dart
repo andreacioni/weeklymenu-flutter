@@ -45,6 +45,8 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
   @override
   Widget build(BuildContext context) {
     final repository = ref.recipes;
+    final recipeStream = useMemoized(() => repository.stream());
+
     return Scaffold(
       key: widget.key,
       appBar: _editingModeEnabled == false
@@ -55,14 +57,8 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: buildDataStateBuilder(repository),
-    );
-  }
-
-  RepositoryStreamBuilder<List<Recipe>> buildDataStateBuilder(
-      Repository<Recipe> repository) {
-    return RepositoryStreamBuilder<List<Recipe>>(
-      stream: repository.stream(),
+      body: RepositoryStreamBuilder<List<Recipe>>(
+      stream: recipeStream,
       notFound: _buildNoRecipesFound(),
       onRefresh: () async => repository.reload(),
       builder: (context, model) {
@@ -74,6 +70,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
           ),
         );
       },
+    )
     );
   }
 
