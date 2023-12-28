@@ -18,7 +18,7 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
   final Widget error;
   final Widget Function(BuildContext context, T model) builder;
 
-  RepositoryStreamBuilder(
+  const RepositoryStreamBuilder(
       {required this.stream,
       required this.builder,
       this.onRefresh,

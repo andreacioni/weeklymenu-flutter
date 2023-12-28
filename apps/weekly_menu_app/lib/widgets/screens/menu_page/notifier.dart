@@ -1,11 +1,37 @@
 import 'package:common/constants.dart';
+import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:data/repositories.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/enums/meal.dart';
 import 'package:model/menu.dart';
 
 import 'package:collection/collection.dart';
 import 'package:model/recipe.dart';
+
+part 'notifier.g.dart';
+
+
+final menuScreenNotifierProvider = StateNotifierProvider.autoDispose<
+    MenuScreenStateNotifier,
+    MenuScreenState>((_) => MenuScreenStateNotifier(MenuScreenState()));
+
+@immutable
+@CopyWith()
+class MenuScreenState {
+  final bool editMode;
+
+  MenuScreenState({this.editMode = false});
+}
+
+class MenuScreenStateNotifier extends StateNotifier<MenuScreenState> {
+  MenuScreenStateNotifier(MenuScreenState state) : super(state);
+
+  void setEditMode(bool editMode) {
+    state = state.copyWith(editMode: editMode);
+  }
+}
+
 
 class DailyMenuNotifier extends StateNotifier<DailyMenu> {
   final Repository<Menu> _repository;

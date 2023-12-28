@@ -144,7 +144,8 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final editingMode = ref.watch(isEditingMenuStateProvider);
+    final editingMode = ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
+    
     final primaryColor = Theme.of(context).primaryColor;
 
     Widget buildTitleTrailingIcon() {
@@ -245,7 +246,8 @@ class _MealRecipeCardContainer extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final editingMode = ref.watch(isEditingMenuStateProvider);
+    final editingMode = ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
+
     return Row(
       children: [
         _LeadingRecipeIcon(
@@ -426,7 +428,7 @@ class _MenuRecipeWrapper extends HookConsumerWidget {
   final DailyMenuNotifier dailyMenuNotifier;
   final bool editingMode;
 
-  _MenuRecipeWrapper(this.recipeId,
+  const _MenuRecipeWrapper(this.recipeId,
       {required this.meal,
       required this.dailyMenuNotifier,
       this.editingMode = false,
@@ -435,16 +437,21 @@ class _MenuRecipeWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final recipeStream = useMemoized(() => ref.watch(recipeRepositoryProvider).streamOne(recipeId));
     return RepositoryStreamBuilder<Recipe>(
-        stream: ref.watch(recipeRepositoryProvider).streamOne(recipeId),
+        stream: recipeStream,
         error: Container(),
         builder: (context, recipe) {
-          return _MenuRecipeCard(recipe,
-              meal: meal,
+          return _MenuRecipeCard(
+            key:ValueKey(recipe.name),
+            recipe,
+              meal:meal,
               dailyMenuNotifier: dailyMenuNotifier,
-              editingMode: editingMode);
+              editingMode: 
+              editingMode);
         });
   }
+
 }
 
 class _MenuRecipeCard extends HookConsumerWidget {

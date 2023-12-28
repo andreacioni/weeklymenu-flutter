@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import 'screen.dart';
+import 'package:weekly_menu_app/widgets/screens/menu_page/notifier.dart';
 
 class MenuAppBar extends HookConsumerWidget implements PreferredSizeWidget {
   MenuAppBar();
@@ -11,16 +10,16 @@ class MenuAppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final editingMode = ref.watch(isEditingMenuStateProvider);
+    final notifier = ref.read(menuScreenNotifierProvider.notifier);
+
+    final editingMode = ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
 
     return AppBar(
       title: Text("Weekly Menu"),
       centerTitle: true,
       actions: [
         IconButton(
-            onPressed: () => ref
-                .read(isEditingMenuStateProvider.notifier)
-                .state = !editingMode,
+            onPressed: () => notifier.setEditMode(!editingMode),
             icon: editingMode
                 ? Icon(Icons.done)
                 : Icon(Icons.mode_edit_outline_outlined))

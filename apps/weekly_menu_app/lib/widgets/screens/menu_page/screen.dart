@@ -19,8 +19,6 @@ import 'menu_app_bar.dart';
 import 'notifier.dart';
 
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
-final isEditingMenuStateProvider =
-    StateProvider.autoDispose<bool>((_) => false);
 final pointerOverWidgetIndexStateProvider =
     StateProvider.autoDispose<Date?>((_) => null);
 
