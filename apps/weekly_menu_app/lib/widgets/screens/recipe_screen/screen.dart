@@ -182,7 +182,7 @@ class _RecipeScreen extends HookConsumerWidget {
     }
 
     Future<void> _handleBackButton() async {
-      if (notifier.edited) {
+      if (ref.read(recipeScreenNotifierProvider).recipeOriginator.isEdited) {
         final wannaSave = await showWannaSaveDialog(context);
 
         if (wannaSave ?? false) {

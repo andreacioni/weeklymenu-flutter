@@ -73,22 +73,18 @@ class RecipeScreenStateNotifier extends StateNotifier<RecipeScreenState> {
 
   Recipe revertRecipe() => state.recipeOriginator.revert();
 
-  bool get editEnabled => state.editEnabled;
   set editEnabled(bool newValue) {
     state = state.copyWith(editEnabled: newValue);
   }
 
-  bool get newIngredientMode => state.editEnabled;
   set newIngredientMode(bool newValue) {
     state = state.copyWith(newIngredientMode: newValue);
   }
 
-  bool get newStepMode => state.editEnabled;
   set newStepMode(bool newValue) {
     state = state.copyWith(newStepMode: newValue);
   }
 
-  bool get edited => state.recipeOriginator.isEdited;
 
   void updateRecipeName(String name) {
     state.recipeOriginator

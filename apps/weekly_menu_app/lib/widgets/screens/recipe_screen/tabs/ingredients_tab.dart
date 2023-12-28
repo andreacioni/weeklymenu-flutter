@@ -8,7 +8,6 @@ import 'package:collection/collection.dart';
 import 'package:model/ingredient.dart';
 import 'package:model/recipe.dart';
 import 'package:common/extensions.dart';
-import 'package:weekly_menu_app/widgets/shared/flutter_data_state_builder.dart';
 
 import '../../../shared/base_dialog.dart';
 import '../../../shared/empty_page_placeholder.dart';
@@ -102,7 +101,7 @@ class RecipeIngredientsTab extends HookConsumerWidget {
   }
 }
 
-class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
+class _RecipeIngredientListTileWrapper extends StatelessWidget {
   final RecipeIngredient? recipeIngredient;
   final bool editEnabled;
   final bool autofocus;
@@ -123,7 +122,7 @@ class _RecipeIngredientListTileWrapper extends HookConsumerWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     if (recipeIngredient != null) {
       return _RecipeIngredientListTile(
         key: ValueKey(recipeIngredient!.ingredientName),
@@ -357,63 +356,57 @@ class _IngredientSuggestionTextField extends HookConsumerWidget {
     final hasFocus = useState(false);
     final hasText = useState(false);
 
-    final ingredientsStream = ref.read(ingredientsRepositoryProvider).stream();
-
-    return RepositoryStreamBuilder<List<Ingredient>>(
-      stream: ingredientsStream,
-      builder: (context, model) {
-        return Autocomplete<Ingredient>(
-          initialValue:
-              TextEditingValue(text: recipeIngredient?.ingredientName ?? ''),
-          optionsMaxHeight: 100,
-          optionsBuilder: (textEditingValue) async {
-            if (textEditingValue.text.length < suggestAfter ||
-                !enabled ||
-                textEditingValue.text == recipeIngredient?.ingredientName)
-              return const <Ingredient>[];
-
-            return model.where((i) => i.name
-                .toLowerCase()
-                .contains(textEditingValue.text.toLowerCase()));
-          },
-          displayStringForOption: (option) => option.name,
-          fieldViewBuilder:
-              (context, textEditingController, focusNode, onFieldSubmitted) {
-            focusNode.addListener(() {
-              hasFocus.value = focusNode.hasPrimaryFocus;
-
-              if (!focusNode.hasPrimaryFocus) {
-                textEditingController.text =
-                    recipeIngredient?.ingredientName ?? '';
-                textEditingController.selection = TextSelection.fromPosition(
-                    TextPosition(offset: textEditingController.text.length));
-              }
-
-              onFocusChanged?.call(focusNode.hasPrimaryFocus);
-            });
-
-            return AutoSizeTextField(
-                scrollController: scrollController,
-                autofocus: autofocus,
-                focusNode: enabled ? focusNode : null,
-                textCapitalization: TextCapitalization.sentences,
-                controller: textEditingController,
-                onChanged: (text) {
-                  hasText.value = text.isNotBlank;
-                },
-                readOnly: !enabled,
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    suffixIcon: _buildSuffixIcon(
-                      ref,
-                      editEnabled: enabled,
-                      hasFocus: hasFocus.value,
-                      hasText: hasText.value,
-                      controller: textEditingController,
-                    )),
-                onSubmitted: (text) => _submit(ref, text));
-          },
-        );
+    return Autocomplete<Ingredient>(
+      initialValue:
+          TextEditingValue(text: recipeIngredient?.ingredientName ?? ''),
+      optionsMaxHeight: 100,
+      optionsBuilder: (textEditingValue) async {
+        if (textEditingValue.text.length < suggestAfter ||
+            !enabled ||
+            textEditingValue.text == recipeIngredient?.ingredientName)
+          return const <Ingredient>[];
+    
+        final ingredientsStream = await ref.read(ingredientsRepositoryProvider).loadAll();
+        return ingredientsStream.where((i) => i.name
+            .toLowerCase()
+            .contains(textEditingValue.text.toLowerCase()));
+      },
+      displayStringForOption: (option) => option.name,
+      fieldViewBuilder:
+          (context, textEditingController, focusNode, onFieldSubmitted) {
+        focusNode.addListener(() {
+          hasFocus.value = focusNode.hasPrimaryFocus;
+    
+          if (!focusNode.hasPrimaryFocus) {
+            textEditingController.text =
+                recipeIngredient?.ingredientName ?? '';
+            textEditingController.selection = TextSelection.fromPosition(
+                TextPosition(offset: textEditingController.text.length));
+          }
+    
+          onFocusChanged?.call(focusNode.hasPrimaryFocus);
+        });
+    
+        return AutoSizeTextField(
+            scrollController: scrollController,
+            autofocus: autofocus,
+            focusNode: enabled ? focusNode : null,
+            textCapitalization: TextCapitalization.sentences,
+            controller: textEditingController,
+            onChanged: (text) {
+              hasText.value = text.isNotBlank;
+            },
+            readOnly: !enabled,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                suffixIcon: _buildSuffixIcon(
+                  ref,
+                  editEnabled: enabled,
+                  hasFocus: hasFocus.value,
+                  hasText: hasText.value,
+                  controller: textEditingController,
+                )),
+            onSubmitted: (text) => _submit(ref, text));
       },
     );
   }

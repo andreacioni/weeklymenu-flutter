@@ -1,3 +1,5 @@
+import 'dart:async';
+
 extension Unique<E, Id> on List<E> {
   List<E> unique([Id Function(E element)? id, bool inplace = true]) {
     final ids = Set();
@@ -37,5 +39,16 @@ extension NoDecimalWhenEqualsToInteger on double {
     }
 
     return ret;
+  }
+}
+
+
+extension FutureFromFutureOr<T> on FutureOr<T> {
+  Future<T> toFuture() {
+    if(this is Future<T>) {
+      return this as Future<T>;
+    }
+
+    return Future<T>.value(this);
   }
 }

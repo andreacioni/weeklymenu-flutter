@@ -13,7 +13,7 @@ dependencies:
   path_provider: ^2.0.15 #needed by flutter_data
   http: ^0.13.6
   objectid: ^2.0.0
-  hooks_riverpod: ^2.3.6
+  hooks_riverpod: ^2.4.9
   
   firebase_core: ^2.15.0
   firebase_remote_config: ^4.2.4

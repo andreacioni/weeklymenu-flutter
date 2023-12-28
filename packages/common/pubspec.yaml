@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   
-  hooks_riverpod: ^2.3.6
+  hooks_riverpod: ^2.4.9
   intl: ^0.18.0
   logging: any
 

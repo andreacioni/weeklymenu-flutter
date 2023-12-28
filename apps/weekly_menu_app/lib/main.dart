@@ -66,7 +66,9 @@ class App extends StatelessWidget {
           // To use the playground font, add GoogleFonts package and uncomment
           // fontFamily: GoogleFonts.notoSans().fontFamily,
         ),
+        
         theme: ThemeData(
+          useMaterial3: false,
             // Define the default brightness and colors.
             brightness: Brightness.light,
             //backgroundColor: Colors.white,
