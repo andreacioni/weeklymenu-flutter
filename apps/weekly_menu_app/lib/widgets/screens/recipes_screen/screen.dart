@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/recipe.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/widgets/shared/appbar_button.dart';
 import 'package:weekly_menu_app/widgets/shared/flutter_data_state_builder.dart';
 
 import '../../shared/base_modal_bottom_sheet.dart';
@@ -26,7 +27,6 @@ class RecipesScreen extends StatefulHookConsumerWidget {
 }
 
 class _RecipesScreenState extends ConsumerState<RecipesScreen> {
-  late bool _searchModeEnabled;
   late String _searchText;
 
   late bool _editingModeEnabled;
@@ -34,7 +34,6 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
 
   @override
   void initState() {
-    _searchModeEnabled = false;
     _searchText = "";
     _editingModeEnabled = false;
     _selectedRecipes = <Recipe>[];
@@ -48,43 +47,39 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     final recipeStream = useMemoized(() => repository.stream());
 
     return Scaffold(
-      key: widget.key,
-      appBar: _editingModeEnabled == false
-          ? _buildAppBar(context)
-          : _buildEditingAppBar(ref),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showRecipeNameDialog(),
-        child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: RepositoryStreamBuilder<List<Recipe>>(
-      stream: recipeStream,
-      notFound: _buildNoRecipesFound(),
-      onRefresh: () async => repository.reload(),
-      builder: (context, model) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: _buildScreenBody(
-            [...model],
-            filter: (recipe) => !stringContains(recipe.name, _searchText),
-          ),
-        );
-      },
-    )
-    );
+        key: widget.key,
+        appBar: _AppBar(
+          onSearchTextChanged: ((searchText) => setState(() {
+                _searchText = searchText;
+              })),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showRecipeNameDialog(),
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        extendBodyBehindAppBar: true,
+        body: RepositoryStreamBuilder<List<Recipe>>(
+          stream: recipeStream,
+          notFound: _buildNoRecipesFound(),
+          onRefresh: () async => repository.reload(),
+          builder: (context, model) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: _buildScreenBody(
+                [...model],
+                filter: (recipe) => !stringContains(recipe.name, _searchText),
+              ),
+            );
+          },
+        ));
   }
 
   Widget _buildScreenBody(List<Recipe> recipes,
       {required bool Function(Recipe) filter}) {
     if (recipes.isNotEmpty) {
       recipes.removeWhere(filter);
-
-      if (recipes.isEmpty && _searchModeEnabled) {
-        return EmptyPagePlaceholder(
-            icon: Icons.kitchen_outlined, text: 'No personal recipes');
-      } else {
-        return _buildRecipeList(recipes);
-      }
+      return _buildRecipeList(recipes);
     } else {
       return EmptyPagePlaceholder(
           icon: Icons.kitchen_outlined, text: 'No personal recipes');
@@ -186,46 +181,6 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     _addRecipeToEditingList(recipe);
   }
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      title: _searchModeEnabled == false
-          ? buildAppBarTitle()
-          : TextField(
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Search...',
-              ),
-              onChanged: (text) => setState(() => _searchText = text),
-            ),
-      leading: IconButton(
-        icon: Icon(
-          Icons.menu,
-          size: 30.0,
-        ),
-        onPressed: () => Scaffold.of(context).openDrawer(),
-      ),
-      actions: <Widget>[
-        if (_searchModeEnabled == false)
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => setState(() => _searchModeEnabled = true),
-          )
-        else
-          IconButton(
-            icon: Icon(Icons.clear),
-            onPressed: () => setState(() {
-              _searchModeEnabled = false;
-              _searchText = "";
-            }),
-          ),
-        IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: _openOrderingDialog,
-        )
-      ],
-    );
-  }
-
   Widget buildAppBarTitle() {
     return Row(
       children: [
@@ -233,8 +188,6 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
       ],
     );
   }
-
-  void _openOrderingDialog() async {}
 
   AppBar _buildEditingAppBar(WidgetRef ref) {
     return AppBar(
@@ -476,4 +429,92 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
     final recipe = await scraper.scrapeUrl(url);
     return recipe;
   }
+}
+
+class _AppBar extends StatefulWidget implements PreferredSizeWidget {
+  final ValueChanged<String>? onSearchTextChanged;
+
+  _AppBar({this.onSearchTextChanged});
+
+  @override
+  State<_AppBar> createState() => _AppBarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(56);
+}
+
+class _AppBarState extends State<_AppBar> {
+  late FocusNode focusNode;
+  late TextEditingController textEditingController;
+  late bool hasFocus;
+
+  @override
+  void initState() {
+    focusNode = FocusNode();
+    textEditingController = TextEditingController();
+    hasFocus = false;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    focusNode.addListener(() {
+      setState(() => hasFocus = focusNode.hasFocus);
+    });
+    return AppBar(
+      title: Material(
+        elevation: 1,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: TextField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+                hintText: 'Search',
+                border: InputBorder.none,
+                suffixIcon: textEditingController.text.isNotEmpty || hasFocus
+                    ? IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () {
+                          FocusScope.of(context).requestFocus(new FocusNode());
+                          textEditingController.clear();
+                          this.widget.onSearchTextChanged?.call("");
+                        },
+                      )
+                    : Icon(Icons.search)),
+            onChanged: (text) {
+              this.widget.onSearchTextChanged?.call(text);
+            },
+          ),
+        ),
+      ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      leading: Transform.scale(
+        scale: 0.85,
+        child: AppBarButton(
+          icon: Icon(Icons.menu),
+          onPressed: () =>
+              Scaffold.of(Scaffold.of(context).context).openDrawer(),
+        ),
+      ),
+      actions: <Widget>[
+        AppBarButton(
+          icon: Icon(
+            Icons.filter_list,
+          ),
+          onPressed: _openOrderingDialog,
+        )
+      ],
+    );
+  }
+
+  void _openOrderingDialog() async {}
 }
