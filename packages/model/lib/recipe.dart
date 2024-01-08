@@ -167,3 +167,33 @@ class MealRecipe {
   final Recipe recipe;
   MealRecipe(this.meal, this.recipe);
 }
+
+@JsonSerializable(explicitToJson: true, anyMap: true)
+@CopyWith()
+class ExternalRecipe extends Recipe {
+  ExternalRecipe(
+      {required super.name,
+      super.availabilityMonths,
+      super.cost,
+      super.description,
+      super.difficulty,
+      super.estimatedCookingTime,
+      super.estimatedPreparationTime,
+      super.imgUrl,
+      super.ingredients,
+      super.insertTimestamp,
+      super.note,
+      super.owner,
+      super.preparation,
+      super.preparationSteps,
+      super.rating,
+      super.recipeUrl,
+      super.relatedRecipes,
+      super.scraped,
+      super.section,
+      super.servs,
+      super.tags,
+      super.updateTimestamp,
+      super.videoUrl});
+  Map<String, dynamic> toJson() => _$ExternalRecipeToJson(this);
+}

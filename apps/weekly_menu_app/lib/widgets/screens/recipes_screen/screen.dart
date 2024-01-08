@@ -26,138 +26,72 @@ class RecipesScreen extends StatefulHookConsumerWidget {
   _RecipesScreenState createState() => _RecipesScreenState();
 }
 
-class _RecipesScreenState extends ConsumerState<RecipesScreen> {
+class _RecipesScreenState extends ConsumerState<RecipesScreen>
+    with SingleTickerProviderStateMixin {
   late String _searchText;
 
   late bool _editingModeEnabled;
   late List<Recipe> _selectedRecipes;
+
+  late TabController _tabController;
 
   @override
   void initState() {
     _searchText = "";
     _editingModeEnabled = false;
     _selectedRecipes = <Recipe>[];
+    _tabController = TabController(length: 2, vsync: this);
 
     super.initState();
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final repository = ref.recipes;
-    final recipeStream = useMemoized(() => repository.stream());
-
     return Scaffold(
-        key: widget.key,
-        appBar: _AppBar(
-          onSearchTextChanged: ((searchText) => setState(() {
-                _searchText = searchText;
-              })),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showRecipeNameDialog(),
-          child: Icon(Icons.add),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        extendBodyBehindAppBar: true,
-        body: RepositoryStreamBuilder<List<Recipe>>(
-          stream: recipeStream,
-          notFound: _buildNoRecipesFound(),
-          onRefresh: () async => repository.reload(),
-          builder: (context, model) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: _buildScreenBody(
-                [...model],
-                filter: (recipe) => !stringContains(recipe.name, _searchText),
-              ),
-            );
-          },
-        ));
-  }
-
-  Widget _buildScreenBody(List<Recipe> recipes,
-      {required bool Function(Recipe) filter}) {
-    if (recipes.isNotEmpty) {
-      recipes.removeWhere(filter);
-      return _buildRecipeList(recipes);
-    } else {
-      return EmptyPagePlaceholder(
-          icon: Icons.kitchen_outlined, text: 'No personal recipes');
-    }
-  }
-
-  Widget _buildNoRecipesFound() {
-    final _textColor = Colors.grey.shade300;
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(
-            Icons.restaurant,
-            size: 130,
-            color: _textColor,
+      key: widget.key,
+      appBar: _AppBar(
+        tabController: _tabController,
+        onSearchTextChanged: ((searchText) => setState(() {
+              _searchText = searchText;
+            })),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showRecipeNameDialog(),
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      extendBodyBehindAppBar: true,
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _MyRecipesTab(
+            searchText: _searchText,
+            editingModeEnabled: _editingModeEnabled,
+            selectedRecipes: _selectedRecipes,
+            onRecipeTap: (recipe) => _editingModeEnabled == true
+                ? _addRecipeToEditingList(recipe)
+                : _openRecipeView(context, recipe, heroTag: recipe.idx),
+            onRecipeLongPress: (recipe) => _editingModeEnabled == false
+                ? _enableEditingMode(recipe)
+                : null,
           ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            "No recipes found",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 25,
-              color: _textColor,
-            ),
+          _ExploreRecipeTab(
+            searchText: _searchText,
           )
         ],
       ),
     );
   }
 
-  Widget _buildRecipeList(List<Recipe> recipes) {
-    return GridView.builder(
-      cacheExtent: 2000,
-      gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemBuilder: (ctx, index) => Hero(
-        tag: recipes[index].idx,
-        child: buildRecipeCard(recipes, index, ctx),
-      ),
-      itemCount: recipes.length,
-    );
-  }
-
-  Widget buildRecipeCard(List<Recipe> recipes, int index, BuildContext ctx) {
-    final recipe = recipes[index];
-    return RecipeCard(
-      recipe,
-      borderSide: _editingModeEnabled == true &&
-              _selectedRecipes.contains(recipes[index])
-          ? BorderSide(color: Theme.of(ctx).colorScheme.secondary, width: 2)
-          : BorderSide.none,
-      shadowColorStart: _editingModeEnabled == true &&
-              _selectedRecipes.contains(recipes[index])
-          ? Theme.of(ctx).colorScheme.secondary.withOpacity(0.7)
-          : Colors.black54,
-      onTap: () => _editingModeEnabled == true
-          ? _addRecipeToEditingList(recipe)
-          : _openRecipeView(recipe, heroTag: recipe.idx),
-      onLongPress: () =>
-          _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
-    );
-  }
-
-  void _openRecipeView(Recipe recipe,
-      {Object heroTag = const Object(), bool unsaved = false}) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) {
-        return RecipeScreen(
-          recipe,
-          heroTag: heroTag,
-          unsaved: unsaved,
-        );
-      }),
-    );
+  void _enableEditingMode(Recipe recipe) {
+    setState(() => _editingModeEnabled = true);
+    _addRecipeToEditingList(recipe);
   }
 
   void _addRecipeToEditingList(Recipe recipe) {
@@ -174,11 +108,6 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         setState(() => _editingModeEnabled = false);
       }
     }
-  }
-
-  void _enableEditingMode(Recipe recipe) {
-    setState(() => _editingModeEnabled = true);
-    _addRecipeToEditingList(recipe);
   }
 
   Widget buildAppBarTitle() {
@@ -279,6 +208,280 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
           unsaved: newRecipe.scraped ?? false,
         );
       }),
+    );
+  }
+
+  void _openRecipeView(BuildContext context, Recipe recipe,
+      {Object heroTag = const Object(), bool unsaved = false}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) {
+        return RecipeScreen(
+          recipe,
+          heroTag: heroTag,
+          unsaved: unsaved,
+        );
+      }),
+    );
+  }
+}
+
+class _MyRecipesTab extends HookConsumerWidget {
+  final String searchText;
+  final bool editingModeEnabled;
+  final List<Recipe> selectedRecipes;
+
+  final ValueChanged<Recipe>? onRecipeTap;
+  final ValueChanged<Recipe>? onRecipeLongPress;
+
+  _MyRecipesTab(
+      {required this.searchText,
+      required this.editingModeEnabled,
+      required this.selectedRecipes,
+      this.onRecipeLongPress,
+      this.onRecipeTap});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repository = ref.recipes;
+    final recipeStream = useMemoized(() => repository.stream());
+
+    final theme = Theme.of(context);
+
+    return ListView(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          height: 56,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            children: [
+              InputChip(
+                backgroundColor: theme.colorScheme.background,
+                selectedColor: theme.primaryColorLight,
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(color: theme.colorScheme.secondary),
+                    borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                label: Text("Month recipes"),
+                onPressed: () {},
+              ),
+              SizedBox(width: 10),
+              InputChip(
+                  backgroundColor: theme.colorScheme.background,
+                  selectedColor: theme.primaryColorLight,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: theme.colorScheme.secondary),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  selected: true,
+                  label: Text("Most cooked"),
+                  onPressed: () {}),
+              SizedBox(width: 10),
+              InputChip(
+                  backgroundColor: theme.colorScheme.background,
+                  selectedColor: theme.primaryColorLight,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: theme.colorScheme.secondary),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  label: Text("Seasonal"),
+                  onPressed: () {}),
+              SizedBox(width: 10),
+              InputChip(
+                  backgroundColor: theme.colorScheme.background,
+                  selectedColor: theme.primaryColorLight,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: theme.colorScheme.secondary),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  label: Text("Fast"),
+                  onPressed: () {}),
+            ],
+          ),
+        ),
+        Divider(),
+        RepositoryStreamBuilder<List<Recipe>>(
+          stream: recipeStream,
+          notFound: _buildNoRecipesFound(),
+          onRefresh: () async => repository.reload(),
+          builder: (context, model) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: _buildScreenBody(
+                context,
+                [...model],
+                filter: (recipe) => !stringContains(recipe.name, searchText),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScreenBody(BuildContext context, List<Recipe> recipes,
+      {required bool Function(Recipe) filter}) {
+    if (recipes.isNotEmpty) {
+      recipes.removeWhere(filter);
+      return _buildRecipeList(context, recipes);
+    } else {
+      return EmptyPagePlaceholder(
+          icon: Icons.kitchen_outlined, text: 'No personal recipes');
+    }
+  }
+
+  Widget _buildNoRecipesFound() {
+    final _textColor = Colors.grey.shade300;
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.restaurant,
+            size: 130,
+            color: _textColor,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            "No recipes found",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 25,
+              color: _textColor,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecipeList(BuildContext context, List<Recipe> recipes) {
+    return GridView.builder(
+      cacheExtent: 20,
+      padding: EdgeInsets.zero,
+      physics:
+          NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+      shrinkWrap: true,
+      gridDelegate:
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemBuilder: (context, index) => Hero(
+        tag: recipes[index].idx,
+        child: buildRecipeCard(context, recipes, index),
+      ),
+      itemCount: recipes.length,
+    );
+  }
+
+  Widget buildRecipeCard(
+      BuildContext context, List<Recipe> recipes, int index) {
+    final recipe = recipes[index];
+    return RecipeCard(recipe,
+        borderSide: editingModeEnabled == true &&
+                selectedRecipes.contains(recipes[index])
+            ? BorderSide(
+                color: Theme.of(context).colorScheme.secondary, width: 2)
+            : BorderSide.none,
+        shadowColorStart: editingModeEnabled == true &&
+                selectedRecipes.contains(recipes[index])
+            ? Theme.of(context).colorScheme.secondary.withOpacity(0.7)
+            : Colors.black54,
+        onTap: () => onRecipeTap?.call(recipe),
+        onLongPress: () => onRecipeLongPress?.call(recipe));
+  }
+}
+
+class _ExploreRecipeTab extends HookConsumerWidget {
+  final String searchText;
+
+  _ExploreRecipeTab({
+    required this.searchText,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repository = ref.externalRecipes;
+    final theme = Theme.of(context);
+
+    return ListView(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          height: 56,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            children: [
+              InputChip(
+                backgroundColor: theme.colorScheme.background,
+                selectedColor: theme.primaryColorLight,
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(color: theme.colorScheme.secondary),
+                    borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                label: Text("Month recipes"),
+                onPressed: () {},
+              ),
+              SizedBox(width: 10),
+              InputChip(
+                  backgroundColor: theme.colorScheme.background,
+                  selectedColor: theme.primaryColorLight,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: theme.colorScheme.secondary),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  selected: true,
+                  label: Text("Most cooked"),
+                  onPressed: () {}),
+              SizedBox(width: 10),
+              InputChip(
+                  backgroundColor: theme.colorScheme.background,
+                  selectedColor: theme.primaryColorLight,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: theme.colorScheme.secondary),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  label: Text("Seasonal"),
+                  onPressed: () {}),
+              SizedBox(width: 10),
+              InputChip(
+                  backgroundColor: theme.colorScheme.background,
+                  selectedColor: theme.primaryColorLight,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: theme.colorScheme.secondary),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  label: Text("Fast"),
+                  onPressed: () {}),
+            ],
+          ),
+        ),
+        Divider(),
+        RepositoryFutureBuilder(
+          future: repository.loadAll(),
+          builder: ((context, recipes) {
+            return GridView.builder(
+              cacheExtent: 20,
+              padding: EdgeInsets.zero,
+              physics:
+                  NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+              shrinkWrap: true,
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+              itemBuilder: (context, index) => Hero(
+                tag: recipes[index].idx,
+                child: RecipeCard(
+                  recipes[index],
+                ),
+              ),
+              itemCount: recipes.length,
+            );
+          }),
+        ),
+        Container(
+          height: 100,
+          child: Center(
+            child: Text("Load more"),
+          ),
+        )
+      ],
     );
   }
 }
@@ -433,17 +636,18 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
 
 class _AppBar extends StatefulWidget implements PreferredSizeWidget {
   final ValueChanged<String>? onSearchTextChanged;
+  final TabController tabController;
 
-  _AppBar({this.onSearchTextChanged});
+  _AppBar({required this.tabController, this.onSearchTextChanged});
 
   @override
   State<_AppBar> createState() => _AppBarState();
 
   @override
-  Size get preferredSize => Size.fromHeight(56);
+  Size get preferredSize => Size.fromHeight(110);
 }
 
-class _AppBarState extends State<_AppBar> {
+class _AppBarState extends State<_AppBar> with SingleTickerProviderStateMixin {
   late FocusNode focusNode;
   late TextEditingController textEditingController;
   late bool hasFocus;
@@ -464,54 +668,98 @@ class _AppBarState extends State<_AppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final appBarTheme = Theme.of(context).appBarTheme;
+    final osTopPadding = MediaQuery.of(context).padding.top;
+
     focusNode.addListener(() {
       setState(() => hasFocus = focusNode.hasFocus);
     });
-    return AppBar(
-      title: Material(
-        elevation: 1,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: TextField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            decoration: InputDecoration(
-                hintText: 'Search',
-                border: InputBorder.none,
-                suffixIcon: textEditingController.text.isNotEmpty || hasFocus
-                    ? IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          FocusScope.of(context).requestFocus(new FocusNode());
-                          textEditingController.clear();
-                          this.widget.onSearchTextChanged?.call("");
-                        },
-                      )
-                    : Icon(Icons.search)),
-            onChanged: (text) {
-              this.widget.onSearchTextChanged?.call(text);
+
+    return Stack(
+      children: [
+        Material(
+          elevation: appBarTheme.elevation ?? 0,
+          child: Container(
+            height: osTopPadding,
+            color: appBarTheme.backgroundColor,
+          ),
+        ),
+        AppBar(
+          toolbarHeight: 100,
+          title: Material(
+            elevation: 1,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: TextField(
+                controller: textEditingController,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                    hintText: 'Search',
+                    border: InputBorder.none,
+                    suffixIcon:
+                        textEditingController.text.isNotEmpty || hasFocus
+                            ? IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () {
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
+                                  textEditingController.clear();
+                                  this.widget.onSearchTextChanged?.call("");
+                                },
+                              )
+                            : Icon(Icons.search)),
+                onChanged: (text) {
+                  this.widget.onSearchTextChanged?.call(text);
+                },
+              ),
+            ),
+          ),
+          leading: Transform.scale(
+            scale: 0.85,
+            child: AppBarButton(
+              icon: Icon(Icons.menu),
+              onPressed: () =>
+                  Scaffold.of(Scaffold.of(context).context).openDrawer(),
+            ),
+          ),
+          actions: <Widget>[
+            AppBarButton(
+              icon: Icon(
+                Icons.filter_list,
+              ),
+              onPressed: _openOrderingDialog,
+            )
+          ],
+          bottom: TabBar(
+            controller: widget.tabController,
+            tabs: [
+              SizedBox(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.bookmark_outline),
+                    Text("My Recipe"),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.public),
+                    Text("Explore"),
+                  ],
+                ),
+              ),
+            ],
+            onTap: (idx) {
+              widget.tabController.index = idx;
             },
           ),
         ),
-      ),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      leading: Transform.scale(
-        scale: 0.85,
-        child: AppBarButton(
-          icon: Icon(Icons.menu),
-          onPressed: () =>
-              Scaffold.of(Scaffold.of(context).context).openDrawer(),
-        ),
-      ),
-      actions: <Widget>[
-        AppBarButton(
-          icon: Icon(
-            Icons.filter_list,
-          ),
-          onPressed: _openOrderingDialog,
-        )
       ],
     );
   }

@@ -33,6 +33,7 @@ final repositoryProviders = Provider<List<Provider<Repository>>>((_) => [
       userPreferencesRepositoryProvider,
       shoppingListRepositoryProvider,
       shoppingListItemRepositoryProvider,
+      externalRecipeRepositoryProvider,
     ]);
 
 extension RepositoryWidgetRefX on WidgetRef {
@@ -46,18 +47,20 @@ extension RepositoryWidgetRefX on WidgetRef {
   Repository<Menu> get menus => watch(menuRepositoryProvider);
   Repository<UserPreference> get userPreferences =>
       watch(userPreferencesRepositoryProvider);
+  Repository<ExternalRecipe> get externalRecipes =>
+      watch(externalRecipeRepositoryProvider);
 }
 
 abstract class Repository<T> {
-  FutureOr<void> init();
-  FutureOr<void> reload({Map<String, dynamic>? params});
+  Future<void> init();
+  Future<void> reload({Map<String, dynamic>? params});
   Stream<List<T>> stream({Map<String, dynamic>? params});
   Stream<T> streamOne(String id);
-  FutureOr<T> save(T t, {Map<String, dynamic>? params});
-  FutureOr<T?> load(String id);
-  FutureOr<List<T>> loadAll({bool remote = true, Map<String, dynamic>? params});
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params});
-  FutureOr<void> clear({bool local = true});
+  Future<T> save(T t, {Map<String, dynamic>? params});
+  Future<T?> load(String id);
+  Future<List<T>> loadAll({bool remote = true, Map<String, dynamic>? params});
+  Future<void> delete(String id, {Map<String, dynamic>? params});
+  Future<void> clear({bool local = true});
 }
 
 // Flutter Data - DataState to Stream utility
@@ -104,12 +107,12 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<void> init() {
+  Future<void> init() {
     return _repository.init();
   }
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) {
+  Future<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
@@ -124,23 +127,23 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<Recipe?> load(String id) {
+  Future<Recipe?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  FutureOr<List<Recipe>> loadAll(
+  Future<List<Recipe>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<Recipe> save(Recipe t, {Map<String, dynamic>? params}) async {
+  Future<Recipe> save(Recipe t, {Map<String, dynamic>? params}) async {
     log("saving: ${t.toJson()}");
     final saved = await _repository.save(t, params: params);
     log("saved: ${t.idx}");
@@ -148,7 +151,7 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -164,20 +167,20 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  void init() {}
+  Future<void> init() async {}
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+  Future<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
   @override
-  FutureOr<Recipe?> load(String id) async {
+  Future<Recipe?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  FutureOr<List<Recipe>> loadAll(
+  Future<List<Recipe>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
@@ -201,7 +204,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
 
     /* try {
@@ -226,13 +229,13 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  FutureOr<Recipe> save(Recipe r, {Map<String, dynamic>? params}) async {
+  Future<Recipe> save(Recipe r, {Map<String, dynamic>? params}) async {
     final flutterDataRecipe = FlutterDataRecipe.fromJson(r.toJson());
     return await flutterDataRecipe.save(params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -255,22 +258,22 @@ class IngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  void init() {
+  Future<void> init() async {
     _repository.init();
   }
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) {
+  Future<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
   @override
-  FutureOr<Ingredient?> load(String id) {
+  Future<Ingredient?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  FutureOr<List<Ingredient>> loadAll(
+  Future<List<Ingredient>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
@@ -286,17 +289,17 @@ class IngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<Ingredient> save(Ingredient t, {Map<String, dynamic>? params}) {
+  Future<Ingredient> save(Ingredient t, {Map<String, dynamic>? params}) {
     return _repository.save(t, params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -312,20 +315,20 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  void init() {}
+  Future<void> init() async {}
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+  Future<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
   @override
-  FutureOr<Ingredient?> load(String id) async {
+  Future<Ingredient?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  FutureOr<List<Ingredient>> loadAll(
+  Future<List<Ingredient>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
@@ -349,19 +352,18 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<Ingredient> save(Ingredient r,
-      {Map<String, dynamic>? params}) async {
+  Future<Ingredient> save(Ingredient r, {Map<String, dynamic>? params}) async {
     final flutterDataIngredient = FlutterDataIngredient.fromJson(r.toJson());
     return await flutterDataIngredient.save(params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -384,22 +386,22 @@ class ShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  void init() {
+  Future<void> init() async {
     _repository.init();
   }
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) {
+  Future<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
   @override
-  FutureOr<ShoppingList?> load(String id) {
+  Future<ShoppingList?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  FutureOr<List<ShoppingList>> loadAll(
+  Future<List<ShoppingList>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
@@ -415,17 +417,17 @@ class ShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<ShoppingList> save(ShoppingList t, {Map<String, dynamic>? params}) {
+  Future<ShoppingList> save(ShoppingList t, {Map<String, dynamic>? params}) {
     return _repository.save(t, params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -441,20 +443,20 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  void init() {}
+  Future<void> init() async {}
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+  Future<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
   @override
-  FutureOr<ShoppingList?> load(String id) async {
+  Future<ShoppingList?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  FutureOr<List<ShoppingList>> loadAll(
+  Future<List<ShoppingList>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
@@ -478,19 +480,19 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<ShoppingList> save(ShoppingList r,
+  Future<ShoppingList> save(ShoppingList r,
       {Map<String, dynamic>? params}) async {
     final flutterDataIngredient = FlutterDataShoppingList.fromJson(r.toJson());
     return await flutterDataIngredient.save(params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -514,22 +516,22 @@ class ShoppingListItemRepository extends Repository<ShoppingListItem> {
   }
 
   @override
-  void init() {
+  Future<void> init() async {
     _repository.init();
   }
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) {
+  Future<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload(params: params);
   }
 
   @override
-  FutureOr<ShoppingListItem?> load(String id) {
+  Future<ShoppingListItem?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  FutureOr<List<ShoppingListItem>> loadAll(
+  Future<List<ShoppingListItem>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
@@ -545,18 +547,18 @@ class ShoppingListItemRepository extends Repository<ShoppingListItem> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<ShoppingListItem> save(ShoppingListItem t,
+  Future<ShoppingListItem> save(ShoppingListItem t,
       {Map<String, dynamic>? params}) {
     return _repository.save(t, params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -573,20 +575,20 @@ class _FlutterDataShoppingListItemRepository
   }
 
   @override
-  void init() {}
+  Future<void> init() async {}
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+  Future<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true, params: params);
   }
 
   @override
-  FutureOr<ShoppingListItem?> load(String id) async {
+  Future<ShoppingListItem?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  FutureOr<List<ShoppingListItem>> loadAll(
+  Future<List<ShoppingListItem>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
@@ -610,19 +612,19 @@ class _FlutterDataShoppingListItemRepository
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<ShoppingListItem> save(ShoppingListItem r,
+  Future<ShoppingListItem> save(ShoppingListItem r,
       {Map<String, dynamic>? params}) async {
     final item = FlutterDataShoppingListItem.fromJson(r.toJson());
     return await item.save(params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -645,22 +647,22 @@ class UserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  void init() {
+  Future<void> init() async {
     _repository.init();
   }
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) {
+  Future<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
   @override
-  FutureOr<UserPreference?> load(String id) {
+  Future<UserPreference?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  FutureOr<List<UserPreference>> loadAll(
+  Future<List<UserPreference>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
@@ -676,18 +678,18 @@ class UserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<UserPreference> save(UserPreference t,
+  Future<UserPreference> save(UserPreference t,
       {Map<String, dynamic>? params}) {
     return _repository.save(t, params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -703,20 +705,20 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  void init() {}
+  Future<void> init() async {}
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+  Future<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
   @override
-  FutureOr<UserPreference?> load(String id) async {
+  Future<UserPreference?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  FutureOr<List<UserPreference>> loadAll(
+  Future<List<UserPreference>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
@@ -740,12 +742,12 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<UserPreference> save(UserPreference r,
+  Future<UserPreference> save(UserPreference r,
       {Map<String, dynamic>? params}) async {
     final flutterDataUserPreference =
         FlutterDataUserPreference.fromJson(r.toJson());
@@ -753,7 +755,7 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -776,22 +778,22 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  void init() {
+  Future<void> init() async {
     _repository.init();
   }
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) {
+  Future<void> reload({Map<String, dynamic>? params}) {
     return _repository.reload();
   }
 
   @override
-  FutureOr<Menu?> load(String id) {
+  Future<Menu?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  FutureOr<List<Menu>> loadAll(
+  Future<List<Menu>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
@@ -807,17 +809,17 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
     return _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<Menu> save(Menu t, {Map<String, dynamic>? params}) {
+  Future<Menu> save(Menu t, {Map<String, dynamic>? params}) {
     return _repository.save(t, params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
@@ -833,20 +835,20 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  void init() {}
+  Future<void> init() async {}
 
   @override
-  FutureOr<void> reload({Map<String, dynamic>? params}) async {
+  Future<void> reload({Map<String, dynamic>? params}) async {
     await _repository.findAll(syncLocal: true);
   }
 
   @override
-  FutureOr<Menu?> load(String id) async {
+  Future<Menu?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  FutureOr<List<Menu>> loadAll(
+  Future<List<Menu>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
@@ -870,18 +872,147 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  FutureOr<void> delete(String id, {Map<String, dynamic>? params}) async {
+  Future<void> delete(String id, {Map<String, dynamic>? params}) async {
     await _repository.delete(id, params: params);
   }
 
   @override
-  FutureOr<Menu> save(Menu r, {Map<String, dynamic>? params}) async {
+  Future<Menu> save(Menu r, {Map<String, dynamic>? params}) async {
     final flutterDataMenu = FlutterDataMenu.fromJson(r.toJson());
     return await flutterDataMenu.save(params: params);
   }
 
   @override
-  FutureOr<void> clear({bool local = true}) {
+  Future<void> clear({bool local = true}) {
+    return _repository.clear();
+  }
+}
+
+// EXTERNAL RECIPE
+
+final externalRecipeRepositoryProvider = Provider((ref) {
+  final cfg = ref.read(bootstrapConfigurationProvider);
+  return ExternalRecipeRepository(cfg.storageType, ref: ref, debug: cfg.debug);
+});
+
+class ExternalRecipeRepository extends Repository<ExternalRecipe> {
+  late final Repository<ExternalRecipe> _repository;
+
+  ExternalRecipeRepository(StorageType storageType,
+      {ProviderRef? ref, bool debug = false}) {
+    if (storageType == StorageType.flutterData) {
+      _repository = _FlutterDataExternalRecipeRepository(ref!, debug: debug);
+    }
+  }
+
+  @override
+  Future<void> init() async {
+    _repository.init();
+  }
+
+  @override
+  Future<void> reload({Map<String, dynamic>? params}) {
+    return _repository.reload();
+  }
+
+  @override
+  Future<ExternalRecipe?> load(String id) {
+    return _repository.load(id);
+  }
+
+  @override
+  Future<List<ExternalRecipe>> loadAll(
+      {bool remote = true, Map<String, dynamic>? params}) {
+    return _repository.loadAll(remote: remote, params: params);
+  }
+
+  @override
+  Stream<List<ExternalRecipe>> stream({Map<String, dynamic>? params}) {
+    return _repository.stream(params: params);
+  }
+
+  @override
+  Stream<ExternalRecipe> streamOne(String id) {
+    return _repository.streamOne(id);
+  }
+
+  @override
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
+    throw UnimplementedError("delete is not available on an external recipe");
+  }
+
+  @override
+  Future<ExternalRecipe> save(ExternalRecipe t,
+      {Map<String, dynamic>? params}) {
+    throw UnimplementedError("save is not available on an external recipe");
+  }
+
+  @override
+  Future<void> clear({bool local = true}) {
+    return _repository.clear();
+  }
+}
+
+class _FlutterDataExternalRecipeRepository extends Repository<ExternalRecipe> {
+  late final flutter_data.Repository<FlutterDataExternalRecipe> _repository;
+  final ProviderRef ref;
+  final bool debug;
+
+  _FlutterDataExternalRecipeRepository(this.ref, {this.debug = false}) {
+    _repository = ref.read(flutterDataExternalRecipesRepositoryProvider);
+    _repository.logLevel = debug ? 2 : 0;
+  }
+
+  @override
+  Future<void> init() async {}
+
+  @override
+  Future<void> reload({Map<String, dynamic>? params}) async {
+    await _repository.findAll(syncLocal: true);
+  }
+
+  @override
+  Future<ExternalRecipe?> load(String id) async {
+    return await _repository.findOne(id);
+  }
+
+  @override
+  Future<List<ExternalRecipe>> loadAll(
+      {bool remote = true, Map<String, dynamic>? params}) {
+    return _repository.findAll(remote: remote, params: params);
+  }
+
+  @override
+  Stream<List<ExternalRecipe>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataExternalRecipes
+        .watchAllNotifier(params: params)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
+  }
+
+  @override
+  Stream<ExternalRecipe> streamOne(String id) {
+    return ref.flutterDataExternalRecipes
+        .watchOneNotifier(id)
+        .toStream(ref)
+        //elements are never null here
+        .map((e) => e!);
+  }
+
+  @override
+  Future<void> delete(String id, {Map<String, dynamic>? params}) {
+    throw UnimplementedError("delete is not available on an external recipe");
+  }
+
+  @override
+  Future<ExternalRecipe> save(ExternalRecipe t,
+      {Map<String, dynamic>? params}) {
+    throw UnimplementedError("save is not available on an external recipe");
+  }
+
+  @override
+  Future<void> clear({bool local = true}) {
     return _repository.clear();
   }
 }
