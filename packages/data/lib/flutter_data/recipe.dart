@@ -15,6 +15,7 @@ class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
   FlutterDataRecipe(
       {required super.idx,
       required super.name,
+      required super.language,
       super.availabilityMonths,
       super.cost,
       super.description,
@@ -45,6 +46,7 @@ class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
     return FlutterDataRecipe(
         idx: temp.idx,
         name: temp.name,
+        language: temp.language,
         availabilityMonths: temp.availabilityMonths,
         scraped: temp.scraped,
         cost: temp.cost,
@@ -86,6 +88,7 @@ class FlutterDataExternalRecipe extends ExternalRecipe
     with DataModelMixin<FlutterDataExternalRecipe> {
   FlutterDataExternalRecipe(
       {required super.name,
+      required super.language,
       super.availabilityMonths,
       super.cost,
       super.description,
@@ -115,6 +118,7 @@ class FlutterDataExternalRecipe extends ExternalRecipe
     final temp = Recipe.fromJson(json);
     return FlutterDataExternalRecipe(
         name: temp.name,
+        language: temp.language,
         availabilityMonths: temp.availabilityMonths,
         scraped: temp.scraped,
         cost: temp.cost,

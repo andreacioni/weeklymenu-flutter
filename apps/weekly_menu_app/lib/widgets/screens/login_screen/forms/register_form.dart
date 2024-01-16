@@ -20,7 +20,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   late BaseLoginForm _form;
 
-  String? _name, _email, _password, _passwordVerification;
+  String? _name, _email, _password, _passwordVerification, _language;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +36,11 @@ class _RegisterFormState extends State<RegisterForm> {
               decoration: InputDecoration(hintText: "Name"),
               onSaved: (name) => _name = name,
               onChanged: (name) => _name = name,
+            ),
+            buildLanguageFormField(
+              hintText: "Language",
+              onSaved: (language) => _language = language,
+              textInputAction: TextInputAction.done,
             ),
             buildEmailFormField(
               onSaved: (email) => _email = email,
@@ -69,7 +74,7 @@ class _RegisterFormState extends State<RegisterForm> {
     _form.validateAndSave(() async {
       showProgressDialog(context, dismissible: false);
       try {
-        await authService.register(_name!, _email!, _password!);
+        await authService.register(_name!, _email!, _password!, _language!);
 
         hideProgressDialog(context);
 

@@ -25,3 +25,8 @@ final unitOfMeasuresProvider = Provider<List<String>>((ref) {
   final userPrefs = ref.watch(userPreferenceProvider);
   return userPrefs?.unitsOfMeasure ?? STANDARD_UNIT_OF_MEASURE;
 });
+
+final languageProvider = Provider<String?>((ref) {
+  final userPrefs = ref.watch(userPreferenceProvider);
+  return userPrefs?.language;
+});

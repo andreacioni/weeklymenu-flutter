@@ -36,7 +36,22 @@ final repositoryProviders = Provider<List<Provider<Repository>>>((_) => [
       externalRecipeRepositoryProvider,
     ]);
 
-extension RepositoryWidgetRefX on WidgetRef {
+extension RepositoryWidgetWidgetRefX on WidgetRef {
+  Repository<Ingredient> get ingredients =>
+      watch(ingredientsRepositoryProvider);
+  Repository<Recipe> get recipes => watch(recipeRepositoryProvider);
+  Repository<ShoppingList> get shoppingLists =>
+      watch(shoppingListRepositoryProvider);
+  Repository<ShoppingList> get shoppingListItems =>
+      watch(shoppingListRepositoryProvider);
+  Repository<Menu> get menus => watch(menuRepositoryProvider);
+  Repository<UserPreference> get userPreferences =>
+      watch(userPreferencesRepositoryProvider);
+  Repository<ExternalRecipe> get externalRecipes =>
+      watch(externalRecipeRepositoryProvider);
+}
+
+extension RepositoryWidgetRefX on Ref {
   Repository<Ingredient> get ingredients =>
       watch(ingredientsRepositoryProvider);
   Repository<Recipe> get recipes => watch(recipeRepositoryProvider);

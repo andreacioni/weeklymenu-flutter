@@ -27,6 +27,8 @@ abstract class _$RecipeCWProxy {
 
   Recipe insertTimestamp(int? insertTimestamp);
 
+  Recipe language(String? language);
+
   Recipe name(String name);
 
   Recipe note(String? note);
@@ -72,6 +74,7 @@ abstract class _$RecipeCWProxy {
     String? imgUrl,
     List<RecipeIngredient>? ingredients,
     int? insertTimestamp,
+    String? language,
     String? name,
     String? note,
     String? owner,
@@ -129,6 +132,9 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   @override
   Recipe insertTimestamp(int? insertTimestamp) =>
       this(insertTimestamp: insertTimestamp);
+
+  @override
+  Recipe language(String? language) => this(language: language);
 
   @override
   Recipe name(String name) => this(name: name);
@@ -194,6 +200,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? imgUrl = const $CopyWithPlaceholder(),
     Object? ingredients = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? language = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? note = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
@@ -253,6 +260,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
           : insertTimestamp as int?,
+      language: language == const $CopyWithPlaceholder()
+          ? _value.language
+          // ignore: cast_nullable_to_non_nullable
+          : language as String?,
       name: name == const $CopyWithPlaceholder() || name == null
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
@@ -526,6 +537,8 @@ abstract class _$ExternalRecipeCWProxy {
 
   ExternalRecipe insertTimestamp(int? insertTimestamp);
 
+  ExternalRecipe language(String? language);
+
   ExternalRecipe name(String name);
 
   ExternalRecipe note(String? note);
@@ -570,6 +583,7 @@ abstract class _$ExternalRecipeCWProxy {
     String? imgUrl,
     List<RecipeIngredient>? ingredients,
     int? insertTimestamp,
+    String? language,
     String? name,
     String? note,
     String? owner,
@@ -625,6 +639,9 @@ class _$ExternalRecipeCWProxyImpl implements _$ExternalRecipeCWProxy {
   @override
   ExternalRecipe insertTimestamp(int? insertTimestamp) =>
       this(insertTimestamp: insertTimestamp);
+
+  @override
+  ExternalRecipe language(String? language) => this(language: language);
 
   @override
   ExternalRecipe name(String name) => this(name: name);
@@ -691,6 +708,7 @@ class _$ExternalRecipeCWProxyImpl implements _$ExternalRecipeCWProxy {
     Object? imgUrl = const $CopyWithPlaceholder(),
     Object? ingredients = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? language = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? note = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
@@ -746,6 +764,10 @@ class _$ExternalRecipeCWProxyImpl implements _$ExternalRecipeCWProxy {
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
           : insertTimestamp as int?,
+      language: language == const $CopyWithPlaceholder()
+          ? _value.language
+          // ignore: cast_nullable_to_non_nullable
+          : language as String?,
       name: name == const $CopyWithPlaceholder() || name == null
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
@@ -820,6 +842,7 @@ extension $ExternalRecipeCopyWith on ExternalRecipe {
 
 Recipe _$RecipeFromJson(Map json) => Recipe(
       idx: json['_id'] as String?,
+      language: json['language'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
       ingredients: (json['ingredients'] as List<dynamic>?)
@@ -875,6 +898,7 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['name'] = instance.name;
+  writeNotNull('language', instance.language);
   writeNotNull('description', instance.description);
   writeNotNull('rating', instance.rating);
   writeNotNull('cost', instance.cost);
@@ -953,6 +977,7 @@ Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
 
 ExternalRecipe _$ExternalRecipeFromJson(Map json) => ExternalRecipe(
       name: json['name'] as String,
+      language: json['language'] as String?,
       availabilityMonths: (json['availabilityMonths'] as List<dynamic>?)
               ?.map((e) => e as int)
               .toList() ??
@@ -1005,6 +1030,7 @@ Map<String, dynamic> _$ExternalRecipeToJson(ExternalRecipe instance) {
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['name'] = instance.name;
+  writeNotNull('language', instance.language);
   writeNotNull('description', instance.description);
   writeNotNull('rating', instance.rating);
   writeNotNull('cost', instance.cost);

@@ -22,6 +22,8 @@ class RecipeOriginator extends Originator<Recipe> {
 class Recipe extends BaseModel<Recipe> {
   final String name;
 
+  final String? language;
+
   final String? description;
 
   final int? rating;
@@ -65,6 +67,7 @@ class Recipe extends BaseModel<Recipe> {
 
   Recipe(
       {String? idx,
+      required this.language,
       required this.name,
       this.description,
       this.ingredients = const <RecipeIngredient>[],
@@ -173,6 +176,7 @@ class MealRecipe {
 class ExternalRecipe extends Recipe {
   ExternalRecipe(
       {required super.name,
+      required super.language,
       super.availabilityMonths,
       super.cost,
       super.description,

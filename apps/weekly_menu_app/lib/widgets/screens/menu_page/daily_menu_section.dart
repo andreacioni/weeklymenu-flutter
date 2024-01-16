@@ -15,6 +15,7 @@ import 'package:model/menu.dart';
 import 'package:model/recipe.dart';
 import 'package:common/utils.dart';
 import 'package:collection/collection.dart';
+import 'package:weekly_menu_app/providers/user_preferences.dart';
 
 import '../../shared/flutter_data_state_builder.dart';
 import '../recipe_screen/screen.dart';
@@ -82,8 +83,11 @@ class DailyMenuSection extends HookConsumerWidget {
     }
 
     Future<void> addNewRecipeToMeal(Meal meal, String recipeName) async {
+      final language = ref.read(languageProvider);
+
       if (recipeName.trim().isNotEmpty) {
-        Recipe recipe = await ref.recipes.save(Recipe(name: recipeName.trim()),
+        Recipe recipe = await ref.recipes.save(
+            Recipe(name: recipeName.trim(), language: language),
             params: {UPDATE_PARAM: false});
         await addRecipeToMeal(meal, recipe);
       } else {
@@ -144,8 +148,9 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final editingMode = ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
-    
+    final editingMode =
+        ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
+
     final primaryColor = Theme.of(context).primaryColor;
 
     Widget buildTitleTrailingIcon() {
@@ -246,7 +251,8 @@ class _MealRecipeCardContainer extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final editingMode = ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
+    final editingMode =
+        ref.watch(menuScreenNotifierProvider.select((s) => s.editMode));
 
     return Row(
       children: [
@@ -437,21 +443,20 @@ class _MenuRecipeWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recipeStream = useMemoized(() => ref.watch(recipeRepositoryProvider).streamOne(recipeId));
+    final recipeStream = useMemoized(
+        () => ref.watch(recipeRepositoryProvider).streamOne(recipeId));
     return RepositoryStreamBuilder<Recipe>(
         stream: recipeStream,
         error: Container(),
         builder: (context, recipe) {
           return _MenuRecipeCard(
-            key:ValueKey(recipe.name),
-            recipe,
-              meal:meal,
+              key: ValueKey(recipe.name),
+              recipe,
+              meal: meal,
               dailyMenuNotifier: dailyMenuNotifier,
-              editingMode: 
-              editingMode);
+              editingMode: editingMode);
         });
   }
-
 }
 
 class _MenuRecipeCard extends HookConsumerWidget {
@@ -534,6 +539,7 @@ class _MenuRecipeCard extends HookConsumerWidget {
 
     Future<void> saveRecipe(String recipeName) async {
       final recipeRepo = ref.read(recipeRepositoryProvider);
+      final language = ref.read(languageProvider);
       //new recipe name changed from the initial one
       if (recipeName.trim().isNotEmpty && recipeName != recipe.name) {
         Recipe? recipe = (await recipeRepo.loadAll(remote: false))
@@ -541,7 +547,8 @@ class _MenuRecipeCard extends HookConsumerWidget {
 
         if (recipe == null) {
           if (recipeName.trim().isNotEmpty) {
-            recipe = await ref.recipes.save(Recipe(name: recipeName.trim()),
+            recipe = await ref.recipes.save(
+                Recipe(name: recipeName.trim(), language: language),
                 params: {UPDATE_PARAM: false});
           } else {
             print("can't create a recipe with empty name");

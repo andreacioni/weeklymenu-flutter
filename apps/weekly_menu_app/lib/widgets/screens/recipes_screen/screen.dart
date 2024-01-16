@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model/recipe.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:weekly_menu_app/providers/user_preferences.dart';
 import 'package:weekly_menu_app/widgets/shared/appbar_button.dart';
 import 'package:weekly_menu_app/widgets/shared/flutter_data_state_builder.dart';
 
@@ -225,7 +226,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen>
   }
 }
 
-class _MyRecipesTab extends HookConsumerWidget {
+class _MyRecipesTab extends StatefulHookConsumerWidget {
   final String searchText;
   final bool editingModeEnabled;
   final List<Recipe> selectedRecipes;
@@ -233,18 +234,28 @@ class _MyRecipesTab extends HookConsumerWidget {
   final ValueChanged<Recipe>? onRecipeTap;
   final ValueChanged<Recipe>? onRecipeLongPress;
 
-  _MyRecipesTab(
-      {required this.searchText,
-      required this.editingModeEnabled,
-      required this.selectedRecipes,
-      this.onRecipeLongPress,
-      this.onRecipeTap});
+  _MyRecipesTab({
+    required this.searchText,
+    required this.editingModeEnabled,
+    required this.selectedRecipes,
+    this.onRecipeLongPress,
+    this.onRecipeTap,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _MyRecipesTabState();
+  }
+}
+
+class _MyRecipesTabState extends ConsumerState<_MyRecipesTab>
+    with AutomaticKeepAliveClientMixin<_MyRecipesTab> {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
     final repository = ref.recipes;
     final recipeStream = useMemoized(() => repository.stream());
-
     final theme = Theme.of(context);
 
     return ListView(
@@ -308,7 +319,8 @@ class _MyRecipesTab extends HookConsumerWidget {
               child: _buildScreenBody(
                 context,
                 [...model],
-                filter: (recipe) => !stringContains(recipe.name, searchText),
+                filter: (recipe) =>
+                    !stringContains(recipe.name, widget.searchText),
               ),
             );
           },
@@ -377,21 +389,24 @@ class _MyRecipesTab extends HookConsumerWidget {
       BuildContext context, List<Recipe> recipes, int index) {
     final recipe = recipes[index];
     return RecipeCard(recipe,
-        borderSide: editingModeEnabled == true &&
-                selectedRecipes.contains(recipes[index])
+        borderSide: widget.editingModeEnabled == true &&
+                widget.selectedRecipes.contains(recipes[index])
             ? BorderSide(
                 color: Theme.of(context).colorScheme.secondary, width: 2)
             : BorderSide.none,
-        shadowColorStart: editingModeEnabled == true &&
-                selectedRecipes.contains(recipes[index])
+        shadowColorStart: widget.editingModeEnabled == true &&
+                widget.selectedRecipes.contains(recipes[index])
             ? Theme.of(context).colorScheme.secondary.withOpacity(0.7)
             : Colors.black54,
-        onTap: () => onRecipeTap?.call(recipe),
-        onLongPress: () => onRecipeLongPress?.call(recipe));
+        onTap: () => widget.onRecipeTap?.call(recipe),
+        onLongPress: () => widget.onRecipeLongPress?.call(recipe));
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
-class _ExploreRecipeTab extends HookConsumerWidget {
+class _ExploreRecipeTab extends StatefulHookConsumerWidget {
   final String searchText;
 
   _ExploreRecipeTab({
@@ -399,9 +414,28 @@ class _ExploreRecipeTab extends HookConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _ExploreRecipeTabState();
+  }
+}
+
+class _ExploreRecipeTabState extends ConsumerState<_ExploreRecipeTab>
+    with AutomaticKeepAliveClientMixin<_ExploreRecipeTab> {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
     final repository = ref.externalRecipes;
     final theme = Theme.of(context);
+
+    final pageNumber = useState(1);
+    final recipes = useState(<ExternalRecipe>[]);
+    final recipesFuture = useMemoized(
+        () => repository.loadAll(params: {
+              'per_page': 10,
+              'page': pageNumber.value
+            }).then((value) => recipes.value = [...recipes.value, ...value]),
+        [pageNumber.value]);
 
     return ListView(
       children: [
@@ -454,36 +488,50 @@ class _ExploreRecipeTab extends HookConsumerWidget {
           ),
         ),
         Divider(),
-        RepositoryFutureBuilder(
-          future: repository.loadAll(),
-          builder: ((context, recipes) {
-            return GridView.builder(
-              cacheExtent: 20,
-              padding: EdgeInsets.zero,
-              physics:
-                  NeverScrollableScrollPhysics(), // to disable GridView's scrolling
-              shrinkWrap: true,
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-              itemBuilder: (context, index) => Hero(
-                tag: recipes[index].idx,
-                child: RecipeCard(
-                  recipes[index],
-                ),
-              ),
-              itemCount: recipes.length,
-            );
-          }),
-        ),
-        Container(
-          height: 100,
-          child: Center(
-            child: Text("Load more"),
+        GridView.builder(
+          cacheExtent: 20,
+          padding: EdgeInsets.zero,
+          physics:
+              NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+          shrinkWrap: true,
+          gridDelegate:
+              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          itemBuilder: (context, index) => Hero(
+            tag: recipes.value[index].idx,
+            child: RecipeCard(
+              recipes.value[index],
+            ),
           ),
-        )
+          itemCount: recipes.value.length,
+        ),
+        FutureBuilder(
+            future: recipesFuture,
+            builder: (context, snapshot) {
+              final display = snapshot.hasData &&
+                  !snapshot.hasError &&
+                  snapshot.connectionState == ConnectionState.done;
+              return display
+                  ? Container(
+                      height: 100,
+                      child: Center(
+                        child: ElevatedButton(
+                          child: Text("Load More"),
+                          onPressed: () {
+                            pageNumber.value += 1;
+                          },
+                        ),
+                      ),
+                    )
+                  : Container(
+                      margin: EdgeInsets.only(top: 10),
+                      child: CircularProgressIndicator());
+            })
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _AddRecipeBottomSheet extends HookConsumerWidget {
@@ -604,6 +652,8 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
 
     errorMsgNotifier.value = "";
 
+    final language = ref.read(languageProvider);
+
     try {
       savingNotifier.value = true;
       final url = controller.text.trim();
@@ -611,9 +661,9 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
         recipe = await _scrapeRecipe(ref, url);
         recipe = recipe.copyWith(scraped: true);
       } else if (url.isNotEmpty) {
-        recipe = await ref
-            .read(recipeRepositoryProvider)
-            .save(Recipe(name: controller.text), params: {UPDATE_PARAM: false});
+        recipe = await ref.read(recipeRepositoryProvider).save(
+            Recipe(name: controller.text, language: language),
+            params: {UPDATE_PARAM: false});
       } else {
         log("No name supplied");
       }
@@ -695,7 +745,7 @@ class _AppBarState extends State<_AppBar> with SingleTickerProviderStateMixin {
                 controller: textEditingController,
                 focusNode: focusNode,
                 decoration: InputDecoration(
-                    hintText: 'Search',
+                    hintText: !hasFocus ? 'Search' : null,
                     border: InputBorder.none,
                     suffixIcon:
                         textEditingController.text.isNotEmpty || hasFocus
