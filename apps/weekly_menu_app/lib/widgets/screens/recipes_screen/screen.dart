@@ -58,9 +58,18 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen>
       key: widget.key,
       appBar: _AppBar(
         tabController: _tabController,
-        onSearchTextChanged: ((searchText) => setState(() {
-              _searchText = searchText;
-            })),
+        // on your recipes if you want to search you start typing the text
+        onSearchTextChanged: _tabController.index == 0
+            ? ((searchText) => setState(() {
+                  _searchText = searchText;
+                }))
+            : null,
+        // on explore recipe if you want to search you need to press the button
+        onSearchTextSubmitted: _tabController.index == 1
+            ? ((searchText) => setState(() {
+                  _searchText = searchText;
+                }))
+            : null,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showRecipeNameDialog(),
@@ -426,16 +435,35 @@ class _ExploreRecipeTabState extends ConsumerState<_ExploreRecipeTab>
     super.build(context);
 
     final repository = ref.externalRecipes;
+    final userPrefs = ref.read(userPreferenceProvider);
     final theme = Theme.of(context);
 
     final pageNumber = useState(1);
     final recipes = useState(<ExternalRecipe>[]);
+    final oldSearchText = useRef("");
+    final Map<String, Object> params = {
+      'per_page': 10,
+      'page': pageNumber.value
+    };
+
+    if (widget.searchText.isNotEmpty) {
+      params['text_search'] = widget.searchText;
+      params['order_by'] = 'text_score';
+      if (userPrefs?.language != null) {
+        params['lang'] = userPrefs!.language!;
+      }
+    }
+
     final recipesFuture = useMemoized(
-        () => repository.loadAll(params: {
-              'per_page': 10,
-              'page': pageNumber.value
-            }).then((value) => recipes.value = [...recipes.value, ...value]),
-        [pageNumber.value]);
+        () => repository.loadAll(params: params).then((value) {
+              if (oldSearchText != widget.searchText) {
+                oldSearchText.value = widget.searchText;
+                recipes.value = [...value];
+              } else {
+                recipes.value = [...recipes.value, ...value];
+              }
+            }),
+        [pageNumber.value, widget.searchText]);
 
     return ListView(
       children: [
@@ -686,9 +714,14 @@ class _AddRecipeBottomSheet extends HookConsumerWidget {
 
 class _AppBar extends StatefulWidget implements PreferredSizeWidget {
   final ValueChanged<String>? onSearchTextChanged;
+  final ValueChanged<String>? onSearchTextSubmitted;
   final TabController tabController;
 
-  _AppBar({required this.tabController, this.onSearchTextChanged});
+  _AppBar({
+    required this.tabController,
+    this.onSearchTextChanged,
+    this.onSearchTextSubmitted,
+  });
 
   @override
   State<_AppBar> createState() => _AppBarState();
@@ -756,11 +789,15 @@ class _AppBarState extends State<_AppBar> with SingleTickerProviderStateMixin {
                                       .requestFocus(new FocusNode());
                                   textEditingController.clear();
                                   this.widget.onSearchTextChanged?.call("");
+                                  this.widget.onSearchTextSubmitted?.call("");
                                 },
                               )
                             : Icon(Icons.search)),
                 onChanged: (text) {
                   this.widget.onSearchTextChanged?.call(text);
+                },
+                onSubmitted: (text) {
+                  this.widget.onSearchTextSubmitted?.call(text);
                 },
               ),
             ),
@@ -790,7 +827,6 @@ class _AppBarState extends State<_AppBar> with SingleTickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.bookmark_outline),
-                    Text("My Recipe"),
                   ],
                 ),
               ),
@@ -800,7 +836,6 @@ class _AppBarState extends State<_AppBar> with SingleTickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.public),
-                    Text("Explore"),
                   ],
                 ),
               ),
