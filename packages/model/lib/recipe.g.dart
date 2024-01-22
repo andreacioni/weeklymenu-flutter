@@ -27,6 +27,8 @@ abstract class _$RecipeCWProxy {
 
   Recipe insertTimestamp(int? insertTimestamp);
 
+  Recipe language(String? language);
+
   Recipe name(String name);
 
   Recipe note(String? note);
@@ -72,6 +74,7 @@ abstract class _$RecipeCWProxy {
     String? imgUrl,
     List<RecipeIngredient>? ingredients,
     int? insertTimestamp,
+    String? language,
     String? name,
     String? note,
     String? owner,
@@ -129,6 +132,9 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
   @override
   Recipe insertTimestamp(int? insertTimestamp) =>
       this(insertTimestamp: insertTimestamp);
+
+  @override
+  Recipe language(String? language) => this(language: language);
 
   @override
   Recipe name(String name) => this(name: name);
@@ -194,6 +200,7 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
     Object? imgUrl = const $CopyWithPlaceholder(),
     Object? ingredients = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? language = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? note = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
@@ -253,6 +260,10 @@ class _$RecipeCWProxyImpl implements _$RecipeCWProxy {
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
           : insertTimestamp as int?,
+      language: language == const $CopyWithPlaceholder()
+          ? _value.language
+          // ignore: cast_nullable_to_non_nullable
+          : language as String?,
       name: name == const $CopyWithPlaceholder() || name == null
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
@@ -507,12 +518,331 @@ extension $RecipeIngredientCopyWith on RecipeIngredient {
   _$RecipeIngredientCWProxy get copyWith => _$RecipeIngredientCWProxyImpl(this);
 }
 
+abstract class _$ExternalRecipeCWProxy {
+  ExternalRecipe availabilityMonths(List<int> availabilityMonths);
+
+  ExternalRecipe cost(int? cost);
+
+  ExternalRecipe description(String? description);
+
+  ExternalRecipe difficulty(String? difficulty);
+
+  ExternalRecipe estimatedCookingTime(int? estimatedCookingTime);
+
+  ExternalRecipe estimatedPreparationTime(int? estimatedPreparationTime);
+
+  ExternalRecipe imgUrl(String? imgUrl);
+
+  ExternalRecipe ingredients(List<RecipeIngredient> ingredients);
+
+  ExternalRecipe insertTimestamp(int? insertTimestamp);
+
+  ExternalRecipe language(String? language);
+
+  ExternalRecipe name(String name);
+
+  ExternalRecipe note(String? note);
+
+  ExternalRecipe owner(String? owner);
+
+  ExternalRecipe preparation(String? preparation);
+
+  ExternalRecipe preparationSteps(List<RecipePreparationStep> preparationSteps);
+
+  ExternalRecipe rating(int? rating);
+
+  ExternalRecipe recipeUrl(String? recipeUrl);
+
+  ExternalRecipe relatedRecipes(List<RelatedRecipe> relatedRecipes);
+
+  ExternalRecipe scraped(bool? scraped);
+
+  ExternalRecipe section(String? section);
+
+  ExternalRecipe servs(int? servs);
+
+  ExternalRecipe tags(List<String> tags);
+
+  ExternalRecipe updateTimestamp(int? updateTimestamp);
+
+  ExternalRecipe videoUrl(String? videoUrl);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ExternalRecipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// ExternalRecipe(...).copyWith(id: 12, name: "My name")
+  /// ````
+  ExternalRecipe call({
+    List<int>? availabilityMonths,
+    int? cost,
+    String? description,
+    String? difficulty,
+    int? estimatedCookingTime,
+    int? estimatedPreparationTime,
+    String? imgUrl,
+    List<RecipeIngredient>? ingredients,
+    int? insertTimestamp,
+    String? language,
+    String? name,
+    String? note,
+    String? owner,
+    String? preparation,
+    List<RecipePreparationStep>? preparationSteps,
+    int? rating,
+    String? recipeUrl,
+    List<RelatedRecipe>? relatedRecipes,
+    bool? scraped,
+    String? section,
+    int? servs,
+    List<String>? tags,
+    int? updateTimestamp,
+    String? videoUrl,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfExternalRecipe.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfExternalRecipe.copyWith.fieldName(...)`
+class _$ExternalRecipeCWProxyImpl implements _$ExternalRecipeCWProxy {
+  final ExternalRecipe _value;
+
+  const _$ExternalRecipeCWProxyImpl(this._value);
+
+  @override
+  ExternalRecipe availabilityMonths(List<int> availabilityMonths) =>
+      this(availabilityMonths: availabilityMonths);
+
+  @override
+  ExternalRecipe cost(int? cost) => this(cost: cost);
+
+  @override
+  ExternalRecipe description(String? description) =>
+      this(description: description);
+
+  @override
+  ExternalRecipe difficulty(String? difficulty) => this(difficulty: difficulty);
+
+  @override
+  ExternalRecipe estimatedCookingTime(int? estimatedCookingTime) =>
+      this(estimatedCookingTime: estimatedCookingTime);
+
+  @override
+  ExternalRecipe estimatedPreparationTime(int? estimatedPreparationTime) =>
+      this(estimatedPreparationTime: estimatedPreparationTime);
+
+  @override
+  ExternalRecipe imgUrl(String? imgUrl) => this(imgUrl: imgUrl);
+
+  @override
+  ExternalRecipe ingredients(List<RecipeIngredient> ingredients) =>
+      this(ingredients: ingredients);
+
+  @override
+  ExternalRecipe insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
+
+  @override
+  ExternalRecipe language(String? language) => this(language: language);
+
+  @override
+  ExternalRecipe name(String name) => this(name: name);
+
+  @override
+  ExternalRecipe note(String? note) => this(note: note);
+
+  @override
+  ExternalRecipe owner(String? owner) => this(owner: owner);
+
+  @override
+  ExternalRecipe preparation(String? preparation) =>
+      this(preparation: preparation);
+
+  @override
+  ExternalRecipe preparationSteps(
+          List<RecipePreparationStep> preparationSteps) =>
+      this(preparationSteps: preparationSteps);
+
+  @override
+  ExternalRecipe rating(int? rating) => this(rating: rating);
+
+  @override
+  ExternalRecipe recipeUrl(String? recipeUrl) => this(recipeUrl: recipeUrl);
+
+  @override
+  ExternalRecipe relatedRecipes(List<RelatedRecipe> relatedRecipes) =>
+      this(relatedRecipes: relatedRecipes);
+
+  @override
+  ExternalRecipe scraped(bool? scraped) => this(scraped: scraped);
+
+  @override
+  ExternalRecipe section(String? section) => this(section: section);
+
+  @override
+  ExternalRecipe servs(int? servs) => this(servs: servs);
+
+  @override
+  ExternalRecipe tags(List<String> tags) => this(tags: tags);
+
+  @override
+  ExternalRecipe updateTimestamp(int? updateTimestamp) =>
+      this(updateTimestamp: updateTimestamp);
+
+  @override
+  ExternalRecipe videoUrl(String? videoUrl) => this(videoUrl: videoUrl);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ExternalRecipe(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// ExternalRecipe(...).copyWith(id: 12, name: "My name")
+  /// ````
+  ExternalRecipe call({
+    Object? availabilityMonths = const $CopyWithPlaceholder(),
+    Object? cost = const $CopyWithPlaceholder(),
+    Object? description = const $CopyWithPlaceholder(),
+    Object? difficulty = const $CopyWithPlaceholder(),
+    Object? estimatedCookingTime = const $CopyWithPlaceholder(),
+    Object? estimatedPreparationTime = const $CopyWithPlaceholder(),
+    Object? imgUrl = const $CopyWithPlaceholder(),
+    Object? ingredients = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? language = const $CopyWithPlaceholder(),
+    Object? name = const $CopyWithPlaceholder(),
+    Object? note = const $CopyWithPlaceholder(),
+    Object? owner = const $CopyWithPlaceholder(),
+    Object? preparation = const $CopyWithPlaceholder(),
+    Object? preparationSteps = const $CopyWithPlaceholder(),
+    Object? rating = const $CopyWithPlaceholder(),
+    Object? recipeUrl = const $CopyWithPlaceholder(),
+    Object? relatedRecipes = const $CopyWithPlaceholder(),
+    Object? scraped = const $CopyWithPlaceholder(),
+    Object? section = const $CopyWithPlaceholder(),
+    Object? servs = const $CopyWithPlaceholder(),
+    Object? tags = const $CopyWithPlaceholder(),
+    Object? updateTimestamp = const $CopyWithPlaceholder(),
+    Object? videoUrl = const $CopyWithPlaceholder(),
+  }) {
+    return ExternalRecipe(
+      availabilityMonths: availabilityMonths == const $CopyWithPlaceholder() ||
+              availabilityMonths == null
+          ? _value.availabilityMonths
+          // ignore: cast_nullable_to_non_nullable
+          : availabilityMonths as List<int>,
+      cost: cost == const $CopyWithPlaceholder()
+          ? _value.cost
+          // ignore: cast_nullable_to_non_nullable
+          : cost as int?,
+      description: description == const $CopyWithPlaceholder()
+          ? _value.description
+          // ignore: cast_nullable_to_non_nullable
+          : description as String?,
+      difficulty: difficulty == const $CopyWithPlaceholder()
+          ? _value.difficulty
+          // ignore: cast_nullable_to_non_nullable
+          : difficulty as String?,
+      estimatedCookingTime: estimatedCookingTime == const $CopyWithPlaceholder()
+          ? _value.estimatedCookingTime
+          // ignore: cast_nullable_to_non_nullable
+          : estimatedCookingTime as int?,
+      estimatedPreparationTime:
+          estimatedPreparationTime == const $CopyWithPlaceholder()
+              ? _value.estimatedPreparationTime
+              // ignore: cast_nullable_to_non_nullable
+              : estimatedPreparationTime as int?,
+      imgUrl: imgUrl == const $CopyWithPlaceholder()
+          ? _value.imgUrl
+          // ignore: cast_nullable_to_non_nullable
+          : imgUrl as String?,
+      ingredients:
+          ingredients == const $CopyWithPlaceholder() || ingredients == null
+              ? _value.ingredients
+              // ignore: cast_nullable_to_non_nullable
+              : ingredients as List<RecipeIngredient>,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
+      language: language == const $CopyWithPlaceholder()
+          ? _value.language
+          // ignore: cast_nullable_to_non_nullable
+          : language as String?,
+      name: name == const $CopyWithPlaceholder() || name == null
+          ? _value.name
+          // ignore: cast_nullable_to_non_nullable
+          : name as String,
+      note: note == const $CopyWithPlaceholder()
+          ? _value.note
+          // ignore: cast_nullable_to_non_nullable
+          : note as String?,
+      owner: owner == const $CopyWithPlaceholder()
+          ? _value.owner
+          // ignore: cast_nullable_to_non_nullable
+          : owner as String?,
+      preparation: preparation == const $CopyWithPlaceholder()
+          ? _value.preparation
+          // ignore: cast_nullable_to_non_nullable
+          : preparation as String?,
+      preparationSteps: preparationSteps == const $CopyWithPlaceholder() ||
+              preparationSteps == null
+          ? _value.preparationSteps
+          // ignore: cast_nullable_to_non_nullable
+          : preparationSteps as List<RecipePreparationStep>,
+      rating: rating == const $CopyWithPlaceholder()
+          ? _value.rating
+          // ignore: cast_nullable_to_non_nullable
+          : rating as int?,
+      recipeUrl: recipeUrl == const $CopyWithPlaceholder()
+          ? _value.recipeUrl
+          // ignore: cast_nullable_to_non_nullable
+          : recipeUrl as String?,
+      relatedRecipes: relatedRecipes == const $CopyWithPlaceholder() ||
+              relatedRecipes == null
+          ? _value.relatedRecipes
+          // ignore: cast_nullable_to_non_nullable
+          : relatedRecipes as List<RelatedRecipe>,
+      scraped: scraped == const $CopyWithPlaceholder()
+          ? _value.scraped
+          // ignore: cast_nullable_to_non_nullable
+          : scraped as bool?,
+      section: section == const $CopyWithPlaceholder()
+          ? _value.section
+          // ignore: cast_nullable_to_non_nullable
+          : section as String?,
+      servs: servs == const $CopyWithPlaceholder()
+          ? _value.servs
+          // ignore: cast_nullable_to_non_nullable
+          : servs as int?,
+      tags: tags == const $CopyWithPlaceholder() || tags == null
+          ? _value.tags
+          // ignore: cast_nullable_to_non_nullable
+          : tags as List<String>,
+      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
+          ? _value.updateTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : updateTimestamp as int?,
+      videoUrl: videoUrl == const $CopyWithPlaceholder()
+          ? _value.videoUrl
+          // ignore: cast_nullable_to_non_nullable
+          : videoUrl as String?,
+    );
+  }
+}
+
+extension $ExternalRecipeCopyWith on ExternalRecipe {
+  /// Returns a callable class that can be used as follows: `instanceOfExternalRecipe.copyWith(...)` or like so:`instanceOfExternalRecipe.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$ExternalRecipeCWProxy get copyWith => _$ExternalRecipeCWProxyImpl(this);
+}
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 Recipe _$RecipeFromJson(Map json) => Recipe(
       idx: json['_id'] as String?,
+      language: json['language'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
       ingredients: (json['ingredients'] as List<dynamic>?)
@@ -568,6 +898,7 @@ Map<String, dynamic> _$RecipeToJson(Recipe instance) {
   writeNotNull('insert_timestamp', instance.insertTimestamp);
   writeNotNull('update_timestamp', instance.updateTimestamp);
   val['name'] = instance.name;
+  writeNotNull('language', instance.language);
   writeNotNull('description', instance.description);
   writeNotNull('rating', instance.rating);
   writeNotNull('cost', instance.cost);
@@ -641,5 +972,85 @@ Map<String, dynamic> _$RecipeIngredientToJson(RecipeIngredient instance) {
   writeNotNull('quantity', instance.quantity);
   writeNotNull('unitOfMeasure', instance.unitOfMeasure);
   writeNotNull('freezed', instance.freezed);
+  return val;
+}
+
+ExternalRecipe _$ExternalRecipeFromJson(Map json) => ExternalRecipe(
+      name: json['name'] as String,
+      language: json['language'] as String?,
+      availabilityMonths: (json['availabilityMonths'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          const <int>[],
+      cost: json['cost'] as int?,
+      description: json['description'] as String?,
+      difficulty: json['difficulty'] as String?,
+      estimatedCookingTime: json['estimatedCookingTime'] as int?,
+      estimatedPreparationTime: json['estimatedPreparationTime'] as int?,
+      imgUrl: json['imgUrl'] as String?,
+      ingredients: (json['ingredients'] as List<dynamic>?)
+              ?.map((e) => RecipeIngredient.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const <RecipeIngredient>[],
+      insertTimestamp: json['insert_timestamp'] as int?,
+      note: json['note'] as String?,
+      preparation: json['preparation'] as String?,
+      preparationSteps: (json['preparationSteps'] as List<dynamic>?)
+              ?.map((e) => RecipePreparationStep.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const <RecipePreparationStep>[],
+      rating: json['rating'] as int?,
+      recipeUrl: json['recipeUrl'] as String?,
+      relatedRecipes: (json['relatedRecipes'] as List<dynamic>?)
+              ?.map((e) =>
+                  RelatedRecipe.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const <RelatedRecipe>[],
+      scraped: json['scraped'] as bool?,
+      section: json['section'] as String? ?? 'Dinner',
+      servs: json['servs'] as int?,
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const <String>[],
+      updateTimestamp: json['update_timestamp'] as int?,
+      videoUrl: json['videoUrl'] as String?,
+    );
+
+Map<String, dynamic> _$ExternalRecipeToJson(ExternalRecipe instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('insert_timestamp', instance.insertTimestamp);
+  writeNotNull('update_timestamp', instance.updateTimestamp);
+  val['name'] = instance.name;
+  writeNotNull('language', instance.language);
+  writeNotNull('description', instance.description);
+  writeNotNull('rating', instance.rating);
+  writeNotNull('cost', instance.cost);
+  writeNotNull('difficulty', instance.difficulty);
+  val['availabilityMonths'] = instance.availabilityMonths;
+  writeNotNull('servs', instance.servs);
+  writeNotNull('estimatedCookingTime', instance.estimatedCookingTime);
+  writeNotNull('estimatedPreparationTime', instance.estimatedPreparationTime);
+  val['ingredients'] = instance.ingredients.map((e) => e.toJson()).toList();
+  writeNotNull('preparation', instance.preparation);
+  val['preparationSteps'] =
+      instance.preparationSteps.map((e) => e.toJson()).toList();
+  writeNotNull('note', instance.note);
+  writeNotNull('imgUrl', instance.imgUrl);
+  writeNotNull('recipeUrl', instance.recipeUrl);
+  writeNotNull('videoUrl', instance.videoUrl);
+  val['tags'] = instance.tags;
+  writeNotNull('section', instance.section);
+  val['relatedRecipes'] =
+      instance.relatedRecipes.map((e) => e.toJson()).toList();
+  writeNotNull('scraped', instance.scraped);
   return val;
 }

@@ -54,3 +54,60 @@ extension FlutterDataRecipeDataRepositoryX on Repository<FlutterDataRecipe> {
 
 extension FlutterDataRecipeRelationshipGraphNodeX
     on RelationshipGraphNode<FlutterDataRecipe> {}
+
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
+mixin $FlutterDataExternalRecipeLocalAdapter
+    on LocalAdapter<FlutterDataExternalRecipe> {
+  static final Map<String, RelationshipMeta>
+      _kFlutterDataExternalRecipeRelationshipMetas = {};
+
+  @override
+  Map<String, RelationshipMeta> get relationshipMetas =>
+      _kFlutterDataExternalRecipeRelationshipMetas;
+
+  @override
+  FlutterDataExternalRecipe deserialize(map) {
+    map = transformDeserialize(map);
+    return FlutterDataExternalRecipe.fromJson(map);
+  }
+
+  @override
+  Map<String, dynamic> serialize(model, {bool withRelationships = true}) {
+    final map = model.toJson();
+    return transformSerialize(map, withRelationships: withRelationships);
+  }
+}
+
+final _flutterDataExternalRecipesFinders = <String, dynamic>{};
+
+// ignore: must_be_immutable
+class $FlutterDataExternalRecipeHiveLocalAdapter = HiveLocalAdapter<
+    FlutterDataExternalRecipe> with $FlutterDataExternalRecipeLocalAdapter;
+
+class $FlutterDataExternalRecipeRemoteAdapter = RemoteAdapter<
+        FlutterDataExternalRecipe>
+    with
+        BaseAdapter<FlutterDataExternalRecipe>,
+        ExternalRecipeAdapter<FlutterDataExternalRecipe>;
+
+final internalFlutterDataExternalRecipesRemoteAdapterProvider =
+    Provider<RemoteAdapter<FlutterDataExternalRecipe>>((ref) =>
+        $FlutterDataExternalRecipeRemoteAdapter(
+            $FlutterDataExternalRecipeHiveLocalAdapter(ref),
+            InternalHolder(_flutterDataExternalRecipesFinders)));
+
+final flutterDataExternalRecipesRepositoryProvider =
+    Provider<Repository<FlutterDataExternalRecipe>>(
+        (ref) => Repository<FlutterDataExternalRecipe>(ref));
+
+extension FlutterDataExternalRecipeDataRepositoryX
+    on Repository<FlutterDataExternalRecipe> {
+  BaseAdapter<FlutterDataExternalRecipe> get baseAdapter =>
+      remoteAdapter as BaseAdapter<FlutterDataExternalRecipe>;
+  ExternalRecipeAdapter<FlutterDataExternalRecipe> get externalRecipeAdapter =>
+      remoteAdapter as ExternalRecipeAdapter<FlutterDataExternalRecipe>;
+}
+
+extension FlutterDataExternalRecipeRelationshipGraphNodeX
+    on RelationshipGraphNode<FlutterDataExternalRecipe> {}

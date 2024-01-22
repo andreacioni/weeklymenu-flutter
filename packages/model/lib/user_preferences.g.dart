@@ -72,6 +72,8 @@ abstract class _$UserPreferenceCWProxy {
 
   UserPreference insertTimestamp(int? insertTimestamp);
 
+  UserPreference language(String? language);
+
   UserPreference owner(String? owner);
 
   UserPreference shoppingDays(List<int>? shoppingDays);
@@ -92,6 +94,7 @@ abstract class _$UserPreferenceCWProxy {
   UserPreference call({
     String? idx,
     int? insertTimestamp,
+    String? language,
     String? owner,
     List<int>? shoppingDays,
     List<SupermarketSection>? supermarketSections,
@@ -112,6 +115,9 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
   @override
   UserPreference insertTimestamp(int? insertTimestamp) =>
       this(insertTimestamp: insertTimestamp);
+
+  @override
+  UserPreference language(String? language) => this(language: language);
 
   @override
   UserPreference owner(String? owner) => this(owner: owner);
@@ -144,6 +150,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
   UserPreference call({
     Object? idx = const $CopyWithPlaceholder(),
     Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? language = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
     Object? shoppingDays = const $CopyWithPlaceholder(),
     Object? supermarketSections = const $CopyWithPlaceholder(),
@@ -159,6 +166,10 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
           ? _value.insertTimestamp
           // ignore: cast_nullable_to_non_nullable
           : insertTimestamp as int?,
+      language: language == const $CopyWithPlaceholder()
+          ? _value.language
+          // ignore: cast_nullable_to_non_nullable
+          : language as String?,
       owner: owner == const $CopyWithPlaceholder()
           ? _value.owner
           // ignore: cast_nullable_to_non_nullable
@@ -249,6 +260,7 @@ UserPreference _$UserPreferenceFromJson(Map json) => UserPreference(
             'gl',
             'qt'
           ],
+      language: json['language'] as String?,
     );
 
 Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
@@ -268,5 +280,6 @@ Map<String, dynamic> _$UserPreferenceToJson(UserPreference instance) {
   writeNotNull('supermarket_sections',
       instance.supermarketSections?.map((e) => e.toJson()).toList());
   writeNotNull('units_of_measure', instance.unitsOfMeasure);
+  writeNotNull('language', instance.language);
   return val;
 }

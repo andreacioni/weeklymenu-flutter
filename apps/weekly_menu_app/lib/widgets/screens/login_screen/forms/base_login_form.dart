@@ -118,6 +118,22 @@ TextFormField buildPasswordFormField(
   );
 }
 
+TextFormField buildLanguageFormField(
+    {required void Function(String? value) onSaved,
+    void Function()? onFieldSubmitted,
+    TextInputAction textInputAction = TextInputAction.next,
+    String hintText = "Language"}) {
+  return TextFormField(
+    decoration: InputDecoration(hintText: hintText),
+    textInputAction:
+        onFieldSubmitted != null ? TextInputAction.done : TextInputAction.next,
+    validator: (value) => _validateLanguage(value),
+    onSaved: onSaved,
+    onFieldSubmitted:
+        onFieldSubmitted != null ? ((_) => onFieldSubmitted()) : null,
+  );
+}
+
 TextButton buildCancelButton(BuildContext context,
     {void Function()? onCancel}) {
   return TextButton(
@@ -151,6 +167,14 @@ String? _validateEmail(String? value) {
 String? _validatePassword(String? value) {
   if (value != null && !RegExp(passwordValidationRegex).hasMatch(value)) {
     return "Password must be at least 8 characters long";
+  }
+
+  return null;
+}
+
+String? _validateLanguage(String? value) {
+  if (value != null && !RegExp(languageValidationRegex).hasMatch(value)) {
+    return "Language code is invalid";
   }
 
   return null;

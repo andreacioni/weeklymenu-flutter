@@ -16,6 +16,7 @@ class FlutterDataUserPreference extends UserPreference
       super.shoppingDays,
       super.supermarketSections,
       super.unitsOfMeasure,
+      super.language,
       super.updateTimestamp}) {
     init();
   }
@@ -29,6 +30,7 @@ class FlutterDataUserPreference extends UserPreference
         shoppingDays: temp.shoppingDays,
         supermarketSections: temp.supermarketSections,
         unitsOfMeasure: temp.unitsOfMeasure,
+        language: temp.language,
         updateTimestamp: temp.insertTimestamp);
   }
 

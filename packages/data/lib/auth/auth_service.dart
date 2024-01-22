@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:common/constants.dart';
 import 'package:data/auth/token_service.dart';
 import 'package:data/configuration/remote_config.dart';
 import 'package:dio/dio.dart';
@@ -42,9 +41,14 @@ class AuthService {
 
   AuthService(this._dio);
 
-  Future<void> register(String name, String email, String password) async {
-    await _dio.post('/auth/register',
-        data: {'name': name, 'email': email, 'password': password});
+  Future<void> register(
+      String name, String email, String password, String language) async {
+    await _dio.post('/auth/register', data: {
+      'name': name,
+      'email': email,
+      'password': password,
+      'language': language
+    });
 
     return;
   }

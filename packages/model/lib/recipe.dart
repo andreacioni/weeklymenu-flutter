@@ -22,6 +22,8 @@ class RecipeOriginator extends Originator<Recipe> {
 class Recipe extends BaseModel<Recipe> {
   final String name;
 
+  final String? language;
+
   final String? description;
 
   final int? rating;
@@ -65,6 +67,7 @@ class Recipe extends BaseModel<Recipe> {
 
   Recipe(
       {String? idx,
+      required this.language,
       required this.name,
       this.description,
       this.ingredients = const <RecipeIngredient>[],
@@ -166,4 +169,35 @@ class MealRecipe {
   final Meal meal;
   final Recipe recipe;
   MealRecipe(this.meal, this.recipe);
+}
+
+@JsonSerializable(explicitToJson: true, anyMap: true)
+@CopyWith()
+class ExternalRecipe extends Recipe {
+  ExternalRecipe(
+      {required super.name,
+      required super.language,
+      super.availabilityMonths,
+      super.cost,
+      super.description,
+      super.difficulty,
+      super.estimatedCookingTime,
+      super.estimatedPreparationTime,
+      super.imgUrl,
+      super.ingredients,
+      super.insertTimestamp,
+      super.note,
+      super.owner,
+      super.preparation,
+      super.preparationSteps,
+      super.rating,
+      super.recipeUrl,
+      super.relatedRecipes,
+      super.scraped,
+      super.section,
+      super.servs,
+      super.tags,
+      super.updateTimestamp,
+      super.videoUrl});
+  Map<String, dynamic> toJson() => _$ExternalRecipeToJson(this);
 }

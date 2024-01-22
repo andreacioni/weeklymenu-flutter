@@ -269,7 +269,7 @@ class _RecipeInformationTiles extends HookConsumerWidget {
         return [
           const SizedBox(height: 20),
           Text(
-            'Other recipes',
+            'Related recipes',
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 10),

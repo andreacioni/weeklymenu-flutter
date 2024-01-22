@@ -61,18 +61,22 @@ class UserPreference extends BaseModel<UserPreference> {
   @JsonKey(defaultValue: STANDARD_UNIT_OF_MEASURE)
   final List<String>? unitsOfMeasure;
 
+  @JsonKey()
+  final String? language;
+
   @JsonKey(ignore: true)
   final String? owner;
 
-  UserPreference(
-      {String? idx,
-      this.owner,
-      int? insertTimestamp,
-      int? updateTimestamp,
-      this.shoppingDays,
-      this.supermarketSections,
-      this.unitsOfMeasure})
-      : super(
+  UserPreference({
+    String? idx,
+    this.owner,
+    int? insertTimestamp,
+    int? updateTimestamp,
+    this.shoppingDays,
+    this.supermarketSections,
+    this.unitsOfMeasure,
+    this.language,
+  }) : super(
             idx: idx ?? ObjectId().hexString,
             insertTimestamp: insertTimestamp,
             updateTimestamp: updateTimestamp);

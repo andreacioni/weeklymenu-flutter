@@ -14,5 +14,6 @@ const String emailValidationRegex =
 
 const String alloweSpecialCharacters = "?\$#!'\"=%&/\/\(\)\[\]\{\}";
 const String passwordValidationRegex = "^[a-zA-Z0-9]{7,20}\$";
+const String languageValidationRegex = "^[a-z]{2,3}\$";
 
 const UPDATE_PARAM = 'update';
