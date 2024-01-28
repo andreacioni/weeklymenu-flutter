@@ -10,11 +10,15 @@ class DefaultShimmer extends StatelessWidget {
         child: Container(
           width: 50,
           height: 50,
-          color: Colors.black,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.black,
+          ),
         ),
         //period: Duration(milliseconds: 100),
         //loop: 10,
         //direction: ShimmerDirection.,
+
         baseColor: Colors.grey.shade200,
         highlightColor: Colors.white);
   }

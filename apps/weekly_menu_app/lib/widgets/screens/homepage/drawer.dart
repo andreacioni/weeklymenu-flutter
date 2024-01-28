@@ -5,6 +5,7 @@ import 'package:data/configuration/local_preferences.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:weekly_menu_app/widgets/screens/explore_recipes_screen/screen.dart';
 
 import '../ingredients_screen/screen.dart';
 import '../login_screen/screen.dart';
@@ -76,8 +77,8 @@ class AppDrawer extends HookConsumerWidget {
             title: Text('More recipes'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => TagsScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => ExploreRecipesScreen()));
             },
           ),
           Divider(),
