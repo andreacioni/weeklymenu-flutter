@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:model/recipe.dart';
 
-import '../../shared/base_modal_bottom_sheet.dart';
+import '../../shared/bottom_sheet.dart';
 import 'notifier.dart';
 import 'tabs/general_info_tab.dart';
 import 'tabs/ingredients_tab.dart';
