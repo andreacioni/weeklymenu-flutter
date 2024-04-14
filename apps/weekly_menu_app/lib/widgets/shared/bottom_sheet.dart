@@ -58,7 +58,11 @@ class BaseBottomSheet extends StatelessWidget {
                 title: Text(appBarTitle!),
                 elevation: 0,
                 automaticallyImplyLeading: false,
-                leading: Icon(Icons.close),
+                leading: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                  splashRadius: 15,
+                ),
               )
             : null,
         body: body,

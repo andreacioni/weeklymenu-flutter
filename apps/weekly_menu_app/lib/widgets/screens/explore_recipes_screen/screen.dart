@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +54,14 @@ class _ExploreRecipeTab extends HookConsumerWidget {
     final linkTextTheme = Theme.of(context).textTheme.labelLarge!;
     final labelTextTheme = Theme.of(context).textTheme.labelMedium!;
 
-    final recipeUri =
-        recipe.recipeUrl != null ? Uri.parse(recipe.recipeUrl!) : null;
+    Uri? recipeUri;
+    try {
+      recipeUri =
+          recipe.recipeUrl != null ? Uri.parse(recipe.recipeUrl!) : null;
+    } catch (e, st) {
+      log("invalid url for recipe ${recipe.idx}", stackTrace: st, error: e);
+    }
+
     await showCustomModalBottomSheet(
         context: context,
         builder: (context) {
