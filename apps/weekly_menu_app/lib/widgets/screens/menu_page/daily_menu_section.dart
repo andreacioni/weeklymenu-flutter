@@ -11,11 +11,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:model/enums/meal.dart';
-import 'package:model/menu.dart';
+import 'package:model/daily_menu.dart';
+import 'package:common/date.dart';
+import 'package:common/log.dart';
 import 'package:model/recipe.dart';
 import 'package:common/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:weekly_menu_app/providers/user_preferences.dart';
+import 'package:flutter_data/flutter_data.dart' hide Repository;
 
 import '../../shared/flutter_data_state_builder.dart';
 import '../recipe_screen/screen.dart';
@@ -31,6 +34,29 @@ final _appBarMonthParser = DateFormat('MMM');
 final _dragOriginDailyMenuNotifierProvider =
     StateProvider<DailyMenuNotifier?>((_) => null);
 
+class DailyMenuSectionStreamWrapper extends HookConsumerWidget {
+  final Date date;
+  const DailyMenuSectionStreamWrapper(this.date, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return RepositoryStreamBuilder<DailyMenu>(
+      stream: ref.dailyMenu.streamOne(date.formatId()),
+      errorBuilder: (context, error) {
+        if (error != null &&
+            error is DataException &&
+            error.statusCode == 404) {
+          return DailyMenuSection(
+              DailyMenuNotifier(DailyMenu.empty(date), ref.dailyMenu));
+        }
+      },
+      builder: (ctx, dailyMenu) {
+        return DailyMenuSection(DailyMenuNotifier(dailyMenu, ref.dailyMenu));
+      },
+    );
+  }
+}
+
 class DailyMenuSection extends HookConsumerWidget {
   final DailyMenuNotifier dailyMenuNotifier;
   final void Function()? onTap;
@@ -42,7 +68,7 @@ class DailyMenuSection extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log('build day: ${dailyMenuNotifier.dailyMenu.day} : ${dailyMenuNotifier.dailyMenu}');
+    log('build day: ${dailyMenuNotifier.dailyMenu.date} : ${dailyMenuNotifier.dailyMenu}');
 
     final padding = const EdgeInsets.fromLTRB(10, 5, 0, 0);
 
@@ -55,31 +81,21 @@ class DailyMenuSection extends HookConsumerWidget {
     final displayEnterNewRecipeCard = useState(false);
 
     final draggingOverThisWidget = ref.watch(pointerOverWidgetIndexStateProvider
-        .select((v) => v == dailyMenuNotifier.dailyMenu.day));
+        .select((v) => v == dailyMenuNotifier.dailyMenu.date));
 
-    Widget buildMenuContainer(Meal meal, Menu? menu,
+    Widget buildMenuContainer(Meal meal, List<String> recipeIds,
         {bool displayPlaceholder = false}) {
       return _MenuContainer(
         meal,
         key: ValueKey('$meal'),
-        menu: menu,
+        recipeIds: recipeIds,
         dailyMenuNotifier: dailyMenuNotifier,
         displayRecipePlaceholder: displayPlaceholder,
       );
     }
 
-    Future<void> addRecipeToMeal(Meal meal, Recipe recipe) async {
-      if (dailyMenuNotifier.dailyMenu.getMenuByMeal(meal) == null) {
-        final recipeId = recipe.idx;
-        final menu = Menu(
-          date: dailyMenuNotifier.dailyMenu.day,
-          recipes: [recipeId],
-          meal: meal,
-        );
-        await dailyMenuNotifier.addMenu(menu);
-      } else {
-        await dailyMenuNotifier.addRecipeToMeal(meal, recipe);
-      }
+    Future<void> addRecipeToMeal(Meal meal, String recipeId) async {
+      await dailyMenuNotifier.addRecipeToMeal(meal, recipeId);
     }
 
     Future<void> addNewRecipeToMeal(Meal meal, String recipeName) async {
@@ -89,7 +105,7 @@ class DailyMenuSection extends HookConsumerWidget {
         Recipe recipe = await ref.recipes.save(
             Recipe(name: recipeName.trim(), language: language),
             params: {UPDATE_PARAM: false});
-        await addRecipeToMeal(meal, recipe);
+        await addRecipeToMeal(meal, recipe.idx);
       } else {
         print("can't create a recipe with empty name");
       }
@@ -104,7 +120,7 @@ class DailyMenuSection extends HookConsumerWidget {
       if (recipe == null) {
         await addNewRecipeToMeal(meal, recipeName);
       } else {
-        await addRecipeToMeal(meal, recipe);
+        await addRecipeToMeal(meal, recipe.idx);
       }
     }
 
@@ -126,9 +142,9 @@ class DailyMenuSection extends HookConsumerWidget {
                 },
               ),
             ...Meal.values.map((m) {
-              final menu = dailyMenuNotifier.dailyMenu.getMenuByMeal(m);
+              final recipeIds = dailyMenuNotifier.dailyMenu.getRecipesByMeal(m);
 
-              return buildMenuContainer(m, menu,
+              return buildMenuContainer(m, recipeIds,
                   displayPlaceholder: draggingOverThisWidget);
             }).toList()
           ],
@@ -191,8 +207,8 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
           softWrap: false,
           textAlign: TextAlign.start,
           text: TextSpan(
-            text:
-                dailyMenuNotifier.dailyMenu.day.format(_appBarDateParser) + ' ',
+            text: dailyMenuNotifier.dailyMenu.date.format(_appBarDateParser) +
+                ' ',
             style: GoogleFonts.b612Mono().copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -204,7 +220,7 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
             children: <TextSpan>[
               TextSpan(
                 text:
-                    dailyMenuNotifier.dailyMenu.day.format(_appBarMonthParser),
+                    dailyMenuNotifier.dailyMenu.date.format(_appBarMonthParser),
                 style: GoogleFonts.b612Mono().copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w200,
@@ -284,28 +300,25 @@ class _MealRecipeCardContainer extends HookConsumerWidget {
 
 class _MenuContainer extends HookConsumerWidget {
   final Meal meal;
-  final Menu? menu;
+  final List<String> recipeIds;
   final DailyMenuNotifier dailyMenuNotifier;
   final bool displayRecipePlaceholder;
 
   _MenuContainer(
     this.meal, {
     Key? key,
-    this.menu,
+    this.recipeIds = const [],
     required this.dailyMenuNotifier,
     this.displayRecipePlaceholder = false,
-  })  : assert(menu == null || meal == menu.meal),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recipeIds = menu?.recipes ?? [];
-
     final isDragging = ref.read(isDraggingMenuStateProvider);
 
     Widget buildDragTargetPlaceholder({bool displayLeadingMealIcon = false}) {
       return _MenuRecipeDragTarget(
-        menu: menu,
+        recipeIds: recipeIds,
         meal: meal,
         dailyMenuNotifier: dailyMenuNotifier,
         child: Row(
@@ -353,7 +366,8 @@ class _MenuContainer extends HookConsumerWidget {
             )
             .toList(),
         if (isDragging && displayRecipePlaceholder)
-          buildDragTargetPlaceholder(displayLeadingMealIcon: menu == null),
+          buildDragTargetPlaceholder(
+              displayLeadingMealIcon: dailyMenuNotifier.dailyMenu.isEmpty),
         if (recipeIds.isNotEmpty) SizedBox(height: 20),
       ],
     );
@@ -363,8 +377,8 @@ class _MenuContainer extends HookConsumerWidget {
 class _MenuRecipeDragTarget extends HookConsumerWidget {
   final Widget child;
   final DailyMenuNotifier dailyMenuNotifier;
-  final Menu? menu;
-  final Meal? meal;
+  final List<String> recipeIds;
+  final Meal meal;
 
   final void Function()? onEnter;
   final void Function()? onLeave;
@@ -372,8 +386,8 @@ class _MenuRecipeDragTarget extends HookConsumerWidget {
   _MenuRecipeDragTarget({
     required this.child,
     required this.dailyMenuNotifier,
-    this.menu,
-    this.meal,
+    required this.meal,
+    this.recipeIds = const [],
     this.onEnter,
     this.onLeave,
     Key? key,
@@ -383,18 +397,14 @@ class _MenuRecipeDragTarget extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dailyMenu = dailyMenuNotifier.dailyMenu;
 
-    final meal = menu?.meal ?? this.meal!;
-
     final originalDailyMenuNotifier =
         ref.watch(_dragOriginDailyMenuNotifierProvider);
 
     return DragTarget<MealRecipe>(
         hitTestBehavior: HitTestBehavior.deferToChild,
         onWillAccept: (mealRecipe) {
-          final menu = dailyMenu.getMenuByMeal(meal);
-          final ret =
-              (menu?.recipes.contains(mealRecipe?.recipe.idx) ?? false) ==
-                  false;
+          final recipes = dailyMenu.getRecipesByMeal(meal);
+          final ret = (recipes.contains(mealRecipe?.recipe.idx)) == false;
           print('on will accept: $ret');
           onEnter?.call();
           return ret;
@@ -405,21 +415,11 @@ class _MenuRecipeDragTarget extends HookConsumerWidget {
         onAccept: (mealRecipe) {
           print('onAccept - $mealRecipe');
 
-          final recipeIds = [mealRecipe.recipe.idx];
+          dailyMenuNotifier.addRecipeToMeal(
+              mealRecipe.meal, mealRecipe.recipe.idx);
 
-          final destinationMenu = dailyMenu.getMenuByMeal(meal);
-          if (destinationMenu == null) {
-            final menu =
-                Menu(date: dailyMenu.day, meal: meal, recipes: recipeIds);
-            dailyMenuNotifier.addMenu(menu);
-          } else {
-            final newMenu = destinationMenu
-                .copyWith(recipes: [...destinationMenu.recipes, ...recipeIds]);
-            dailyMenuNotifier.updateMenu(newMenu);
-          }
-
-          originalDailyMenuNotifier?.removeRecipesFromMeal(
-              mealRecipe.meal, recipeIds);
+          originalDailyMenuNotifier?.removeRecipeFromMeal(
+              mealRecipe.meal, mealRecipe.recipe.idx);
 
           ref.read(_dragOriginDailyMenuNotifierProvider.notifier).state = null;
         },
@@ -551,11 +551,12 @@ class _MenuRecipeCard extends HookConsumerWidget {
                 Recipe(name: recipeName.trim(), language: language),
                 params: {UPDATE_PARAM: false});
           } else {
-            print("can't create a recipe with empty name");
+            logWarn("can't create a recipe with empty name");
+            return;
           }
         }
-        await dailyMenuNotifier.replaceRecipeInMeal(meal,
-            oldRecipeId: this.recipe.idx, newRecipeId: recipe!.idx);
+        await dailyMenuNotifier.replaceRecipeInMeal(
+            meal, this.recipe.idx, recipe.idx);
       }
     }
 

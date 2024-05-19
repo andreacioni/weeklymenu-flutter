@@ -16,12 +16,16 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
   final Widget? notFound;
   final Widget loading;
   final Widget error;
+  final Widget? Function(BuildContext context, dynamic error)? errorBuilder;
+  final T? initialData;
   final Widget Function(BuildContext context, T model) builder;
 
   const RepositoryStreamBuilder(
       {required this.stream,
       required this.builder,
       this.onRefresh,
+      this.initialData,
+      this.errorBuilder,
       this.notFound = const Text('not found'),
       this.error = const Text('error'),
       this.loading = const Center(child: CircularProgressIndicator())});
@@ -30,6 +34,7 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return StreamBuilder<T?>(
         stream: stream,
+        initialData: initialData,
         builder: ((context, snapshot) {
           if (snapshot.error != null) {
             //early catch the forbidden/unauthorized to redirect user to login page
@@ -41,6 +46,9 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
               }
             }
 
+            final errorWidget =
+                errorBuilder?.call(context, snapshot.error) ?? error;
+
             // for other errors shows popup ?
             log(
                 "RepositoryStreamBuilder caught an error: " +
@@ -48,7 +56,7 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
                 level: Level.SEVERE.value,
                 error: snapshot.error);
 
-            return error;
+            return errorWidget;
           }
 
           if (snapshot.connectionState == ConnectionState.waiting ||
@@ -94,7 +102,7 @@ class RepositoryFutureBuilder<T> extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<T?>(
-        future:  future,
+        future: future,
         builder: ((context, snapshot) {
           if (snapshot.error != null) {
             //early catch the forbidden/unauthorized to redirect user to login page

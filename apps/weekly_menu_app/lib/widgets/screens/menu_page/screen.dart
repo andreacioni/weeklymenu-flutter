@@ -2,56 +2,23 @@ import 'dart:developer';
 
 import 'package:common/constants.dart';
 import 'package:common/date.dart';
-import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:model/menu.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:common/listener_utils.dart';
+import 'package:weekly_menu_app/widgets/screens/menu_page/notifier.dart';
 
 import 'daily_menu_section.dart';
 import 'date_range_picker.dart';
 import 'menu_app_bar.dart';
-import 'notifier.dart';
 
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
 final pointerOverWidgetIndexStateProvider =
     StateProvider.autoDispose<Date?>((_) => null);
-
-final dailyMenuStreamProvider =
-    StreamProvider.autoDispose.family<List<Menu>, Date>(((ref, date) async* {
-  await for (final menuList in await ref
-      .read(menuRepositoryProvider)
-      .stream(params: {'day': date.format(_httpParamDateParser)})) {
-    final dailyMenuList = <Menu>[];
-    for (final m in menuList) {
-      if (m.date == date) {
-        dailyMenuList.add(m);
-      }
-    }
-
-    if (ref.state.value != null) {
-      dailyMenuList.addAll([...(ref.state.value ?? <Menu>[])]);
-    }
-
-    if (dailyMenuList != ref.state.value) {
-      yield dailyMenuList;
-    } else {
-      continue;
-    }
-  }
-}));
-
-//keep this provider separated from the other one in order to optimize build times
-final dailyMenuProvider =
-    Provider.autoDispose.family<DailyMenu, Date>((ref, date) {
-  final dailyMenuList = ref.watch(dailyMenuStreamProvider(date)).valueOrNull;
-  return DailyMenu(day: date, menus: dailyMenuList ?? <Menu>[]);
-});
 
 // drag not works when true
 enum _MENU_MODE { LISTVIEW, POSITIONED_LISTVIEW }
@@ -178,7 +145,7 @@ class MenuScreen extends HookConsumerWidget {
       return IndexedListenerWrapper(
         key: day.isToday ? todayKey : ValueKey(day),
         index: day,
-        child: DailyMenuFutureWrapper(day),
+        child: DailyMenuSectionStreamWrapper(day),
       );
     }
 
@@ -244,29 +211,6 @@ class MenuScreen extends HookConsumerWidget {
     if (newValue != displayFAB.value) {
       //displayFAB.value = newValue;
     }
-  }
-}
-
-class DailyMenuFutureWrapper extends HookConsumerWidget {
-  final Date day;
-
-  DailyMenuFutureWrapper(this.day, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dailyMenu = ref.watch(dailyMenuProvider(day));
-    final menuRepository = ref.read(menuRepositoryProvider);
-
-    /*return dailyMenuAsyncValue.when(
-      data: (dailyMenu) =>
-          DailyMenuSection(DailyMenuNotifier(dailyMenu, menuRepository)),
-      error: (e, st) {
-        logError("failed to load daily menu", e, st);
-        return Container();
-      },
-      loading: () => Container(),
-    );*/
-    return DailyMenuSection(DailyMenuNotifier(dailyMenu, menuRepository));
   }
 }
 

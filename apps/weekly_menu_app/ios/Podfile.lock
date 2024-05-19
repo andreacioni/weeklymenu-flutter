@@ -9,14 +9,14 @@ PODS:
   - Firebase/RemoteConfig (10.22.0):
     - Firebase/CoreOnly
     - FirebaseRemoteConfig (~> 10.22.0)
-  - firebase_analytics (10.10.1):
+  - firebase_analytics (10.8.9):
     - Firebase/Analytics (= 10.22.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.29.0):
+  - firebase_core (2.27.0):
     - Firebase/CoreOnly (= 10.22.0)
     - Flutter
-  - firebase_remote_config (4.4.1):
+  - firebase_remote_config (4.3.17):
     - Firebase/RemoteConfig (= 10.22.0)
     - firebase_core
     - Flutter
@@ -176,9 +176,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Firebase: 797fd7297b7e1be954432743a0b3f90038e45a71
-  firebase_analytics: 8e6cecb9b9541db49ac40a46eec7c0f519de7252
-  firebase_core: aaadbddb3cb2ee3792b9804f9dbb63e5f6f7b55c
-  firebase_remote_config: 13cdfde7862e4cee3b9e97cf3f9e2f1ea2b98c8e
+  firebase_analytics: b9ce200bfc2c54629076bb22d6a510f31c296ab8
+  firebase_core: 100945864b4aedce3cfef0c62ab864858bf013cf
+  firebase_remote_config: 5ebb1bf2503404f6b24e64f117dc6c22c0498d4c
   FirebaseABTesting: 4431c2c56ac6e56f463b9cab05cc111078639f99
   FirebaseAnalytics: 8d0ff929c63b7f72260f332b86ccf569776b75d3
   FirebaseCore: 0326ec9b05fbed8f8716cddbf0e36894a13837f7
@@ -186,7 +186,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 8f581fca6478a50705d2bd2abd66d306e0f5736e
   FirebaseRemoteConfig: e1b992a94d3674dddbcaf5d0d31a0312156ceb1c
   FirebaseSharedSwift: 76e1529c32101d80e4f1ca2fba7c39d59f0a390a
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   GoogleAppMeasurement: ccefe3eac9b0aa27f96066809fb1a7fe4b462626
   GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
@@ -195,7 +195,7 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   shared_preferences_foundation: 986fc17f3d3251412d18b0265f9c64113a8c2472
   sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
-  url_launcher_ios: 6116280ddcfe98ab8820085d8d76ae7449447586
+  url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
 
 PODFILE CHECKSUM: cc1f88378b4bfcf93a6ce00d2c587857c6008d3b
 
