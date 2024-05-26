@@ -19,6 +19,7 @@ import 'package:common/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:weekly_menu_app/providers/user_preferences.dart';
 import 'package:flutter_data/flutter_data.dart' hide Repository;
+import 'package:weekly_menu_app/widgets/shared/shimmer.dart';
 
 import '../../shared/flutter_data_state_builder.dart';
 import '../recipe_screen/screen.dart';
@@ -34,26 +35,58 @@ final _appBarMonthParser = DateFormat('MMM');
 final _dragOriginDailyMenuNotifierProvider =
     StateProvider<DailyMenuNotifier?>((_) => null);
 
+final _dailyMenuNotifierProvider = StateNotifierProvider.autoDispose
+    .family<DailyMenuNotifier, DailyMenu, Date>(
+        (ref, date) => DailyMenuNotifier(DailyMenu.empty(date), ref.dailyMenu));
+
 class DailyMenuSectionStreamWrapper extends HookConsumerWidget {
   final Date date;
+
   const DailyMenuSectionStreamWrapper(this.date, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final stream = useMemoized(() => ref.dailyMenu.streamOne(date.formatId()));
+
     return RepositoryStreamBuilder<DailyMenu>(
-      stream: ref.dailyMenu.streamOne(date.formatId()),
+      key: ValueKey(date.formatId()),
+      stream: stream,
+      loading: const DefaultShimmer(),
       errorBuilder: (context, error) {
-        if (error != null &&
-            error is DataException &&
-            error.statusCode == 404) {
-          return DailyMenuSection(
-              DailyMenuNotifier(DailyMenu.empty(date), ref.dailyMenu));
+        if (error != null) {
+          if (error is DataException && error.statusCode == 404) {
+            return NewDailyMenuNotifierWrapper(
+              date,
+              key: Key(date.formatId()),
+            );
+          }
+
+          if (error is OfflineException) {
+            return Container();
+          }
         }
+
+        return null;
       },
       builder: (ctx, dailyMenu) {
-        return DailyMenuSection(DailyMenuNotifier(dailyMenu, ref.dailyMenu));
+        return DailyMenuSection(
+          DailyMenuNotifier(dailyMenu, ref.dailyMenu),
+          key: Key(date.formatId()),
+        );
       },
     );
+  }
+}
+
+class NewDailyMenuNotifierWrapper extends HookConsumerWidget {
+  final Date date;
+  const NewDailyMenuNotifierWrapper(this.date, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(_dailyMenuNotifierProvider(date).select((value) => value.meals));
+    return DailyMenuSection(
+        ref.read(_dailyMenuNotifierProvider(date).notifier));
   }
 }
 
@@ -64,7 +97,8 @@ class DailyMenuSection extends HookConsumerWidget {
   DailyMenuSection(
     this.dailyMenuNotifier, {
     this.onTap,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -367,7 +401,7 @@ class _MenuContainer extends HookConsumerWidget {
             .toList(),
         if (isDragging && displayRecipePlaceholder)
           buildDragTargetPlaceholder(
-              displayLeadingMealIcon: dailyMenuNotifier.dailyMenu.isEmpty),
+              displayLeadingMealIcon: dailyMenuNotifier.dailyMenu.isNotEmpty),
         if (recipeIds.isNotEmpty) SizedBox(height: 20),
       ],
     );
@@ -415,8 +449,7 @@ class _MenuRecipeDragTarget extends HookConsumerWidget {
         onAccept: (mealRecipe) {
           print('onAccept - $mealRecipe');
 
-          dailyMenuNotifier.addRecipeToMeal(
-              mealRecipe.meal, mealRecipe.recipe.idx);
+          dailyMenuNotifier.addRecipeToMeal(meal, mealRecipe.recipe.idx);
 
           originalDailyMenuNotifier?.removeRecipeFromMeal(
               mealRecipe.meal, mealRecipe.recipe.idx);

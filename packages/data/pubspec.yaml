@@ -28,6 +28,8 @@ dependencies:
 
   model:
     path: '../model'
+  common:
+    path: '../common'
 
 dev_dependencies:
   flutter_test:

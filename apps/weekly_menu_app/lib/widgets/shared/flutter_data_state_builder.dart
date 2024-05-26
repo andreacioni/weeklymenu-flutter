@@ -21,14 +21,16 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
   final Widget Function(BuildContext context, T model) builder;
 
   const RepositoryStreamBuilder(
-      {required this.stream,
+      {Key? key,
+      required this.stream,
       required this.builder,
       this.onRefresh,
       this.initialData,
       this.errorBuilder,
       this.notFound = const Text('not found'),
       this.error = const Text('error'),
-      this.loading = const Center(child: CircularProgressIndicator())});
+      this.loading = const Center(child: CircularProgressIndicator())})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

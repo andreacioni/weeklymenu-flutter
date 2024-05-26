@@ -13,9 +13,11 @@ import 'enums/meal.dart';
 
 part 'daily_menu.g.dart';
 
+final dateIdFormat = DateFormat('y-MM-dd');
+
 extension DateAsId on Date {
   String formatId() {
-    return format(DateFormat('y-MM-dd'));
+    return format(dateIdFormat);
   }
 }
 

@@ -162,7 +162,7 @@ packages:
     source: hosted
     version: "1.18.0"
   common:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "../common"
       relative: true
