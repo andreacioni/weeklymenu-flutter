@@ -63,15 +63,19 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen>
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       extendBodyBehindAppBar: true,
-      body: _MyRecipesTab(
-        searchText: _searchText,
-        editingModeEnabled: _editingModeEnabled,
-        selectedRecipes: _selectedRecipes,
-        onRecipeTap: (recipe) => _editingModeEnabled == true
-            ? _addRecipeToEditingList(recipe)
-            : _openRecipeView(context, recipe, heroTag: recipe.idx),
-        onRecipeLongPress: (recipe) =>
-            _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
+      body: RefreshIndicator(
+        onRefresh: () => ref.recipes.reload(),
+        displacement: 105,
+        child: _MyRecipesTab(
+          searchText: _searchText,
+          editingModeEnabled: _editingModeEnabled,
+          selectedRecipes: _selectedRecipes,
+          onRecipeTap: (recipe) => _editingModeEnabled == true
+              ? _addRecipeToEditingList(recipe)
+              : _openRecipeView(context, recipe, heroTag: recipe.idx),
+          onRecipeLongPress: (recipe) =>
+              _editingModeEnabled == false ? _enableEditingMode(recipe) : null,
+        ),
       ),
     );
   }
@@ -298,6 +302,7 @@ class _MyRecipesTabState extends ConsumerState<_MyRecipesTab>
         RepositoryStreamBuilder<List<Recipe>>(
           stream: recipeStream,
           notFound: _buildNoRecipesFound(),
+          //no more working after adding search bar and filter below standard appbar
           onRefresh: () async => repository.reload(),
           builder: (context, model) {
             return Padding(
