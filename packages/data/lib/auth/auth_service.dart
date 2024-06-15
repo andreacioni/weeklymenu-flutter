@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:developer';
 
+import 'package:common/log.dart';
 import 'package:data/auth/token_service.dart';
 import 'package:data/configuration/remote_config.dart';
 import 'package:dio/dio.dart';
@@ -62,9 +62,9 @@ class AuthService {
       final token = AuthToken.fromLoginResponse(loginResponse);
 
       return token;
-    } catch (e) {
-      log('user $email failed to login: $e');
-      throw e;
+    } catch (e, st) {
+      logError('user $email failed to login', e, st);
+      rethrow;
     }
   }
 

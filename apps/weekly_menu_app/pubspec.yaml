@@ -43,7 +43,7 @@ dependencies:
   #logger: ^1.1.0
   objectid: ^2.0.0
   #flutter_data: ^1.5.10
-  copy_with_extension: ^4.0.0
+  copy_with_extension: ^5.0.4
   equatable: ^2.0.3
   flutter_colorpicker: ^1.0.3
   #sliding_up_panel: ^2.0.0+1
@@ -74,7 +74,7 @@ dev_dependencies:
   build_runner: ^2.0.0
   json_serializable: ^6.0.0
   meta: ^1.1.8
-  copy_with_extension_gen: ^4.0.1
+  copy_with_extension_gen: ^5.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

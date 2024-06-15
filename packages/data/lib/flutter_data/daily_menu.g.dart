@@ -29,14 +29,18 @@ mixin $FlutterDataDailyMenuLocalAdapter on LocalAdapter<FlutterDataDailyMenu> {
   }
 }
 
-final _flutterDataDailyMenusFinders = <String, dynamic>{};
+final _flutterDataDailyMenusFinders = <String, dynamic>{
+  'findOneCustom': (_) => _.findOneCustom,
+};
 
 // ignore: must_be_immutable
 class $FlutterDataDailyMenuHiveLocalAdapter = HiveLocalAdapter<
     FlutterDataDailyMenu> with $FlutterDataDailyMenuLocalAdapter;
 
 class $FlutterDataDailyMenuRemoteAdapter = RemoteAdapter<FlutterDataDailyMenu>
-    with BaseAdapter<FlutterDataDailyMenu>;
+    with
+        DailyMenuAdapter<FlutterDataDailyMenu>,
+        BaseAdapter<FlutterDataDailyMenu>;
 
 final internalFlutterDataDailyMenusRemoteAdapterProvider =
     Provider<RemoteAdapter<FlutterDataDailyMenu>>((ref) =>
@@ -50,6 +54,8 @@ final flutterDataDailyMenusRepositoryProvider =
 
 extension FlutterDataDailyMenuDataRepositoryX
     on Repository<FlutterDataDailyMenu> {
+  DailyMenuAdapter<FlutterDataDailyMenu> get dailyMenuAdapter =>
+      remoteAdapter as DailyMenuAdapter<FlutterDataDailyMenu>;
   BaseAdapter<FlutterDataDailyMenu> get baseAdapter =>
       remoteAdapter as BaseAdapter<FlutterDataDailyMenu>;
 }

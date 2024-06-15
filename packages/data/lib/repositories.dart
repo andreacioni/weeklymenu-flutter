@@ -25,6 +25,8 @@ final repositoryInitializerProvider = FutureProvider<void>((ref) async {
   }
 });
 
+final offlineRetryProvider = flutter_data.offlineRetryProvider;
+
 /** has to be updated every time you have a new repository */
 final repositoryProviders = Provider<List<Provider<Repository>>>((_) => [
       recipeRepositoryProvider,
@@ -44,7 +46,6 @@ extension RepositoryWidgetWidgetRefX on WidgetRef {
       watch(shoppingListRepositoryProvider);
   Repository<ShoppingList> get shoppingListItems =>
       watch(shoppingListRepositoryProvider);
-  Repository<DailyMenu> get menus => watch(dailyMenuRepositoryProvider);
   Repository<UserPreference> get userPreferences =>
       watch(userPreferencesRepositoryProvider);
   Repository<ExternalRecipe> get externalRecipes =>
@@ -204,7 +205,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   @override
   Stream<List<Recipe>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataRecipes
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -213,7 +214,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   @override
   Stream<FlutterDataRecipe> streamOne(String id) {
     return ref.flutterDataRecipes
-        .watchOneNotifier(id)
+        .watchOneNotifier(id, finder: 'findOneCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -480,7 +481,7 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   @override
   Stream<List<ShoppingList>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataShoppingLists
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -612,7 +613,7 @@ class _FlutterDataShoppingListItemRepository
   @override
   Stream<List<ShoppingListItem>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataShoppingListItems
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -872,7 +873,7 @@ class _FlutterDataMenuRepository extends Repository<DailyMenu> {
   @override
   Stream<List<DailyMenu>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataDailyMenus
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -881,7 +882,7 @@ class _FlutterDataMenuRepository extends Repository<DailyMenu> {
   @override
   Stream<DailyMenu> streamOne(String id) {
     return ref.flutterDataDailyMenus
-        .watchOneNotifier(id)
+        .watchOneNotifier(id, finder: 'findOneCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);

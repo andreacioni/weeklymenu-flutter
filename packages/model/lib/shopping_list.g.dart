@@ -9,11 +9,11 @@ part of 'shopping_list.dart';
 abstract class _$ShoppingListCWProxy {
   ShoppingList idx(String? idx);
 
-  ShoppingList insertTimestamp(int? insertTimestamp);
-
   ShoppingList items(List<ShoppingListItem> items);
 
   ShoppingList name(String? name);
+
+  ShoppingList insertTimestamp(int? insertTimestamp);
 
   ShoppingList updateTimestamp(int? updateTimestamp);
 
@@ -25,31 +25,31 @@ abstract class _$ShoppingListCWProxy {
   /// ````
   ShoppingList call({
     String? idx,
-    int? insertTimestamp,
     List<ShoppingListItem>? items,
     String? name,
+    int? insertTimestamp,
     int? updateTimestamp,
   });
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfShoppingList.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfShoppingList.copyWith.fieldName(...)`
 class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
-  final ShoppingList _value;
-
   const _$ShoppingListCWProxyImpl(this._value);
+
+  final ShoppingList _value;
 
   @override
   ShoppingList idx(String? idx) => this(idx: idx);
-
-  @override
-  ShoppingList insertTimestamp(int? insertTimestamp) =>
-      this(insertTimestamp: insertTimestamp);
 
   @override
   ShoppingList items(List<ShoppingListItem> items) => this(items: items);
 
   @override
   ShoppingList name(String? name) => this(name: name);
+
+  @override
+  ShoppingList insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
 
   @override
   ShoppingList updateTimestamp(int? updateTimestamp) =>
@@ -65,9 +65,9 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
   /// ````
   ShoppingList call({
     Object? idx = const $CopyWithPlaceholder(),
-    Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? items = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return ShoppingList(
@@ -75,10 +75,6 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
           ? _value.idx
           // ignore: cast_nullable_to_non_nullable
           : idx as String?,
-      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
-          ? _value.insertTimestamp
-          // ignore: cast_nullable_to_non_nullable
-          : insertTimestamp as int?,
       items: items == const $CopyWithPlaceholder() || items == null
           ? _value.items
           // ignore: cast_nullable_to_non_nullable
@@ -87,6 +83,10 @@ class _$ShoppingListCWProxyImpl implements _$ShoppingListCWProxy {
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
           : name as String?,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
       updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
           ? _value.updateTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -102,17 +102,17 @@ extension $ShoppingListCopyWith on ShoppingList {
 }
 
 abstract class _$ShoppingListItemCWProxy {
-  ShoppingListItem checked(bool checked);
-
   ShoppingListItem itemName(String itemName);
-
-  ShoppingListItem listPosition(int? listPosition);
-
-  ShoppingListItem quantity(double? quantity);
 
   ShoppingListItem supermarketSectionName(String? supermarketSectionName);
 
+  ShoppingListItem checked(bool checked);
+
+  ShoppingListItem quantity(double? quantity);
+
   ShoppingListItem unitOfMeasure(String? unitOfMeasure);
+
+  ShoppingListItem listPosition(int? listPosition);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ShoppingListItem(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -121,41 +121,41 @@ abstract class _$ShoppingListItemCWProxy {
   /// ShoppingListItem(...).copyWith(id: 12, name: "My name")
   /// ````
   ShoppingListItem call({
-    bool? checked,
     String? itemName,
-    int? listPosition,
-    double? quantity,
     String? supermarketSectionName,
+    bool? checked,
+    double? quantity,
     String? unitOfMeasure,
+    int? listPosition,
   });
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfShoppingListItem.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfShoppingListItem.copyWith.fieldName(...)`
 class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
-  final ShoppingListItem _value;
-
   const _$ShoppingListItemCWProxyImpl(this._value);
 
-  @override
-  ShoppingListItem checked(bool checked) => this(checked: checked);
+  final ShoppingListItem _value;
 
   @override
   ShoppingListItem itemName(String itemName) => this(itemName: itemName);
-
-  @override
-  ShoppingListItem listPosition(int? listPosition) =>
-      this(listPosition: listPosition);
-
-  @override
-  ShoppingListItem quantity(double? quantity) => this(quantity: quantity);
 
   @override
   ShoppingListItem supermarketSectionName(String? supermarketSectionName) =>
       this(supermarketSectionName: supermarketSectionName);
 
   @override
+  ShoppingListItem checked(bool checked) => this(checked: checked);
+
+  @override
+  ShoppingListItem quantity(double? quantity) => this(quantity: quantity);
+
+  @override
   ShoppingListItem unitOfMeasure(String? unitOfMeasure) =>
       this(unitOfMeasure: unitOfMeasure);
+
+  @override
+  ShoppingListItem listPosition(int? listPosition) =>
+      this(listPosition: listPosition);
 
   @override
 
@@ -166,39 +166,39 @@ class _$ShoppingListItemCWProxyImpl implements _$ShoppingListItemCWProxy {
   /// ShoppingListItem(...).copyWith(id: 12, name: "My name")
   /// ````
   ShoppingListItem call({
-    Object? checked = const $CopyWithPlaceholder(),
     Object? itemName = const $CopyWithPlaceholder(),
-    Object? listPosition = const $CopyWithPlaceholder(),
-    Object? quantity = const $CopyWithPlaceholder(),
     Object? supermarketSectionName = const $CopyWithPlaceholder(),
+    Object? checked = const $CopyWithPlaceholder(),
+    Object? quantity = const $CopyWithPlaceholder(),
     Object? unitOfMeasure = const $CopyWithPlaceholder(),
+    Object? listPosition = const $CopyWithPlaceholder(),
   }) {
     return ShoppingListItem(
-      checked: checked == const $CopyWithPlaceholder() || checked == null
-          ? _value.checked
-          // ignore: cast_nullable_to_non_nullable
-          : checked as bool,
       itemName: itemName == const $CopyWithPlaceholder() || itemName == null
           ? _value.itemName
           // ignore: cast_nullable_to_non_nullable
           : itemName as String,
-      listPosition: listPosition == const $CopyWithPlaceholder()
-          ? _value.listPosition
-          // ignore: cast_nullable_to_non_nullable
-          : listPosition as int?,
-      quantity: quantity == const $CopyWithPlaceholder()
-          ? _value.quantity
-          // ignore: cast_nullable_to_non_nullable
-          : quantity as double?,
       supermarketSectionName:
           supermarketSectionName == const $CopyWithPlaceholder()
               ? _value.supermarketSectionName
               // ignore: cast_nullable_to_non_nullable
               : supermarketSectionName as String?,
+      checked: checked == const $CopyWithPlaceholder() || checked == null
+          ? _value.checked
+          // ignore: cast_nullable_to_non_nullable
+          : checked as bool,
+      quantity: quantity == const $CopyWithPlaceholder()
+          ? _value.quantity
+          // ignore: cast_nullable_to_non_nullable
+          : quantity as double?,
       unitOfMeasure: unitOfMeasure == const $CopyWithPlaceholder()
           ? _value.unitOfMeasure
           // ignore: cast_nullable_to_non_nullable
           : unitOfMeasure as String?,
+      listPosition: listPosition == const $CopyWithPlaceholder()
+          ? _value.listPosition
+          // ignore: cast_nullable_to_non_nullable
+          : listPosition as int?,
     );
   }
 }

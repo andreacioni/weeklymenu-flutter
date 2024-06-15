@@ -7,13 +7,13 @@ part of 'daily_menu.dart';
 // **************************************************************************
 
 abstract class _$DailyMenuCWProxy {
-  DailyMenu date(Date date);
-
   DailyMenu idx(String? idx);
 
-  DailyMenu insertTimestamp(int? insertTimestamp);
+  DailyMenu date(Date date);
 
   DailyMenu meals(Map<Meal, DailyMenuMeal> meals);
+
+  DailyMenu insertTimestamp(int? insertTimestamp);
 
   DailyMenu updateTimestamp(int? updateTimestamp);
 
@@ -24,32 +24,32 @@ abstract class _$DailyMenuCWProxy {
   /// DailyMenu(...).copyWith(id: 12, name: "My name")
   /// ````
   DailyMenu call({
-    Date? date,
     String? idx,
-    int? insertTimestamp,
+    Date? date,
     Map<Meal, DailyMenuMeal>? meals,
+    int? insertTimestamp,
     int? updateTimestamp,
   });
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfDailyMenu.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfDailyMenu.copyWith.fieldName(...)`
 class _$DailyMenuCWProxyImpl implements _$DailyMenuCWProxy {
-  final DailyMenu _value;
-
   const _$DailyMenuCWProxyImpl(this._value);
 
-  @override
-  DailyMenu date(Date date) => this(date: date);
+  final DailyMenu _value;
 
   @override
   DailyMenu idx(String? idx) => this(idx: idx);
 
   @override
-  DailyMenu insertTimestamp(int? insertTimestamp) =>
-      this(insertTimestamp: insertTimestamp);
+  DailyMenu date(Date date) => this(date: date);
 
   @override
   DailyMenu meals(Map<Meal, DailyMenuMeal> meals) => this(meals: meals);
+
+  @override
+  DailyMenu insertTimestamp(int? insertTimestamp) =>
+      this(insertTimestamp: insertTimestamp);
 
   @override
   DailyMenu updateTimestamp(int? updateTimestamp) =>
@@ -64,29 +64,29 @@ class _$DailyMenuCWProxyImpl implements _$DailyMenuCWProxy {
   /// DailyMenu(...).copyWith(id: 12, name: "My name")
   /// ````
   DailyMenu call({
-    Object? date = const $CopyWithPlaceholder(),
     Object? idx = const $CopyWithPlaceholder(),
-    Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? date = const $CopyWithPlaceholder(),
     Object? meals = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
     Object? updateTimestamp = const $CopyWithPlaceholder(),
   }) {
     return DailyMenu(
-      date: date == const $CopyWithPlaceholder() || date == null
-          ? _value.date
-          // ignore: cast_nullable_to_non_nullable
-          : date as Date,
       idx: idx == const $CopyWithPlaceholder()
           ? _value.idx
           // ignore: cast_nullable_to_non_nullable
           : idx as String?,
-      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
-          ? _value.insertTimestamp
+      date: date == const $CopyWithPlaceholder() || date == null
+          ? _value.date
           // ignore: cast_nullable_to_non_nullable
-          : insertTimestamp as int?,
+          : date as Date,
       meals: meals == const $CopyWithPlaceholder() || meals == null
           ? _value.meals
           // ignore: cast_nullable_to_non_nullable
           : meals as Map<Meal, DailyMenuMeal>,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
       updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
           ? _value.updateTimestamp
           // ignore: cast_nullable_to_non_nullable
@@ -117,9 +117,9 @@ abstract class _$DailyMenuMealCWProxy {
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfDailyMenuMeal.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfDailyMenuMeal.copyWith.fieldName(...)`
 class _$DailyMenuMealCWProxyImpl implements _$DailyMenuMealCWProxy {
-  final DailyMenuMeal _value;
-
   const _$DailyMenuMealCWProxyImpl(this._value);
+
+  final DailyMenuMeal _value;
 
   @override
   DailyMenuMeal recipeIds(List<String> recipeIds) => this(recipeIds: recipeIds);

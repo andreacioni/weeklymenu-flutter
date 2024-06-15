@@ -9,9 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_data: 1.5.12
+  flutter_data: 1.6.0
   path_provider: ^2.0.15 #needed by flutter_data
-  http: ^0.13.6
+  http: ^1.2.0
   objectid: ^2.0.0
   hooks_riverpod: ^2.4.9
   

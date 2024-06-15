@@ -51,7 +51,10 @@ class DailyMenuSectionStreamWrapper extends HookConsumerWidget {
     return RepositoryStreamBuilder<DailyMenu>(
       key: ValueKey(date.formatId()),
       stream: stream,
-      loading: const DefaultShimmer(),
+      loading: NewDailyMenuNotifierWrapper(
+        date,
+        key: Key(date.formatId()),
+      ),
       errorBuilder: (context, error) {
         if (error != null) {
           if (error is DataException && error.statusCode == 404) {

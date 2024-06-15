@@ -22,9 +22,9 @@ abstract class _$MenuScreenStateCWProxy {
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfMenuScreenState.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfMenuScreenState.copyWith.fieldName(...)`
 class _$MenuScreenStateCWProxyImpl implements _$MenuScreenStateCWProxy {
-  final MenuScreenState _value;
-
   const _$MenuScreenStateCWProxyImpl(this._value);
+
+  final MenuScreenState _value;
 
   @override
   MenuScreenState editMode(bool editMode) => this(editMode: editMode);

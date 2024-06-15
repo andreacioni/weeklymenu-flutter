@@ -15,7 +15,7 @@ dependencies:
   objectid: ^2.0.0
   common: 
     path: "../common"
-  copy_with_extension: ^4.0.0
+  copy_with_extension: ^5.0.4
 
 dev_dependencies:
   flutter_test:
@@ -24,7 +24,7 @@ dev_dependencies:
   build_runner: ^2.0.0
   json_serializable: ^6.0.0
   meta: ^1.1.8
-  copy_with_extension_gen: ^4.0.1
+  copy_with_extension_gen: ^5.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -29,14 +29,17 @@ mixin $FlutterDataRecipeLocalAdapter on LocalAdapter<FlutterDataRecipe> {
   }
 }
 
-final _flutterDataRecipesFinders = <String, dynamic>{};
+final _flutterDataRecipesFinders = <String, dynamic>{
+  'findAllCustom': (_) => _.findAllCustom,
+  'findOneCustom': (_) => _.findOneCustom,
+};
 
 // ignore: must_be_immutable
 class $FlutterDataRecipeHiveLocalAdapter = HiveLocalAdapter<FlutterDataRecipe>
     with $FlutterDataRecipeLocalAdapter;
 
 class $FlutterDataRecipeRemoteAdapter = RemoteAdapter<FlutterDataRecipe>
-    with BaseAdapter<FlutterDataRecipe>;
+    with RecipeAdapter<FlutterDataRecipe>, BaseAdapter<FlutterDataRecipe>;
 
 final internalFlutterDataRecipesRemoteAdapterProvider =
     Provider<RemoteAdapter<FlutterDataRecipe>>((ref) =>
@@ -48,6 +51,8 @@ final flutterDataRecipesRepositoryProvider =
         (ref) => Repository<FlutterDataRecipe>(ref));
 
 extension FlutterDataRecipeDataRepositoryX on Repository<FlutterDataRecipe> {
+  RecipeAdapter<FlutterDataRecipe> get recipeAdapter =>
+      remoteAdapter as RecipeAdapter<FlutterDataRecipe>;
   BaseAdapter<FlutterDataRecipe> get baseAdapter =>
       remoteAdapter as BaseAdapter<FlutterDataRecipe>;
 }
