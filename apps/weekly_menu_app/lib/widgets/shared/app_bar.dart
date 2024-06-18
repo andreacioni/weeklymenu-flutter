@@ -1,6 +1,83 @@
 import 'package:flutter/material.dart';
-
+import 'package:common/date.dart';
+import 'package:intl/intl.dart';
 import 'appbar_button.dart';
+
+const APP_BAR_HEIGHT = 80.0;
+
+class DateRangeAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Icon leadingIcon;
+  final Icon actionIcon;
+  final void Function()? onLeadingTap;
+  final void Function()? onActionTap;
+  final DateRange dateRange;
+  final void Function(DateRange)? onRangeChanged;
+  final DateFormat dateFormat;
+
+  DateRangeAppBar(
+      {required this.dateRange,
+      this.leadingIcon = const Icon(Icons.menu),
+      this.onLeadingTap,
+      this.actionIcon = const Icon(Icons.edit),
+      this.onActionTap,
+      this.onRangeChanged,
+      DateFormat? dateFormat})
+      : this.dateFormat = dateFormat ?? DateFormat('MM/dd');
+
+  @override
+  Size get preferredSize => Size.fromHeight(APP_BAR_HEIGHT);
+
+  @override
+  Widget build(BuildContext context) {
+    final appBarTheme = Theme.of(context).appBarTheme;
+    final osTopPadding = MediaQuery.of(context).padding.top;
+
+    return Stack(
+      children: [
+        Material(
+          elevation: appBarTheme.elevation ?? 0,
+          child: Container(
+            height: osTopPadding,
+            color: appBarTheme.backgroundColor,
+          ),
+        ),
+        AppBar(
+          toolbarHeight: 100,
+          title: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: appBarTheme.backgroundColor,
+              elevation: 0,
+              textStyle: appBarTheme.titleTextStyle,
+              foregroundColor: appBarTheme.titleTextStyle!.color,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.calendar_month),
+                Text(
+                    '${dateRange.start.format(dateFormat)} - ${dateRange.end.format(dateFormat)}')
+              ],
+            ),
+            onPressed: () {},
+          ),
+          leading: Transform.scale(
+            scale: 0.85,
+            child: AppBarButton(
+              icon: leadingIcon,
+              onPressed: () => onLeadingTap?.call(),
+            ),
+          ),
+          actions: <Widget>[
+            AppBarButton(
+              icon: actionIcon,
+              onPressed: () => onActionTap?.call(),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+}
 
 class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Icon leadingIcon;

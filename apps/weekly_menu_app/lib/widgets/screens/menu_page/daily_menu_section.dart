@@ -57,6 +57,7 @@ class DailyMenuSectionStreamWrapper extends HookConsumerWidget {
       ),
       errorBuilder: (context, error) {
         if (error != null) {
+          // in case we have a 404 just place an empty DailyMenuSection
           if (error is DataException && error.statusCode == 404) {
             return NewDailyMenuNotifierWrapper(
               date,

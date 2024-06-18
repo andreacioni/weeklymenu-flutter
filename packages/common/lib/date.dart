@@ -36,3 +36,20 @@ class Date {
 
   static Date toDate(DateTime dt) => Date(dt);
 }
+
+class DateRange {
+  final Date start;
+  final Date end;
+
+  DateRange(this.start, this.end);
+
+  @override
+  String toString() => "($start - $end)";
+
+  @override
+  bool operator ==(o) =>
+      o is DateRange && o.start == this.start && o.end == this.end;
+
+  @override
+  int get hashCode => start.hashCode ^ end.hashCode;
+}
