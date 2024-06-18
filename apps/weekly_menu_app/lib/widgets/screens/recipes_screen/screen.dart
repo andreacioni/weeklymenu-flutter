@@ -65,7 +65,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen>
       extendBodyBehindAppBar: true,
       body: RefreshIndicator(
         onRefresh: () => ref.recipes.reload(),
-        displacement: 105,
+        displacement: APP_BAR_HEIGHT + 10,
         child: _MyRecipesTab(
           searchText: _searchText,
           editingModeEnabled: _editingModeEnabled,
