@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:common/constants.dart';
 import 'package:common/date.dart';
+import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_date_pickers/flutter_date_pickers.dart';
@@ -10,7 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:common/listener_utils.dart';
-import 'package:weekly_menu_app/widgets/screens/menu_page/notifier.dart';
 
 import 'daily_menu_section.dart';
 import 'date_range_picker.dart';
@@ -139,8 +139,8 @@ class MenuScreen extends HookConsumerWidget {
     }, const []);
 
     Widget _buildListItem(int index) {
-      final day =
-          Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
+      final day = Date.now().add(
+          Duration(days: (index - (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) + 5)));
 
       return IndexedListenerWrapper(
         key: day.isToday ? todayKey : ValueKey(day),
@@ -158,14 +158,14 @@ class MenuScreen extends HookConsumerWidget {
             SliverList(
                 delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildListItem(index),
-                    childCount: pageViewLimitDays))
+                    childCount: INITAL_PAGE_VIEW_LIMITE_DAYS))
           ],
         );
       }
       if (_SELECTED_MODE == _MENU_MODE.POSITIONED_LISTVIEW) {
         return ScrollablePositionedList.builder(
-          itemCount: pageViewLimitDays,
-          initialScrollIndex: pageViewLimitDays ~/ 2,
+          itemCount: INITAL_PAGE_VIEW_LIMITE_DAYS,
+          initialScrollIndex: (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) - 5,
           itemBuilder: (context, index) => _buildListItem(index),
           itemScrollController: itemScrollController,
           itemPositionsListener: itemPositionListener,
@@ -174,7 +174,7 @@ class MenuScreen extends HookConsumerWidget {
       return SingleChildScrollView(
         controller: scrollController,
         child: Column(
-          children: List.generate(pageViewLimitDays, _buildListItem),
+          children: List.generate(INITAL_PAGE_VIEW_LIMITE_DAYS, _buildListItem),
         ),
       );
     }
@@ -192,7 +192,10 @@ class MenuScreen extends HookConsumerWidget {
           ref.read(pointerOverWidgetIndexStateProvider.notifier).state = null;
           ref.read(isDraggingMenuStateProvider.notifier).state = false;
         },
-        child: _buildScrollView(),
+        child: RefreshIndicator(
+          child: _buildScrollView(),
+          onRefresh: () async => ref.read(dailyMenuRepositoryProvider).reload(),
+        ),
       ),
     );
   }
@@ -233,7 +236,8 @@ class _MenuFloatingActionButton extends StatelessWidget {
               duration: Duration(milliseconds: 500), curve: Curves.decelerate);
 
         itemScrollController?.scrollTo(
-            index: pageViewLimitDays ~/ 2, duration: Duration(seconds: 1));
+            index: INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2,
+            duration: Duration(seconds: 1));
       },
       child: //day.isToday
           //? Icon(Icons.lightbulb_outline) :

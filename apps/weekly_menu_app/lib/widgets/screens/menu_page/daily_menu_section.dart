@@ -207,6 +207,8 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
 
     final primaryColor = Theme.of(context).primaryColor;
 
+    final day = dailyMenuNotifier.dailyMenu.date;
+
     Widget buildTitleTrailingIcon() {
       if (!displayEnterNewRecipeCard.value)
         return IconButton(
@@ -241,31 +243,37 @@ class _DailyMenuSectionTitle extends HookConsumerWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        RichText(
-          softWrap: false,
-          textAlign: TextAlign.start,
-          text: TextSpan(
-            text: dailyMenuNotifier.dailyMenu.date.format(_appBarDateParser) +
-                ' ',
-            style: GoogleFonts.b612Mono().copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
-              fontFeatures: [
-                FontFeature.tabularFigures(),
+        Container(
+          padding: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: day.isToday ? primaryColor : null),
+          child: RichText(
+            softWrap: false,
+            textAlign: TextAlign.start,
+            text: TextSpan(
+              text: dailyMenuNotifier.dailyMenu.date.format(_appBarDateParser) +
+                  ' ',
+              style: GoogleFonts.b612Mono().copyWith(
+                fontSize: day.isToday ? 16 : 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                fontFeatures: [
+                  FontFeature.tabularFigures(),
+                ],
+              ),
+              children: <TextSpan>[
+                TextSpan(
+                  text: dailyMenuNotifier.dailyMenu.date
+                      .format(_appBarMonthParser),
+                  style: GoogleFonts.b612Mono().copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w200,
+                    color: Colors.black38,
+                  ),
+                ),
               ],
             ),
-            children: <TextSpan>[
-              TextSpan(
-                text:
-                    dailyMenuNotifier.dailyMenu.date.format(_appBarMonthParser),
-                style: GoogleFonts.b612Mono().copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w200,
-                  color: Colors.black38,
-                ),
-              ),
-            ],
           ),
         ),
         SizedBox(width: 10),
