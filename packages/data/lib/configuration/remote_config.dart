@@ -43,8 +43,12 @@ class WeeklyMenuRemoteConfig {
     }
   }
 
-  Future<void> reload() {
-    return remoteConfig.fetch();
+  Future<void> reload() async {
+    try {
+      return await remoteConfig.fetch();
+    } catch (e, st) {
+      logWarn("failed to reload remote config", e, st);
+    }
   }
 
   int getInt(String key) {

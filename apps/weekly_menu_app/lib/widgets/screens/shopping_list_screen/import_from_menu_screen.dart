@@ -3,7 +3,7 @@ import 'package:data/flutter_data/shopping_list.dart';
 import 'package:data/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:model/menu.dart';
+import 'package:model/daily_menu.dart';
 import 'package:model/recipe.dart';
 import 'package:model/shopping_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,12 +28,14 @@ final _screenNotifierProvider = StateNotifierProvider.autoDispose<
     final startDate =
         now.subtract(Duration(days: ImportFromMenuScreen.START_DAY_OFFSET));
 
-    return List.generate(ImportFromMenuScreen.LOAD_MENU_DAYS_LIMIT, (index) {
+    /* TODOreturn List.generate(ImportFromMenuScreen.LOAD_MENU_DAYS_LIMIT, (index) {
       final dailyMenu =
-          ref.watch(dailyMenuProvider(startDate.add(Duration(days: index))));
+          ref.dailyMenu.load(startDate.add(Duration(days: index)).formatId());
 
       return dailyMenu;
-    });
+    }); */
+
+    return [];
   }
 
   return _ImportFromMenuScreenStateNotifier(
@@ -289,7 +291,7 @@ class _DailyMenuWrapper extends HookConsumerWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            DAILY_MENU_DATE_PARSER.format(dailyMenu.day.toDateTime),
+            DAILY_MENU_DATE_PARSER.format(dailyMenu.date.toDateTime),
             style: theme.textTheme.titleLarge,
           ),
         ),

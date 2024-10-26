@@ -22,9 +22,9 @@ abstract class _$IngredientCWProxy {
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfIngredient.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfIngredient.copyWith.fieldName(...)`
 class _$IngredientCWProxyImpl implements _$IngredientCWProxy {
-  final Ingredient _value;
-
   const _$IngredientCWProxyImpl(this._value);
+
+  final Ingredient _value;
 
   @override
   Ingredient name(String name) => this(name: name);

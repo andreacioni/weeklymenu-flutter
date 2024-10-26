@@ -7,9 +7,9 @@ part of 'user_preferences.dart';
 // **************************************************************************
 
 abstract class _$SupermarketSectionCWProxy {
-  SupermarketSection color(Color? color);
-
   SupermarketSection name(String name);
+
+  SupermarketSection color(Color? color);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `SupermarketSection(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -18,22 +18,22 @@ abstract class _$SupermarketSectionCWProxy {
   /// SupermarketSection(...).copyWith(id: 12, name: "My name")
   /// ````
   SupermarketSection call({
-    Color? color,
     String? name,
+    Color? color,
   });
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfSupermarketSection.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfSupermarketSection.copyWith.fieldName(...)`
 class _$SupermarketSectionCWProxyImpl implements _$SupermarketSectionCWProxy {
-  final SupermarketSection _value;
-
   const _$SupermarketSectionCWProxyImpl(this._value);
 
-  @override
-  SupermarketSection color(Color? color) => this(color: color);
+  final SupermarketSection _value;
 
   @override
   SupermarketSection name(String name) => this(name: name);
+
+  @override
+  SupermarketSection color(Color? color) => this(color: color);
 
   @override
 
@@ -44,18 +44,18 @@ class _$SupermarketSectionCWProxyImpl implements _$SupermarketSectionCWProxy {
   /// SupermarketSection(...).copyWith(id: 12, name: "My name")
   /// ````
   SupermarketSection call({
-    Object? color = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
+    Object? color = const $CopyWithPlaceholder(),
   }) {
     return SupermarketSection(
-      color: color == const $CopyWithPlaceholder()
-          ? _value.color
-          // ignore: cast_nullable_to_non_nullable
-          : color as Color?,
       name: name == const $CopyWithPlaceholder() || name == null
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
           : name as String,
+      color: color == const $CopyWithPlaceholder()
+          ? _value.color
+          // ignore: cast_nullable_to_non_nullable
+          : color as Color?,
     );
   }
 }
@@ -70,11 +70,11 @@ extension $SupermarketSectionCopyWith on SupermarketSection {
 abstract class _$UserPreferenceCWProxy {
   UserPreference idx(String? idx);
 
+  UserPreference owner(String? owner);
+
   UserPreference insertTimestamp(int? insertTimestamp);
 
-  UserPreference language(String? language);
-
-  UserPreference owner(String? owner);
+  UserPreference updateTimestamp(int? updateTimestamp);
 
   UserPreference shoppingDays(List<int>? shoppingDays);
 
@@ -83,7 +83,7 @@ abstract class _$UserPreferenceCWProxy {
 
   UserPreference unitsOfMeasure(List<String>? unitsOfMeasure);
 
-  UserPreference updateTimestamp(int? updateTimestamp);
+  UserPreference language(String? language);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserPreference(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -93,34 +93,35 @@ abstract class _$UserPreferenceCWProxy {
   /// ````
   UserPreference call({
     String? idx,
-    int? insertTimestamp,
-    String? language,
     String? owner,
+    int? insertTimestamp,
+    int? updateTimestamp,
     List<int>? shoppingDays,
     List<SupermarketSection>? supermarketSections,
     List<String>? unitsOfMeasure,
-    int? updateTimestamp,
+    String? language,
   });
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfUserPreference.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfUserPreference.copyWith.fieldName(...)`
 class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
-  final UserPreference _value;
-
   const _$UserPreferenceCWProxyImpl(this._value);
+
+  final UserPreference _value;
 
   @override
   UserPreference idx(String? idx) => this(idx: idx);
+
+  @override
+  UserPreference owner(String? owner) => this(owner: owner);
 
   @override
   UserPreference insertTimestamp(int? insertTimestamp) =>
       this(insertTimestamp: insertTimestamp);
 
   @override
-  UserPreference language(String? language) => this(language: language);
-
-  @override
-  UserPreference owner(String? owner) => this(owner: owner);
+  UserPreference updateTimestamp(int? updateTimestamp) =>
+      this(updateTimestamp: updateTimestamp);
 
   @override
   UserPreference shoppingDays(List<int>? shoppingDays) =>
@@ -136,8 +137,7 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
       this(unitsOfMeasure: unitsOfMeasure);
 
   @override
-  UserPreference updateTimestamp(int? updateTimestamp) =>
-      this(updateTimestamp: updateTimestamp);
+  UserPreference language(String? language) => this(language: language);
 
   @override
 
@@ -149,31 +149,31 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
   /// ````
   UserPreference call({
     Object? idx = const $CopyWithPlaceholder(),
-    Object? insertTimestamp = const $CopyWithPlaceholder(),
-    Object? language = const $CopyWithPlaceholder(),
     Object? owner = const $CopyWithPlaceholder(),
+    Object? insertTimestamp = const $CopyWithPlaceholder(),
+    Object? updateTimestamp = const $CopyWithPlaceholder(),
     Object? shoppingDays = const $CopyWithPlaceholder(),
     Object? supermarketSections = const $CopyWithPlaceholder(),
     Object? unitsOfMeasure = const $CopyWithPlaceholder(),
-    Object? updateTimestamp = const $CopyWithPlaceholder(),
+    Object? language = const $CopyWithPlaceholder(),
   }) {
     return UserPreference(
       idx: idx == const $CopyWithPlaceholder()
           ? _value.idx
           // ignore: cast_nullable_to_non_nullable
           : idx as String?,
-      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
-          ? _value.insertTimestamp
-          // ignore: cast_nullable_to_non_nullable
-          : insertTimestamp as int?,
-      language: language == const $CopyWithPlaceholder()
-          ? _value.language
-          // ignore: cast_nullable_to_non_nullable
-          : language as String?,
       owner: owner == const $CopyWithPlaceholder()
           ? _value.owner
           // ignore: cast_nullable_to_non_nullable
           : owner as String?,
+      insertTimestamp: insertTimestamp == const $CopyWithPlaceholder()
+          ? _value.insertTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : insertTimestamp as int?,
+      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
+          ? _value.updateTimestamp
+          // ignore: cast_nullable_to_non_nullable
+          : updateTimestamp as int?,
       shoppingDays: shoppingDays == const $CopyWithPlaceholder()
           ? _value.shoppingDays
           // ignore: cast_nullable_to_non_nullable
@@ -186,10 +186,10 @@ class _$UserPreferenceCWProxyImpl implements _$UserPreferenceCWProxy {
           ? _value.unitsOfMeasure
           // ignore: cast_nullable_to_non_nullable
           : unitsOfMeasure as List<String>?,
-      updateTimestamp: updateTimestamp == const $CopyWithPlaceholder()
-          ? _value.updateTimestamp
+      language: language == const $CopyWithPlaceholder()
+          ? _value.language
           // ignore: cast_nullable_to_non_nullable
-          : updateTimestamp as int?,
+          : language as String?,
     );
   }
 }

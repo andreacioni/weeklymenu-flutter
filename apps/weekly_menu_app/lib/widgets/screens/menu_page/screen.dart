@@ -9,49 +9,16 @@ import 'package:flutter_date_pickers/flutter_date_pickers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:model/menu.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:common/listener_utils.dart';
 
 import 'daily_menu_section.dart';
 import 'date_range_picker.dart';
 import 'menu_app_bar.dart';
-import 'notifier.dart';
 
 final isDraggingMenuStateProvider = StateProvider<bool>((_) => false);
 final pointerOverWidgetIndexStateProvider =
     StateProvider.autoDispose<Date?>((_) => null);
-
-final dailyMenuStreamProvider =
-    StreamProvider.autoDispose.family<List<Menu>, Date>(((ref, date) async* {
-  await for (final menuList in await ref
-      .read(menuRepositoryProvider)
-      .stream(params: {'day': date.format(_httpParamDateParser)})) {
-    final dailyMenuList = <Menu>[];
-    for (final m in menuList) {
-      if (m.date == date) {
-        dailyMenuList.add(m);
-      }
-    }
-
-    if (ref.state.value != null) {
-      dailyMenuList.addAll([...(ref.state.value ?? <Menu>[])]);
-    }
-
-    if (dailyMenuList != ref.state.value) {
-      yield dailyMenuList;
-    } else {
-      continue;
-    }
-  }
-}));
-
-//keep this provider separated from the other one in order to optimize build times
-final dailyMenuProvider =
-    Provider.autoDispose.family<DailyMenu, Date>((ref, date) {
-  final dailyMenuList = ref.watch(dailyMenuStreamProvider(date)).valueOrNull;
-  return DailyMenu(day: date, menus: dailyMenuList ?? <Menu>[]);
-});
 
 // drag not works when true
 enum _MENU_MODE { LISTVIEW, POSITIONED_LISTVIEW }
@@ -172,13 +139,15 @@ class MenuScreen extends HookConsumerWidget {
     }, const []);
 
     Widget _buildListItem(int index) {
-      final day =
-          Date.now().add(Duration(days: index - (pageViewLimitDays ~/ 2)));
+      final day = Date.now().add(Duration(
+          days: (index -
+              (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) +
+              INITIAL_PAST_DAYS_OFFSET)));
 
       return IndexedListenerWrapper(
         key: day.isToday ? todayKey : ValueKey(day),
         index: day,
-        child: DailyMenuFutureWrapper(day),
+        child: DailyMenuSectionStreamWrapper(day),
       );
     }
 
@@ -191,14 +160,15 @@ class MenuScreen extends HookConsumerWidget {
             SliverList(
                 delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildListItem(index),
-                    childCount: pageViewLimitDays))
+                    childCount: INITAL_PAGE_VIEW_LIMITE_DAYS))
           ],
         );
       }
       if (_SELECTED_MODE == _MENU_MODE.POSITIONED_LISTVIEW) {
         return ScrollablePositionedList.builder(
-          itemCount: pageViewLimitDays,
-          initialScrollIndex: pageViewLimitDays ~/ 2,
+          itemCount: INITAL_PAGE_VIEW_LIMITE_DAYS,
+          initialScrollIndex:
+              (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) - INITIAL_PAST_DAYS_OFFSET,
           itemBuilder: (context, index) => _buildListItem(index),
           itemScrollController: itemScrollController,
           itemPositionsListener: itemPositionListener,
@@ -207,7 +177,7 @@ class MenuScreen extends HookConsumerWidget {
       return SingleChildScrollView(
         controller: scrollController,
         child: Column(
-          children: List.generate(pageViewLimitDays, _buildListItem),
+          children: List.generate(INITAL_PAGE_VIEW_LIMITE_DAYS, _buildListItem),
         ),
       );
     }
@@ -225,7 +195,10 @@ class MenuScreen extends HookConsumerWidget {
           ref.read(pointerOverWidgetIndexStateProvider.notifier).state = null;
           ref.read(isDraggingMenuStateProvider.notifier).state = false;
         },
-        child: _buildScrollView(),
+        child: RefreshIndicator(
+          child: _buildScrollView(),
+          onRefresh: () async => ref.read(dailyMenuRepositoryProvider).reload(),
+        ),
       ),
     );
   }
@@ -244,29 +217,6 @@ class MenuScreen extends HookConsumerWidget {
     if (newValue != displayFAB.value) {
       //displayFAB.value = newValue;
     }
-  }
-}
-
-class DailyMenuFutureWrapper extends HookConsumerWidget {
-  final Date day;
-
-  DailyMenuFutureWrapper(this.day, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dailyMenu = ref.watch(dailyMenuProvider(day));
-    final menuRepository = ref.read(menuRepositoryProvider);
-
-    /*return dailyMenuAsyncValue.when(
-      data: (dailyMenu) =>
-          DailyMenuSection(DailyMenuNotifier(dailyMenu, menuRepository)),
-      error: (e, st) {
-        logError("failed to load daily menu", e, st);
-        return Container();
-      },
-      loading: () => Container(),
-    );*/
-    return DailyMenuSection(DailyMenuNotifier(dailyMenu, menuRepository));
   }
 }
 
@@ -289,7 +239,9 @@ class _MenuFloatingActionButton extends StatelessWidget {
               duration: Duration(milliseconds: 500), curve: Curves.decelerate);
 
         itemScrollController?.scrollTo(
-            index: pageViewLimitDays ~/ 2, duration: Duration(seconds: 1));
+            index:
+                (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) - INITIAL_PAST_DAYS_OFFSET,
+            duration: Duration(seconds: 1));
       },
       child: //day.isToday
           //? Icon(Icons.lightbulb_outline) :

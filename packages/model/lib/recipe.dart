@@ -154,8 +154,8 @@ class RecipeIngredient {
   RecipeIngredient(
       {required this.ingredientName,
       this.unitOfMeasure,
-      quantity = 0.0,
-      freezed = false})
+      double? quantity = 0.0,
+      bool? freezed = false})
       : this.quantity = quantity ?? 0,
         this.freezed = freezed ?? false;
 

@@ -48,5 +48,9 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
     }
   }
 
+  // to start retrying background tasks
+  final _sub = ref.listen(offlineRetryProvider, (_, __) {});
+  ref.onDispose(() => _sub.close());
+
   log("initialization done");
 });

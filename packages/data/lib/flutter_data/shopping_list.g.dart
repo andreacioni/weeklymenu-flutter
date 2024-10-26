@@ -30,7 +30,9 @@ mixin $FlutterDataShoppingListLocalAdapter
   }
 }
 
-final _flutterDataShoppingListsFinders = <String, dynamic>{};
+final _flutterDataShoppingListsFinders = <String, dynamic>{
+  'findAllCustom': (_) => _.findAllCustom,
+};
 
 // ignore: must_be_immutable
 class $FlutterDataShoppingListHiveLocalAdapter = HiveLocalAdapter<
@@ -87,7 +89,9 @@ mixin $FlutterDataShoppingListItemLocalAdapter
   }
 }
 
-final _flutterDataShoppingListItemsFinders = <String, dynamic>{};
+final _flutterDataShoppingListItemsFinders = <String, dynamic>{
+  'findAllCustom': (_) => _.findAllCustom,
+};
 
 // ignore: must_be_immutable
 class $FlutterDataShoppingListItemHiveLocalAdapter = HiveLocalAdapter<

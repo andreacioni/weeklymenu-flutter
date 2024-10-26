@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:common/configuration.dart';
+import 'package:data/flutter_data/daily_menu.dart';
 import 'package:data/flutter_data/ingredient.dart';
-import 'package:data/flutter_data/menu.dart';
 import 'package:data/flutter_data/recipe.dart';
 import 'package:data/flutter_data/shopping_list.dart';
 import 'package:data/flutter_data/user_preferences.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:model/daily_menu.dart';
 import 'package:model/ingredient.dart';
-import 'package:model/menu.dart';
 import 'package:model/recipe.dart';
 import 'package:common/storage_type.dart';
 import 'package:flutter_data/flutter_data.dart' as flutter_data;
@@ -25,11 +25,13 @@ final repositoryInitializerProvider = FutureProvider<void>((ref) async {
   }
 });
 
+final offlineRetryProvider = flutter_data.offlineRetryProvider;
+
 /** has to be updated every time you have a new repository */
 final repositoryProviders = Provider<List<Provider<Repository>>>((_) => [
       recipeRepositoryProvider,
       ingredientsRepositoryProvider,
-      menuRepositoryProvider,
+      dailyMenuRepositoryProvider,
       userPreferencesRepositoryProvider,
       shoppingListRepositoryProvider,
       shoppingListItemRepositoryProvider,
@@ -44,11 +46,11 @@ extension RepositoryWidgetWidgetRefX on WidgetRef {
       watch(shoppingListRepositoryProvider);
   Repository<ShoppingList> get shoppingListItems =>
       watch(shoppingListRepositoryProvider);
-  Repository<Menu> get menus => watch(menuRepositoryProvider);
   Repository<UserPreference> get userPreferences =>
       watch(userPreferencesRepositoryProvider);
   Repository<ExternalRecipe> get externalRecipes =>
       watch(externalRecipeRepositoryProvider);
+  Repository<DailyMenu> get dailyMenu => watch(dailyMenuRepositoryProvider);
 }
 
 extension RepositoryWidgetRefX on Ref {
@@ -59,7 +61,7 @@ extension RepositoryWidgetRefX on Ref {
       watch(shoppingListRepositoryProvider);
   Repository<ShoppingList> get shoppingListItems =>
       watch(shoppingListRepositoryProvider);
-  Repository<Menu> get menus => watch(menuRepositoryProvider);
+  Repository<DailyMenu> get dailyMenu => watch(dailyMenuRepositoryProvider);
   Repository<UserPreference> get userPreferences =>
       watch(userPreferencesRepositoryProvider);
   Repository<ExternalRecipe> get externalRecipes =>
@@ -203,7 +205,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   @override
   Stream<List<Recipe>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataRecipes
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -212,7 +214,7 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
   @override
   Stream<FlutterDataRecipe> streamOne(String id) {
     return ref.flutterDataRecipes
-        .watchOneNotifier(id)
+        .watchOneNotifier(id, finder: 'findOneCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -479,7 +481,7 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
   @override
   Stream<List<ShoppingList>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataShoppingLists
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -611,7 +613,7 @@ class _FlutterDataShoppingListItemRepository
   @override
   Stream<List<ShoppingListItem>> stream({Map<String, dynamic>? params}) {
     return ref.flutterDataShoppingListItems
-        .watchAllNotifier(params: params)
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -777,15 +779,15 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
 
 // MENU
 
-final menuRepositoryProvider = Provider((ref) {
+final dailyMenuRepositoryProvider = Provider((ref) {
   final cfg = ref.read(bootstrapConfigurationProvider);
-  return MenuRepository(cfg.storageType, ref: ref, debug: cfg.debug);
+  return DailyMenuRepository(cfg.storageType, ref: ref, debug: cfg.debug);
 });
 
-class MenuRepository extends Repository<Menu> {
-  late final Repository<Menu> _repository;
+class DailyMenuRepository extends Repository<DailyMenu> {
+  late final Repository<DailyMenu> _repository;
 
-  MenuRepository(StorageType storageType,
+  DailyMenuRepository(StorageType storageType,
       {ProviderRef? ref, bool debug = false}) {
     if (storageType == StorageType.flutterData) {
       _repository = _FlutterDataMenuRepository(ref!, debug: debug);
@@ -803,23 +805,23 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  Future<Menu?> load(String id) {
+  Future<DailyMenu?> load(String id) {
     return _repository.load(id);
   }
 
   @override
-  Future<List<Menu>> loadAll(
+  Future<List<DailyMenu>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.loadAll(remote: remote, params: params);
   }
 
   @override
-  Stream<List<Menu>> stream({Map<String, dynamic>? params}) {
+  Stream<List<DailyMenu>> stream({Map<String, dynamic>? params}) {
     return _repository.stream(params: params);
   }
 
   @override
-  Stream<Menu> streamOne(String id) {
+  Stream<DailyMenu> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -829,7 +831,7 @@ class MenuRepository extends Repository<Menu> {
   }
 
   @override
-  Future<Menu> save(Menu t, {Map<String, dynamic>? params}) {
+  Future<DailyMenu> save(DailyMenu t, {Map<String, dynamic>? params}) {
     return _repository.save(t, params: params);
   }
 
@@ -839,13 +841,13 @@ class MenuRepository extends Repository<Menu> {
   }
 }
 
-class _FlutterDataMenuRepository extends Repository<Menu> {
-  late final flutter_data.Repository<FlutterDataMenu> _repository;
+class _FlutterDataMenuRepository extends Repository<DailyMenu> {
+  late final flutter_data.Repository<FlutterDataDailyMenu> _repository;
   final ProviderRef ref;
   final bool debug;
 
   _FlutterDataMenuRepository(this.ref, {this.debug = false}) {
-    _repository = ref.read(flutterDataMenusRepositoryProvider);
+    _repository = ref.read(flutterDataDailyMenusRepositoryProvider);
     _repository.logLevel = debug ? 2 : 0;
   }
 
@@ -858,29 +860,29 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  Future<Menu?> load(String id) async {
+  Future<DailyMenu?> load(String id) async {
     return await _repository.findOne(id);
   }
 
   @override
-  Future<List<Menu>> loadAll(
+  Future<List<DailyMenu>> loadAll(
       {bool remote = true, Map<String, dynamic>? params}) {
     return _repository.findAll(remote: remote, params: params);
   }
 
   @override
-  Stream<List<Menu>> stream({Map<String, dynamic>? params}) {
-    return ref.flutterDataMenus
-        .watchAllNotifier(params: params)
+  Stream<List<DailyMenu>> stream({Map<String, dynamic>? params}) {
+    return ref.flutterDataDailyMenus
+        .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
   }
 
   @override
-  Stream<Menu> streamOne(String id) {
-    return ref.flutterDataMenus
-        .watchOneNotifier(id)
+  Stream<DailyMenu> streamOne(String id) {
+    return ref.flutterDataDailyMenus
+        .watchOneNotifier(id, finder: 'findOneCustom')
         .toStream(ref)
         //elements are never null here
         .map((e) => e!);
@@ -892,8 +894,8 @@ class _FlutterDataMenuRepository extends Repository<Menu> {
   }
 
   @override
-  Future<Menu> save(Menu r, {Map<String, dynamic>? params}) async {
-    final flutterDataMenu = FlutterDataMenu.fromJson(r.toJson());
+  Future<DailyMenu> save(DailyMenu r, {Map<String, dynamic>? params}) async {
+    final flutterDataMenu = FlutterDataDailyMenu.fromJson(r.toJson());
     return await flutterDataMenu.save(params: params);
   }
 

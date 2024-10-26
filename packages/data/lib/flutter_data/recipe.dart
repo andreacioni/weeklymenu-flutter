@@ -2,6 +2,8 @@
 
 import 'dart:async';
 
+import 'package:common/log.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_data/flutter_data.dart';
 import 'package:model/recipe.dart';
 
@@ -9,7 +11,7 @@ import 'base_adapter.dart';
 
 part 'recipe.g.dart';
 
-@DataRepository([BaseAdapter], internalType: 'recipes')
+@DataRepository([RecipeAdapter, BaseAdapter], internalType: 'recipes')
 class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
   FlutterDataRecipe(
       {required super.idx,
@@ -78,6 +80,60 @@ class FlutterDataRecipe extends Recipe with DataModelMixin<FlutterDataRecipe> {
   @override
   Map<String, dynamic> toJson() {
     return super.toJson();
+  }
+}
+
+mixin RecipeAdapter<T extends DataModelMixin<FlutterDataRecipe>>
+    on RemoteAdapter<FlutterDataRecipe> {
+  @DataFinder()
+  Future<List<FlutterDataRecipe>> findAllCustom(
+      {bool? remote,
+      bool? background,
+      Map<String, dynamic>? params,
+      Map<String, String>? headers,
+      bool? syncLocal,
+      OnSuccessAll<FlutterDataRecipe>? onSuccess,
+      OnErrorAll<FlutterDataRecipe>? onError,
+      DataRequestLabel? label}) {
+    onError = (err, _, __) {
+      return [];
+    };
+    return super.findAll(
+        remote: remote,
+        background: background,
+        params: params,
+        headers: headers,
+        syncLocal: syncLocal,
+        onSuccess: onSuccess,
+        onError: onError,
+        label: label);
+  }
+
+  @DataFinder()
+  Future<FlutterDataRecipe?> findOneCustom(Object id,
+      {bool? remote,
+      bool? background,
+      Map<String, dynamic>? params,
+      Map<String, String>? headers,
+      OnSuccessOne<FlutterDataRecipe>? onSuccess,
+      OnErrorOne<FlutterDataRecipe>? onError,
+      DataRequestLabel? label}) {
+    var originalOnError = onError;
+    onError = (err, label, adapter) {
+      if (err is OfflineException && label.kind == 'findOne') {
+        return null;
+      }
+
+      return originalOnError?.call(err, label, adapter);
+    };
+    return super.findOne(id,
+        remote: remote,
+        background: background,
+        params: params,
+        headers: headers,
+        onSuccess: onSuccess,
+        onError: onError,
+        label: label);
   }
 }
 

@@ -57,6 +57,36 @@ mixin ShoppingListAdapter<T extends DataModelMixin<FlutterDataShoppingList>>
 
   String get dashCaseType =>
       type.split(RegExp('(?=[A-Z])')).join('-').toLowerCase();
+
+  @DataFinder()
+  Future<List<FlutterDataShoppingList>> findAllCustom(
+      {bool? remote,
+      bool? background,
+      Map<String, dynamic>? params,
+      Map<String, String>? headers,
+      bool? syncLocal,
+      OnSuccessAll<FlutterDataShoppingList>? onSuccess,
+      OnErrorAll<FlutterDataShoppingList>? onError,
+      DataRequestLabel? label}) {
+    var originalOnError = onError;
+
+    onError = (err, label, adapter) {
+      if (err is OfflineException && label.kind == 'findAll') {
+        return [];
+      }
+
+      return originalOnError?.call(err, label, adapter) ?? [];
+    };
+    return super.findAll(
+        remote: remote,
+        background: background,
+        params: params,
+        headers: headers,
+        syncLocal: syncLocal,
+        onSuccess: onSuccess,
+        onError: onError,
+        label: label);
+  }
 }
 
 // SHOPPING LIST ITEM
@@ -143,4 +173,34 @@ mixin ShoppingListItemAdapter<
 
   String basePath(String shoppingListId) =>
       "shopping-lists/$shoppingListId/items";
+
+  @DataFinder()
+  Future<List<FlutterDataShoppingListItem>> findAllCustom(
+      {bool? remote,
+      bool? background,
+      Map<String, dynamic>? params,
+      Map<String, String>? headers,
+      bool? syncLocal,
+      OnSuccessAll<FlutterDataShoppingListItem>? onSuccess,
+      OnErrorAll<FlutterDataShoppingListItem>? onError,
+      DataRequestLabel? label}) {
+    var originalOnError = onError;
+
+    onError = (err, label, adapter) {
+      if (err is OfflineException && label.kind == 'findAll') {
+        return [];
+      }
+
+      return originalOnError?.call(err, label, adapter) ?? [];
+    };
+    return super.findAll(
+        remote: remote,
+        background: background,
+        params: params,
+        headers: headers,
+        syncLocal: syncLocal,
+        onSuccess: onSuccess,
+        onError: onError,
+        label: label);
+  }
 }

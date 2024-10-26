@@ -4,7 +4,7 @@ environment:
   sdk: '>=2.19.6 <3.0.0'
 dev_dependencies:
   melos: ^3.0.1
-  copy_with_extension_gen: ^4.0.1
+  copy_with_extension_gen: ^5.0.4
   build_runner: ^2.0.0
   json_serializable: ^6.0.0
   meta: ^1.1.8

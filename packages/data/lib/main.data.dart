@@ -8,9 +8,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:data/flutter_data/daily_menu.dart';
 import 'package:data/flutter_data/recipe.dart';
 import 'package:data/flutter_data/ingredient.dart';
-import 'package:data/flutter_data/menu.dart';
 import 'package:data/flutter_data/shopping_list.dart';
 import 'package:data/flutter_data/user_preferences.dart';
 
@@ -33,9 +33,9 @@ ConfigureRepositoryLocalStorage configureRepositoryLocalStorage = ({FutureFn<Str
 };
 
 final repositoryProviders = <String, Provider<Repository<DataModelMixin>>>{
-  'external_recipes': flutterDataExternalRecipesRepositoryProvider,
+  'daily_menu': flutterDataDailyMenusRepositoryProvider,
+'external_recipes': flutterDataExternalRecipesRepositoryProvider,
 'ingredients': flutterDataIngredientsRepositoryProvider,
-'menus': flutterDataMenusRepositoryProvider,
 'recipes': flutterDataRecipesRepositoryProvider,
 'shopping-list-items': flutterDataShoppingListItemsRepositoryProvider,
 'shopping-lists': flutterDataShoppingListsRepositoryProvider,
@@ -44,15 +44,15 @@ final repositoryProviders = <String, Provider<Repository<DataModelMixin>>>{
 
 final repositoryInitializerProvider =
   FutureProvider<RepositoryInitializer>((ref) async {
+    DataHelpers.setInternalType<FlutterDataDailyMenu>('daily_menu');
     DataHelpers.setInternalType<FlutterDataExternalRecipe>('external_recipes');
     DataHelpers.setInternalType<FlutterDataIngredient>('ingredients');
-    DataHelpers.setInternalType<FlutterDataMenu>('menus');
     DataHelpers.setInternalType<FlutterDataRecipe>('recipes');
     DataHelpers.setInternalType<FlutterDataShoppingListItem>('shopping-list-items');
     DataHelpers.setInternalType<FlutterDataShoppingList>('shopping-lists');
     DataHelpers.setInternalType<FlutterDataUserPreference>('userPreferences');
-    final adapters = <String, RemoteAdapter>{'external_recipes': ref.watch(internalFlutterDataExternalRecipesRemoteAdapterProvider), 'ingredients': ref.watch(internalFlutterDataIngredientsRemoteAdapterProvider), 'menus': ref.watch(internalFlutterDataMenusRemoteAdapterProvider), 'recipes': ref.watch(internalFlutterDataRecipesRemoteAdapterProvider), 'shopping-list-items': ref.watch(internalFlutterDataShoppingListItemsRemoteAdapterProvider), 'shopping-lists': ref.watch(internalFlutterDataShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalFlutterDataUserPreferencesRemoteAdapterProvider)};
-    final remotes = <String, bool>{'external_recipes': true, 'ingredients': true, 'menus': true, 'recipes': true, 'shopping-list-items': true, 'shopping-lists': true, 'userPreferences': true};
+    final adapters = <String, RemoteAdapter>{'daily_menu': ref.watch(internalFlutterDataDailyMenusRemoteAdapterProvider), 'external_recipes': ref.watch(internalFlutterDataExternalRecipesRemoteAdapterProvider), 'ingredients': ref.watch(internalFlutterDataIngredientsRemoteAdapterProvider), 'recipes': ref.watch(internalFlutterDataRecipesRemoteAdapterProvider), 'shopping-list-items': ref.watch(internalFlutterDataShoppingListItemsRemoteAdapterProvider), 'shopping-lists': ref.watch(internalFlutterDataShoppingListsRemoteAdapterProvider), 'userPreferences': ref.watch(internalFlutterDataUserPreferencesRemoteAdapterProvider)};
+    final remotes = <String, bool>{'daily_menu': true, 'external_recipes': true, 'ingredients': true, 'recipes': true, 'shopping-list-items': true, 'shopping-lists': true, 'userPreferences': true};
 
     await ref.watch(graphNotifierProvider).initialize();
 
@@ -70,9 +70,9 @@ final repositoryInitializerProvider =
     return RepositoryInitializer();
 });
 extension RepositoryWidgetRefX on WidgetRef {
+  Repository<FlutterDataDailyMenu> get flutterDataDailyMenus => watch(flutterDataDailyMenusRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<FlutterDataExternalRecipe> get flutterDataExternalRecipes => watch(flutterDataExternalRecipesRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<FlutterDataIngredient> get flutterDataIngredients => watch(flutterDataIngredientsRepositoryProvider)..remoteAdapter.internalWatch = watch;
-  Repository<FlutterDataMenu> get flutterDataMenus => watch(flutterDataMenusRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<FlutterDataRecipe> get flutterDataRecipes => watch(flutterDataRecipesRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<FlutterDataShoppingListItem> get flutterDataShoppingListItems => watch(flutterDataShoppingListItemsRepositoryProvider)..remoteAdapter.internalWatch = watch;
   Repository<FlutterDataShoppingList> get flutterDataShoppingLists => watch(flutterDataShoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch;
@@ -81,9 +81,9 @@ extension RepositoryWidgetRefX on WidgetRef {
 
 extension RepositoryRefX on Ref {
 
+  Repository<FlutterDataDailyMenu> get flutterDataDailyMenus => watch(flutterDataDailyMenusRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<FlutterDataExternalRecipe> get flutterDataExternalRecipes => watch(flutterDataExternalRecipesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<FlutterDataIngredient> get flutterDataIngredients => watch(flutterDataIngredientsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
-  Repository<FlutterDataMenu> get flutterDataMenus => watch(flutterDataMenusRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<FlutterDataRecipe> get flutterDataRecipes => watch(flutterDataRecipesRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<FlutterDataShoppingListItem> get flutterDataShoppingListItems => watch(flutterDataShoppingListItemsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;
   Repository<FlutterDataShoppingList> get flutterDataShoppingLists => watch(flutterDataShoppingListsRepositoryProvider)..remoteAdapter.internalWatch = watch as Watcher;

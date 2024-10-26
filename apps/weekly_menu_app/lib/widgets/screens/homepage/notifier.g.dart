@@ -22,9 +22,9 @@ abstract class _$HomepageScreenStateCWProxy {
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfHomepageScreenState.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfHomepageScreenState.copyWith.fieldName(...)`
 class _$HomepageScreenStateCWProxyImpl implements _$HomepageScreenStateCWProxy {
-  final HomepageScreenState _value;
-
   const _$HomepageScreenStateCWProxyImpl(this._value);
+
+  final HomepageScreenState _value;
 
   @override
   HomepageScreenState isLoading(bool isLoading) => this(isLoading: isLoading);

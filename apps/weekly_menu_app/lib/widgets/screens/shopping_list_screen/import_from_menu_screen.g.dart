@@ -31,9 +31,9 @@ abstract class _$_ImportFromMenuScreenStateCWProxy {
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOf_ImportFromMenuScreenState.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOf_ImportFromMenuScreenState.copyWith.fieldName(...)`
 class _$_ImportFromMenuScreenStateCWProxyImpl
     implements _$_ImportFromMenuScreenStateCWProxy {
-  final _ImportFromMenuScreenState _value;
-
   const _$_ImportFromMenuScreenStateCWProxyImpl(this._value);
+
+  final _ImportFromMenuScreenState _value;
 
   @override
   _ImportFromMenuScreenState dailyMenuList(List<DailyMenu> dailyMenuList) =>
