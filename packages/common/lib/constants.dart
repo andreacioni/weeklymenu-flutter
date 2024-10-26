@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 final INITAL_PAGE_VIEW_LIMITE_DAYS = 10 * 2;
+final INITIAL_PAST_DAYS_OFFSET = 5;
 
 const todayColor = Color.fromRGBO(183, 223, 189, 1);
 const pastColor = Color.fromRGBO(178, 185, 222, 1);

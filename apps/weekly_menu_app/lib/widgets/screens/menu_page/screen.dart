@@ -139,8 +139,10 @@ class MenuScreen extends HookConsumerWidget {
     }, const []);
 
     Widget _buildListItem(int index) {
-      final day = Date.now().add(
-          Duration(days: (index - (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) + 5)));
+      final day = Date.now().add(Duration(
+          days: (index -
+              (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) +
+              INITIAL_PAST_DAYS_OFFSET)));
 
       return IndexedListenerWrapper(
         key: day.isToday ? todayKey : ValueKey(day),
@@ -165,7 +167,8 @@ class MenuScreen extends HookConsumerWidget {
       if (_SELECTED_MODE == _MENU_MODE.POSITIONED_LISTVIEW) {
         return ScrollablePositionedList.builder(
           itemCount: INITAL_PAGE_VIEW_LIMITE_DAYS,
-          initialScrollIndex: (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) - 5,
+          initialScrollIndex:
+              (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) - INITIAL_PAST_DAYS_OFFSET,
           itemBuilder: (context, index) => _buildListItem(index),
           itemScrollController: itemScrollController,
           itemPositionsListener: itemPositionListener,
@@ -236,7 +239,8 @@ class _MenuFloatingActionButton extends StatelessWidget {
               duration: Duration(milliseconds: 500), curve: Curves.decelerate);
 
         itemScrollController?.scrollTo(
-            index: INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2,
+            index:
+                (INITAL_PAGE_VIEW_LIMITE_DAYS ~/ 2) - INITIAL_PAST_DAYS_OFFSET,
             duration: Duration(seconds: 1));
       },
       child: //day.isToday
