@@ -59,8 +59,11 @@ mixin DailyMenuAdapter<T extends DataModelMixin<FlutterDataDailyMenu>>
     var originalOnError = onError;
 
     onError = (err, label, adapter) {
-      logWarn("ciao");
       if (err is OfflineException && label.kind == 'findOne') {
+        return null;
+      }
+
+      if (err.statusCode == 404) {
         return null;
       }
 
