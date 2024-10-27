@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final bootstrapConfigurationProvider = Provider(
   (_) => BootstrapConfiguration(
-    debug: true,
+    debug: false,
     storageType: StorageType.flutterData,
     clear: false,
   ),

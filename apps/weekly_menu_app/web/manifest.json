@@ -1,11 +1,11 @@
 {
-    "name": "weekly_menu_app",
-    "short_name": "weekly_menu_app",
+    "name": "Weekly Menu",
+    "short_name": "Weekly Menu",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Weekly Menu App",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
