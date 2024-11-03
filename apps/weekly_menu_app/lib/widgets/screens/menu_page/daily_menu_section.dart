@@ -19,7 +19,6 @@ import 'package:common/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:weekly_menu_app/providers/user_preferences.dart';
 import 'package:flutter_data/flutter_data.dart' hide Repository;
-import 'package:weekly_menu_app/widgets/shared/shimmer.dart';
 
 import '../../shared/flutter_data_state_builder.dart';
 import '../recipe_screen/screen.dart';
@@ -51,18 +50,12 @@ class DailyMenuSectionStreamWrapper extends HookConsumerWidget {
     return RepositoryStreamBuilder<DailyMenu>(
       key: ValueKey(date.formatId()),
       stream: stream,
-      loading: NewDailyMenuNotifierWrapper(
-        date,
-        key: Key(date.formatId()),
-      ),
+      loading: buildLoading(),
       errorBuilder: (context, error) {
         if (error != null) {
           // in case we have a 404 just place an empty DailyMenuSection
           if (error is DataException && error.statusCode == 404) {
-            return NewDailyMenuNotifierWrapper(
-              date,
-              key: Key(date.formatId()),
-            );
+            return buildLoading();
           }
 
           if (error is OfflineException) {
@@ -78,6 +71,13 @@ class DailyMenuSectionStreamWrapper extends HookConsumerWidget {
           key: Key(date.formatId()),
         );
       },
+    );
+  }
+
+  Widget buildLoading() {
+    return NewDailyMenuNotifierWrapper(
+      date,
+      key: Key(date.formatId()),
     );
   }
 }

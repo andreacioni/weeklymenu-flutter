@@ -64,7 +64,12 @@ mixin DailyMenuAdapter<T extends DataModelMixin<FlutterDataDailyMenu>>
       }
 
       if (err.statusCode == 404) {
-        return null;
+        // in case a daily menu is not found we create a new one
+        // returning null here caused an issue with flutter_data because new item,
+        // once added to a menu, were not displayed while changing screen.
+        // A restart fixed the issue but that could not be the solution.
+        return FlutterDataDailyMenu(
+            idx: null, date: Date.parse(dateIdFormat, id as String), meals: {});
       }
 
       return originalOnError?.call(err, label, adapter);
