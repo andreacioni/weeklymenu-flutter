@@ -35,13 +35,15 @@ final bootstrapDependenciesProvider = FutureProvider<void>((ref) async {
     CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
   }
 
-  if (cfg.clear) {
+  if (cfg.clear || cfg.clearData) {
     log("clearing local repositories");
     final repos = ref.read(repositoryProviders);
     for (final r in repos) {
       await ref.read(r).clear();
     }
+  }
 
+  if (cfg.clear || cfg.clearLocalPreferences) {
     log("clearing local preferences");
     if (!await localPref.clear()) {
       log("failed to clear preferences");

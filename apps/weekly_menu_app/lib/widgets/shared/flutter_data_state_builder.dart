@@ -38,6 +38,7 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
         stream: stream,
         initialData: initialData,
         builder: ((context, snapshot) {
+          log("RepositoryStreamBuilder: key: ${key}, stream: ${stream.hashCode}, connectionState: ${snapshot.connectionState}, hasData: ${snapshot.hasData}, error: ${snapshot.error}");
           if (snapshot.error != null) {
             //early catch the forbidden/unauthorized to redirect user to login page
             if (snapshot.error is DataException) {
@@ -52,11 +53,11 @@ class RepositoryStreamBuilder<T> extends HookConsumerWidget {
                 errorBuilder?.call(context, snapshot.error) ?? error;
 
             // for other errors shows popup ?
-            log(
+            logError(
                 "RepositoryStreamBuilder caught an error: " +
                     (snapshot.error.toString()),
-                level: Level.SEVERE.value,
-                error: snapshot.error);
+                snapshot.error,
+                snapshot.stackTrace);
 
             return errorWidget;
           }

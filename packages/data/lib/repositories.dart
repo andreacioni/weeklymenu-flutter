@@ -72,7 +72,7 @@ abstract class Repository<T> {
   Future<void> init();
   Future<void> reload({Map<String, dynamic>? params});
   Stream<List<T>> stream({Map<String, dynamic>? params});
-  Stream<T> streamOne(String id);
+  Stream<T?> streamOne(String id);
   Future<T> save(T t, {Map<String, dynamic>? params});
   Future<T?> load(String id);
   Future<List<T>> loadAll({bool remote = true, Map<String, dynamic>? params});
@@ -101,7 +101,7 @@ extension FlutterDataStateStream<T> on DataStateNotifier<T> {
         continue;
       }
 
-      yield state.model!;
+      yield state.model;
     }
   }
 }
@@ -139,7 +139,7 @@ class RecipeRepository extends Repository<Recipe> {
   }
 
   @override
-  Stream<Recipe> streamOne(String id) {
+  Stream<Recipe?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -208,16 +208,15 @@ class _FlutterDataRecipeRepository extends Repository<Recipe> {
         .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<FlutterDataRecipe> streamOne(String id) {
+  Stream<FlutterDataRecipe?> streamOne(String id) {
     return ref.flutterDataRecipes
         .watchOneNotifier(id, finder: 'findOneCustom')
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
@@ -301,7 +300,7 @@ class IngredientRepository extends Repository<Ingredient> {
   }
 
   @override
-  Stream<Ingredient> streamOne(String id) {
+  Stream<Ingredient?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -356,16 +355,15 @@ class _FlutterDataIngredientRepository extends Repository<Ingredient> {
         .watchAllNotifier(params: params)
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<FlutterDataIngredient> streamOne(String id) {
+  Stream<FlutterDataIngredient?> streamOne(String id) {
     return ref.flutterDataIngredients
         .watchOneNotifier(id)
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
@@ -429,7 +427,7 @@ class ShoppingListRepository extends Repository<ShoppingList> {
   }
 
   @override
-  Stream<ShoppingList> streamOne(String id) {
+  Stream<ShoppingList?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -484,16 +482,15 @@ class _FlutterDataShoppingListRepository extends Repository<ShoppingList> {
         .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<ShoppingList> streamOne(String id) {
+  Stream<ShoppingList?> streamOne(String id) {
     return ref.flutterDataShoppingLists
         .watchOneNotifier(id)
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
@@ -559,7 +556,7 @@ class ShoppingListItemRepository extends Repository<ShoppingListItem> {
   }
 
   @override
-  Stream<ShoppingListItem> streamOne(String id) {
+  Stream<ShoppingListItem?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -616,16 +613,15 @@ class _FlutterDataShoppingListItemRepository
         .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<ShoppingListItem> streamOne(String id) {
+  Stream<ShoppingListItem?> streamOne(String id) {
     return ref.flutterDataShoppingListItems
         .watchOneNotifier(id)
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
@@ -690,7 +686,7 @@ class UserPreferencesRepository extends Repository<UserPreference> {
   }
 
   @override
-  Stream<UserPreference> streamOne(String id) {
+  Stream<UserPreference?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -746,16 +742,15 @@ class _FlutterDataUserPreferencesRepository extends Repository<UserPreference> {
         .watchAllNotifier(params: params)
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<UserPreference> streamOne(String id) {
+  Stream<UserPreference?> streamOne(String id) {
     return ref.flutterDataUserPreferences
         .watchOneNotifier(id)
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
@@ -821,7 +816,7 @@ class DailyMenuRepository extends Repository<DailyMenu> {
   }
 
   @override
-  Stream<DailyMenu> streamOne(String id) {
+  Stream<DailyMenu?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -876,16 +871,15 @@ class _FlutterDataMenuRepository extends Repository<DailyMenu> {
         .watchAllNotifier(params: params, finder: 'findAllCustom')
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<DailyMenu> streamOne(String id) {
+  Stream<DailyMenu?> streamOne(String id) {
     return ref.flutterDataDailyMenus
         .watchOneNotifier(id, finder: 'findOneCustom')
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
@@ -949,7 +943,7 @@ class ExternalRecipeRepository extends Repository<ExternalRecipe> {
   }
 
   @override
-  Stream<ExternalRecipe> streamOne(String id) {
+  Stream<ExternalRecipe?> streamOne(String id) {
     return _repository.streamOne(id);
   }
 
@@ -1005,16 +999,15 @@ class _FlutterDataExternalRecipeRepository extends Repository<ExternalRecipe> {
         .watchAllNotifier(params: params)
         .toStream(ref)
         //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
-  Stream<ExternalRecipe> streamOne(String id) {
+  Stream<ExternalRecipe?> streamOne(String id) {
     return ref.flutterDataExternalRecipes
         .watchOneNotifier(id)
         .toStream(ref)
-        //elements are never null here
-        .map((e) => e!);
+        .map((e) => e);
   }
 
   @override
